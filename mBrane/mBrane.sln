@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Node", "mBrane.vcproj", "{ABE9E01B-1AEC-4A3E-A65F-7816AA8CFC75}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestCranks", "..\TestCranks\TestCranks.vcproj", "{27598EAB-A3DA-486D-BFBB-3D59E87850F6}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9C7F5B33-02A9-4980-A122-1E2A2630ACB0} = {9C7F5B33-02A9-4980-A122-1E2A2630ACB0}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Core", "..\Core\Core.vcproj", "{9C7F5B33-02A9-4980-A122-1E2A2630ACB0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ABE9E01B-1AEC-4A3E-A65F-7816AA8CFC75}.Debug|Win32.ActiveCfg = Debug|Win32
+		{ABE9E01B-1AEC-4A3E-A65F-7816AA8CFC75}.Debug|Win32.Build.0 = Debug|Win32
+		{ABE9E01B-1AEC-4A3E-A65F-7816AA8CFC75}.Release|Win32.ActiveCfg = Release|Win32
+		{ABE9E01B-1AEC-4A3E-A65F-7816AA8CFC75}.Release|Win32.Build.0 = Release|Win32
+		{27598EAB-A3DA-486D-BFBB-3D59E87850F6}.Debug|Win32.ActiveCfg = Debug|Win32
+		{27598EAB-A3DA-486D-BFBB-3D59E87850F6}.Debug|Win32.Build.0 = Debug|Win32
+		{27598EAB-A3DA-486D-BFBB-3D59E87850F6}.Release|Win32.ActiveCfg = Release|Win32
+		{27598EAB-A3DA-486D-BFBB-3D59E87850F6}.Release|Win32.Build.0 = Release|Win32
+		{9C7F5B33-02A9-4980-A122-1E2A2630ACB0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9C7F5B33-02A9-4980-A122-1E2A2630ACB0}.Debug|Win32.Build.0 = Debug|Win32
+		{9C7F5B33-02A9-4980-A122-1E2A2630ACB0}.Release|Win32.ActiveCfg = Release|Win32
+		{9C7F5B33-02A9-4980-A122-1E2A2630ACB0}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
