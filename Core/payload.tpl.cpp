@@ -24,14 +24,14 @@ namespace	mBrane{
 
 		template<class	M,class	U>	inline	void	*Payload<M,U>::operator	new(size_t	s){
 
-			p=Object<M,_Payload>::new(s);
+			p=Object<M,_Payload,U>::new(s);
 			_cid=_CID;
 			return	p;
 		}
 		
 		template<class	M,class	U>	inline	void	Payload<M,U>::operator	delete(void	*o){
 
-			Object<M,_Payload,Payload<M,U>>::operator delete(o);
+			Object<M,_Payload,U>::operator delete(o);
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////
