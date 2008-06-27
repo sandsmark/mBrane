@@ -93,7 +93,7 @@ namespace	mBrane{
 			freeObjects--;
 			if(freeObjects>1){
 
-				if(*(uint32	*)firstFree==0xFFFFFFFF)
+				if(*(uint32	*)firstFree==WORD_MASK)
 					firstFree+=objectSize;
 				else
 					firstFree=*(uint8	**)firstFree;

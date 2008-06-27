@@ -35,6 +35,7 @@ namespace	mBrane{
 	#define	HALF_WORD_SHIFT				16
 	#define	HALF_WORD_HIGH_MASK			0xFFFF0000
 	#define	HALF_WORD_LOW_MASK			0x0000FFFF
+	#define	WORD_MASK					0xFFFFFFFF
 
 #elif defined	ARCH_64
 
@@ -58,6 +59,7 @@ namespace	mBrane{
 	#define	HALF_WORD_SHIFT				32
 	#define	HALF_WORD_HIGH_MASK			0xFFFFFFFF00000000
 	#define	HALF_WORD_LOW_MASK			0x00000000FFFFFFFF
+	#define	WORD_MASK					0xFFFFFFFFFFFFFFFF
 
 #endif
 }

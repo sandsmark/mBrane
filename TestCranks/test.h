@@ -9,7 +9,7 @@ extern "C" {
 	DllExport mBrane::sdk::_Crank *	__cdecl	NewCR1();
 }
 
-USER_CLASSES_BEGIN
+USER_CLASSES_BEGIN	//	use only once
 CLASS(_C1);
 CLASS(__C2);
 CLASS(_C3);
