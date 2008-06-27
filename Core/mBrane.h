@@ -12,12 +12,13 @@
 
 
 #define	USER_CLASSES_BEGIN	\
-	template<class	U>	class	Crank:	\
+template<class	U>	class	Crank:	\
 public	mBrane::sdk::_Crank{	\
 protected:	\
 	static	mBrane::uint16	_CID;	\
 	Crank(uint16	_ID):_Crank(_ID){}	\
 public:	\
+	uint16	cid()	const{	return	_CID;	}	\
 	void	notify(_Payload	*p){	\
 		switch(p->cid()){
 	

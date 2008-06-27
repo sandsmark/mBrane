@@ -26,7 +26,7 @@ public:
 		
 		return	Payload<Memory,U>::ptrCount()+1;	
 	}
-	virtual	_Payload	*ptr(uint8	i)	const{	
+	virtual	_Payload	*ptr(uint8	i)	const{
 		
 		if(i>=Payload<Memory,U>::ptrCount()){
 

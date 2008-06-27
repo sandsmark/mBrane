@@ -1,7 +1,7 @@
 #ifndef	_cranks_h
 #define	_cranks_h
 
-#include	"test.h"
+#include	"test.h"	//	include the user class declaration before declaring cranks
 
 
 class	CR1:
