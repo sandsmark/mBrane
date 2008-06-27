@@ -1,10 +1,9 @@
-#include	"node.h"
-#include	"..\Core\crank.h"
+#include	"..\Core\node.h"
 
 
 int	main(int	argc,char	**argv){
 
-	mBrane::node::Node	*n=new	mBrane::node::Node();
+	mBrane::sdk::Node	*n=new	mBrane::sdk::Node();
 	n->run();
 	return	0;
 }

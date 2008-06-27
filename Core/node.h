@@ -13,20 +13,22 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		class	Node{	//	TODO: define the actual Node here instead of an interface: save the virtual calls => make core.lib a dll (with a .def file)
+		class	Node{
 		private:
 			static	Node	*Singleton;
-		protected:
-			Node();
-			virtual	~Node();
+			uint16	_ID;
 		public:
 			static	Node	*Get();
-			virtual	int8	beginTransmission()=0;
-			virtual	int8	endTransmission()=0;
-			virtual	int8	beginReception()=0;
-			virtual	int8	endReception()=0;
-			virtual	int8	send(uint8	*b,size_t	s)=0;
-			virtual	int8	receive(uint8	*b,size_t	s)=0;
+			Node();
+			~Node();
+			uint16	ID();
+			void	run();
+			int8	beginTransmission();
+			int8	endTransmission();
+			int8	beginReception();
+			int8	endReception();
+			int8	send(uint8	*b,size_t	s);
+			int8	receive(uint8	*b,size_t	s);
 		};
 	}
 }
