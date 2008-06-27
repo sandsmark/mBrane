@@ -16,7 +16,7 @@ namespace	mBrane{
 		class	_Crank{
 		protected:
 			uint16	_ID;
-			_Crank();
+			_Crank(uint16	_ID);
 		public:
 			virtual	~_Crank();
 			virtual	void	notify(_Payload	*p)=0;

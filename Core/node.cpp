@@ -40,7 +40,7 @@ namespace	mBrane{
 			return	_ID;
 		}
 
-		typedef	 _Crank *(__cdecl	*CrankInstantiator)();
+		typedef	 _Crank *(__cdecl	*CrankInstantiator)(uint16);
 		void	Node::run(){
 
 		    HINSTANCE	lib=LoadLibrary(TEXT("TestCranks"));
@@ -49,7 +49,7 @@ namespace	mBrane{
 				CrankInstantiator	instantiator=(CrankInstantiator)GetProcAddress(lib,"NewCR1"); //	test
 				if(instantiator){
 
-					mBrane::sdk::_Crank	*c=(instantiator)();
+					mBrane::sdk::_Crank	*c=(instantiator)(0);
 					delete	c;
 				}else{
 
