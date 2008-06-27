@@ -17,5 +17,10 @@ namespace	mBrane{
 
 			return	_mid;
 		}
+
+		template<class	U>	uint32	&Message<U>::priority(){
+
+			return	_priority;
+		}
 	}
 }

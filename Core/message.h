@@ -16,11 +16,13 @@ namespace	mBrane{
 		template<class	U>	class	Message:
 		public	Payload<Memory,U>{
 		protected:
-			uint32	_mid;
+			uint32	_mid;	//	content identifer
+			uint8	_priority();
 		public:
 			Message();
 			~Message();
 			uint32	&mid();
+			uint8	&priority();
 		};
 	}
 }
