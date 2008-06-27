@@ -13,7 +13,7 @@ namespace	mBrane{
 		template<class	C,class	Pointer>	inline	SP<C,Pointer>::~SP(){
 		}
 
-		template<class	C,class	Pointer>	inline	C	*SP<C,Pointer>::operator	->(){
+		template<class	C,class	Pointer>	inline	C	*SP<C,Pointer>::operator	->()	const{
 
 			return	(C	*)object;
 		}

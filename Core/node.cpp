@@ -35,7 +35,7 @@ namespace	mBrane{
 		Node::~Node(){
 		}
 
-		inline	uint16	Node::ID(){
+		inline	uint16	Node::ID()	const{
 
 			return	_ID;
 		}

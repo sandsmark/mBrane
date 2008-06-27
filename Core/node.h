@@ -21,7 +21,7 @@ namespace	mBrane{
 			static	Node	*Get();
 			Node();
 			~Node();
-			uint16	ID();
+			uint16	ID()	const;
 			void	run();
 			int8	beginTransmission();
 			int8	endTransmission();

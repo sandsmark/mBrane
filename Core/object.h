@@ -15,13 +15,13 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		template<class	C,class	Pointer>	class	SP:	//	smart pointer
+		template<class	C,class	Pointer>	class	SP:	//	smart pointer: no circular refs (use std c++ ptrs), no passing in functions (automatic cast of P<C> to C*), nor can it be a return value (return C* instead)
 		public	Pointer{
 		private:
 		public:
 			SP();
 			~SP();
-			C	*operator	->();
+			C	*operator	->()	const;
 			template<class	D>	operator	D	*()	const{
 
 				return	(D	*)object;

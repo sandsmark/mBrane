@@ -9,13 +9,13 @@ using	namespace	mBrane::sdk;
 
 //	one could also define (or include) custom memory managers here
 
-template<class	U>	class	C1:
+template<class	U>	class	C1:	//	to allow derivation
 public	Payload<Memory,U>{
 public:
 	uint32	c1;
 };
 
-class	_C1:public	C1<_C1>{};
+class	_C1:public	C1<_C1>{};	//	non derivable
 
 template<class	U>	class	C2:
 public	Payload<Memory,U>{
