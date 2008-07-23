@@ -32,7 +32,6 @@ namespace	mBrane{
 
 			if(object)
 				object->decRef();
-
 			Pointer::operator	=(c);
 			object->incRef();
 			return	*this;

@@ -13,7 +13,7 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		class	_Crank{
+		class	DllExport	_Crank{
 		protected:
 			uint16	_ID;
 			_Crank(uint16	_ID);

@@ -16,4 +16,11 @@
 //#define	ARCH_64
 
 
+#if defined WINDOWS
+	#define DllExport   __declspec(dllexport)
+#else
+	#define DllExport
+#endif
+
+
 #endif

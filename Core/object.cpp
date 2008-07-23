@@ -12,10 +12,10 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		inline	_Object::_Object():refCount(0){
+		_Object::_Object():refCount(0){
 		}
 
-		inline	_Object::~_Object(){
+		_Object::~_Object(){
 		}
 
 		inline	void	_Object::incRef(){

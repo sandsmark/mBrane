@@ -15,7 +15,7 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		template<class	C,class	Pointer>	class	SP:	//	smart pointer: no circular refs (use std c++ ptrs), no passing in functions (automatic cast of P<C> to C*), nor can it be a return value (return C* instead)
+		template<class	C,class	Pointer>	class	SP:	//	smart pointer: no circular refs (use std c++ ptrs), no passing in functions (cast P<C> into C*), nor can it be a return value (return C* instead)
 		public	Pointer{
 		private:
 		public:
@@ -28,23 +28,18 @@ namespace	mBrane{
 			}
 			bool	operator	==(C	*c)	const;
 			bool	operator	!=(C	*c)	const;
-			template<class	T>	bool	operator	==(SP<C,T>	&p)	const{
+			template<class	D,class	T>	bool	operator	==(SP<D,T>	&p)	const{
 
 				return	object==p.object;
 			}
-			template<class	T>	bool	operator	!=(SP<C,T>	&p)	const{
+			template<class	D,class	T>	bool	operator	!=(SP<D,T>	&p)	const{
 
 				return	object!=p.object;
 			}
 			SP<C,Pointer>	&operator	=(C	*c);
-			template<class	T>	SP<C,Pointer>	&operator	=(SP<C,T>	&p){
+			template<class	D,class	T>	SP<C,Pointer>	&operator	=(SP<D,T>	&p){
 
-				if(object)
-					object->decRef();
-
-				Pointer::operator	=(p.object);
-				object->incRef();
-				return	*this;
+				return	this->operator	=(p.object);
 			}
 		};
 
@@ -56,7 +51,7 @@ namespace	mBrane{
 			static	M	*_Allocator;
 		protected:
 			Object();
-			~Object();
+			virtual	~Object();
 		public:
 			void	*operator	new(size_t	s);
 			void	operator	delete(void	*o);
@@ -68,14 +63,16 @@ namespace	mBrane{
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		class	_Object{
+		class	Node;
+		class	DllExport	_Object{
+		friend	class	Node;
 		private:
 			uint32	refCount;
 			void	incRef();
 			void	decRef();
 		protected:
 			_Object();
-			~_Object();
+			virtual	~_Object();
 		};
 
 		template<class	C>	class	_ObjectAdapter:
@@ -96,7 +93,7 @@ namespace	mBrane{
 
 		class	_LP;
 		class	_PP;
-		class	__P{	//	lazy pointer on _Object
+		class	__P{	//	lazy pointer
 		protected:
 			_Object	*object;
 			__P();
@@ -106,12 +103,11 @@ namespace	mBrane{
 			__P	&operator	=(_PP	&p);
 		};
 
-		class	_LP:	//	local pointer
+		class	_LP:	//	lazy pointer on _Object
 		public	__P{
 		protected:
 			_LP();
 			~_LP();
-		public:
 			operator	_Object	*();
 			_LP	&operator	=(_Object	*o);
 			_LP	&operator	=(_LP	&p);

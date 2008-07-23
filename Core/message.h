@@ -8,6 +8,7 @@
 #define	mBrane_sdk_message_h
 
 #include	"object.h"
+#include	"memory.h"
 
 
 namespace	mBrane{
@@ -20,7 +21,7 @@ namespace	mBrane{
 			uint8	_priority();
 		public:
 			Message();
-			~Message();
+			virtual	~Message();
 			uint32	&mid();
 			uint8	&priority();
 		};

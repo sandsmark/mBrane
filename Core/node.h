@@ -13,22 +13,20 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		class	Node{
+		class	DllExport	Node{
 		private:
 			static	Node	*Singleton;
 			uint16	_ID;
+			int16	_send(uint8	*b,size_t	s);
+			int16	_recv(uint8	*b,size_t	s,bool	peek=false);
 		public:
 			static	Node	*Get();
-			Node();
+			Node(const	char	*configFileName);
 			~Node();
 			uint16	ID()	const;
 			void	run();
-			int8	beginTransmission();
-			int8	endTransmission();
-			int8	beginReception();
-			int8	endReception();
-			int8	send(uint8	*b,size_t	s);
-			int8	receive(uint8	*b,size_t	s);
+			int16	_send(_Payload	*p);	//	return 0 if successfull, error code (>0) if not
+			int16	_recv(_Payload	**p);
 		};
 	}
 }

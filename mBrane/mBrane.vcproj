@@ -64,8 +64,9 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="Core.lib"
+				OutputFile="$(OutDir)\mBrane.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\mBrane\Debug"
+				AdditionalLibraryDirectories="$(OutDir)"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"

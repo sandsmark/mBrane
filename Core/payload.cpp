@@ -12,26 +12,10 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		inline	_Payload::_Payload():_Object(){
+		_Payload::_Payload():_Object(){
 		}
 
-		inline	_Payload::~_Payload(){
-		}
-
-		inline	void	_Payload::init(uint8	*_buffer,size_t	_size){
-
-			this->_buffer=_buffer;
-			this->_size=_size;
-		}
-
-		inline	uint8	*_Payload::buffer()	const{
-
-			return	_buffer;
-		}
-
-		inline	size_t	_Payload::size()	const{
-
-			return	_size;
+		_Payload::~_Payload(){
 		}
 
 		uint8	_Payload::ptrCount()	const{
@@ -39,7 +23,7 @@ namespace	mBrane{
 			return	0;
 		}
 
-		_Payload	*_Payload::ptr(uint8	i)	const{
+		_Payload	**_Payload::ptr(uint8	i){
 
 			return	NULL;
 		}
@@ -52,44 +36,6 @@ namespace	mBrane{
 		inline	int64	&_Payload::recv_ts(){
 
 			return	_recv_ts;
-		}
-
-		inline	int8	_Payload::_send(){
-
-			int8	r;
-			for(uint8	i=0;i<ptrCount();i++)
-				if(r=ptr(i)->_send()<0)
-					return	r;
-			return	Node::Get()->send(buffer(),size());
-		}
-
-		inline	int8	_Payload::_recv(){
-
-			int8	r;
-			for(uint8	i=0;i<ptrCount();i++)
-				if(r=ptr(i)->_recv()<0)
-					return	r;
-			return	Node::Get()->receive(buffer(),size());
-		}
-
-		inline	int8	_Payload::send(){
-
-			int8	r;
-			if(r=Node::Get()->beginTransmission()<0)
-				return	r;
-			if(r=_send()<0)
-				return	r;
-			return	Node::Get()->endTransmission();
-		}
-
-		inline	int8	_Payload::recv(){
-
-			int8	r;
-			if(r=Node::Get()->beginReception()<0)
-				return	r;
-			if(r=_recv()<0)
-				return	r;
-			return	Node::Get()->endReception();
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////

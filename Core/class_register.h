@@ -14,9 +14,9 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		class	ClassRegister{
+		class	DllExport	ClassRegister{
 		private:
-			class	Array{
+			class	DllExport	Array{
 			private:
 				ClassRegister	*_array;
 				uint32			_count;
@@ -28,7 +28,9 @@ namespace	mBrane{
 				uint16			count()	const;
 			};
 			static	Array	Classes;
-			Allocator	*allocator;
+			Allocator	*_allocator;
+			size_t		_size;
+			size_t		_offset;
 			ClassRegister();
 			~ClassRegister();
 		public:
@@ -36,11 +38,16 @@ namespace	mBrane{
 
 				uint16	CID;
 				ClassRegister	*r=Classes.alloc(CID);
-				r->allocator=C::_Allocator=M::Get(sizeof(C));
+				r->_allocator=C::_Allocator=M::Get(sizeof(C));
+				r->_size=sizeof(C)-sizeof(_Object)-sizeof(int64);
+				r->_offset=sizeof(_Object)+sizeof(int64);
 				return	CID;
 			}
 			static	ClassRegister	*Get(uint16	CID);
 			static	uint16	Count();
+			Allocator	*allocator()	const;
+			size_t		size()	const;
+			size_t		offset()	const;
 		};
 	}
 }

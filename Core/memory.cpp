@@ -98,6 +98,7 @@ namespace	mBrane{
 				else
 					firstFree=*(uint8	**)firstFree;
 			}
+			memset(p,0x0,objectSize);
 			return	p;
 		}
 

@@ -4,10 +4,13 @@
 //
 //
 
+#include	"class_register.h"
+
+
 namespace	mBrane{
 	namespace	sdk{
 
-		template<class	M,class	U>	uint16	Payload<M,U>::_CID=ClassRegister::Load<U,M>();
+		template<class	M,class	U>	const	uint16	Payload<M,U>::_CID=ClassRegister::Load<U,M>();
 
 		template<class	M,class	U>	inline	const	uint16	Payload<M,U>::CID(){
 
@@ -15,8 +18,6 @@ namespace	mBrane{
 		}
 
 		template<class	M,class	U>	inline	Payload<M,U>::Payload():Object<M,_Payload,U>(){
-
-			init(sizeof(U)-sizeof(_Payload	*),((uint8	*)(U	*)this)+sizeof(_Payload	*));
 		}
 
 		template<class	M,class	U>	inline	Payload<M,U>::~Payload(){
@@ -24,14 +25,14 @@ namespace	mBrane{
 
 		template<class	M,class	U>	inline	void	*Payload<M,U>::operator	new(size_t	s){
 
-			p=Object<M,_Payload,U>::new(s);
-			_cid=_CID;
+			U	*p=(U	*)Object<M,_Payload,U>::operator	new(s);
+			p->_cid=_CID;
 			return	p;
 		}
 		
 		template<class	M,class	U>	inline	void	Payload<M,U>::operator	delete(void	*o){
 
-			Object<M,_Payload,U>::operator delete(o);
+			Object<M,_Payload,U>::operator	delete(o);
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////
@@ -40,6 +41,13 @@ namespace	mBrane{
 		}
 
 		template<class	C,class	M,class	U>	inline	PayloadAdapter<C,M,U>::~PayloadAdapter(){
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////
+
+		template<class	C>	_Payload	**PP<C>::objectAddr(){	
+			
+			return	(_Payload	**)&object;
 		}
 	}
 }

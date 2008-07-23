@@ -10,9 +10,9 @@ extern "C" {
 }
 
 USER_CLASSES_BEGIN	//	use only once
-CLASS(_C1);
-CLASS(__C2);
-CLASS(_C3);
+CLASS(Final_C1);
+CLASS(Final_C2);
+CLASS(Final_C3);
 USER_CLASSES_END
 
 

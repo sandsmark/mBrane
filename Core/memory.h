@@ -21,7 +21,7 @@ namespace	mBrane{
 			virtual	void	dealloc(void	*o)=0;
 		};
 
-		class	Memory:
+		class	DllExport	Memory:
 		public	Allocator{
 		private:
 			class	Array{
