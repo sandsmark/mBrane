@@ -10,7 +10,15 @@ namespace	mBrane{
 		template<class	C,class	Pointer>	inline	SP<C,Pointer>::SP(){
 		}
 
+		template<class	C,class	Pointer>	inline	SP<C,Pointer>::SP(C	*o){
+
+			this->operator	=(o);
+		}
+
 		template<class	C,class	Pointer>	inline	SP<C,Pointer>::~SP(){
+
+			if(object)
+				object->decRef();
 		}
 
 		template<class	C,class	Pointer>	inline	C	*SP<C,Pointer>::operator	->()	const{
@@ -30,6 +38,8 @@ namespace	mBrane{
 
 		template<class	C,class	Pointer>	inline	SP<C,Pointer>&	SP<C,Pointer>::operator	=(C	*c){
 
+			if(object==c)
+				return	*this;
 			if(object)
 				object->decRef();
 			Pointer::operator	=(c);
@@ -71,6 +81,17 @@ namespace	mBrane{
 		}
 
 		template<class	C,class	M,class	U>	inline	ObjectAdapter<C,M,U>::~ObjectAdapter(){
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////
+
+		template<class	C>	inline	P<C>::P():SP<C,_LP>(){
+		}
+		
+		template<class	C>	inline	P<C>::P(C	*o):SP<C,_LP>(o){
+		}
+
+		template<class	C>	inline	P<C>::~P(){
 		}
 	}
 }

@@ -32,7 +32,7 @@ namespace	mBrane{
 					return	_array+i;
 			}
 
-			new	Memory(s);
+			return	new	Memory(s);
 		}
 
 		void	*Memory::Array::alloc(){

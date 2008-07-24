@@ -2,11 +2,10 @@
 #define	_test_h
 
 #include	"c.h"
-#include	"dll.h"
 
 
 extern "C" {
-	DllExport mBrane::sdk::_Crank *	__cdecl	NewCR1(uint16);
+	dll mBrane::sdk::_Crank *	__cdecl	NewCR1(uint16);
 }
 
 USER_CLASSES_BEGIN	//	use only once

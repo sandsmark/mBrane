@@ -14,7 +14,7 @@ namespace	mBrane{
 	namespace	sdk{
 
 		template<class	C>	class	PP;
-		class	DllExport	_Payload:
+		class	dll	_Payload:
 		public	_Object{
 		protected:
 			int64	_recv_ts;
@@ -59,11 +59,11 @@ namespace	mBrane{
 		//			class Some3rdPartyClassAdapted:public PayloadAdapter<Some3rdPartyClass,Memory,Some3rdPartyClassAdapted>{ ... };
 		//			NB: Memory can be any Allocator class
 
-		class	_PP:	//	lazy pointer to payload
+		class	dll	_PP:	//	lazy pointer to payload
 		public	__P{
 		protected:
 			_PP();
-			~_PP();
+			virtual	~_PP();
 			operator	_Payload	*();
 			_PP	&operator	=(_Payload	*o);
 			_PP	&operator	=(_PP	&p);
@@ -71,6 +71,10 @@ namespace	mBrane{
 
 		template<class	C>	class	PP:		public	SP<C,_PP>{
 		public:
+			using	SP<C,_PP>::operator =;
+			PP();
+			PP(C	*o);
+			~PP();
 			_Payload	**objectAddr();
 		};
 	}

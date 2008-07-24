@@ -13,14 +13,16 @@
 
 
 namespace	mBrane{
+	namespace	node{	class	Node;	}
 	namespace	sdk{
 
 		template<class	C,class	Pointer>	class	SP:	//	smart pointer: no circular refs (use std c++ ptrs), no passing in functions (cast P<C> into C*), nor can it be a return value (return C* instead)
 		public	Pointer{
-		private:
-		public:
+		protected:
 			SP();
-			~SP();
+			SP(C	*o);
+			virtual	~SP();
+		public:
 			C	*operator	->()	const;
 			template<class	D>	operator	D	*()	const{
 
@@ -64,8 +66,9 @@ namespace	mBrane{
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		class	Node;
-		class	DllExport	_Object{
-		friend	class	Node;
+		class	dll	_Object{
+		friend	class	mBrane::node::Node;
+		template<class	C,class	Pointer>	friend	class	SP;
 		private:
 			uint32	refCount;
 			void	incRef();
@@ -93,28 +96,34 @@ namespace	mBrane{
 
 		class	_LP;
 		class	_PP;
-		class	__P{	//	lazy pointer
+		class	dll	__P{	//	lazy pointer
 		protected:
 			_Object	*object;
 			__P();
-			~__P();
+			virtual	~__P();
 			__P	&operator	=(_Object	*o);
 			__P	&operator	=(_LP	&p);
 			__P	&operator	=(_PP	&p);
 		};
 
-		class	_LP:	//	lazy pointer on _Object
+		class	dll	_LP:	//	lazy pointer on _Object
 		public	__P{
 		protected:
 			_LP();
-			~_LP();
+			virtual	~_LP();
 			operator	_Object	*();
 			_LP	&operator	=(_Object	*o);
 			_LP	&operator	=(_LP	&p);
 			_LP	&operator	=(_PP	&p);	//	asymetrical: there is no _PP::operator =(_LP&)
 		};
 
-		template<class	C>	class	P:public	SP<C,_LP>{};
+		template<class	C>	class	P:public	SP<C,_LP>{
+		public:
+			using	SP<C,_LP>::operator =;
+			P();
+			P(C	*o);
+			~P();
+		};
 	}
 }
 

@@ -181,10 +181,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dll.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\test.cpp"
 				>
 			</File>
@@ -200,10 +196,6 @@
 			</File>
 			<File
 				RelativePath=".\cranks.h"
-				>
-			</File>
-			<File
-				RelativePath=".\dll.h"
 				>
 			</File>
 			<File

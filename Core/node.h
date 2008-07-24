@@ -7,26 +7,23 @@
 #ifndef	mBrane_sdk_node_h
 #define	mBrane_sdk_node_h
 
-#include	"payload.h"
+#include	"message.h"
 
 
 namespace	mBrane{
 	namespace	sdk{
 
-		class	DllExport	Node{
-		private:
+		class	dll	Node{
+		protected:
 			static	Node	*Singleton;
 			uint16	_ID;
-			int16	_send(uint8	*b,size_t	s);
-			int16	_recv(uint8	*b,size_t	s,bool	peek=false);
+			Node();
+			virtual	~Node();
 		public:
 			static	Node	*Get();
-			Node(const	char	*configFileName);
-			~Node();
 			uint16	ID()	const;
-			void	run();
-			int16	_send(_Payload	*p);	//	return 0 if successfull, error code (>0) if not
-			int16	_recv(_Payload	**p);
+			virtual	void	sendMessage(_Message	*m)=0;
+			virtual	int64	time()=0;
 		};
 	}
 }

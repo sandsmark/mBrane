@@ -1,10 +1,16 @@
-#include	"..\Core\node.h"
 #include	<iostream>
-#include	"..\Core\message.h"
 
+#include	"node.h"
+
+
+using	namespace	mBrane;
 using	namespace	mBrane::sdk;
 
-//class	_Message:public	Message<_Message>{};
+class	M:public	Message<M>{
+public:
+	uint32	a;
+	uint32	b;
+};
 
 int	main(int	argc,char	**argv){
 
@@ -13,10 +19,20 @@ int	main(int	argc,char	**argv){
 		std::cout<<"usage: mBrane <config file name>\n";
 		return	0;
 	}
+/*
+	Node	n(argv[1]);
+	n.loadApplication();
+	n.run();
+	n.shutdown();
+	n.unloadApplication();
+*/
+	M	*m=new	M();
+	_Message	*_m=m;
 
-	Node	*n=new	Node(argv[1]);
-	n->run();
-//	_Message	*m=new	_Message();
-//	delete	m;
+	_Payload	*pp=_m->operator	_Payload	*();
+	_Payload	*p=(_Payload	*)_m;	//	compiler does not call the operator
+
+	P<M>	mp=m;
+	
 	return	0;
 }

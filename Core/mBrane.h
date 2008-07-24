@@ -9,6 +9,7 @@
 
 #include	"memory.h"
 #include	"crank.h"
+//#include	"control_messages.h"	//	control message classes
 
 
 #define	USER_CLASSES_BEGIN	\
@@ -20,7 +21,7 @@ protected:	\
 public:	\
 	uint16	cid()	const{	return	_CID;	}	\
 	void	notify(_Payload	*p){	\
-		switch(p->cid()){
+		switch(p->cid()){	//	TODO:	follow by control message classes: case __COUNTER__:	((U	*)this)->process((control_message_class	*)p);	return;
 	
 #define	CLASS(C)	\
 			case	__COUNTER__:	((U	*)this)->process((C	*)p);	return;

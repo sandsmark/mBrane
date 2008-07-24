@@ -1,0 +1,12 @@
+<NodeConfiguration id="0" time_base="1" application_configuration_file="C:\eric\work\mBrane\mBrane\test_application.xml">
+	<Plugins>
+		<TCP id="0" shared_object=""/>
+		<UDP id="1" shared_object=""/>
+		<Infiniband id="2" shared_object=""/>
+	</Plugins>
+	<Network>
+		<Control id="0" interface="eth0" port="10000"/>
+		<Data id="0" interface="eth0" port="10001"/>
+		<Streams id="0" interface="eth0" port="10002"/>
+	</Network>
+</NodeConfiguration>

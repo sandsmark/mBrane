@@ -16,7 +16,7 @@ namespace	mBrane{
 		_Crank::~_Crank(){
 		}
 
-		uint16	_Crank::ID()	const{
+		inline	uint16	_Crank::ID()	const{
 
 			return	_ID;
 		}

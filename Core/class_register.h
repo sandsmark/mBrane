@@ -14,9 +14,9 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		class	DllExport	ClassRegister{
+		class	dll	ClassRegister{
 		private:
-			class	DllExport	Array{
+			class	dll	Array{
 			private:
 				ClassRegister	*_array;
 				uint32			_count;
