@@ -74,8 +74,10 @@ namespace	mBrane{
 
 		inline	void	_Crank::peek(int32	depth){
 
-			//	TODO:	call notify(m,true) for everty message in the queue
-			//			if returns true, remove message from queue
+			Iterator	i;
+			for(i=begin();i!=end();i++)
+				if(notify((_Payload	*)(PP<_Payload>)i,true))
+					((PP<_Payload>)i)=NULL;
 		}
 	}
 }

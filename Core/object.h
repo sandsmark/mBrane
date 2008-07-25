@@ -131,7 +131,6 @@ namespace	mBrane{
 		public	__P{
 		protected:
 			_LP();
-			operator	_Object	*();
 			_LP	&operator	=(_Object	*o);
 			_LP	&operator	=(_LP	&p);
 			_LP	&operator	=(_PP	&p);	//	asymetrical: there is no _PP::operator =(_LP&)

@@ -86,7 +86,6 @@ namespace	mBrane{
 		public	__P{
 		protected:
 			_PP();
-			operator	_Payload	*();
 			_PP	&operator	=(_Payload	*o);
 			_PP	&operator	=(_PP	&p);
 		};

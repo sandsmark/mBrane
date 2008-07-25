@@ -75,11 +75,6 @@ namespace	mBrane{
 		inline	_PP::_PP():__P(){
 		}
 
-		inline	_PP::operator	_Payload	*(){
-
-			return	(_Payload	*)object;
-		}
-
 		inline	_PP	&_PP::operator	=(_Payload	*o){
 
 			__P::operator	=(o);

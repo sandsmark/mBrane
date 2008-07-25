@@ -81,11 +81,6 @@ namespace	mBrane{
 		inline	_LP::_LP():__P(){
 		}
 
-		inline	_LP::operator	_Object	*(){
-
-			return	object;
-		}
-
 		inline	_LP	&_LP::operator	=(_Object	*o){
 
 			__P::operator	=(o);
