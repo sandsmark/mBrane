@@ -23,7 +23,7 @@ namespace	mBrane{
 		ClassRegister	*ClassRegister::Array::alloc(uint16	&CID){
 
 			if(_array)
-				realloc(_array,(++_count)*sizeof(ClassRegister));
+				_array=(ClassRegister	*)realloc(_array,(++_count)*sizeof(ClassRegister));
 			else
 				_array=(ClassRegister	*)malloc((++_count)*sizeof(ClassRegister));
 			CID=_count-1;

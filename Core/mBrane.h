@@ -31,7 +31,7 @@ public:	\
 		}	\
 	}	\
 };	\
-template<class	U>	mBrane::uint16	Crank<U>::_CID;
+template<class	U>	mBrane::uint16	Crank<U>::_CID;	//	TODO:	register
 
 
 #endif

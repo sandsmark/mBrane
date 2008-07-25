@@ -20,7 +20,7 @@ namespace	mBrane{
 		public:
 			virtual	~_Crank();
 			virtual	void	notify(_Payload	*p)=0;
-			uint16	ID()	const;
+			uint16	id()	const;
 			void	send(_Message	*m);
 			void	send(_ControlMessage	*m);
 			int64	time();

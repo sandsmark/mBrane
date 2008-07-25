@@ -12,7 +12,7 @@ namespace	mBrane{
 
 		template<class	M,class	U>	const	uint16	Payload<M,U>::_CID=ClassRegister::Load<U,M>();
 
-		template<class	M,class	U>	inline	const	uint16	Payload<M,U>::CID(){
+		template<class	M,class	U>	inline	const	uint16	Payload<M,U>::cid(){
 
 			return	_CID;
 		}

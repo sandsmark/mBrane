@@ -23,7 +23,7 @@ namespace	mBrane{
 			_Payload();
 		public:
 			virtual	~_Payload();
-			uint16	cid()	const{	return	_cid;	}
+			uint16	cid()	const;
 			virtual	uint8		ptrCount()	const;
 			virtual	_Payload	**ptr(uint8	i);
 			int64	&send_ts();
@@ -40,7 +40,7 @@ namespace	mBrane{
 		public:
 			void	*operator	new(size_t	s);
 			void	operator	delete(void	*o);
-			static	const	uint16	CID();
+			static	const	uint16	cid();
 		};
 
 		//	Usage:	template<class	C>	class	DaughterClass: public Payload<Memory,C>{ ... };

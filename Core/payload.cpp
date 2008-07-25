@@ -18,6 +18,11 @@ namespace	mBrane{
 		inline	_Payload::~_Payload(){
 		}
 
+		inline	uint16	_Payload::cid()	const{
+			
+			return	_cid;
+		}
+
 		inline	uint8	_Payload::ptrCount()	const{
 
 			return	0;
