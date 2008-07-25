@@ -44,12 +44,12 @@ namespace	mBrane{
 
 		ClassRegister::Array	ClassRegister::Classes;
 
-		ClassRegister	*ClassRegister::Get(uint16	CID){
+		inline	ClassRegister	*ClassRegister::Get(uint16	CID){
 
 			return	Classes.get(CID);
 		}
 
-		uint16	ClassRegister::Count(){
+		inline	uint16	ClassRegister::Count(){
 
 			return	Classes.count();
 		}
@@ -60,17 +60,17 @@ namespace	mBrane{
 		ClassRegister::~ClassRegister(){
 		}
 
-		Allocator	*ClassRegister::allocator()	const{
+		inline	Allocator	*ClassRegister::allocator()	const{
 
 			return	_allocator;
 		}
 
-		size_t	ClassRegister::size()	const{
+		inline	size_t	ClassRegister::size()	const{
 
 			return	_size;
 		}
 
-		size_t	ClassRegister::offset()	const{
+		inline	size_t	ClassRegister::offset()	const{
 
 			return	_offset;
 		}

@@ -44,7 +44,8 @@ namespace	mBrane{
 			void	load(const	char	*fileName);	//	initializes itself from a previously saved system state
 			void	loadApplication(const	char	*fileName=NULL);
 			void	unloadApplication();
-			void	send(sdk::_Message	*m);
+			void	send(uint16	crankID,sdk::_Message	*m);
+			void	send(uint16	crankID,sdk::_ControlMessage	*m);
 			int64	time();
 		};
 	}

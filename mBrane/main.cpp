@@ -12,6 +12,12 @@ public:
 	uint32	b;
 };
 
+class	CM:public	ControlMessage<CM>{
+public:
+	uint32	a;
+	uint32	b;
+};
+
 int	main(int	argc,char	**argv){
 
 	if(argc!=2){
@@ -33,6 +39,13 @@ int	main(int	argc,char	**argv){
 	_Payload	*p=(_Payload	*)_m;	//	compiler does not call the operator
 
 	P<M>	mp=m;
+
+	CM	*cm=new	CM();
+	_ControlMessage	*_cm=cm;
+
+	_Message	*pm=_cm->operator	_Message	*();
+
+	P<CM>	cmp=cm;
 	
 	return	0;
 }

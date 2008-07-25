@@ -21,22 +21,10 @@ namespace	mBrane{
 			Singleton=this;
 			XMLNode	mainNode=XMLNode::openFileHelper(configFileName,"NodeConfiguration");
 			//	read node config file and load plugins etc
-			//	plugins:
-			//		network: TCP/IP, IB
 			//	configuration:
-			//		network: 1 (TCP) or 2 (TCP // UDP) Gb eth
-			//		network: interface(s) and port(s)
-			//		network: time reference or not
+			//		network interfaces: 1, 2 or 3. for each: emitter/receiver (plugins): TCP/IP, UDP/IP, IB with parameters: ex: interface(s) and port(s)
 			//		application config file name
-			//		node ID
-			//		network plugins
-			_ID=atoi(mainNode.getAttribute("id"));
-			uint8	time_base=atoi(mainNode.getAttribute("time_base"));
-			if(time_base){
-
-			}else{
-
-			}
+			//		ID and time reference: automatically negociated
 			/*
 			configure node
 			*/
@@ -178,7 +166,10 @@ namespace	mBrane{
 		void	Node::load(const	char	*fileName){
 		}
 
-		void	Node::send(_Message	*m){
+		void	Node::send(uint16	crankID,_Message	*m){
+		}
+
+		void	Node::send(uint16	crankID,_ControlMessage	*m){
 		}
 
 		int64	Node::time(){

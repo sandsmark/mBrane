@@ -7,7 +7,7 @@
 #ifndef mBrane_sdk_crank_h
 #define mBrane_sdk_crank_h
 
-#include	"payload.h"
+#include	"message.h"
 
 
 namespace	mBrane{
@@ -21,6 +21,9 @@ namespace	mBrane{
 			virtual	~_Crank();
 			virtual	void	notify(_Payload	*p)=0;
 			uint16	ID()	const;
+			void	send(_Message	*m);
+			void	send(_ControlMessage	*m);
+			int64	time();
 		};
 	}
 }

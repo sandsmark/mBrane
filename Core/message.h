@@ -33,6 +33,23 @@ namespace	mBrane{
 			Message();
 			virtual	~Message();
 		};
+
+		class	dll	_ControlMessage{
+		protected:
+			_ControlMessage();
+			virtual	~_ControlMessage();
+		public:
+			operator	_Payload	*()	const;
+			operator	_Message	*()	const;
+		};
+
+		template<class	U>	class	ControlMessage:
+		public	Message<U>,
+		public	_ControlMessage{
+		public:
+			ControlMessage();
+			virtual	~ControlMessage();
+		};
 	}
 }
 

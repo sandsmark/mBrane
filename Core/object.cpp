@@ -12,10 +12,10 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		_Object::_Object():refCount(0){
+		inline	_Object::_Object():refCount(0){
 		}
 
-		_Object::~_Object(){
+		inline	_Object::~_Object(){
 		}
 
 		void	_Object::incRef(){
@@ -23,7 +23,7 @@ namespace	mBrane{
 			refCount++;
 		}
 
-		void	_Object::decRef(){
+		inline	void	_Object::decRef(){
 
 			if(--refCount==0)
 				delete	this;
@@ -31,25 +31,25 @@ namespace	mBrane{
 
 		////////////////////////////////////////////////////////////////////////////////////
 
-		__P::__P():object(NULL){
+		inline	__P::__P():object(NULL){
 		}
 
-		__P::~__P(){
+		inline	__P::~__P(){
 		}
 
-		__P	&__P::operator	=(_Object	*o){
+		inline	__P	&__P::operator	=(_Object	*o){
 
 			object=o;
 			return	*this;
 		}
 
-		__P	&__P::operator	=(_LP	&p){
+		inline	__P	&__P::operator	=(_LP	&p){
 
 			object=p.object;
 			return	*this;
 		}
 
-		__P	&__P::operator	=(_PP	&p){
+		inline	__P	&__P::operator	=(_PP	&p){
 
 			object=p.object;
 			return	*this;
@@ -57,30 +57,30 @@ namespace	mBrane{
 
 		////////////////////////////////////////////////////////////////////////////////////
 
-		_LP::_LP():__P(){
+		inline	_LP::_LP():__P(){
 		}
 
-		_LP::~_LP(){
+		inline	_LP::~_LP(){
 		}
 
-		_LP::operator	_Object	*(){
+		inline	_LP::operator	_Object	*(){
 
 			return	object;
 		}
 
-		_LP	&_LP::operator	=(_Object	*o){
+		inline	_LP	&_LP::operator	=(_Object	*o){
 
 			__P::operator	=(o);
 			return	*this;
 		}
 
-		_LP	&_LP::operator	=(_LP	&p){
+		inline	_LP	&_LP::operator	=(_LP	&p){
 
 			__P::operator	=(p);
 			return	*this;
 		}
 
-		_LP	&_LP::operator	=(_PP	&p){
+		inline	_LP	&_LP::operator	=(_PP	&p){
 
 			__P::operator	=(p);
 			return	*this;

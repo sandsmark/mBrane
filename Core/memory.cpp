@@ -38,7 +38,7 @@ namespace	mBrane{
 		void	*Memory::Array::alloc(){
 
 			if(_array)
-				realloc(_array,(++_count)*sizeof(Memory));
+				_array=(Memory	*)realloc(_array,(++_count)*sizeof(Memory));
 			else
 				_array=(Memory	*)malloc((++_count)*sizeof(Memory));
 
@@ -116,7 +116,7 @@ namespace	mBrane{
 
 		Memory::Array	Memory::Memories;
 
-		Memory	*Memory::Get(size_t	s){
+		inline	Memory	*Memory::Get(size_t	s){
 
 			return	Memories.init(s);
 		}

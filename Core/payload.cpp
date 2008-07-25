@@ -12,18 +12,18 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		_Payload::_Payload():_Object(){
+		inline	_Payload::_Payload():_Object(){
 		}
 
-		_Payload::~_Payload(){
+		inline	_Payload::~_Payload(){
 		}
 
-		uint8	_Payload::ptrCount()	const{
+		inline	uint8	_Payload::ptrCount()	const{
 
 			return	0;
 		}
 
-		_Payload	**_Payload::ptr(uint8	i){
+		inline	_Payload	**_Payload::ptr(uint8	i){
 
 			return	NULL;
 		}
