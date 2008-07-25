@@ -35,38 +35,7 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		CrankRegister::Array::Array():_array(NULL),_count(0){
-		}
-
-		CrankRegister::Array::~Array(){
-
-			if(_array)
-				delete[]	_array;
-		}
-
-		CrankRegister	*CrankRegister::Array::alloc(uint16	&CID){
-
-			if(_array)
-				_array=(CrankRegister	*)realloc(_array,(++_count)*sizeof(CrankRegister));
-			else
-				_array=(CrankRegister	*)malloc((++_count)*sizeof(CrankRegister));
-			CID=_count-1;
-			return	_array+CID;
-		}
-
-		inline	CrankRegister	*CrankRegister::Array::get(uint16	CID){
-
-			return	_array+CID;
-		}
-
-		inline	uint16	CrankRegister::Array::count()	const{
-
-			return	_count;
-		}
-	
-		////////////////////////////////////////////////////////////////////////////////////
-
-		CrankRegister::Array	CrankRegister::Cranks;
+		Array<CrankRegister>	CrankRegister::Cranks;
 
 		inline	CrankRegister	*CrankRegister::Get(uint16	CID){
 

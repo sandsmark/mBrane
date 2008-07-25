@@ -31,6 +31,7 @@
 #ifndef mBrane_sdk_crank_register_h
 #define mBrane_sdk_crank_register_h
 
+#include	"register.h"
 #include	"crank.h"
 
 
@@ -38,21 +39,11 @@ namespace	mBrane{
 	namespace	sdk{
 
 		class	dll	CrankRegister{
+		template<class	Register>	friend	class	Array;
 		public:
 			typedef	_Crank	*(*CrankBuilder)(uint16);
 		private:
-			class	dll	Array{
-			private:
-				CrankRegister	*_array;
-				uint32			_count;
-			public:
-				Array();
-				~Array();
-				CrankRegister	*alloc(uint16	&CID);
-				CrankRegister	*get(uint16	CID);
-				uint16			count()	const;
-			};
-			static	Array	Cranks;
+			static	Array<CrankRegister>	Cranks;
 			CrankBuilder	_builder;
 			CrankRegister();
 			~CrankRegister();

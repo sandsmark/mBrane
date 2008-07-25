@@ -31,6 +31,7 @@
 #ifndef mBrane_sdk_class_register_h
 #define mBrane_sdk_class_register_h
 
+#include	"register.h"
 #include	"object.h"
 #include	"memory.h"
 
@@ -39,19 +40,9 @@ namespace	mBrane{
 	namespace	sdk{
 
 		class	dll	ClassRegister{
+		template<class	Register>	friend	class	Array;
 		private:
-			class	dll	Array{
-			private:
-				ClassRegister	*_array;
-				uint32			_count;
-			public:
-				Array();
-				~Array();
-				ClassRegister	*alloc(uint16	&CID);
-				ClassRegister	*get(uint16	CID);
-				uint16			count()	const;
-			};
-			static	Array	Classes;
+			static	Array<ClassRegister>	Classes;
 			Allocator	*_allocator;
 			size_t		_size;
 			size_t		_offset;

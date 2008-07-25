@@ -229,6 +229,18 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\register.tpl.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -273,6 +285,10 @@
 			</File>
 			<File
 				RelativePath=".\payload.h"
+				>
+			</File>
+			<File
+				RelativePath=".\register.h"
 				>
 			</File>
 			<File
