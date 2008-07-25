@@ -50,6 +50,7 @@ namespace	mBrane{
 			uint16	cid()	const;
 			virtual	uint8		ptrCount()	const;
 			virtual	_Payload	**ptr(uint8	i);
+			virtual	void	init();	//	invocation triggered by reception
 			int64	&send_ts();
 			int64	&recv_ts();
 		};
@@ -60,7 +61,6 @@ namespace	mBrane{
 			static	const	uint16	_CID;
 		protected:
 			Payload();
-			virtual	~Payload();
 		public:
 			void	*operator	new(size_t	s);
 			void	operator	delete(void	*o);
@@ -76,7 +76,6 @@ namespace	mBrane{
 		public	Payload<M,U>{
 		protected:
 			PayloadAdapter();
-			virtual	~PayloadAdapter();
 		};
 
 		//	Usage:	class	Some3rdPartyClass{ ... };
@@ -87,7 +86,6 @@ namespace	mBrane{
 		public	__P{
 		protected:
 			_PP();
-			virtual	~_PP();
 			operator	_Payload	*();
 			_PP	&operator	=(_Payload	*o);
 			_PP	&operator	=(_PP	&p);

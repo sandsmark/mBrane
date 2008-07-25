@@ -33,8 +33,17 @@
 
 #include	"memory.h"
 #include	"crank.h"
-//#include	"control_messages.h"	//	control message classes
+#include	"control_messages.h"
 
+
+#define	CLASS(C)	\
+			case	__COUNTER__:	\
+				if(preview)	\
+					return	((U	*)this)->preview((C	*)p);	\
+				else{	\
+					((U	*)this)->process((C	*)p);	\
+					return	true;	\
+				}
 
 #define	USER_CLASSES_BEGIN	\
 template<class	U>	class	Crank:	\
@@ -46,14 +55,12 @@ public:	\
 	static	U	*New(uint16	_ID){	return	new	U(_ID);	}	\
 	virtual	~Crank(){}	\
 	uint16	cid()	const{	return	_CID;	}	\
-	void	notify(_Payload	*p){	\
-		switch(p->cid()){	//	TODO:	follow by control message classes: case __COUNTER__:	((U	*)this)->process((control_message_class	*)p);	return;
-	
-#define	CLASS(C)	\
-			case	__COUNTER__:	((U	*)this)->process((C	*)p);	return;
+	bool	notify(_Payload	*p,bool	preview=false){	\
+		switch(p->cid()){
+			//	TODO:	follow by control message class processing as for user defined message classes: CLASS(control_message_class)
 
 #define	USER_CLASSES_END	\
-			default:	return;	\
+			default:	return	true;	\
 		}	\
 	}	\
 };	\

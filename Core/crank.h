@@ -32,22 +32,27 @@
 #define mBrane_sdk_crank_h
 
 #include	"message.h"
+#include	"circular_buffer.h"
 
 
 namespace	mBrane{
 	namespace	sdk{
 
-		class	dll	_Crank{
+		class	dll	_Crank:
+		public	CircularBuffer<PP<_Payload> >{
 		protected:
 			uint16	_ID;
 			_Crank(uint16	_ID);
-		public:
-			virtual	~_Crank();
-			virtual	void	notify(_Payload	*p)=0;
-			uint16	id()	const;
+			void	peek(int32	depth);	//	-1 means all messages
+			int64	time();
 			void	send(_Message	*m);
 			void	send(_ControlMessage	*m);
-			int64	time();
+			void	send(_StreamData	*m);
+		public:
+			static	void	Build(uint16	CID);
+			virtual	~_Crank();
+			virtual	bool	notify(_Payload	*p,bool	preview=false)=0;
+			uint16	id()	const;
 		};
 	}
 }

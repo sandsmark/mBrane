@@ -58,9 +58,6 @@ namespace	mBrane{
 		inline	__P::__P():object(NULL){
 		}
 
-		inline	__P::~__P(){
-		}
-
 		inline	__P	&__P::operator	=(_Object	*o){
 
 			object=o;
@@ -82,9 +79,6 @@ namespace	mBrane{
 		////////////////////////////////////////////////////////////////////////////////////
 
 		inline	_LP::_LP():__P(){
-		}
-
-		inline	_LP::~_LP(){
 		}
 
 		inline	_LP::operator	_Object	*(){

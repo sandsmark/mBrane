@@ -34,30 +34,7 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		inline	_Message::_Message():_mid(0),_priority(0){
-		}
-
-		inline	_Message::~_Message(){
-		}
-
-		inline	_Message::operator	_Payload	*()	const{
-
-			return	(_Payload	*)(((uint8	*)this)-sizeof(_Payload));
-		}
-
-		inline	uint32	&_Message::mid(){
-
-			return	_mid;
-		}
-
-		inline	uint8	&_Message::priority(){
-
-			return	_priority;
-		}
-
-		////////////////////////////////////////////////////////////////////////////////////////////////
-
-		inline	_ControlMessage::_ControlMessage(){
+		inline	_ControlMessage::_ControlMessage():_mid(0),_priority(0),_senderNodeID(0){
 		}
 
 		inline	_ControlMessage::~_ControlMessage(){
@@ -65,12 +42,68 @@ namespace	mBrane{
 
 		inline	_ControlMessage::operator	_Payload	*()	const{
 
-			return	(_Payload	*)(((uint8	*)this)-sizeof(_Payload)-sizeof(_Message));
+			return	(_Payload	*)(((uint8	*)this)-sizeof(_Payload));
 		}
 
-		inline	_ControlMessage::operator	_Message	*()	const{
+		inline	uint32	&_ControlMessage::mid(){
 
-			return	(_Message	*)(((uint8	*)this)-sizeof(_Message));
+			return	_mid;
+		}
+
+		inline	uint8	&_ControlMessage::priority(){
+
+			return	_priority;
+		}
+
+		inline	uint16	&_ControlMessage::senderNode_id(){
+
+			return	_senderNodeID;
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////////////////
+
+		inline	_StreamData::_StreamData(){
+		}
+
+		inline	_StreamData::~_StreamData(){
+		}
+
+		inline	_StreamData::operator	_ControlMessage	*()	const{
+
+			return	(_ControlMessage	*)(((uint8	*)this)-sizeof(_ControlMessage));
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////////////////
+
+		inline	_Message::_Message():_senderEntityCID(0),_senderEntityIID(0),_senderCrankCID(0),_senderCrankIID(0){
+		}
+
+		inline	_Message::~_Message(){
+		}
+
+		inline	_Message::operator	_ControlMessage	*()	const{
+
+			return	(_ControlMessage	*)(((uint8	*)this)-sizeof(_ControlMessage));
+		}
+
+		inline	uint16	&_Message::senderEntity_cid(){
+
+			return	_senderEntityCID;
+		}
+
+		inline	uint16	&_Message::senderEntity_iid(){
+
+			return	_senderEntityIID;
+		}
+
+		inline	uint16	&_Message::senderCrank_cid(){
+
+			return	_senderCrankCID;
+		}
+
+		inline	uint16	&_Message::senderCrank_iid(){
+
+			return	_senderCrankIID;
 		}
 	}
 }

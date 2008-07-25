@@ -39,16 +39,13 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		Memory::Array::Array():_array(NULL),_count(0){
+		Memory::MArray::MArray():Array<Memory>(){
 		}
 
-		Memory::Array::~Array(){
-
-			if(_array)
-				delete[]	_array;
+		Memory::MArray::~MArray(){
 		}
 
-		Memory	*Memory::Array::init(size_t s){
+		Memory	*Memory::MArray::init(size_t s){
 
 			for(uint32	i=0;i<_count;i++){
 
@@ -57,16 +54,6 @@ namespace	mBrane{
 			}
 
 			return	new	Memory(s);
-		}
-
-		void	*Memory::Array::alloc(){
-
-			if(_array)
-				_array=(Memory	*)realloc(_array,(++_count)*sizeof(Memory));
-			else
-				_array=(Memory	*)malloc((++_count)*sizeof(Memory));
-
-			return	_array+_count-1;
 		}
 
 		////////////////////////////////////////////////////////////////////////
@@ -138,7 +125,7 @@ namespace	mBrane{
 
 		////////////////////////////////////////////////////////////////////////
 
-		Memory::Array	Memory::Memories;
+		Memory::MArray	Memory::Memories;
 
 		inline	Memory	*Memory::Get(size_t	s){
 

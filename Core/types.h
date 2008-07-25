@@ -35,6 +35,18 @@
 
 #include	"config.h"
 
+#if defined WINDOWS
+	#include	<windows.h>
+
+	#if defined	BUILD_DLL
+		#define dll	__declspec(dllexport)
+	#else
+		#define dll	__declspec(dllimport)
+	#endif
+#else
+	#define dll
+#endif
+
 namespace	mBrane{
 
 #if defined	ARCH_32
@@ -46,8 +58,8 @@ namespace	mBrane{
 	typedef	unsigned	char			uint8;
 	typedef	short						int16;
 	typedef	unsigned	short			uint16;
-	typedef	int							int32;
-	typedef	unsigned	int				uint32;
+	typedef	long						int32;
+	typedef	unsigned	long			uint32;
 	typedef	long		long			int64;
 	typedef	unsigned	long	long	uint64;
 	typedef	float						float32;
@@ -86,6 +98,14 @@ namespace	mBrane{
 	#define	WORD_MASK					0xFFFFFFFFFFFFFFFF
 
 #endif
+
+#if defined	WINDOWS
+	typedef	HINSTANCE	shared_object;
+	#define	thread_function	WINAPI
+#elif defined	LINUX
+#elif defined	OSX
+#endif
+
 }
 
 

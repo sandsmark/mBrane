@@ -78,9 +78,6 @@ namespace	mBrane{
 		template<class	M,class	S,class	U>	inline	Object<M,S,U>::Object():S(){
 		}
 
-		template<class	M,class	S,class	U>	inline	Object<M,S,U>::~Object(){
-		}
-
 		template<class	M,class	S,class	U>	inline	void	*Object<M,S,U>::operator new(size_t s){
 
 			return	_Allocator->alloc();
@@ -96,15 +93,9 @@ namespace	mBrane{
 		template<class	C>	inline	_ObjectAdapter<C>::_ObjectAdapter():_Object(),C(){
 		}
 
-		template<class	C>	inline	_ObjectAdapter<C>::~_ObjectAdapter(){
-		}
-
 		////////////////////////////////////////////////////////////////////////////////////
 
 		template<class	C,class	M,class	U>	inline	ObjectAdapter<C,M,U>::ObjectAdapter():Object<M,_Object,U>(),C(){
-		}
-
-		template<class	C,class	M,class	U>	inline	ObjectAdapter<C,M,U>::~ObjectAdapter(){
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////

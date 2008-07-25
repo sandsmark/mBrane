@@ -44,9 +44,6 @@ namespace	mBrane{
 		template<class	M,class	U>	inline	Payload<M,U>::Payload():Object<M,_Payload,U>(){
 		}
 
-		template<class	M,class	U>	inline	Payload<M,U>::~Payload(){
-		}
-
 		template<class	M,class	U>	inline	void	*Payload<M,U>::operator	new(size_t	s){
 
 			U	*p=(U	*)Object<M,_Payload,U>::operator	new(s);
@@ -62,9 +59,6 @@ namespace	mBrane{
 		////////////////////////////////////////////////////////////////////////////////////
 
 		template<class	C,class	M,class	U>	inline	PayloadAdapter<C,M,U>::PayloadAdapter():Payload<M,U>(),C(){
-		}
-
-		template<class	C,class	M,class	U>	inline	PayloadAdapter<C,M,U>::~PayloadAdapter(){
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////

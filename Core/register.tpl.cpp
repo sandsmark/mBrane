@@ -40,14 +40,21 @@ namespace	mBrane{
 				delete[]	_array;
 		}
 
-		template<class	Register>	Register	*Array<Register>::alloc(uint16	&CID){
+		template<class	Register>	Register	*Array<Register>::alloc(){
 
 			if(_array)
 				_array=(Register	*)realloc(_array,(++_count)*sizeof(Register));
 			else
 				_array=(Register	*)malloc((++_count)*sizeof(Register));
+			
+			return	_array+_count-1;
+		}
+
+		template<class	Register>	Register	*Array<Register>::alloc(uint16	&CID){
+
+			Register	*r=alloc();
 			CID=_count-1;
-			return	_array+CID;
+			return	r;
 		}
 
 		template<class	Register>	inline	Register	*Array<Register>::get(uint16	CID){

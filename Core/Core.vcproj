@@ -162,7 +162,23 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\circular_buffer.tpl.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\class_register.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\control_messages.cpp"
 				>
 			</File>
 			<File
@@ -248,11 +264,19 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\circular_buffer.h"
+				>
+			</File>
+			<File
 				RelativePath=".\class_register.h"
 				>
 			</File>
 			<File
 				RelativePath=".\config.h"
+				>
+			</File>
+			<File
+				RelativePath=".\control_messages.h"
 				>
 			</File>
 			<File

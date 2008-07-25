@@ -1,6 +1,6 @@
-// message.h
+//	circular_buffer.h
 //
-// Author: Eric Nivel
+//	Author: Eric Nivel
 //
 //	BSD license:
 //	Copyright (c) 2008, Eric Nivel, Thor List
@@ -28,78 +28,53 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef	mBrane_sdk_message_h
-#define	mBrane_sdk_message_h
-
-#include	"payload.h"
-#include	"memory.h"
+#ifndef mBrane_sdk_circular_buffer_h
+#define mBrane_sdk_circular_buffer_h
 
 
 namespace	mBrane{
 	namespace	sdk{
 
-		class	dll	_ControlMessage{
-		protected:
-			uint32	_mid;	//	content identifer
-			uint8	_priority;
-			uint16	_senderNodeID;
-			_ControlMessage();
+		template<typename	T>	class	CircularBuffer{
+		private:
+			uint32	_size;
+			T	*buffer;
+			uint32	head;
+			uint32	tail;
+			uint32	freeSlots;
+			uint32	_count;
 		public:
-			virtual	~_ControlMessage();
-			operator	_Payload	*()	const;
-			uint32	&mid();
-			uint8	&priority();
-			uint16	&senderNode_id();
-		};
-
-		template<class	U>	class	ControlMessage:	//	subclasses shall have no embedded pointers
-		public	Payload<Memory,U>,
-		public	_ControlMessage{
-		public:
-			ControlMessage();
-		};
-
-		class	dll	_StreamData{
-		protected:
-			_StreamData();
-		public:
-			virtual	~_StreamData();
-			operator	_ControlMessage	*()	const;
-		};
-
-		template<class	U>	class	StreamData:
-		public	ControlMessage<U>,
-		public	_StreamData{
-		protected:
-			StreamData();
-		};
-
-		class	dll	_Message{
-		protected:
-			uint16	_senderEntityCID;
-			uint16	_senderEntityIID;
-			uint16	_senderCrankCID;
-			uint16	_senderCrankIID;
-			_Message();
-		public:
-			virtual	~_Message();
-			operator	_ControlMessage	*()	const;
-			uint16	&senderEntity_cid();
-			uint16	&senderEntity_iid();
-			uint16	&senderCrank_cid();
-			uint16	&senderCrank_iid();
-		};
-
-		template<class	U>	class	Message:
-		public	ControlMessage<U>,
-		public	_Message{
-		public:
-			Message();
+			class	Iterator{
+			friend	class	CircularBuffer;
+			private:
+				const	CircularBuffer	*buffer;
+				uint32	index;
+				Iterator(const	CircularBuffer	*b,uint32	index):buffer(b),index(index){}
+			public:
+				Iterator():buffer(NULL),index(0){}
+				Iterator(Iterator	&i):buffer(i.buffer),index(i.index){}
+				~Iterator(){}
+				Iterator	&operator	=(Iterator	&i){	buffer=i.buffer;	index=i.index;	return	*this;	}
+				Iterator	&operator	++(){	if(++index>=buffer->size())	index=0;	return	*this;	}
+				bool	operator	==(Iterator	&i)	const{	return	index==i.index;	}
+				bool	operator	!=(Iterator	&i)	const{	return	index!=i.index;	}
+				operator	T()	const{	return	buffer->buffer[index];	}
+			};
+			CircularBuffer(uint32	size);
+			virtual	~CircularBuffer();
+			uint32	size()	const;
+			uint32	count()	const;
+			void	push(T	&t);
+			T	*pop();
+			void	clear();
+			Iterator	&begin()	const{	return	Iterator(this,head);	}
+			Iterator	&end()	const{	return	Iterator(this,tail);	}
 		};
 	}
 }
 
-#include	"message.tpl.cpp"
+
+#include	"circular_buffer.tpl.cpp"
 
 
 #endif

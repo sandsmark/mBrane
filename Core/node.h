@@ -46,8 +46,10 @@ namespace	mBrane{
 		public:
 			static	Node	*Get();
 			uint16	ID()	const;
-			virtual	void	send(uint16	crankID,_Message	*m)=0;
+			virtual	void	buildCrank(uint16	CID)=0;
+			virtual	void	send(uint16	crankID,_Message	*m)=0;	//	crankID: of the sender
 			virtual	void	send(uint16	crankID,_ControlMessage	*m)=0;
+			virtual	void	send(uint16	crankID,_StreamData	*m)=0;
 			virtual	int64	time()=0;	//	in ms since 01/01/70
 		};
 	}

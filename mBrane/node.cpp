@@ -31,6 +31,7 @@
 #include	"node.h"
 #include	"..\Core\crank.h"
 #include	"..\Core\class_register.h"
+#include	"..\Core\crank_register.h"
 #include	"xml_parser.h"
 
 #include	<iostream>
@@ -181,6 +182,7 @@ namespace	mBrane{
 				*_ptr=ptr;
 				(*_ptr)->refCount=1;
 			}
+			(*p)->init();
 			return	0;
 		}
 
@@ -196,9 +198,19 @@ namespace	mBrane{
 		void	Node::send(uint16	crankID,_ControlMessage	*m){
 		}
 
+		void	Node::send(uint16	crankID,_StreamData	*m){
+		}
+
 		int64	Node::time(){
 
-			return	0;
+			return	0;	//	TODO: if time base, return local time; if satellite, read shmem
+		}
+
+		void	Node::buildCrank(uint16	CID){
+
+			uint16	cid=0;	//	TODO: allocate cid
+			_Crank	*c=(CrankRegister::Get(CID)->builder())(cid);
+			//	TODO: read config for c, load c on a thread, update initial subscriptions, group membership etc
 		}
 	}
 }

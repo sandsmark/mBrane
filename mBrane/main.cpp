@@ -32,20 +32,20 @@ int	main(int	argc,char	**argv){
 	n.shutdown();
 	n.unloadApplication();
 */
-	M	*m=new	M();
-	_Message	*_m=m;
-
-	_Payload	*pp=_m->operator	_Payload	*();
-	_Payload	*p=(_Payload	*)_m;	//	compiler does not call the operator
-
-	P<M>	mp=m;
-
 	CM	*cm=new	CM();
 	_ControlMessage	*_cm=cm;
 
-	_Message	*pm=_cm->operator	_Message	*();
+	_Payload	*pp=_cm->operator	_Payload	*();
+	_Payload	*p=(_Payload	*)_cm;	//	compiler does not call the operator
 
 	P<CM>	cmp=cm;
+
+	M	*m=new	M();
+	_Message	*_m=m;
+
+	_ControlMessage	*pm=_m->operator	_ControlMessage	*();
+
+	P<M>	mp=m;
 	
 	return	0;
 }

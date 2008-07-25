@@ -32,12 +32,7 @@
 #define	mBrane_node_node_h
 
 #include	"..\Core\node.h"
-
-#if defined WINDOWS
-	#include	<windows.h>
-#elif defined	LINUX
-#elif defined	OSX
-#endif
+#include	"..\Core\register.h"
 
 
 namespace	mBrane{
@@ -51,13 +46,15 @@ namespace	mBrane{
 			int16	recv(uint8	*b,size_t	s,bool	peek=false);
 			int16	send(sdk::_Payload	*p);	//	return 0 if successfull, error code (>0) otherwise
 			int16	recv(sdk::_Payload	**p);
-#if defined	WINDOWS
-			HINSTANCE	userLibrary;
-#elif defined	LINUX
-#elif defined	OSX
-#endif
+			shared_object	userLibrary;
 			void	loadUserLibrary(const	char	*fileName);
 			void	unloadUserLibrary();
+
+			static	uint32	thread_function	AcceptConnections(void	*args);
+			class	Connection{
+			public:
+			};
+			sdk::Array<Connection>	connections;
 			bool	_shutdown;
 		public:
 			Node(const	char	*configFileName);
@@ -70,7 +67,9 @@ namespace	mBrane{
 			void	unloadApplication();
 			void	send(uint16	crankID,sdk::_Message	*m);
 			void	send(uint16	crankID,sdk::_ControlMessage	*m);
+			void	send(uint16	crankID,sdk::_StreamData	*m);
 			int64	time();
+			void	buildCrank(uint16	CID);
 		};
 	}
 }

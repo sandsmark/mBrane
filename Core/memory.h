@@ -33,7 +33,7 @@
 
 #include	<cstdlib>
 
-#include	"types.h"
+#include	"register.h"
 
 
 namespace	mBrane{
@@ -47,18 +47,16 @@ namespace	mBrane{
 
 		class	dll	Memory:
 		public	Allocator{
+		template<class	Register>	friend	class	Array;
 		private:
-			class	Array{
-			private:
-				Memory	*_array;
-				uint32	_count;
+			class	MArray:
+			public	Array<Memory>{
 			public:
-				Array();
-				~Array();
+				MArray();
+				~MArray();
 				Memory	*init(size_t	s);
-				void	*alloc();
 			};
-			static	Array	Memories;
+			static	MArray	Memories;
 			class	Block{
 				const	uint16	objectCount;
 				const	size_t	objectSize;

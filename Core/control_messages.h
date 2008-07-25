@@ -1,4 +1,4 @@
-// message.h
+// control_messages.h
 //
 // Author: Eric Nivel
 //
@@ -28,78 +28,16 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef	mBrane_sdk_message_h
-#define	mBrane_sdk_message_h
+#ifndef	mBrane_sdk_control_messages_h
+#define	mBrane_sdk_control_messages_h
 
-#include	"payload.h"
-#include	"memory.h"
+#include	"message.h"
 
 
 namespace	mBrane{
 	namespace	sdk{
-
-		class	dll	_ControlMessage{
-		protected:
-			uint32	_mid;	//	content identifer
-			uint8	_priority;
-			uint16	_senderNodeID;
-			_ControlMessage();
-		public:
-			virtual	~_ControlMessage();
-			operator	_Payload	*()	const;
-			uint32	&mid();
-			uint8	&priority();
-			uint16	&senderNode_id();
-		};
-
-		template<class	U>	class	ControlMessage:	//	subclasses shall have no embedded pointers
-		public	Payload<Memory,U>,
-		public	_ControlMessage{
-		public:
-			ControlMessage();
-		};
-
-		class	dll	_StreamData{
-		protected:
-			_StreamData();
-		public:
-			virtual	~_StreamData();
-			operator	_ControlMessage	*()	const;
-		};
-
-		template<class	U>	class	StreamData:
-		public	ControlMessage<U>,
-		public	_StreamData{
-		protected:
-			StreamData();
-		};
-
-		class	dll	_Message{
-		protected:
-			uint16	_senderEntityCID;
-			uint16	_senderEntityIID;
-			uint16	_senderCrankCID;
-			uint16	_senderCrankIID;
-			_Message();
-		public:
-			virtual	~_Message();
-			operator	_ControlMessage	*()	const;
-			uint16	&senderEntity_cid();
-			uint16	&senderEntity_iid();
-			uint16	&senderCrank_cid();
-			uint16	&senderCrank_iid();
-		};
-
-		template<class	U>	class	Message:
-		public	ControlMessage<U>,
-		public	_Message{
-		public:
-			Message();
-		};
 	}
 }
-
-#include	"message.tpl.cpp"
 
 
 #endif

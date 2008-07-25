@@ -77,7 +77,6 @@ namespace	mBrane{
 			static	M	*_Allocator;
 		protected:
 			Object();
-			virtual	~Object();
 		public:
 			void	*operator	new(size_t	s);
 			void	operator	delete(void	*o);
@@ -99,6 +98,7 @@ namespace	mBrane{
 			void	decRef();
 		protected:
 			_Object();
+		public:
 			virtual	~_Object();
 		};
 
@@ -107,7 +107,6 @@ namespace	mBrane{
 		public	_Object{
 		protected:
 			_ObjectAdapter();
-			virtual	~_ObjectAdapter();
 		};
 
 		template<class	C,class	M,class	U>	class	ObjectAdapter:
@@ -115,7 +114,6 @@ namespace	mBrane{
 		public	Object<M,_Object,U>{
 		protected:
 			ObjectAdapter();
-			virtual	~ObjectAdapter();
 		};
 
 		class	_LP;
@@ -124,7 +122,6 @@ namespace	mBrane{
 		protected:
 			_Object	*object;
 			__P();
-			virtual	~__P();
 			__P	&operator	=(_Object	*o);
 			__P	&operator	=(_LP	&p);
 			__P	&operator	=(_PP	&p);
@@ -134,7 +131,6 @@ namespace	mBrane{
 		public	__P{
 		protected:
 			_LP();
-			virtual	~_LP();
 			operator	_Object	*();
 			_LP	&operator	=(_Object	*o);
 			_LP	&operator	=(_LP	&p);

@@ -57,6 +57,9 @@ namespace	mBrane{
 			return	NULL;
 		}
 
+		inline	void	_Payload::init(){
+		}
+
 		inline	int64	&_Payload::send_ts(){
 
 			return	_send_ts;
@@ -70,9 +73,6 @@ namespace	mBrane{
 		////////////////////////////////////////////////////////////////////////////////////
 
 		inline	_PP::_PP():__P(){
-		}
-
-		inline	_PP::~_PP(){
 		}
 
 		inline	_PP::operator	_Payload	*(){

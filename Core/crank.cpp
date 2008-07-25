@@ -31,11 +31,17 @@
 #include	"crank.h"
 #include	"node.h"
 
+#define	CRANK_INPUT_QUEUE_SIZE	512
 
 namespace	mBrane{
 	namespace	sdk{
 
-		_Crank::_Crank(uint16	_ID):_ID(_ID){
+		void	_Crank::Build(uint16	CID){
+
+			Node::Get()->buildCrank(CID);
+		}
+
+		_Crank::_Crank(uint16	_ID):CircularBuffer<PP<_Payload> >(CRANK_INPUT_QUEUE_SIZE),_ID(_ID){
 		}
 
 		_Crank::~_Crank(){
@@ -56,9 +62,20 @@ namespace	mBrane{
 			Node::Get()->send(_ID,m);
 		}
 
+		inline	void	_Crank::send(_StreamData	*m){
+
+			Node::Get()->send(_ID,m);
+		}
+
 		inline	int64	_Crank::time(){
 
 			return	Node::Get()->time();
+		}
+
+		inline	void	_Crank::peek(int32	depth){
+
+			//	TODO:	call notify(m,true) for everty message in the queue
+			//			if returns true, remove message from queue
 		}
 	}
 }

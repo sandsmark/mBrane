@@ -44,6 +44,7 @@ namespace	mBrane{
 		public:
 			Array();
 			~Array();
+			Register	*alloc();
 			Register	*alloc(uint16	&CID);
 			Register	*get(uint16	CID);
 			uint16		count()	const;

@@ -31,18 +31,17 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		template<class	U>	inline	Message<U>::Message():Payload<Memory,U>(){
-		}
-
-		template<class	U>	inline	Message<U>::~Message(){
+		template<class	U>	inline	ControlMessage<U>::ControlMessage():Payload<Memory,U>(){
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////////////////
 
-		template<class	U>	inline	ControlMessage<U>::ControlMessage():Message<U>(){
+		template<class	U>	inline	Message<U>::Message():ControlMessage<U>(){
 		}
 
-		template<class	U>	inline	ControlMessage<U>::~ControlMessage(){
+		////////////////////////////////////////////////////////////////////////////////////////////////
+
+		template<class	U>	inline	StreamData<U>::StreamData():ControlMessage<U>(){
 		}
 	}
 }

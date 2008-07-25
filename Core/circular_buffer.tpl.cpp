@@ -1,6 +1,6 @@
-// message.h
+//	circular_buffer.tpl.cpp
 //
-// Author: Eric Nivel
+//	Author: Eric Nivel
 //
 //	BSD license:
 //	Copyright (c) 2008, Eric Nivel, Thor List
@@ -28,78 +28,75 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef	mBrane_sdk_message_h
-#define	mBrane_sdk_message_h
-
-#include	"payload.h"
-#include	"memory.h"
+#include	<memory.h>
 
 
 namespace	mBrane{
 	namespace	sdk{
 
-		class	dll	_ControlMessage{
-		protected:
-			uint32	_mid;	//	content identifer
-			uint8	_priority;
-			uint16	_senderNodeID;
-			_ControlMessage();
-		public:
-			virtual	~_ControlMessage();
-			operator	_Payload	*()	const;
-			uint32	&mid();
-			uint8	&priority();
-			uint16	&senderNode_id();
-		};
+		template<typename	T>	CircularBuffer<T>::CircularBuffer(uint32	size){
 
-		template<class	U>	class	ControlMessage:	//	subclasses shall have no embedded pointers
-		public	Payload<Memory,U>,
-		public	_ControlMessage{
-		public:
-			ControlMessage();
-		};
+			buffer=new	T[_size];
+			clear();
+		}
 
-		class	dll	_StreamData{
-		protected:
-			_StreamData();
-		public:
-			virtual	~_StreamData();
-			operator	_ControlMessage	*()	const;
-		};
+		template<typename	T>	CircularBuffer<T>::~CircularBuffer(){
 
-		template<class	U>	class	StreamData:
-		public	ControlMessage<U>,
-		public	_StreamData{
-		protected:
-			StreamData();
-		};
+			delete[]	buffer;
+		}
 
-		class	dll	_Message{
-		protected:
-			uint16	_senderEntityCID;
-			uint16	_senderEntityIID;
-			uint16	_senderCrankCID;
-			uint16	_senderCrankIID;
-			_Message();
-		public:
-			virtual	~_Message();
-			operator	_ControlMessage	*()	const;
-			uint16	&senderEntity_cid();
-			uint16	&senderEntity_iid();
-			uint16	&senderCrank_cid();
-			uint16	&senderCrank_iid();
-		};
+		template<typename	T>	inline	uint32	CircularBuffer<T>::size()	const{
 
-		template<class	U>	class	Message:
-		public	ControlMessage<U>,
-		public	_Message{
-		public:
-			Message();
-		};
+			return	_size;
+		}
+
+		template<typename	T>	inline	uint32	CircularBuffer<T>::count()	const{
+
+			return	_count;
+		}
+
+		template<typename	T>	inline	void	CircularBuffer<T>::push(T	&t){
+
+			if(!freeSlots){
+
+				T	*oldBuffer=buffer;
+				buffer=new	T[_size*2];
+				memcpy(buffer,oldBuffer+head,sizeof(T)*(_size-head));
+				memcpy(buffer,oldBuffer,sizeof(T)*(_size-tail));
+				head=0;
+				tail=_size-1;
+				_size*=2;
+				delete[]	oldBuffer;
+			}
+
+			if(_count){
+
+				if(++head>_size)
+					head=0;
+			}
+			buffer[head]=t;
+
+			freeSlots--;
+			_count++;
+		}
+
+		template<typename	T>	inline	T	*CircularBuffer<T>::pop(){
+
+			if(!_count)
+				return	NULL;
+			T	*t=buffer+tail;
+			if(--tail<0)
+				tail=_size;
+			freeSlots++;
+			_count--;
+			return	t;
+		}
+
+		template<typename	T>	inline	void	CircularBuffer<T>::clear(){
+
+			head=tail=0;
+			_count=0;
+			freeSlots=_size;
+		}
 	}
 }
-
-#include	"message.tpl.cpp"
-
-
-#endif
