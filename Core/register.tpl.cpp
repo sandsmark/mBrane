@@ -43,9 +43,9 @@ namespace	mBrane{
 		template<class	Register>	Register	*Array<Register>::alloc(uint16	&CID){
 
 			if(_array)
-				_array=(CrankRegister	*)realloc(_array,(++_count)*sizeof(CrankRegister));
+				_array=(Register	*)realloc(_array,(++_count)*sizeof(Register));
 			else
-				_array=(CrankRegister	*)malloc((++_count)*sizeof(CrankRegister));
+				_array=(Register	*)malloc((++_count)*sizeof(Register));
 			CID=_count-1;
 			return	_array+CID;
 		}

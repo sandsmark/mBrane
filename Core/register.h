@@ -37,7 +37,7 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		template<class	Register>	class	dll	Array{
+		template<class	Register>	class	Array{
 		protected:
 			Register	*_array;
 			uint32		_count;
