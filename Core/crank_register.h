@@ -1,6 +1,6 @@
-// mBrane.h
+//	crank_register.h
 //
-// Author: Eric Nivel
+//	Author: Eric Nivel
 //
 //	BSD license:
 //	Copyright (c) 2008, Eric Nivel, Thor List
@@ -28,36 +28,42 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef	mBrane_h
-#define	mBrane_h
+#ifndef mBrane_sdk_crank_register_h
+#define mBrane_sdk_crank_register_h
 
-#include	"memory.h"
 #include	"crank.h"
-//#include	"control_messages.h"	//	control message classes
 
 
-#define	USER_CLASSES_BEGIN	\
-template<class	U>	class	Crank:	\
-public	mBrane::sdk::_Crank{	\
-protected:	\
-	static	mBrane::uint16	_CID;	\
-	Crank(uint16	_ID):_Crank(_ID){}	\
-public:	\
-	static	U	*New(uint16	_ID){	return	new	U(_ID);	}	\
-	virtual	~Crank(){}	\
-	uint16	cid()	const{	return	_CID;	}	\
-	void	notify(_Payload	*p){	\
-		switch(p->cid()){	//	TODO:	follow by control message classes: case __COUNTER__:	((U	*)this)->process((control_message_class	*)p);	return;
-	
-#define	CLASS(C)	\
-			case	__COUNTER__:	((U	*)this)->process((C	*)p);	return;
+namespace	mBrane{
+	namespace	sdk{
 
-#define	USER_CLASSES_END	\
-			default:	return;	\
-		}	\
-	}	\
-};	\
-template<class	U>	mBrane::uint16	Crank<U>::_CID=CrankRegister::Load(New);
+		class	dll	CrankRegister{
+		public:
+			typedef	_Crank	*(*CrankBuilder)(uint16);
+		private:
+			class	dll	Array{
+			private:
+				CrankRegister	*_array;
+				uint32			_count;
+			public:
+				Array();
+				~Array();
+				CrankRegister	*alloc(uint16	&CID);
+				CrankRegister	*get(uint16	CID);
+				uint16			count()	const;
+			};
+			static	Array	Cranks;
+			CrankBuilder	_builder;
+			CrankRegister();
+			~CrankRegister();
+		public:
+			static	uint16	Load(CrankBuilder	b);
+			static	CrankRegister	*Get(uint16	CID);
+			static	uint16	Count();
+			CrankBuilder	builder()	const;
+		};
+	}
+}
 
 
 #endif

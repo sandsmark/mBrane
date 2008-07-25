@@ -1,4 +1,4 @@
-// mBrane.h
+// message.cpp
 //
 // Author: Eric Nivel
 //
@@ -28,36 +28,49 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef	mBrane_h
-#define	mBrane_h
-
-#include	"memory.h"
-#include	"crank.h"
-//#include	"control_messages.h"	//	control message classes
+#include	"message.h"
 
 
-#define	USER_CLASSES_BEGIN	\
-template<class	U>	class	Crank:	\
-public	mBrane::sdk::_Crank{	\
-protected:	\
-	static	mBrane::uint16	_CID;	\
-	Crank(uint16	_ID):_Crank(_ID){}	\
-public:	\
-	static	U	*New(uint16	_ID){	return	new	U(_ID);	}	\
-	virtual	~Crank(){}	\
-	uint16	cid()	const{	return	_CID;	}	\
-	void	notify(_Payload	*p){	\
-		switch(p->cid()){	//	TODO:	follow by control message classes: case __COUNTER__:	((U	*)this)->process((control_message_class	*)p);	return;
-	
-#define	CLASS(C)	\
-			case	__COUNTER__:	((U	*)this)->process((C	*)p);	return;
+namespace	mBrane{
+	namespace	sdk{
 
-#define	USER_CLASSES_END	\
-			default:	return;	\
-		}	\
-	}	\
-};	\
-template<class	U>	mBrane::uint16	Crank<U>::_CID=CrankRegister::Load(New);
+		inline	_Message::_Message():_mid(0),_priority(0){
+		}
 
+		inline	_Message::~_Message(){
+		}
 
-#endif
+		inline	_Message::operator	_Payload	*()	const{
+
+			return	(_Payload	*)(((uint8	*)this)-sizeof(_Payload));
+		}
+
+		inline	uint32	&_Message::mid(){
+
+			return	_mid;
+		}
+
+		inline	uint8	&_Message::priority(){
+
+			return	_priority;
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////////////////
+
+		inline	_ControlMessage::_ControlMessage(){
+		}
+
+		inline	_ControlMessage::~_ControlMessage(){
+		}
+
+		inline	_ControlMessage::operator	_Payload	*()	const{
+
+			return	(_Payload	*)(((uint8	*)this)-sizeof(_Payload)-sizeof(_Message));
+		}
+
+		inline	_ControlMessage::operator	_Message	*()	const{
+
+			return	(_Message	*)(((uint8	*)this)-sizeof(_Message));
+		}
+	}
+}

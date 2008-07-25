@@ -1,4 +1,4 @@
-// mBrane.h
+// crank_register.cpp
 //
 // Author: Eric Nivel
 //
@@ -28,36 +28,73 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef	mBrane_h
-#define	mBrane_h
-
-#include	"memory.h"
-#include	"crank.h"
-//#include	"control_messages.h"	//	control message classes
+#include	<memory>
+#include	"crank_register.h"
 
 
-#define	USER_CLASSES_BEGIN	\
-template<class	U>	class	Crank:	\
-public	mBrane::sdk::_Crank{	\
-protected:	\
-	static	mBrane::uint16	_CID;	\
-	Crank(uint16	_ID):_Crank(_ID){}	\
-public:	\
-	static	U	*New(uint16	_ID){	return	new	U(_ID);	}	\
-	virtual	~Crank(){}	\
-	uint16	cid()	const{	return	_CID;	}	\
-	void	notify(_Payload	*p){	\
-		switch(p->cid()){	//	TODO:	follow by control message classes: case __COUNTER__:	((U	*)this)->process((control_message_class	*)p);	return;
+namespace	mBrane{
+	namespace	sdk{
+
+		CrankRegister::Array::Array():_array(NULL),_count(0){
+		}
+
+		CrankRegister::Array::~Array(){
+
+			if(_array)
+				delete[]	_array;
+		}
+
+		CrankRegister	*CrankRegister::Array::alloc(uint16	&CID){
+
+			if(_array)
+				_array=(CrankRegister	*)realloc(_array,(++_count)*sizeof(CrankRegister));
+			else
+				_array=(CrankRegister	*)malloc((++_count)*sizeof(CrankRegister));
+			CID=_count-1;
+			return	_array+CID;
+		}
+
+		inline	CrankRegister	*CrankRegister::Array::get(uint16	CID){
+
+			return	_array+CID;
+		}
+
+		inline	uint16	CrankRegister::Array::count()	const{
+
+			return	_count;
+		}
 	
-#define	CLASS(C)	\
-			case	__COUNTER__:	((U	*)this)->process((C	*)p);	return;
+		////////////////////////////////////////////////////////////////////////////////////
 
-#define	USER_CLASSES_END	\
-			default:	return;	\
-		}	\
-	}	\
-};	\
-template<class	U>	mBrane::uint16	Crank<U>::_CID=CrankRegister::Load(New);
+		CrankRegister::Array	CrankRegister::Cranks;
 
+		inline	CrankRegister	*CrankRegister::Get(uint16	CID){
 
-#endif
+			return	Cranks.get(CID);
+		}
+
+		inline	uint16	CrankRegister::Count(){
+
+			return	Cranks.count();
+		}
+
+		uint16	CrankRegister::Load(CrankBuilder	b){
+
+			uint16	CID;
+			CrankRegister	*r=Cranks.alloc(CID);
+			r->_builder=b;
+			return	CID;
+		}
+
+		CrankRegister::CrankRegister():_builder(NULL){
+		}
+
+		CrankRegister::~CrankRegister(){
+		}
+
+		inline	CrankRegister::CrankBuilder	CrankRegister::builder()	const{
+
+			return	_builder;
+		}
+	}
+}

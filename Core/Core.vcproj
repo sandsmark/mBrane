@@ -170,6 +170,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\crank_register.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\memory.cpp"
 				>
 			</File>
@@ -241,6 +245,10 @@
 			</File>
 			<File
 				RelativePath=".\crank.h"
+				>
+			</File>
+			<File
+				RelativePath=".\crank_register.h"
 				>
 			</File>
 			<File
