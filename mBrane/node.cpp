@@ -170,7 +170,7 @@ namespace	mBrane{
 			if(r=recv((uint8	*)*p,CR->size()))
 				return	r;
 			_Payload	*ptr;
-			_Payload	**_ptr;
+			P<_Payload>	*_ptr;
 			for(uint8	i=0;i<(*p)->ptrCount();i++){
 
 				if(r=recv(&ptr)){
@@ -180,7 +180,6 @@ namespace	mBrane{
 				}
 				_ptr=(*p)->ptr(i);
 				*_ptr=ptr;
-				(*_ptr)->refCount=1;
 			}
 			(*p)->init();
 			return	0;

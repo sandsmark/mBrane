@@ -41,7 +41,7 @@ namespace	mBrane{
 			Node::Get()->buildCrank(CID);
 		}
 
-		_Crank::_Crank(uint16	_ID):CircularBuffer<PP<_Payload> >(CRANK_INPUT_QUEUE_SIZE),_ID(_ID){
+		_Crank::_Crank(uint16	_ID):CircularBuffer<P<_Payload> >(CRANK_INPUT_QUEUE_SIZE),_ID(_ID){
 		}
 
 		_Crank::~_Crank(){
@@ -75,9 +75,14 @@ namespace	mBrane{
 		inline	void	_Crank::peek(int32	depth){
 
 			Iterator	i;
-			for(i=begin();i!=end();i++)
-				if(notify((_Payload	*)(PP<_Payload>)i,true))
-					((PP<_Payload>)i)=NULL;
+			for(i=begin();i!=end();i++){
+
+				_Payload	*p=(_Payload	*)(P<_Payload>)i;
+				if(!p)
+					continue;
+				if(notify(p,true))
+					((P<_Payload>)i)=NULL;
+			}
 		}
 	}
 }

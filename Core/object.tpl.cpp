@@ -31,44 +31,61 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		template<class	C,class	Pointer>	inline	SP<C,Pointer>::SP(){
+		template<class	C>	inline	P<C>::P():object(NULL){
 		}
 
-		template<class	C,class	Pointer>	inline	SP<C,Pointer>::SP(C	*o){
+		template<class	C>	inline	P<C>::P(C	*o){
 
+			object=NULL;
 			this->operator	=(o);
 		}
 
-		template<class	C,class	Pointer>	inline	SP<C,Pointer>::~SP(){
+		template<class	C>	inline	P<C>::P(P<C>	&p){
+
+			object=NULL;
+			this->operator	=(p);
+		}
+
+		template<class	C>	inline	P<C>::~P(){
 
 			if(object)
 				object->decRef();
 		}
 
-		template<class	C,class	Pointer>	inline	C	*SP<C,Pointer>::operator	->()	const{
+		template<class	C>	inline	C	*P<C>::operator	->()	const{
 
 			return	(C	*)object;
 		}
 
-		template<class	C,class	Pointer>	inline	bool	SP<C,Pointer>::operator	==(C	*c)	const{
+		template<class	C>	inline	bool	P<C>::operator	==(C	*c)	const{
 
 			return	object==c;
 		}
 
-		template<class	C,class	Pointer>	inline	bool	SP<C,Pointer>::operator	!=(C	*c)	const{
+		template<class	C>	inline	bool	P<C>::operator	!=(C	*c)	const{
 
 			return	object!=c;
 		}
 
-		template<class	C,class	Pointer>	inline	SP<C,Pointer>&	SP<C,Pointer>::operator	=(C	*c){
+		template<class	C>	inline	bool	P<C>::operator	!()	const{
+
+			return	!object;
+		}
+
+		template<class	C>	inline	P<C>&	P<C>::operator	=(C	*c){
 
 			if(object==c)
 				return	*this;
 			if(object)
 				object->decRef();
-			Pointer::operator	=(c);
+			object=c;
 			object->incRef();
 			return	*this;
+		}
+
+		template<class	C>	inline	P<C>	&P<C>::operator	=(P<C>	&p){
+
+			return	this->operator	=((C	*)p.object);
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////
@@ -96,17 +113,6 @@ namespace	mBrane{
 		////////////////////////////////////////////////////////////////////////////////////
 
 		template<class	C,class	M,class	U>	inline	ObjectAdapter<C,M,U>::ObjectAdapter():Object<M,_Object,U>(),C(){
-		}
-
-		////////////////////////////////////////////////////////////////////////////////////
-
-		template<class	C>	inline	P<C>::P():SP<C,_LP>(){
-		}
-		
-		template<class	C>	inline	P<C>::P(C	*o):SP<C,_LP>(o){
-		}
-
-		template<class	C>	inline	P<C>::~P(){
 		}
 	}
 }

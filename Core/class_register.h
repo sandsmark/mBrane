@@ -46,8 +46,6 @@ namespace	mBrane{
 			Allocator	*_allocator;
 			size_t		_size;
 			size_t		_offset;
-			ClassRegister();
-			~ClassRegister();
 		public:
 			template<class	C,class	M>	static	uint16	Load(){
 
@@ -60,6 +58,8 @@ namespace	mBrane{
 			}
 			static	ClassRegister	*Get(uint16	CID);
 			static	uint16	Count();
+			ClassRegister();
+			~ClassRegister();
 			Allocator	*allocator()	const;
 			size_t		size()	const;
 			size_t		offset()	const;

@@ -18,14 +18,15 @@ public:
 	uint32	b;
 };
 
-int	main(int	argc,char	**argv){
 
+int	main(int	argc,char	**argv){
+/*
 	if(argc!=2){
 	
 		std::cout<<"usage: mBrane <config file name>\n";
 		return	0;
 	}
-/*
+
 	Node	n(argv[1]);
 	n.loadApplication();
 	n.run();
@@ -33,19 +34,18 @@ int	main(int	argc,char	**argv){
 	n.unloadApplication();
 */
 	CM	*cm=new	CM();
+//	P<CM>	cmp=cm;
 	_ControlMessage	*_cm=cm;
 
 	_Payload	*pp=_cm->operator	_Payload	*();
-	_Payload	*p=(_Payload	*)_cm;	//	compiler does not call the operator
-
-	P<CM>	cmp=cm;
-
+	_Payload	*p=(_Payload	*)_cm;	//	compiler does not call the cast operator
+/*
 	M	*m=new	M();
 	_Message	*_m=m;
 
 	_ControlMessage	*pm=_m->operator	_ControlMessage	*();
 
 	P<M>	mp=m;
-	
+*/	
 	return	0;
 }

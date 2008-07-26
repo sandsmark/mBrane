@@ -140,6 +140,9 @@ namespace	mBrane{
 		void	Memory::operator	delete(void	*b){
 		}
 
+		Memory::Memory():objectSize(0){
+		}
+
 		Memory::Memory(size_t	objectSize):objectSize(objectSize){
 
 			firstBlock=lastBlock=new(objectSize,BLOCK_SIZE)	Block(objectSize,BLOCK_SIZE);

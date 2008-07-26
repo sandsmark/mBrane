@@ -52,7 +52,7 @@ namespace	mBrane{
 			return	0;
 		}
 
-		inline	_Payload	**_Payload::ptr(uint8	i){
+		inline	P<_Payload>	*_Payload::ptr(uint8	i){
 
 			return	NULL;
 		}
@@ -68,23 +68,6 @@ namespace	mBrane{
 		inline	int64	&_Payload::recv_ts(){
 
 			return	_recv_ts;
-		}
-
-		////////////////////////////////////////////////////////////////////////////////////
-
-		inline	_PP::_PP():__P(){
-		}
-
-		inline	_PP	&_PP::operator	=(_Payload	*o){
-
-			__P::operator	=(o);
-			return	*this;
-		}
-
-		inline	_PP	&_PP::operator	=(_PP	&p){
-
-			__P::operator	=(p);
-			return	*this;
 		}
 	}
 }

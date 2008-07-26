@@ -45,12 +45,12 @@ namespace	mBrane{
 		private:
 			static	Array<CrankRegister>	Cranks;
 			CrankBuilder	_builder;
-			CrankRegister();
-			~CrankRegister();
 		public:
 			static	uint16	Load(CrankBuilder	b);
 			static	CrankRegister	*Get(uint16	CID);
 			static	uint16	Count();
+			CrankRegister();
+			~CrankRegister();
 			CrankBuilder	builder()	const;
 		};
 	}

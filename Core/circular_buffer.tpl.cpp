@@ -71,10 +71,10 @@ namespace	mBrane{
 
 			if(_count){
 
-				if(++head>_size)
-					head=0;
+				if(++tail>=_size)
+					tail=0;
 			}
-			buffer[head]=t;
+			buffer[tail]=t;
 
 			freeSlots--;
 			_count++;
@@ -84,9 +84,9 @@ namespace	mBrane{
 
 			if(!_count)
 				return	NULL;
-			T	*t=buffer+tail;
-			if(--tail<0)
-				tail=_size;
+			T	*t=buffer+head;
+			if(++head>=_size)
+				head=0;
 			freeSlots++;
 			_count--;
 			return	t;

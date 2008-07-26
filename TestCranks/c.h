@@ -22,18 +22,18 @@ template<class	U>	class	C2:
 public	Payload<Memory,U>{
 public:
 	uint32	d2;
-	PP<Final_C1>	p1;
-	PP<Final_C2>	p2;
+	P<Final_C1>	p1;
+	P<Final_C2>	p2;
 	virtual	uint8		ptrCount()	const{	
 		
 		return	2;
 	}
-	virtual	_Payload	**ptr(uint8	i){
+	virtual	P<_Payload>	*ptr(uint8	i){
 
 		switch(i){
 
-			case	0:	return	p1.objectAddr();
-			case	1:	return	p2.objectAddr();
+			case	0:	return	(P<_Payload>	*)&p1;
+			case	1:	return	(P<_Payload>	*)&p2;
 			default:	return	NULL;
 		}
 	}
@@ -53,21 +53,21 @@ template<class	U>	class	C4:
 public	C2<U>{
 public:
 	uint32	d4;
-	PP<Final_C1>	p3;
-	PP<Final_C1>	p4;
+	P<Final_C1>	p3;
+	P<Final_C1>	p4;
 	virtual	uint8		ptrCount()	const{	
 		
 		return	C2<U>::ptrCount()+2;
 	}
-	virtual	_Payload	**ptr(uint8	i){
+	virtual	P<_Payload>	*ptr(uint8	i){
 
 		uint8	upCount=C2<U>::ptrCount();
 		if(i<upCount)
 			return	C2<U>::ptr(i);
 		switch(i-upCount){
 
-			case	0:	return	p3.objectAddr();
-			case	1:	return	p4.objectAddr();
+			case	0:	return	(P<_Payload>	*)&p3;
+			case	1:	return	(P<_Payload>	*)&p4;
 			default:	return	NULL;
 		}
 	}

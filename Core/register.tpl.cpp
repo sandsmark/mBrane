@@ -42,10 +42,14 @@ namespace	mBrane{
 
 		template<class	Register>	Register	*Array<Register>::alloc(){
 
-			if(_array)
-				_array=(Register	*)realloc(_array,(++_count)*sizeof(Register));
-			else
-				_array=(Register	*)malloc((++_count)*sizeof(Register));
+			if(_array){
+
+				Register	*oldArray=_array;
+				_array=new	Register[_count+1];
+				memcpy(_array,oldArray,_count*sizeof(Register));
+				_count++;
+			}else
+				_array=new	Register[(++_count)];
 			
 			return	_array+_count-1;
 		}

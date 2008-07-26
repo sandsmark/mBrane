@@ -60,21 +60,5 @@ namespace	mBrane{
 
 		template<class	C,class	M,class	U>	inline	PayloadAdapter<C,M,U>::PayloadAdapter():Payload<M,U>(),C(){
 		}
-
-		////////////////////////////////////////////////////////////////////////////////////
-
-		template<class	C>	inline	PP<C>::PP():SP<C,_PP>(){
-		}
-		
-		template<class	C>	inline	PP<C>::PP(C	*o):SP<C,_PP>(o){
-		}
-
-		template<class	C>	inline	PP<C>::~PP(){
-		}
-
-		template<class	C>	inline	_Payload	**PP<C>::objectAddr(){	
-			
-			return	(_Payload	**)&object;
-		}
 	}
 }

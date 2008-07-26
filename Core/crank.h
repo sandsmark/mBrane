@@ -39,7 +39,7 @@ namespace	mBrane{
 	namespace	sdk{
 
 		class	dll	_Crank:
-		public	CircularBuffer<PP<_Payload> >{
+		public	CircularBuffer<P<_Payload> >{
 		protected:
 			uint16	_ID;
 			_Crank(uint16	_ID);
@@ -53,6 +53,7 @@ namespace	mBrane{
 			virtual	~_Crank();
 			virtual	bool	notify(_Payload	*p,bool	preview=false)=0;
 			uint16	id()	const;
+			//	TODO: get actual count
 		};
 	}
 }

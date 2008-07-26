@@ -81,9 +81,10 @@ namespace	mBrane{
 			Block	*lastBlock;
 			uint32	freeObjects;
 			Memory(size_t	objectSize);
-			~Memory();
 		public:
 			static	Memory	*Get(size_t	s);
+			Memory();
+			~Memory();
 			void	*operator	new(size_t	s);
 			void	operator	delete(void	*b);
 			void	*alloc();

@@ -58,7 +58,7 @@ namespace	mBrane{
 				Iterator	&operator	++(){	if(++index>=buffer->size())	index=0;	return	*this;	}
 				bool	operator	==(Iterator	&i)	const{	return	index==i.index;	}
 				bool	operator	!=(Iterator	&i)	const{	return	index!=i.index;	}
-				operator	T()	const{	return	buffer->buffer[index];	}
+				operator	T&()	const{	return	buffer->buffer[index];	}
 			};
 			CircularBuffer(uint32	size);
 			virtual	~CircularBuffer();
