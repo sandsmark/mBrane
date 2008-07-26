@@ -178,6 +178,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\connection.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\control_messages.cpp"
 				>
 			</File>
@@ -257,6 +261,10 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\xml_parser.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -273,6 +281,10 @@
 			</File>
 			<File
 				RelativePath=".\config.h"
+				>
+			</File>
+			<File
+				RelativePath=".\connection.h"
 				>
 			</File>
 			<File
@@ -317,6 +329,10 @@
 			</File>
 			<File
 				RelativePath=".\types.h"
+				>
+			</File>
+			<File
+				RelativePath=".\xml_parser.h"
 				>
 			</File>
 		</Filter>

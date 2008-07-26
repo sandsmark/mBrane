@@ -41,9 +41,17 @@ namespace	mBrane{
 	namespace	sdk{
 
 		class	_Object;
-		template<class	C>	class	P{	//	smart pointer: no circular refs (use std c++ ptrs), no passing in functions (cast P<C> into C*), nor can it be a return value defined in a function (return C* instead)
+		class	_P{
 		protected:
 			_Object	*object;
+		public:
+			_P();
+			_P(_Object	*o);
+			virtual	~_P();
+		};
+
+		template<class	C>	class	P:	//	smart pointer: no circular refs (use std c++ ptrs), no passing in functions (cast P<C> into C*), nor can it be a return value defined in a function (return C* instead)
+		public	_P{
 		public:
 			P();
 			P(C	*o);
@@ -94,10 +102,11 @@ namespace	mBrane{
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		class	Node;
+		class	Connection;
 		class	dll	_Object{
-		friend	class	mBrane::node::Node;
+		friend	class	Connection;
 		template<class	C>	friend	class	P;
+		friend	class	_P;
 		private:
 			uint32	refCount;
 			void	incRef();

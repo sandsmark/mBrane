@@ -33,6 +33,7 @@
 
 #include	"..\Core\node.h"
 #include	"..\Core\register.h"
+#include	"..\Core\connection.h"
 
 
 namespace	mBrane{
@@ -42,20 +43,92 @@ namespace	mBrane{
 		public	sdk::Node{
 		private:
 			const	char	*application_configuration_file;
-			int16	send(uint8	*b,size_t	s);
-			int16	recv(uint8	*b,size_t	s,bool	peek=false);
-			int16	send(sdk::_Payload	*p);	//	return 0 if successfull, error code (>0) otherwise
-			int16	recv(sdk::_Payload	**p);
 			shared_object	userLibrary;
 			void	loadUserLibrary(const	char	*fileName);
 			void	unloadUserLibrary();
 
+			static	uint32	thread_function	ScanIDs(void	*args);
 			static	uint32	thread_function	AcceptConnections(void	*args);
-			class	Connection{
+			
+			typedef	struct{
+				sdk::Connection::Init			init;
+				sdk::Connection::Shutdown		shutdown;
+				sdk::Connection::BroadcastID	broadcastID;
+				sdk::Connection::ScanID			scanID;
+			}NetworkDiscoveryInterface;
+
+			typedef	struct{
+				sdk::Connection::CanBroadcast		canBroadcast;
+				sdk::Connection::Init				init;
+				sdk::Connection::Shutdown			shutdown;
+				sdk::Connection::GetIDSize			getIDSize;
+				sdk::Connection::FillID				fillID;
+				sdk::Connection::Connect			connect;
+				sdk::Connection::AcceptConnection	acceptConnection;
+			}NetworkInterface;
+
+			NetworkDiscoveryInterface	networkDiscoveryInterface;
+			typedef	enum{
+				CTRL=0,
+				DATA=1,
+				STREAM=2
+			}NetworkInterfaceType;
+			NetworkInterface	networkInterfaces[3];
+
+			typedef	struct{
+				sdk::Connection	*data;
+				sdk::Connection	*stream;
+			}DataChannel;
+
+			DataChannel	*dataChannels;
+			uint16	dataChannelCount;
+
+			class	ControlConnection{
+			protected:
+				Node	*node;
+				ControlConnection(Node	*node);
 			public:
+				virtual	~ControlConnection();
+				virtual	void	scan()=0;
+				virtual	void	acceptConnections()=0;
+				virtual	int16	send(sdk::_ControlMessage	*m)=0;	//	broadcast; return 0 if successfull, error code (>0) otherwise
+				virtual	int16	recv(sdk::_ControlMessage	**m)=0;
 			};
-			sdk::Array<Connection>	connections;
+
+			class	BroadcastControlConnection:
+			public	ControlConnection{
+			private:
+				sdk::Connection	*connection;
+			public:
+				BroadcastControlConnection(Node	*node,sdk::Connection	*c);
+				~BroadcastControlConnection();
+				void	scan();
+				void	acceptConnections();
+				int16	send(sdk::_ControlMessage	*m);
+				int16	recv(sdk::_ControlMessage	**m);
+			};
+
+			class	ConnectedControlConnection:
+			public	ControlConnection{
+			private:
+				sdk::Connection	*connections;
+				uint16			connectionCount;
+				void			addConnection(sdk::Connection	*c,uint16	nid);
+				void			removeConnection(uint16	nid);
+			public:
+				ConnectedControlConnection(Node	*node);
+				~ConnectedControlConnection();
+				void	scan();
+				void	acceptConnections();
+				int16	send(sdk::_ControlMessage	*m);
+				int16	recv(sdk::_ControlMessage	**m);
+			};
+
+			ControlConnection	*controlConnection;
+			
 			bool	_shutdown;
+
+			int64	timeDrift;
 		public:
 			Node(const	char	*configFileName);
 			~Node();

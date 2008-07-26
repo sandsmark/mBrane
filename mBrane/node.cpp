@@ -32,9 +32,9 @@
 #include	"..\Core\crank.h"
 #include	"..\Core\class_register.h"
 #include	"..\Core\crank_register.h"
-#include	"xml_parser.h"
 
 #include	<iostream>
+
 
 using	namespace	mBrane::sdk;
 
@@ -51,7 +51,7 @@ namespace	mBrane{
 			//		application config file name
 			//		ID and time reference: automatically negociated
 			/*
-			configure node
+			configure interfaces and node
 			*/
 			application_configuration_file=mainNode.getAttribute("application_configuration_file");
 		}
@@ -127,62 +127,12 @@ namespace	mBrane{
 
 		void	Node::run(){
 
-			unloadApplication();
+			//	TODO:	launch threads: senders/receivers, crank exec units
 		}
 
 		void	Node::shutdown(){
 
 			_shutdown=true;
-		}
-
-		int16	Node::send(uint8	*b,size_t	s){
-
-			return	0;
-		}
-
-		int16	Node::recv(uint8	*b,size_t	s,bool	peek){
-
-			return	0;
-		}
-
-		int16	Node::send(_Payload	*p){
-
-			ClassRegister	*CR=ClassRegister::Get(p->cid());
-			int16	r;
-			if(r=send(((uint8	*)p)+CR->offset(),CR->size()))
-				return	r;
-			for(uint8	i=0;i<p->ptrCount();i++){
-
-				if(r=send(*p->ptr(i)))
-					return	r;
-			}
-			return	0;
-		}
-
-		int16	Node::recv(_Payload	**p){
-
-			uint16	cid;
-			int16	r;
-			if(r=recv((uint8	*)&cid,sizeof(uint16),true))
-				return	r;
-			ClassRegister	*CR=ClassRegister::Get(cid);
-			*p=(_Payload	*)CR->allocator()->alloc();
-			if(r=recv((uint8	*)*p,CR->size()))
-				return	r;
-			_Payload	*ptr;
-			P<_Payload>	*_ptr;
-			for(uint8	i=0;i<(*p)->ptrCount();i++){
-
-				if(r=recv(&ptr)){
-
-					delete	*p;
-					return	r;
-				}
-				_ptr=(*p)->ptr(i);
-				*_ptr=ptr;
-			}
-			(*p)->init();
-			return	0;
 		}
 
 		void	Node::dump(const	char	*fileName){
@@ -202,12 +152,12 @@ namespace	mBrane{
 
 		int64	Node::time(){
 
-			return	0;	//	TODO: if time base, return local time; if satellite, read shmem
+			return	0;	//	TODO: if time base, return local time; if satellite, read internal buffer (timeDrift)
 		}
 
 		void	Node::buildCrank(uint16	CID){
 
-			uint16	cid=0;	//	TODO: allocate cid
+			uint16	cid=0;	//	TODO: allocate cid (see below)
 			_Crank	*c=(CrankRegister::Get(CID)->builder())(cid);
 			//	TODO: read config for c, load c on a thread, update initial subscriptions, group membership etc
 		}

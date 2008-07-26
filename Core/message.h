@@ -55,7 +55,7 @@ namespace	mBrane{
 		template<class	U>	class	ControlMessage:	//	subclasses shall have no embedded pointers
 		public	Payload<Memory,U>,
 		public	_ControlMessage{
-		public:
+		protected:
 			ControlMessage();
 		};
 
@@ -65,6 +65,7 @@ namespace	mBrane{
 		public:
 			virtual	~_StreamData();
 			operator	_ControlMessage	*()	const;
+			operator	_Payload	*()	const;
 		};
 
 		template<class	U>	class	StreamData:
@@ -84,6 +85,7 @@ namespace	mBrane{
 		public:
 			virtual	~_Message();
 			operator	_ControlMessage	*()	const;
+			operator	_Payload	*()	const;
 			uint16	&senderEntity_cid();
 			uint16	&senderEntity_iid();
 			uint16	&senderCrank_cid();
@@ -93,7 +95,7 @@ namespace	mBrane{
 		template<class	U>	class	Message:
 		public	ControlMessage<U>,
 		public	_Message{
-		public:
+		protected:
 			Message();
 		};
 	}

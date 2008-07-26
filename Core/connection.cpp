@@ -1,4 +1,4 @@
-// object.cpp
+// connection.cpp
 //
 // Author: Eric Nivel
 //
@@ -28,45 +28,61 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include	<memory>
-#include	"object.h"
-#include	"payload.h"
+#include	"connection.h"
 
 
 namespace	mBrane{
 	namespace	sdk{
 
-		_P::_P():object(NULL){
+		Connection::Connection(uint16	remoteNID):remoteNID(remoteNID){
 		}
 
-		_P::_P(_Object	*o):object(o){
-
-			object->incRef();
+		Connection::~Connection(){
 		}
 
-		_P::~_P(){
+		uint16	Connection::nid(){
 
-			if(object)
-				object->decRef();
+			return	remoteNID;
+		}
+		
+		int16	Connection::send(_Payload	*p){
+
+			ClassRegister	*CR=ClassRegister::Get(p->cid());
+			int16	r;
+			if(r=send(((uint8	*)p)+CR->offset(),CR->size()))
+				return	r;
+			for(uint8	i=0;i<p->ptrCount();i++){
+
+				if(r=send(*p->ptr(i)))
+					return	r;
+			}
+			return	0;
 		}
 
-		////////////////////////////////////////////////////////////////////////////////////////////////
+		int16	Connection::recv(_Payload	**p){
 
-		inline	_Object::_Object():refCount(0){
-		}
+			uint16	cid;
+			int16	r;
+			if(r=recv((uint8	*)&cid,sizeof(uint16),true))
+				return	r;
+			ClassRegister	*CR=ClassRegister::Get(cid);
+			*p=(_Payload	*)CR->allocator()->alloc();
+			if(r=recv((uint8	*)*p,CR->size()))
+				return	r;
+			_Payload	*ptr;
+			P<_Payload>	*_ptr;
+			for(uint8	i=0;i<(*p)->ptrCount();i++){
 
-		inline	_Object::~_Object(){
-		}
+				if(r=recv(&ptr)){
 
-		void	_Object::incRef(){
-
-			refCount++;
-		}
-
-		inline	void	_Object::decRef(){
-
-			if(--refCount==0)
-				delete	this;
+					delete	*p;
+					return	r;
+				}
+				_ptr=(*p)->ptr(i);
+				*_ptr=ptr;
+			}
+			(*p)->init();
+			return	0;
 		}
 	}
 }

@@ -75,7 +75,8 @@ namespace	mBrane{
 		inline	void	_Crank::peek(int32	depth){
 
 			Iterator	i;
-			for(i=begin();i!=end();i++){
+			uint32	d=0;
+			for(i=begin();i!=end()	&&	d<depth;i++,d++){
 
 				_Payload	*p=(_Payload	*)(P<_Payload>)i;
 				if(!p)

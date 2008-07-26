@@ -31,25 +31,16 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		template<class	C>	inline	P<C>::P():object(NULL){
+		template<class	C>	inline	P<C>::P():_P(){
 		}
 
-		template<class	C>	inline	P<C>::P(C	*o){
-
-			object=NULL;
-			this->operator	=(o);
+		template<class	C>	inline	P<C>::P(C	*o):_P(o){
 		}
 
-		template<class	C>	inline	P<C>::P(P<C>	&p){
-
-			object=NULL;
-			this->operator	=(p);
+		template<class	C>	inline	P<C>::P(P<C>	&p):_P(p.object){
 		}
 
 		template<class	C>	inline	P<C>::~P(){
-
-			if(object)
-				object->decRef();
 		}
 
 		template<class	C>	inline	C	*P<C>::operator	->()	const{

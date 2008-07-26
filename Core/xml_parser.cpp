@@ -91,6 +91,7 @@
 #include <stdlib.h>
 
 namespace	mBrane{
+	namespace	sdk{
 
 XMLCSTR XMLNode::getVersion() { return _X("v2.30"); }
 void freeXMLString(XMLSTR t){free(t);}
@@ -2671,4 +2672,4 @@ unsigned char *XMLParserBase64Tool::decode(XMLCSTR data, int *outlen, XMLError *
     return (unsigned char*)buf;
 }
 
-}	//	namespace
+}}	//	namespace

@@ -73,6 +73,11 @@ namespace	mBrane{
 			return	(_ControlMessage	*)(((uint8	*)this)-sizeof(_ControlMessage));
 		}
 
+		inline	_StreamData::operator	_Payload	*()	const{
+
+			return	(_Payload	*)(((uint8	*)this)-sizeof(_ControlMessage)-sizeof(_Payload));
+		}
+
 		////////////////////////////////////////////////////////////////////////////////////////////////
 
 		inline	_Message::_Message():_senderEntityCID(0),_senderEntityIID(0),_senderCrankCID(0),_senderCrankIID(0){
@@ -84,6 +89,11 @@ namespace	mBrane{
 		inline	_Message::operator	_ControlMessage	*()	const{
 
 			return	(_ControlMessage	*)(((uint8	*)this)-sizeof(_ControlMessage));
+		}
+
+		inline	_Message::operator	_Payload	*()	const{
+
+			return	(_Payload	*)(((uint8	*)this)-sizeof(_ControlMessage)-sizeof(_Payload));
 		}
 
 		inline	uint16	&_Message::senderEntity_cid(){

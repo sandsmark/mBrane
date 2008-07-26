@@ -46,6 +46,7 @@ namespace	mBrane{
 			Allocator	*_allocator;
 			size_t		_size;
 			size_t		_offset;
+			bool		_isControlMessageClass;
 		public:
 			template<class	C,class	M>	static	uint16	Load(){
 

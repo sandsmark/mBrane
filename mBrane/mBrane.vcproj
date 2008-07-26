@@ -192,17 +192,6 @@
 			<File
 				RelativePath=".\node.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\xml_parser.cpp"
-				>
 			</File>
 		</Filter>
 		<Filter
@@ -220,10 +209,6 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\xml_parser.h"
-				>
 			</File>
 		</Filter>
 		<File

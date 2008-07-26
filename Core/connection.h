@@ -1,4 +1,4 @@
-// object.cpp
+// connection.h
 //
 // Author: Eric Nivel
 //
@@ -28,45 +28,41 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include	<memory>
-#include	"object.h"
+#ifndef	mBrane_sdk_connection_h
+#define	mBrane_sdk_connection_h
+
 #include	"payload.h"
+#include	"xml_parser.h"
 
 
 namespace	mBrane{
 	namespace	sdk{
 
-		_P::_P():object(NULL){
-		}
+		class	Connection{
+		private:
+			uint16	remoteNID;
+		protected:
+			Connection(uint16	remoteNID);	//	initialization to be performed in subclasses' constructors
+			virtual	int16	send(uint8	*b,size_t	s)=0;	//	return 0 if successfull, error code (>0) otherwise
+			virtual	int16	recv(uint8	*b,size_t	s,bool	peek=false)=0;
+		public:
+			virtual	~Connection();	//	shutdown to be performed in subclasses' destructors
+			uint16	nid();
+			int16	send(_Payload	*p);	//	return 0 if successfull, error code (>0) otherwise
+			int16	recv(_Payload	**p);
 
-		_P::_P(_Object	*o):object(o){
-
-			object->incRef();
-		}
-
-		_P::~_P(){
-
-			if(object)
-				object->decRef();
-		}
-
-		////////////////////////////////////////////////////////////////////////////////////////////////
-
-		inline	_Object::_Object():refCount(0){
-		}
-
-		inline	_Object::~_Object(){
-		}
-
-		void	_Object::incRef(){
-
-			refCount++;
-		}
-
-		inline	void	_Object::decRef(){
-
-			if(--refCount==0)
-				delete	this;
-		}
+			typedef	bool	(*CanBroadcast)();	//	as opposed to connected mode
+			typedef	void	(*Init)(XMLNode	*);	//	of the network interface; loads parameters from XML file
+			typedef	void	(*Shutdown)();	//	of the network interface
+			typedef	uint32	(*GetIDSize)();	//	node ID to be broadcast
+			typedef	void	(*FillID)(uint8	*);	//	with relevant parameters;
+			typedef	uint16	(*BroadcastID)(uint8	*,uint32);	//	broadcast the ID of the local node
+			typedef	uint16	(*ScanID)(uint8	*,uint32);	//	listen to IDs broadcast by remote nodes
+			typedef	uint16	(*Connect)(uint8	*,uint16,Connection	*&);	//	create a new connection from the received remote IDs (ScanID)
+			typedef	uint16	(*AcceptConnection)(Connection	*&);	//	listen to connect attempts and creates a new connection accordingly
+		};
 	}
 }
+
+
+#endif

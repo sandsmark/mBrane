@@ -54,11 +54,13 @@
 #define _XMLWINDOWS
 #endif
 
+#define	_USE_XMLPARSER_DLL
+
 #ifdef XMLDLLENTRY
 #undef XMLDLLENTRY
 #endif
 #ifdef _USE_XMLPARSER_DLL
-#ifdef _DLL_EXPORTS_
+#ifdef BUILD_DLL
 #define XMLDLLENTRY __declspec(dllexport)
 #else
 #define XMLDLLENTRY __declspec(dllimport)
@@ -109,6 +111,7 @@
 #endif /* TRUE */
 
 namespace	mBrane{
+	namespace	sdk{
 // Enumeration for XML parse errors.
 typedef enum XMLError
 {
@@ -544,7 +547,7 @@ private:
     int buflen;
     void alloc(int newsize);
 }XMLParserBase64Tool;
-}	//	namespace
+}}	//	namespace
 #undef XMLDLLENTRY
 
 #endif
