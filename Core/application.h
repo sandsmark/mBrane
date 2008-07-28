@@ -1,6 +1,6 @@
-// crank.cpp
+//	application.h
 //
-// Author: Eric Nivel
+//	Author: Eric Nivel
 //
 //	BSD license:
 //	Copyright (c) 2008, Eric Nivel, Thor List
@@ -28,63 +28,38 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include	"crank.h"
-#include	"node.h"
+#ifndef	_application_h_
+#define	_application_h_
 
-#define	CRANK_INPUT_QUEUE_SIZE	512
+#define	APPLICATION_CLASS(C)	static	const	uint16	C##_class=__COUNTER__;
+#define	CLASS_ID(C)	C##_class
+#include	APPLICATION_CLASSES
 
-
-namespace	mBrane{
-	namespace	sdk{
-
-		void	_Crank::Build(uint16	CID){
-
-			Node::Get()->buildCrank(CID);
-		}
-
-		_Crank::_Crank(uint16	_ID):CircularBuffer<P<_Payload> >(CRANK_INPUT_QUEUE_SIZE),_ID(_ID){
-		}
-
-		_Crank::~_Crank(){
-		}
-
-		inline	uint16	_Crank::id()	const{
-
-			return	_ID;
-		}
-
-		inline	void	_Crank::send(_Message	*m){
-
-			Node::Get()->send(_ID,m);
-		}
-
-		inline	void	_Crank::send(_ControlMessage	*m){
-
-			Node::Get()->send(_ID,m);
-		}
-
-		inline	void	_Crank::send(_StreamData	*m){
-
-			Node::Get()->send(_ID,m);
-		}
-
-		inline	int64	_Crank::time(){
-
-			return	Node::Get()->time();
-		}
-
-		inline	void	_Crank::peek(int32	depth){
-
-			Iterator	i;
-			uint32	d=0;
-			for(i=begin();i!=end()	&&	d<depth;i++,d++){
-
-				_Payload	*p=(_Payload	*)(P<_Payload>)i;
-				if(!p)
-					continue;
-				if(preview(p))
-					((P<_Payload>)i)=NULL;
-			}
+template<class	U>	class	Crank:	//	TODO:	in notify and preview switches: insert control message class processing
+public	_Crank{
+protected:
+	static	const	uint16	_CID;
+	Crank(uint16	ID):_Crank(ID){}
+public:
+	static	_Crank	*New(uint16	ID){	return	new	U(ID);	}
+	virtual	~Crank(){}
+	const	uint16	cid(){	return	_CID;	}
+	void	notify(_Payload	*p){
+		switch(p->cid()){
+		#define	APPLICATION_CLASS(C)	case	CLASS_ID(C):	((U	*)this)->process((C	*)p);	return;
+		#include	APPLICATION_CLASSES
+		default:	return;
 		}
 	}
-}
+	bool	preview(_Payload	*p){
+		switch(p->cid()){
+		#define	APPLICATION_CLASS(C)	case	CLASS_ID(C):	return	((U	*)this)->preview((C	*)p);
+		#include	APPLICATION_CLASSES
+		default:	return	false;
+		}
+	}
+};
+template<class	U>	uint16	Crank<U>::_CID=CrankRegister::Load(New);
+
+
+#endif

@@ -57,6 +57,8 @@ namespace	mBrane{
 		public	_ControlMessage{
 		protected:
 			ControlMessage();
+		public:
+			virtual	bool	isControlMessage();
 		};
 
 		class	dll	_StreamData{
@@ -73,6 +75,9 @@ namespace	mBrane{
 		public	_StreamData{
 		protected:
 			StreamData();
+		public:
+			bool	isControlMessage();
+			bool	isStreamData();
 		};
 
 		class	dll	_Message{
@@ -97,9 +102,13 @@ namespace	mBrane{
 		public	_Message{
 		protected:
 			Message();
+		public:
+			bool	isControlMessage();
+			bool	isMessage();
 		};
 	}
 }
+
 
 #include	"message.tpl.cpp"
 

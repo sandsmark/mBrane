@@ -50,9 +50,9 @@ namespace	mBrane{
 			//		network interfaces: 1, 2 or 3. for each: emitter/receiver (plugins): TCP/IP, UDP/IP, IB with parameters: ex: interface(s) and port(s)
 			//		application config file name
 			//		ID and time reference: automatically negociated
-			/*
-			configure interfaces and node
-			*/
+			//
+			//	TODO:	configure interfaces and node
+			//	TODO:	launch scanner and connection acceptor
 			application_configuration_file=mainNode.getAttribute("application_configuration_file");
 		}
 
@@ -127,7 +127,7 @@ namespace	mBrane{
 
 		void	Node::run(){
 
-			//	TODO:	launch threads: senders/receivers, crank exec units
+			//	TODO:	launch threads: senders/receivers, crank exec units, time updater/sender
 		}
 
 		void	Node::shutdown(){
@@ -141,10 +141,10 @@ namespace	mBrane{
 		void	Node::load(const	char	*fileName){
 		}
 
-		void	Node::send(uint16	crankID,_Message	*m){
+		void	Node::send(uint16	crankID,_ControlMessage	*m){
 		}
 
-		void	Node::send(uint16	crankID,_ControlMessage	*m){
+		void	Node::send(uint16	crankID,_Message	*m){
 		}
 
 		void	Node::send(uint16	crankID,_StreamData	*m){

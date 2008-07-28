@@ -51,7 +51,8 @@ namespace	mBrane{
 		public:
 			static	void	Build(uint16	CID);
 			virtual	~_Crank();
-			virtual	bool	notify(_Payload	*p,bool	preview=false)=0;
+			virtual	void	notify(_Payload	*p)=0;
+			virtual	bool	preview(_Payload	*p)=0;
 			uint16	id()	const;
 			//	TODO: get actual count
 		};

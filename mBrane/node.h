@@ -32,7 +32,6 @@
 #define	mBrane_node_node_h
 
 #include	"..\Core\node.h"
-#include	"..\Core\register.h"
 #include	"..\Core\connection.h"
 
 
@@ -93,6 +92,8 @@ namespace	mBrane{
 				virtual	void	acceptConnections()=0;
 				virtual	int16	send(sdk::_ControlMessage	*m)=0;	//	broadcast; return 0 if successfull, error code (>0) otherwise
 				virtual	int16	recv(sdk::_ControlMessage	**m)=0;
+				virtual	void	sendTime()=0;
+				virtual	void	recvTime()=0;
 			};
 
 			class	BroadcastControlConnection:
@@ -106,6 +107,8 @@ namespace	mBrane{
 				void	acceptConnections();
 				int16	send(sdk::_ControlMessage	*m);
 				int16	recv(sdk::_ControlMessage	**m);
+				void	sendTime();
+				void	recvTime();
 			};
 
 			class	ConnectedControlConnection:
@@ -122,13 +125,27 @@ namespace	mBrane{
 				void	acceptConnections();
 				int16	send(sdk::_ControlMessage	*m);
 				int16	recv(sdk::_ControlMessage	**m);
+				void	sendTime();
+				void	recvTime();
 			};
 
 			ControlConnection	*controlConnection;
+			ControlConnection	*syncConnection;
 			
 			bool	_shutdown;
 
-			int64	timeDrift;
+			bool	isTimeReference();
+			int64	timeDrift;	//	in ms
+
+			static	uint32	thread_function	SendTime(void	*args);
+			static	uint32	thread_function	UpdateTime(void	*args);
+
+			static	uint32	thread_function	CrankExecutionUnit(void	*args);
+			//	TODO:	define crank exec units
+
+			static	uint32	thread_function	ReceiveMessages(void	*args);
+			static	uint32	thread_function	SendMessages(void	*args);
+			//	TODO:	define routing structures
 		public:
 			Node(const	char	*configFileName);
 			~Node();
@@ -138,10 +155,10 @@ namespace	mBrane{
 			void	load(const	char	*fileName);	//	initializes itself from a previously saved system state
 			void	loadApplication(const	char	*fileName=NULL);
 			void	unloadApplication();
-			void	send(uint16	crankID,sdk::_Message	*m);
 			void	send(uint16	crankID,sdk::_ControlMessage	*m);
+			void	send(uint16	crankID,sdk::_Message	*m);
 			void	send(uint16	crankID,sdk::_StreamData	*m);
-			int64	time();
+			int64	time();	//	in ms since 01/01/70
 			void	buildCrank(uint16	CID);
 		};
 	}

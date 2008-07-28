@@ -50,6 +50,9 @@ namespace	mBrane{
 			virtual	uint8		ptrCount()	const;
 			virtual	P<_Payload>	*ptr(uint8	i);
 			virtual	void	init();	//	invocation triggered by reception
+			virtual	bool	isControlMessage()	const;
+			virtual	bool	isMessage()	const;
+			virtual	bool	isStreamData()	const;
 			int64	&send_ts();
 			int64	&recv_ts();
 		};
@@ -63,7 +66,7 @@ namespace	mBrane{
 		public:
 			void	*operator	new(size_t	s);
 			void	operator	delete(void	*o);
-			static	const	uint16	cid();
+			static	const	uint16	CID();
 		};
 
 		//	Usage:	template<class	C>	class	DaughterClass: public Payload<Memory,C>{ ... };

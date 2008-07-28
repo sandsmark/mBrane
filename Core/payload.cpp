@@ -60,6 +60,21 @@ namespace	mBrane{
 		inline	void	_Payload::init(){
 		}
 
+		inline	bool	_Payload::isControlMessage()	const{
+
+			return	false;
+		}
+
+		inline	bool	_Payload::isMessage()	const{
+
+			return	false;
+		}
+
+		inline	bool	_Payload::isStreamData()	const{
+
+			return	false;
+		}
+
 		inline	int64	&_Payload::send_ts(){
 
 			return	_send_ts;

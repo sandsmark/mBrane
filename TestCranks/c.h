@@ -1,3 +1,5 @@
+//	user defined
+
 #ifndef	c_h
 #define	c_h
 

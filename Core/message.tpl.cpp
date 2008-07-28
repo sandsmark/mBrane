@@ -34,14 +34,39 @@ namespace	mBrane{
 		template<class	U>	inline	ControlMessage<U>::ControlMessage():Payload<Memory,U>(){
 		}
 
+		template<class	U>	inline	bool	ControlMessage<U>::isControlMessage(){
+
+			return	true;
+		}
+
 		////////////////////////////////////////////////////////////////////////////////////////////////
 
 		template<class	U>	inline	Message<U>::Message():ControlMessage<U>(){
 		}
 
+		template<class	U>	inline	bool	Message<U>::isControlMessage(){
+
+			return	false;
+		}
+
+		template<class	U>	inline	bool	Message<U>::isMessage(){
+
+			return	true;
+		}
+
 		////////////////////////////////////////////////////////////////////////////////////////////////
 
 		template<class	U>	inline	StreamData<U>::StreamData():ControlMessage<U>(){
+		}
+
+		template<class	U>	inline	bool	StreamData<U>::isControlMessage(){
+
+			return	false;
+		}
+
+		template<class	U>	inline	bool	StreamData<U>::isStreamData(){
+
+			return	true;
 		}
 	}
 }

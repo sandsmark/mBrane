@@ -1,14 +1,13 @@
 #ifndef	_test_h
 #define	_test_h
 
-#include	"c.h"
+//	DO NOT USE __COUNTER__
 
+#include	"c.h"	//	user classes declarations
 
-USER_CLASSES_BEGIN	//	use only once
-CLASS(Final_C1);
-CLASS(Final_C2);
-CLASS(Final_C3);
-USER_CLASSES_END
+#define	APPLICATION_CLASSES	"application_classes.h"
+#include	"..\Core\application.h"	//	std include
+
 
 mBrane::sdk::_Crank *	__cdecl	NewCR1(uint16);
 
