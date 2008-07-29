@@ -89,56 +89,62 @@ namespace	mBrane{
 			std::cout<<"Error: NodeConfiguration corrupted\n";
 			return	NULL;
 		}
-		XMLNode	interfaces=mainNode.getChildNode("Interfaces");
-		if(!interfaces){
+		XMLNode	network=mainNode.getChildNode("Network");
+		if(!network){
 
-			std::cout<<"Error: NodeConfiguration::Interfaces is missing\n";
+			std::cout<<"Error: NodeConfiguration::Network is missing\n";
 			return	NULL;
 		}
-		XMLNode	discovery=mainNode.getChildNode("Discovery");
+		XMLNode	interfaces=network.getChildNode("Interfaces");
+		if(!interfaces){
+
+			std::cout<<"Error: NodeConfiguration::Network::Interfaces is missing\n";
+			return	NULL;
+		}
+		XMLNode	discovery=network.getChildNode("Discovery");
 		if(!discovery){
 
-			std::cout<<"Error: NodeConfiguration::Discovery is missing\n";
+			std::cout<<"Error: NodeConfiguration::Network::Discovery is missing\n";
 			return	NULL;
 		}
 		const	char	*_di=discovery.getAttribute("interface");
 		if(!_di){
 
-			std::cout<<"Error: NodeConfiguration::Discovery::interface is missing\n";
+			std::cout<<"Error: NodeConfiguration::Network::Discovery::interface is missing\n";
 			return	NULL;
 		}
 		XMLNode	_ndi=interfaces.getChildNode(_di);
 		if(!_ndi){
 
-			std::cout<<"Error: NodeConfiguration::Interfaces::"<<_di<<" is missing\n";
+			std::cout<<"Error: NodeConfiguration::Network::Interfaces::"<<_di<<" is missing\n";
 			networkDiscoveryInterface=NULL;
 			return	NULL;
 		}else	if(!(networkDiscoveryInterface=NetworkInterface::New<NetworkDiscoveryInterface>(_ndi)))
 			return	NULL;
-		XMLNode	control=mainNode.getChildNode("Control");
+		XMLNode	control=network.getChildNode("Control");
 		if(!control){
 
-			std::cout<<"Error: NodeConfiguration::Control is missing\n";
+			std::cout<<"Error: NodeConfiguration::Network::Control is missing\n";
 			return	NULL;
 		}
 		const	char	*ci=control.getAttribute("interface");
 		if(!ci){
 
-			std::cout<<"Error: NodeConfiguration::Control::interface is missing\n";
+			std::cout<<"Error: NodeConfiguration::Network::Control::interface is missing\n";
 			return	NULL;
 		}
 		XMLNode	nci=interfaces.getChildNode(ci);
 		if(!nci){
 
-			std::cout<<"Error: NodeConfiguration::Interfaces::"<<ci<<" is missing\n";
+			std::cout<<"Error: NodeConfiguration::Network::Interfaces::"<<ci<<" is missing\n";
 			networkInterfaces[CONTROL]=NULL;
 			return	NULL;
 		}else	if(!(networkInterfaces[CONTROL]=NetworkInterface::New<NetworkCommInterface>(nci)))
 			return	NULL;
-		XMLNode	data=mainNode.getChildNode("Data");
+		XMLNode	data=network.getChildNode("Data");
 		if(!data){
 
-			std::cout<<"Error: NodeConfiguration::Data is missing\n";
+			std::cout<<"Error: NodeConfiguration::Network::Data is missing\n";
 			return	NULL;
 		}
 		const	char	*di=data.getAttribute("interface");
@@ -150,15 +156,15 @@ namespace	mBrane{
 		XMLNode	ndi=interfaces.getChildNode(di);
 		if(!ndi){
 
-			std::cout<<"Error: NodeConfiguration::Interfaces::"<<di<<" is missing\n";
+			std::cout<<"Error: NodeConfiguration::Network::Interfaces::"<<di<<" is missing\n";
 			networkInterfaces[DATA]=NULL;
 			return	NULL;
 		}else	if(!(networkInterfaces[DATA]=NetworkInterface::New<NetworkCommInterface>(ndi)))
 			return	NULL;
-		XMLNode	stream=mainNode.getChildNode("Stream");
+		XMLNode	stream=network.getChildNode("Stream");
 		if(!stream){
 
-			std::cout<<"Error: NodeConfiguration::Stream is missing\n";
+			std::cout<<"Error: NodeConfiguration::Network::Stream is missing\n";
 			return	NULL;
 		}
 		const	char	*si=stream.getAttribute("interface");
