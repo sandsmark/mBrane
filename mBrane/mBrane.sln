@@ -13,6 +13,16 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestCranks", "..\TestCranks
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Core", "..\Core\Core.vcproj", "{9C7F5B33-02A9-4980-A122-1E2A2630ACB0}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UDP", "..\UDP\UDP.vcproj", "{ADCBC957-F50C-4825-A328-FCC91821D62F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9C7F5B33-02A9-4980-A122-1E2A2630ACB0} = {9C7F5B33-02A9-4980-A122-1E2A2630ACB0}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TCP", "..\TCP\TCP.vcproj", "{46BE881B-8720-4C7B-BCF8-00F5F86E3ADC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9C7F5B33-02A9-4980-A122-1E2A2630ACB0} = {9C7F5B33-02A9-4980-A122-1E2A2630ACB0}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -31,6 +41,14 @@ Global
 		{9C7F5B33-02A9-4980-A122-1E2A2630ACB0}.Debug|Win32.Build.0 = Debug|Win32
 		{9C7F5B33-02A9-4980-A122-1E2A2630ACB0}.Release|Win32.ActiveCfg = Release|Win32
 		{9C7F5B33-02A9-4980-A122-1E2A2630ACB0}.Release|Win32.Build.0 = Release|Win32
+		{ADCBC957-F50C-4825-A328-FCC91821D62F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{ADCBC957-F50C-4825-A328-FCC91821D62F}.Debug|Win32.Build.0 = Debug|Win32
+		{ADCBC957-F50C-4825-A328-FCC91821D62F}.Release|Win32.ActiveCfg = Release|Win32
+		{ADCBC957-F50C-4825-A328-FCC91821D62F}.Release|Win32.Build.0 = Release|Win32
+		{46BE881B-8720-4C7B-BCF8-00F5F86E3ADC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{46BE881B-8720-4C7B-BCF8-00F5F86E3ADC}.Debug|Win32.Build.0 = Debug|Win32
+		{46BE881B-8720-4C7B-BCF8-00F5F86E3ADC}.Release|Win32.ActiveCfg = Release|Win32
+		{46BE881B-8720-4C7B-BCF8-00F5F86E3ADC}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

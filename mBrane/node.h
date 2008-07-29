@@ -28,8 +28,8 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef	mBrane_node_node_h
-#define	mBrane_node_node_h
+#ifndef	mBrane_node_h
+#define	mBrane_node_h
 
 #include	"..\Core\node.h"
 #include	"..\Core\network_interface.h"
