@@ -43,6 +43,8 @@
 	#else
 		#define dll	__declspec(dllimport)
 	#endif
+	#define	dll_export	__declspec(dllexport)
+	#define	dll_import	__declspec(dllimport)
 #else
 	#define dll
 #endif

@@ -38,7 +38,7 @@ namespace	mBrane{
 #if defined	WINDOWS
 		if(library){ 
 
-			T	function=(T)GetProcAddress(library,functionName);
+			function=(T)GetProcAddress(library,functionName);
 			if(!function){
 
 				DWORD	error=GetLastError();

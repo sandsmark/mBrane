@@ -9,7 +9,9 @@
 #include	"..\Core\application.h"	//	std include; mandatory
 
 
+extern	"C"{
 mBrane::sdk::_Crank *	__cdecl	NewCR1(uint16);
+}
 
 
 #endif

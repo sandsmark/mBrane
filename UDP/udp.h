@@ -39,16 +39,18 @@ using	namespace	mBrane;
 using	namespace	mBrane::sdk;
 
 
-uint64	__cdecl	RTT();	//	round trip time estimate
-bool	__cdecl	CanBroadcast();	//	as opposed to connected mode
-void	__cdecl	Start(XMLNode	*);	//	initialize the network interface; loads parameters from XML file
-void	__cdecl	Stop();	//	the network interface
-uint32	__cdecl	GetIDSize();	//	node ID to be broadcast
-void	__cdecl	FillID(uint8	*);	//	with relevant parameters;
-uint16	__cdecl	BroadcastID(uint8	*,uint32);	//	broadcast the ID of the local node
-uint16	__cdecl	ScanID(uint8	*,uint32);	//	listen to IDs broadcast by remote nodes
-uint16	__cdecl	Connect(uint8	*,uint16,CommChannel	*&);	//	create a new channel from the received remote IDs (ScanID)
-uint16	__cdecl	AcceptConnection(CommChannel	*&);	//	listen
+extern	"C"{
+uint64	dll_export	RTT();	//	round trip time estimate
+bool	dll_export	CanBroadcast();	//	as opposed to connected mode
+void	dll_export	Start(XMLNode	*);	//	initialize the network interface; loads parameters from XML file
+void	dll_export	Stop();	//	the network interface
+uint32	dll_export	GetIDSize();	//	node ID to be broadcast
+void	dll_export	FillID(uint8	*);	//	with relevant parameters;
+uint16	dll_export	BroadcastID(uint8	*,uint32);	//	broadcast the ID of the local node
+uint16	dll_export	ScanID(uint8	*,uint32);	//	listen to IDs broadcast by remote nodes
+uint16	dll_export	Connect(uint8	*,uint16,CommChannel	*&);	//	create a new channel from the received remote IDs (ScanID)
+uint16	dll_export	AcceptConnection(CommChannel	*&);	//	listen
+}
 
 
 #endif
