@@ -58,14 +58,6 @@ namespace	mBrane{
 			return	0;
 		}
 
-		void	BroadcastControlChannel::sendTime(int64	t){
-
-		}
-
-		void	BroadcastControlChannel::recvTime(int64	&t){
-
-		}
-
 		////////////////////////////////////////////////////////////////////////////////////////////////
 
 		ConnectedControlChannel::ConnectedControlChannel(Node	*node):ControlChannel(node){
@@ -87,20 +79,6 @@ namespace	mBrane{
 		int16	ConnectedControlChannel::recv(sdk::_Payload	**m,bool	&more){
 
 			return	0;
-		}
-
-		void	ConnectedControlChannel::sendTime(int64	t){
-
-			for(uint32	i=0;i<channels.count();i++){
-
-				//	TODO:	error processing
-				channels[i]->send((uint8	*)&t,sizeof(int64));
-			}
-		}
-
-		void	ConnectedControlChannel::recvTime(int64	&t){
-
-			//	TODO:	recv from node 0
 		}
 
 		void	ConnectedControlChannel::addChannel(sdk::ConnectedCommChannel	*c){

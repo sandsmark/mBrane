@@ -74,6 +74,7 @@ namespace	mBrane{
 		bool	_isTimeReference;
 		int64	timeDrift;	//	in ms
 		int64	lastSyncTime;	//	in ms
+		int64	syncPeriod;	//	in ms
 		int64	localTime();	//	in ms
 
 		static	uint32	thread_function_call	CrankExecutionUnit(void	*args);
@@ -88,6 +89,8 @@ namespace	mBrane{
 
 		Node();
 		Node	*init(const	char	*configFileName);
+
+		void	sendLocal(sdk::_Crank	*sender,sdk::_Payload	*message);
 	public:
 		static	Node	*New(const	char	*configFileName);
 		~Node();

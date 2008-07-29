@@ -40,6 +40,10 @@ namespace	mBrane{
 		class	SystemReady:	//	sent when all the nodes specified in the node cfg file are up and running
 		public	ControlMessage<SystemReady>{
 		};
+
+		class	TimeSync:
+		public	ControlMessage<TimeSync>{
+		};
 	}
 }
 

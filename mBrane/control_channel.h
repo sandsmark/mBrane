@@ -48,8 +48,6 @@ namespace	mBrane{
 			virtual	~ControlChannel();
 			virtual	int16	send(sdk::_Payload	*m)=0;	//	broadcast; return 0 if successfull, error code (>0) otherwise
 			virtual	int16	recv(sdk::_Payload	**m,bool	&more)=0;
-			virtual	void	sendTime(int64	t)=0;
-			virtual	void	recvTime(int64	&t)=0;
 		};
 
 		class	BroadcastControlChannel:
@@ -61,8 +59,6 @@ namespace	mBrane{
 			~BroadcastControlChannel();
 			int16	send(sdk::_Payload	*m);
 			int16	recv(sdk::_Payload	**m,bool	&more);
-			void	sendTime(int64	t);
-			void	recvTime(int64	&t);
 		};
 
 		class	ConnectedControlChannel:
@@ -76,8 +72,6 @@ namespace	mBrane{
 			void	removeChannel(uint16	nid);
 			int16	send(sdk::_Payload	*m);
 			int16	recv(sdk::_Payload	**m,bool	&more);
-			void	sendTime(int64	t);
-			void	recvTime(int64	&t);
 		};
 
 		typedef	struct{

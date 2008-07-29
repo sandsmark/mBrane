@@ -32,6 +32,7 @@
 #include	"..\Core\crank.h"
 #include	"..\Core\class_register.h"
 #include	"..\Core\crank_register.h"
+#include	"..\Core\control_messages.h"
 
 #include	<iostream>
 
@@ -187,6 +188,19 @@ namespace	mBrane{
 			std::cout<<"Error: NodeConfiguration::application_configuration_file is missing\n";
 			return	NULL;
 		}
+		XMLNode	time=mainNode.getChildNode("Time");
+		if(!time){
+
+			std::cout<<"Error: NodeConfiguration::Time is missing\n";
+			return	NULL;
+		}
+		const	char	*sp=time.getAttribute("syncPeriod");
+		if(!sp){
+
+			std::cout<<"Error: NodeConfiguration::Time::sync_period is missing\n";
+			return	NULL;
+		}
+		syncPeriod=atoi(sp);
 		return	this;
 	}
 
@@ -239,11 +253,20 @@ namespace	mBrane{
 
 	void	Node::run(){
 
+		uint32	n=0;
 		_threads.alloc();
-		_threads[0]=Thread::New(ScanIDs,this);
+		_threads[n++]=Thread::New(ScanIDs,this);
 		_threads.alloc();
-		_threads[1]=Thread::New(AcceptConnections,this);
-		//	TODO:	launch senders/receivers, time sender
+		_threads[n++]=Thread::New(AcceptConnections,this);
+		if(_isTimeReference){
+			
+			_threads.alloc();
+			_threads[n++]=Thread::New(SendTime,this);
+		}
+		_threads.alloc();
+		_threads[n++]=Thread::New(SendMessages,this);
+		_threads.alloc();
+		_threads[n++]=Thread::New(ReceiveMessages,this);
 		//	TODO:	build cranks and load them in CEU
 		//	TODO:	launch CEU
 		//	TODO:	wait for nodes and send SystemReady to (local) cranks
@@ -263,6 +286,9 @@ namespace	mBrane{
 	}
 
 	void	Node::send(sdk::_Crank	*sender,_Payload	*message){	//	TODO
+	}
+
+	void	Node::sendLocal(sdk::_Crank	*sender,_Payload	*message){	//	TODO
 	}
 
 	inline	int64	Node::localTime(){
@@ -350,7 +376,7 @@ namespace	mBrane{
 		while(!node->_shutdown){
 
 			//	TODO:	error processing
-			node->networkDiscoveryInterface->scanID(ID,size);	//	TODO:	timeout and _ID assignment
+			node->networkDiscoveryInterface->scanID(ID,size);	//	TODO:	timeout, _ID and _isTimeReference assignment
 			node->networkInterfaces[CONTROL]->connect(ID,ctrl_c);
 			node->networkInterfaces[DATA]->connect(ID,data_c);
 			node->networkInterfaces[STREAM]->connect(ID,stream_c);
@@ -373,6 +399,7 @@ namespace	mBrane{
 		Node	*node=(Node	*)args;
 		while(!node->_shutdown){
 
+			//	TODO:	error processing
 		}
 		return	0;
 	}
@@ -380,8 +407,16 @@ namespace	mBrane{
 	uint32	thread_function_call	Node::SendTime(void	*args){	//	TODO
 
 		Node	*node=(Node	*)args;
+		sdk::TimeSync	sync;
 		while(!node->_shutdown){
 
+			//	TODO:	error processing
+			int64	t=node->time();
+			if(t-node->lastSyncTime>=node->syncPeriod){
+
+				node->controlChannel->send(&sync);
+				node->lastSyncTime=t;
+			}
 		}
 		return	0;
 	}
@@ -391,6 +426,7 @@ namespace	mBrane{
 		Node	*node=(Node	*)args;
 		while(!node->_shutdown){
 
+			//	TODO:	error processing
 		}
 		return	0;
 	}
@@ -400,6 +436,8 @@ namespace	mBrane{
 		Node	*node=(Node	*)args;
 		while(!node->_shutdown){
 
+			//	TODO:	error processing
+			//	TODO:	if not time ref: for any msg from node 0, update drift
 		}
 		return	0;
 	}
@@ -409,6 +447,8 @@ namespace	mBrane{
 		Node	*node=(Node	*)args;
 		while(!node->_shutdown){
 
+			//	TODO:	error processing
+			//	TODO:	if time ref: update lastSyncTime
 		}
 		return	0;
 	}
