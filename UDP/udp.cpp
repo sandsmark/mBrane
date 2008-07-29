@@ -41,8 +41,9 @@ bool	CanBroadcast(){
 	return	true;
 }
 
-void	Start(XMLNode	*){
+bool	Start(XMLNode	&n){
 
+	return	true;
 }
 
 void	Stop(){
@@ -54,26 +55,26 @@ uint32	GetIDSize(){
 	return	0;
 }
 
-void	FillID(uint8	*){
+void	FillID(uint8	*ID){
 
 }
 
-uint16	BroadcastID(uint8	*,uint32){
+uint16	BroadcastID(uint8	*ID,uint32	size){
 
 	return	0;
 }
 
-uint16	ScanID(uint8	*,uint32){
+uint16	ScanID(uint8	*ID,uint32	size){
 
 	return	0;
 }
 
-uint16	Connect(uint8	*,uint16,CommChannel	*&){
+uint16	Connect(uint8	*ID,ConnectedCommChannel	*&channel){
 
 	return	0;
 }
 
-uint16	AcceptConnection(CommChannel	*&){
+uint16	AcceptConnection(ConnectedCommChannel	*&channel){
 
 	return	0;
 }

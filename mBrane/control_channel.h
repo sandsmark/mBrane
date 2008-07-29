@@ -32,61 +32,52 @@
 #define	mBrane_network_control_channel_h
 
 //#include	"..\Core\node.h"
-//#include	"..\Core\message.h"
+#include	"..\Core\array.h"
 #include	"..\Core\network_interface.h"
 
 
 namespace	mBrane{
-	namespace	node{
-		class	Node;
-	}
+	class	Node;
 	namespace	network{
 
 		class	ControlChannel{
 		protected:
-			node::Node	*node;
-			ControlChannel(node::Node	*node);
+			Node	*node;
+			ControlChannel(Node	*node);
 		public:
 			virtual	~ControlChannel();
-			virtual	void	scan()=0;
-			virtual	void	acceptConnections()=0;
 			virtual	int16	send(sdk::_Payload	*m)=0;	//	broadcast; return 0 if successfull, error code (>0) otherwise
-			virtual	int16	recv(sdk::_Payload	**m)=0;
-			virtual	void	sendTime()=0;
-			virtual	void	recvTime()=0;
+			virtual	int16	recv(sdk::_Payload	**m,bool	&more)=0;
+			virtual	void	sendTime(int64	t)=0;
+			virtual	void	recvTime(int64	&t)=0;
 		};
 
 		class	BroadcastControlChannel:
 		public	ControlChannel{
 		private:
-			sdk::Connection	*connection;
+			sdk::CommChannel	*channel;
 		public:
-			BroadcastControlChannel(node::Node	*node,sdk::Connection	*c);
+			BroadcastControlChannel(Node	*node,sdk::CommChannel	*c);
 			~BroadcastControlChannel();
-			void	scan();
-			void	acceptConnections();
 			int16	send(sdk::_Payload	*m);
-			int16	recv(sdk::_Payload	**m);
-			void	sendTime();
-			void	recvTime();
+			int16	recv(sdk::_Payload	**m,bool	&more);
+			void	sendTime(int64	t);
+			void	recvTime(int64	&t);
 		};
 
 		class	ConnectedControlChannel:
 		public	ControlChannel{
 		private:
-			sdk::Connection	*connections;
-			uint16			connectionCount;
-			void			addConnection(sdk::Connection	*c,uint16	nid);
-			void			removeConnection(uint16	nid);
+			sdk::Array<sdk::ConnectedCommChannel	*>	channels;
 		public:
-			ConnectedControlChannel(node::Node	*node);
+			ConnectedControlChannel(Node	*node);
 			~ConnectedControlChannel();
-			void	scan();
-			void	acceptConnections();
+			void	addChannel(sdk::ConnectedCommChannel	*c);
+			void	removeChannel(uint16	nid);
 			int16	send(sdk::_Payload	*m);
-			int16	recv(sdk::_Payload	**m);
-			void	sendTime();
-			void	recvTime();
+			int16	recv(sdk::_Payload	**m,bool	&more);
+			void	sendTime(int64	t);
+			void	recvTime(int64	&t);
 		};
 
 		typedef	struct{

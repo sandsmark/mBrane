@@ -62,6 +62,8 @@ namespace	mBrane{
 		networkInterfaces[CONTROL]=NULL;
 		networkInterfaces[DATA]=NULL;
 		networkInterfaces[STREAM]=NULL;
+
+		controlChannel=NULL;
 	}
 
 	Node::~Node(){
@@ -74,6 +76,9 @@ namespace	mBrane{
 			delete	networkInterfaces[DATA];
 		if(networkInterfaces[STREAM])
 			delete	networkInterfaces[STREAM];
+
+		if(controlChannel)
+			delete	controlChannel;
 	}
 
 	Node	*Node::init(const	char	*configFileName){
@@ -101,7 +106,7 @@ namespace	mBrane{
 			std::cout<<"Error: NodeConfiguration::Network::Interfaces is missing\n";
 			return	NULL;
 		}
-		XMLNode	discovery=network.getChildNode("Discovery");
+		discovery=network.getChildNode("Discovery");
 		if(!discovery){
 
 			std::cout<<"Error: NodeConfiguration::Network::Discovery is missing\n";
@@ -121,13 +126,13 @@ namespace	mBrane{
 			return	NULL;
 		}else	if(!(networkDiscoveryInterface=NetworkInterface::New<NetworkDiscoveryInterface>(_ndi)))
 			return	NULL;
-		XMLNode	control=network.getChildNode("Control");
-		if(!control){
+		parameters[CONTROL]=network.getChildNode("Control");
+		if(!parameters[CONTROL]){
 
 			std::cout<<"Error: NodeConfiguration::Network::Control is missing\n";
 			return	NULL;
 		}
-		const	char	*ci=control.getAttribute("interface");
+		const	char	*ci=parameters[CONTROL].getAttribute("interface");
 		if(!ci){
 
 			std::cout<<"Error: NodeConfiguration::Network::Control::interface is missing\n";
@@ -141,13 +146,13 @@ namespace	mBrane{
 			return	NULL;
 		}else	if(!(networkInterfaces[CONTROL]=NetworkInterface::New<NetworkCommInterface>(nci)))
 			return	NULL;
-		XMLNode	data=network.getChildNode("Data");
-		if(!data){
+		parameters[DATA]=network.getChildNode("Data");
+		if(!parameters[DATA]){
 
 			std::cout<<"Error: NodeConfiguration::Network::Data is missing\n";
 			return	NULL;
 		}
-		const	char	*di=data.getAttribute("interface");
+		const	char	*di=parameters[DATA].getAttribute("interface");
 		if(!di){
 
 			std::cout<<"Error: NodeConfiguration::Data::interface is missing\n";
@@ -161,13 +166,13 @@ namespace	mBrane{
 			return	NULL;
 		}else	if(!(networkInterfaces[DATA]=NetworkInterface::New<NetworkCommInterface>(ndi)))
 			return	NULL;
-		XMLNode	stream=network.getChildNode("Stream");
-		if(!stream){
+		parameters[STREAM]=network.getChildNode("Stream");
+		if(!parameters[STREAM]){
 
 			std::cout<<"Error: NodeConfiguration::Network::Stream is missing\n";
 			return	NULL;
 		}
-		const	char	*si=stream.getAttribute("interface");
+		const	char	*si=parameters[STREAM].getAttribute("interface");
 		XMLNode	nsi=interfaces.getChildNode(si);
 		if(!nsi){
 
@@ -248,6 +253,7 @@ namespace	mBrane{
 
 		_shutdown=true;
 		Thread::Wait(_threads,_threads.count());
+		stopInterfaces();
 	}
 
 	void	Node::dump(const	char	*fileName){	//	TODO
@@ -288,35 +294,122 @@ namespace	mBrane{
 	void	Node::stop(sdk::_Crank	*c){	//	TODO
 	}
 
+	bool	Node::startInterfaces(){
+
+		if(!networkDiscoveryInterface->start(discovery))
+			return	false;
+		for(uint8	i=0;i<3;i++){
+
+			if(!networkInterfaces[i]->start(parameters[i]))
+				return	false;
+		}
+		return	true;
+	}
+
+	void	Node::stopInterfaces(){
+
+		networkDiscoveryInterface->stop();
+		for(uint8	i=0;i<3;i++)
+			networkInterfaces[i]->stop();
+	}
+
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	uint32	thread_function_call	Node::ScanIDs(void	*args){	//	TODO
+	uint32	thread_function_call	Node::ScanIDs(void	*args){
 
+		uint32	r=0;
+		Node	*node=(Node	*)args;
+		if(!node->startInterfaces()){
+
+			node->shutdown();
+			return	1;
+		}
+
+		uint32	ctrl_size=node->networkInterfaces[CONTROL]->getIDSize();
+		uint32	data_size=node->networkInterfaces[DATA]->getIDSize();
+		uint32	stream_size=node->networkInterfaces[STREAM]->getIDSize();
+		uint32	size=ctrl_size+data_size+stream_size;
+		uint8	*ID=new	uint8[size];
+		node->networkInterfaces[CONTROL]->fillID(ID);
+		node->networkInterfaces[DATA]->fillID(ID+ctrl_size);
+		node->networkInterfaces[STREAM]->fillID(ID+ctrl_size+data_size);
+		node->networkDiscoveryInterface->broadcastID(ID,size);
+
+		ConnectedCommChannel	*ctrl_c;
+		ConnectedCommChannel	*data_c;
+		ConnectedCommChannel	*stream_c;
+		uint16	i=0;
+		//	TODO:	error processing
+		if(!node->networkInterfaces[CONTROL]->canBroadcast())
+			node->controlChannel=new	network::ConnectedControlChannel(node);
+		else{
+
+			node->networkInterfaces[CONTROL]->connect(ID,ctrl_c);
+			node->controlChannel=new	network::BroadcastControlChannel(node,ctrl_c);
+		}
+		while(!node->_shutdown){
+
+			//	TODO:	error processing
+			node->networkDiscoveryInterface->scanID(ID,size);	//	TODO:	timeout and _ID assignment
+			node->networkInterfaces[CONTROL]->connect(ID,ctrl_c);
+			node->networkInterfaces[DATA]->connect(ID,data_c);
+			node->networkInterfaces[STREAM]->connect(ID,stream_c);
+
+			if(!node->networkInterfaces[CONTROL]->canBroadcast())
+				((network::ConnectedControlChannel	*)node->controlChannel)->addChannel(ctrl_c);
+
+			node->dataChannels.alloc();
+			node->dataChannels[i]->data=data_c;
+			node->dataChannels[i]->stream=stream_c;
+			i++;
+		}
+
+		delete	ID;
 		return	0;
 	}
 
 	uint32	thread_function_call	Node::AcceptConnections(void	*args){	//	TODO
 
+		Node	*node=(Node	*)args;
+		while(!node->_shutdown){
+
+		}
 		return	0;
 	}
 
 	uint32	thread_function_call	Node::SendTime(void	*args){	//	TODO
 
+		Node	*node=(Node	*)args;
+		while(!node->_shutdown){
+
+		}
 		return	0;
 	}
 	
 	uint32	thread_function_call	Node::CrankExecutionUnit(void	*args){	//	TODO
 
+		Node	*node=(Node	*)args;
+		while(!node->_shutdown){
+
+		}
 		return	0;
 	}
 
 	uint32	thread_function_call	Node::ReceiveMessages(void	*args){	//	TODO
 
+		Node	*node=(Node	*)args;
+		while(!node->_shutdown){
+
+		}
 		return	0;
 	}
 
 	uint32	thread_function_call	Node::SendMessages(void	*args){	//	TODO
 
+		Node	*node=(Node	*)args;
+		while(!node->_shutdown){
+
+		}
 		return	0;
 	}
 }

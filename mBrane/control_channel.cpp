@@ -27,3 +27,93 @@
 //	ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+#include	"control_channel.h"
+
+
+namespace	mBrane{
+	namespace	network{
+
+		ControlChannel::ControlChannel(Node	*node):node(node){
+		}
+
+		ControlChannel::~ControlChannel(){
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////////////////
+
+		BroadcastControlChannel::BroadcastControlChannel(Node	*node,sdk::CommChannel	*c):ControlChannel(node),channel(c){
+		}
+
+		BroadcastControlChannel::~BroadcastControlChannel(){
+		}
+
+		int16	BroadcastControlChannel::send(sdk::_Payload	*m){
+
+			return	0;
+		}
+
+		int16	BroadcastControlChannel::recv(sdk::_Payload	**m,bool	&more){
+
+			return	0;
+		}
+
+		void	BroadcastControlChannel::sendTime(int64	t){
+
+		}
+
+		void	BroadcastControlChannel::recvTime(int64	&t){
+
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////////////////
+
+		ConnectedControlChannel::ConnectedControlChannel(Node	*node):ControlChannel(node){
+		}
+
+		ConnectedControlChannel::~ConnectedControlChannel(){
+		}
+
+		int16	ConnectedControlChannel::send(sdk::_Payload	*m){
+
+			for(uint32	i=0;i<channels.count();i++){
+
+				//	TODO:	error processing
+				channels[i]->send(m);
+			}
+			return	0;
+		}
+
+		int16	ConnectedControlChannel::recv(sdk::_Payload	**m,bool	&more){
+
+			return	0;
+		}
+
+		void	ConnectedControlChannel::sendTime(int64	t){
+
+			for(uint32	i=0;i<channels.count();i++){
+
+				//	TODO:	error processing
+				channels[i]->send((uint8	*)&t,sizeof(int64));
+			}
+		}
+
+		void	ConnectedControlChannel::recvTime(int64	&t){
+
+			//	TODO:	recv from node 0
+		}
+
+		void	ConnectedControlChannel::addChannel(sdk::ConnectedCommChannel	*c){
+
+			channels.alloc();
+			channels[channels.count()-1]=c;
+		}
+
+		void	ConnectedControlChannel::removeChannel(uint16	nid){
+
+			if(channels[nid])
+				delete	channels[nid];
+			channels[nid]=NULL;
+		}
+	}
+}

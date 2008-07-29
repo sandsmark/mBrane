@@ -38,19 +38,19 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		class	CommChannel;
+		class	ConnectedCommChannel;
 		class	dll	NetworkInterface{
 		public:
 			typedef	uint64	(*RTT)();	//	round trip time estimate
 			typedef	bool	(*CanBroadcast)();	//	as opposed to connected mode
-			typedef	void	(*Start)(XMLNode	*);	//	initialize the network interface; loads parameters from XML file
+			typedef	bool	(*Start)(XMLNode	&);	//	initialize the network interface; loads parameters from XML file; returns true if successful
 			typedef	void	(*Stop)();	//	the network interface
 			typedef	uint32	(*GetIDSize)();	//	node ID to be broadcast
 			typedef	void	(*FillID)(uint8	*);	//	with relevant parameters;
 			typedef	uint16	(*BroadcastID)(uint8	*,uint32);	//	broadcast the ID of the local node
 			typedef	uint16	(*ScanID)(uint8	*,uint32);	//	listen to IDs broadcast by remote nodes
-			typedef	uint16	(*Connect)(uint8	*,uint16,CommChannel	*&);	//	create a new channel from the received remote IDs (ScanID)
-			typedef	uint16	(*AcceptConnection)(CommChannel	*&);	//	listen to connect attempts and creates a new channel accordingly
+			typedef	uint16	(*Connect)(uint8	*,ConnectedCommChannel	*&);	//	create a new channel from the received remote IDs (ScanID)
+			typedef	uint16	(*AcceptConnection)(ConnectedCommChannel	*&);	//	listen to connect attempts and creates a new channel accordingly
 		protected:
 			SharedLibrary	*library;
 			NetworkInterface();
@@ -94,12 +94,13 @@ namespace	mBrane{
 		class	dll	CommChannel{
 		protected:
 			CommChannel();	//	initialization to be performed in subclasses' constructors
-			virtual	int16	send(uint8	*b,size_t	s)=0;	//	return 0 if successfull, error code (>0) otherwise
-			virtual	int16	recv(uint8	*b,size_t	s,bool	peek=false)=0;
 		public:
 			virtual	~CommChannel();	//	shutdown to be performed in subclasses' destructors
 			int16	send(_Payload	*p);	//	return 0 if successfull, error code (>0) otherwise
 			int16	recv(_Payload	**p);
+			virtual	int16	send(uint8	*b,size_t	s)=0;	//	return 0 if successfull, error code (>0) otherwise
+			virtual	int16	recv(uint8	*b,size_t	s,bool	peek=false)=0;
+
 		};
 
 		class	dll	ConnectedCommChannel:

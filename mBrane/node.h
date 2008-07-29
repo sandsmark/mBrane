@@ -59,12 +59,16 @@ namespace	mBrane{
 			STREAM=2
 		}NetworkInterfaceType;
 
+		sdk::XMLNode	discovery;
 		sdk::NetworkDiscoveryInterface	*networkDiscoveryInterface;
-		sdk::NetworkInterface			*networkInterfaces[3];
+		sdk::XMLNode	parameters[3];
+		sdk::NetworkCommInterface		*networkInterfaces[3];
 
-		network::ControlChannel		*controlChannel;
-		network::DataCommChannel	*dataChannels;
-		uint16						dataChannelCount;
+		bool	startInterfaces();
+		void	stopInterfaces();
+
+		network::ControlChannel					*controlChannel;
+		sdk::Array<network::DataCommChannel	*>	dataChannels;
 
 		static	uint32	thread_function_call	SendTime(void	*args);
 		bool	_isTimeReference;
