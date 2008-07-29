@@ -1,12 +1,12 @@
 #ifndef	_test_h
 #define	_test_h
 
-//	DO NOT USE __COUNTER__
+//	LIMITATION: DO NOT USE __COUNTER__
 
 #include	"c.h"	//	user classes declarations
 
 #define	APPLICATION_CLASSES	"application_classes.h"
-#include	"..\Core\application.h"	//	std include
+#include	"..\Core\application.h"	//	std include; mandatory
 
 
 mBrane::sdk::_Crank *	__cdecl	NewCR1(uint16);

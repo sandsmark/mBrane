@@ -33,5 +33,7 @@
 
 namespace	mBrane{
 	namespace	sdk{
+
+		//	TODO:	define built-in control message classes
 	}
 }

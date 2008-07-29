@@ -32,136 +32,73 @@
 #define	mBrane_node_node_h
 
 #include	"..\Core\node.h"
-#include	"..\Core\connection.h"
+#include	"..\Core\network_interface.h"
+#include	"..\Core\message.h"
+#include	"..\Core\array.h"
+#include	"..\Core\utils.h"
+
+#include	"control_channel.h"
 
 
 namespace	mBrane{
-	namespace	node{
 
-		class	Node:
-		public	sdk::Node{
-		private:
-			const	char	*application_configuration_file;
-			shared_object	userLibrary;
-			void	loadUserLibrary(const	char	*fileName);
-			void	unloadUserLibrary();
+	class	Node:
+	public	sdk::Node{
+	private:
+		const	char	*application_configuration_file;
+		SharedLibrary	*userLibrary;
 
-			static	uint32	thread_function	ScanIDs(void	*args);
-			static	uint32	thread_function	AcceptConnections(void	*args);
-			
-			typedef	struct{
-				sdk::Connection::Init			init;
-				sdk::Connection::Shutdown		shutdown;
-				sdk::Connection::BroadcastID	broadcastID;
-				sdk::Connection::ScanID			scanID;
-			}NetworkDiscoveryInterface;
+		char	hostName[255];
 
-			typedef	struct{
-				sdk::Connection::CanBroadcast		canBroadcast;
-				sdk::Connection::Init				init;
-				sdk::Connection::Shutdown			shutdown;
-				sdk::Connection::GetIDSize			getIDSize;
-				sdk::Connection::FillID				fillID;
-				sdk::Connection::Connect			connect;
-				sdk::Connection::AcceptConnection	acceptConnection;
-			}NetworkInterface;
+		static	uint32	thread_function_call	ScanIDs(void	*args);
+		static	uint32	thread_function_call	AcceptConnections(void	*args);
 
-			NetworkDiscoveryInterface	networkDiscoveryInterface;
-			typedef	enum{
-				CTRL=0,
-				DATA=1,
-				STREAM=2
-			}NetworkInterfaceType;
-			NetworkInterface	networkInterfaces[3];
+		typedef	enum{
+			CONTROL=0,
+			DATA=1,
+			STREAM=2
+		}NetworkInterfaceType;
 
-			typedef	struct{
-				sdk::Connection	*data;
-				sdk::Connection	*stream;
-			}DataChannel;
+		sdk::NetworkDiscoveryInterface	*networkDiscoveryInterface;
+		sdk::NetworkInterface			*networkInterfaces[3];
 
-			DataChannel	*dataChannels;
-			uint16	dataChannelCount;
+		network::ControlChannel		*controlChannel;
+		network::DataCommChannel	*dataChannels;
+		uint16						dataChannelCount;
 
-			class	ControlConnection{
-			protected:
-				Node	*node;
-				ControlConnection(Node	*node);
-			public:
-				virtual	~ControlConnection();
-				virtual	void	scan()=0;
-				virtual	void	acceptConnections()=0;
-				virtual	int16	send(sdk::_ControlMessage	*m)=0;	//	broadcast; return 0 if successfull, error code (>0) otherwise
-				virtual	int16	recv(sdk::_ControlMessage	**m)=0;
-				virtual	void	sendTime()=0;
-				virtual	void	recvTime()=0;
-			};
+		static	uint32	thread_function_call	SendTime(void	*args);
+		bool	_isTimeReference;
+		int64	timeDrift;	//	in ms
+		int64	lastSyncTime;	//	in ms
+		int64	localTime();	//	in ms
 
-			class	BroadcastControlConnection:
-			public	ControlConnection{
-			private:
-				sdk::Connection	*connection;
-			public:
-				BroadcastControlConnection(Node	*node,sdk::Connection	*c);
-				~BroadcastControlConnection();
-				void	scan();
-				void	acceptConnections();
-				int16	send(sdk::_ControlMessage	*m);
-				int16	recv(sdk::_ControlMessage	**m);
-				void	sendTime();
-				void	recvTime();
-			};
+		static	uint32	thread_function_call	CrankExecutionUnit(void	*args);
+		//	TODO:	define crank exec units
 
-			class	ConnectedControlConnection:
-			public	ControlConnection{
-			private:
-				sdk::Connection	*connections;
-				uint16			connectionCount;
-				void			addConnection(sdk::Connection	*c,uint16	nid);
-				void			removeConnection(uint16	nid);
-			public:
-				ConnectedControlConnection(Node	*node);
-				~ConnectedControlConnection();
-				void	scan();
-				void	acceptConnections();
-				int16	send(sdk::_ControlMessage	*m);
-				int16	recv(sdk::_ControlMessage	**m);
-				void	sendTime();
-				void	recvTime();
-			};
+		static	uint32	thread_function_call	ReceiveMessages(void	*args);
+		static	uint32	thread_function_call	SendMessages(void	*args);
+		//	TODO:	define routing structures
 
-			ControlConnection	*controlConnection;
-			ControlConnection	*syncConnection;
-			
-			bool	_shutdown;
+		sdk::Array<Thread	*>	_threads;
+		bool	_shutdown;
 
-			bool	isTimeReference();
-			int64	timeDrift;	//	in ms
-
-			static	uint32	thread_function	SendTime(void	*args);
-			static	uint32	thread_function	UpdateTime(void	*args);
-
-			static	uint32	thread_function	CrankExecutionUnit(void	*args);
-			//	TODO:	define crank exec units
-
-			static	uint32	thread_function	ReceiveMessages(void	*args);
-			static	uint32	thread_function	SendMessages(void	*args);
-			//	TODO:	define routing structures
-		public:
-			Node(const	char	*configFileName);
-			~Node();
-			void	run();
-			void	shutdown();
-			void	dump(const	char	*fileName);	//	dumps the current system state
-			void	load(const	char	*fileName);	//	initializes itself from a previously saved system state
-			void	loadApplication(const	char	*fileName=NULL);
-			void	unloadApplication();
-			void	send(uint16	crankID,sdk::_ControlMessage	*m);
-			void	send(uint16	crankID,sdk::_Message	*m);
-			void	send(uint16	crankID,sdk::_StreamData	*m);
-			int64	time();	//	in ms since 01/01/70
-			void	buildCrank(uint16	CID);
-		};
-	}
+		Node();
+		Node	*init(const	char	*configFileName);
+	public:
+		static	Node	*New(const	char	*configFileName);
+		~Node();
+		void	run();
+		void	shutdown();
+		void	dump(const	char	*fileName);	//	dumps the current system state; crank dump fileNames: crank_class_ID.bin: ex: CR1_123.bin
+		void	load(const	char	*fileName);	//	initializes itself from a previously saved system state
+		Node	*loadApplication(const	char	*fileName=NULL);	//	return NULL if unsuccessful; fileName overrides the fileName found in the node config file
+		void	unloadApplication();
+		void	send(sdk::_Crank	*sender,sdk::_Payload	*message);
+		int64	time();	//	in ms since 01/01/70
+		sdk::_Crank	*buildCrank(uint16	CID);
+		void	start(sdk::_Crank	*c);
+		void	stop(sdk::_Crank	*c);
+	};
 }
 
 

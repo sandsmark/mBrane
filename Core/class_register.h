@@ -31,7 +31,7 @@
 #ifndef mBrane_sdk_class_register_h
 #define mBrane_sdk_class_register_h
 
-#include	"register.h"
+#include	"array.h"
 #include	"object.h"
 #include	"memory.h"
 
@@ -44,19 +44,10 @@ namespace	mBrane{
 		private:
 			static	Array<ClassRegister>	Classes;
 			Allocator	*_allocator;
-			size_t		_size;
-			size_t		_offset;
-			bool		_isControlMessageClass;
+			size_t		_size;	//	transmission size
+			size_t		_offset;	//	from this
 		public:
-			template<class	C,class	M>	static	uint16	Load(){
-
-				uint16	CID;
-				ClassRegister	*r=Classes.alloc(CID);
-				r->_allocator=C::_Allocator=M::Get(sizeof(C));
-				r->_size=sizeof(C)-sizeof(_Object)-sizeof(int64);
-				r->_offset=sizeof(_Object)+sizeof(int64);
-				return	CID;
-			}
+			template<class	C,class	M>	static	uint16	Load();
 			static	ClassRegister	*Get(uint16	CID);
 			static	uint16	Count();
 			ClassRegister();
@@ -67,6 +58,9 @@ namespace	mBrane{
 		};
 	}
 }
+
+
+#include	"class_register.tpl.cpp"
 
 
 #endif

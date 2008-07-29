@@ -1,4 +1,4 @@
-// memory.h
+// control_channel.h
 //
 // Author: Eric Nivel
 //
@@ -28,68 +28,71 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef mBrane_sdk_memory_h
-#define mBrane_sdk_memory_h
+#ifndef	mBrane_network_control_channel_h
+#define	mBrane_network_control_channel_h
 
-#include	<cstdlib>
-
-#include	"array.h"
+//#include	"..\Core\node.h"
+//#include	"..\Core\message.h"
+#include	"..\Core\network_interface.h"
 
 
 namespace	mBrane{
-	namespace	sdk{
+	namespace	node{
+		class	Node;
+	}
+	namespace	network{
 
-		class	Allocator{
+		class	ControlChannel{
+		protected:
+			node::Node	*node;
+			ControlChannel(node::Node	*node);
 		public:
-			virtual	void	*alloc()=0;
-			virtual	void	dealloc(void	*o)=0;
+			virtual	~ControlChannel();
+			virtual	void	scan()=0;
+			virtual	void	acceptConnections()=0;
+			virtual	int16	send(sdk::_Payload	*m)=0;	//	broadcast; return 0 if successfull, error code (>0) otherwise
+			virtual	int16	recv(sdk::_Payload	**m)=0;
+			virtual	void	sendTime()=0;
+			virtual	void	recvTime()=0;
 		};
 
-		class	dll	Memory:
-		public	Allocator{
-		template<class	Register>	friend	class	Array;
+		class	BroadcastControlChannel:
+		public	ControlChannel{
 		private:
-			class	MArray:
-			public	Array<Memory>{
-			public:
-				MArray();
-				~MArray();
-				Memory	*init(size_t	s);
-			};
-			static	MArray	Memories;
-			class	Block{
-				const	uint16	objectCount;
-				const	size_t	objectSize;
-				const	size_t	totalSize;
-				Block	*_next;
-				uint8	*firstFree;
-				uint16	freeObjects;
-				uint8	*begin;
-				uint8	*end;
-			public:
-				void	*operator	new(size_t	s,size_t	objectSize,uint16	objectCount);
-				void	operator	delete(void	*b);
-				Block(size_t	objectSize,uint16	objectCount);
-				~Block();
-				Block	*next()	const;
-				Block	*link(Block	*b);
-				void	*alloc();
-				uint8	dealloc(void	*o);
-			};
-			const	size_t	objectSize;
-			Block	*firstBlock;
-			Block	*lastBlock;
-			uint32	freeObjects;
-			Memory(size_t	objectSize);
+			sdk::Connection	*connection;
 		public:
-			static	Memory	*Get(size_t	s);
-			Memory();
-			~Memory();
-			void	*operator	new(size_t	s);
-			void	operator	delete(void	*b);
-			void	*alloc();
-			void	dealloc(void	*o);
+			BroadcastControlChannel(node::Node	*node,sdk::Connection	*c);
+			~BroadcastControlChannel();
+			void	scan();
+			void	acceptConnections();
+			int16	send(sdk::_Payload	*m);
+			int16	recv(sdk::_Payload	**m);
+			void	sendTime();
+			void	recvTime();
 		};
+
+		class	ConnectedControlChannel:
+		public	ControlChannel{
+		private:
+			sdk::Connection	*connections;
+			uint16			connectionCount;
+			void			addConnection(sdk::Connection	*c,uint16	nid);
+			void			removeConnection(uint16	nid);
+		public:
+			ConnectedControlChannel(node::Node	*node);
+			~ConnectedControlChannel();
+			void	scan();
+			void	acceptConnections();
+			int16	send(sdk::_Payload	*m);
+			int16	recv(sdk::_Payload	**m);
+			void	sendTime();
+			void	recvTime();
+		};
+
+		typedef	struct{
+			sdk::ConnectedCommChannel	*data;
+			sdk::ConnectedCommChannel	*stream;
+		}DataCommChannel;
 	}
 }
 

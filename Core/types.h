@@ -100,8 +100,10 @@ namespace	mBrane{
 #endif
 
 #if defined	WINDOWS
-	typedef	HINSTANCE	shared_object;
-	#define	thread_function	WINAPI
+	typedef	HINSTANCE				shared_object;
+	typedef	HANDLE					thread;
+	typedef	LPTHREAD_START_ROUTINE	thread_function;
+	#define	thread_function_call	WINAPI
 #elif defined	LINUX
 #elif defined	OSX
 #endif

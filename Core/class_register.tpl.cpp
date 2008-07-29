@@ -1,6 +1,6 @@
-// connection.cpp
+//	class_register.tpl.cpp
 //
-// Author: Eric Nivel
+//	Author: Eric Nivel
 //
 //	BSD license:
 //	Copyright (c) 2008, Eric Nivel, Thor List
@@ -28,61 +28,17 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include	"connection.h"
-
-
 namespace	mBrane{
 	namespace	sdk{
 
-		Connection::Connection(uint16	remoteNID):remoteNID(remoteNID){
-		}
+		template<class	C,class	M>	static	uint16	ClassRegister::Load(){
 
-		Connection::~Connection(){
-		}
-
-		uint16	Connection::nid(){
-
-			return	remoteNID;
-		}
-		
-		int16	Connection::send(_Payload	*p){
-
-			ClassRegister	*CR=ClassRegister::Get(p->cid());
-			int16	r;
-			if(r=send(((uint8	*)p)+CR->offset(),CR->size()))
-				return	r;
-			for(uint8	i=0;i<p->ptrCount();i++){
-
-				if(r=send(*p->ptr(i)))
-					return	r;
-			}
-			return	0;
-		}
-
-		int16	Connection::recv(_Payload	**p){
-
-			uint16	cid;
-			int16	r;
-			if(r=recv((uint8	*)&cid,sizeof(uint16),true))
-				return	r;
-			ClassRegister	*CR=ClassRegister::Get(cid);
-			*p=(_Payload	*)CR->allocator()->alloc();
-			if(r=recv((uint8	*)*p,CR->size()))
-				return	r;
-			_Payload	*ptr;
-			P<_Payload>	*_ptr;
-			for(uint8	i=0;i<(*p)->ptrCount();i++){
-
-				if(r=recv(&ptr)){
-
-					delete	*p;
-					return	r;
-				}
-				_ptr=(*p)->ptr(i);
-				*_ptr=ptr;
-			}
-			(*p)->init();
-			return	0;
+			uint32	CID;
+			ClassRegister	*r=Classes.alloc(CID);
+			r->_allocator=C::_Allocator=M::Get(sizeof(C));
+			r->_size=sizeof(C)-C::Offset();
+			r->_offset=C::Offset();
+			return	CID;
 		}
 	}
 }

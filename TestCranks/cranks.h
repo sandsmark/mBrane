@@ -16,6 +16,13 @@ public:
 		return	false;
 	}
 	//	define specializations as needed
+	//	alternative: 1 method and a switch, ex:
+	//	template<class	P>	void	process(P	*p){
+	//		switch(p->cid(){
+	//		case	CLASS_ID(C1_FINAL):	... break;
+	//		...
+	//		}
+	//	}
 };
 
 

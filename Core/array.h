@@ -1,4 +1,4 @@
-//	application.h
+//	// array.h
 //
 //	Author: Eric Nivel
 //
@@ -28,46 +28,33 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef	_application_h_
-#define	_application_h_
+#ifndef mBrane_sdk_array_h
+#define mBrane_sdk_array_h
 
-#define	CONTROL_MESSAGE_CLASSES	"control_message_classes.h"
+#include	"types.h"
 
-#define	CONTROL_MESSAGE_CLASS(C)	static	const	uint16	C##_class=__COUNTER__;
-#define	APPLICATION_CLASS(C)	CONTROL_MESSAGE_CLASS(C)
-#include	CONTROL_MESSAGE_CLASSES
-#include	APPLICATION_CLASSES
 
-//	for use in switches (instead of user_class::CID())
-#define	CLASS_ID(C)	C##_class
+namespace	mBrane{
+	namespace	sdk{
 
-template<class	U>	class	Crank:	//	TODO:	in notify and preview switches: insert control message class processing
-public	_Crank{
-protected:
-	static	const	uint16	_CID;
-	Crank(uint16	ID):_Crank(ID){}
-public:
-	static	_Crank	*New(uint16	ID){	return	new	U(ID);	}
-	virtual	~Crank(){}
-	const	uint16	cid(){	return	_CID;	}
-	void	notify(_Payload	*p){
-		switch(p->cid()){
-		#define	CONTROL_MESSAGE_CLASS(C)	case	CLASS_ID(C):	((U	*)this)->process((C	*)p);	return;
-		#include	CONTROL_MESSAGE_CLASSES
-		#include	APPLICATION_CLASSES
-		default:	return;
-		}
+		template<typename	T>	class	Array{
+		protected:
+			T		*_array;
+			uint32	_count;
+		public:
+			Array();
+			~Array();
+			T	*alloc();
+			T	*alloc(uint32	&i);
+			T	*get(uint32	i)	const;
+			uint32	count()	const;
+			operator	T	*();
+		};
 	}
-	bool	preview(_Payload	*p){
-		switch(p->cid()){
-		#define	CONTROL_MESSAGE_CLASS(C)	case	CLASS_ID(C):	return	((U	*)this)->preview((C	*)p);
-		#include	CONTROL_MESSAGE_CLASSES
-		#include	APPLICATION_CLASSES
-		default:	return	false;
-		}
-	}
-};
-template<class	U>	uint16	Crank<U>::_CID=CrankRegister::Load(New);
+}
+
+
+#include	"array.tpl.cpp"
 
 
 #endif

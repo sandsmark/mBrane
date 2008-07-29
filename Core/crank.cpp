@@ -42,7 +42,7 @@ namespace	mBrane{
 			Node::Get()->buildCrank(CID);
 		}
 
-		_Crank::_Crank(uint16	_ID):CircularBuffer<P<_Payload> >(CRANK_INPUT_QUEUE_SIZE),_ID(_ID){
+		_Crank::_Crank(uint16	_ID,bool	canMigrate,bool	canBeSwapped):CircularBuffer<P<_Payload> >(CRANK_INPUT_QUEUE_SIZE),_ID(_ID),_canMigrate(canMigrate),_canBeSwapped(canBeSwapped){
 		}
 
 		_Crank::~_Crank(){
@@ -53,19 +53,51 @@ namespace	mBrane{
 			return	_ID;
 		}
 
-		inline	void	_Crank::send(_Message	*m){
+		inline	bool	_Crank::canMigrate(){
 
-			Node::Get()->send(_ID,m);
+			return	_canMigrate;
 		}
 
-		inline	void	_Crank::send(_ControlMessage	*m){
+		inline	bool	_Crank::canBeSwapped(){
 
-			Node::Get()->send(_ID,m);
+			return	_canBeSwapped;
 		}
 
-		inline	void	_Crank::send(_StreamData	*m){
+		uint32	_Crank::dumpSize(){
 
-			Node::Get()->send(_ID,m);
+			return	0;
+		}
+
+		uint8	*_Crank::dump(){
+
+			return	NULL;
+		}
+
+		void	_Crank::load(uint8	*chunk){
+
+		}
+
+		void	_Crank::start(){
+		}
+
+		void	_Crank::stop(){
+		}
+
+		inline	void	_Crank::swapOut(){
+		}
+
+		inline	void	_Crank::swapIn(){
+		}
+
+		inline	void	_Crank::migrateOut(){
+		}
+
+		inline	void	_Crank::migrateIn(){
+		}
+
+		inline	void	_Crank::send(_Payload	*p){
+
+			Node::Get()->send(this,p);
 		}
 
 		inline	int64	_Crank::time(){

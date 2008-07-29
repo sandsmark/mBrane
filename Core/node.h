@@ -31,25 +31,27 @@
 #ifndef	mBrane_sdk_node_h
 #define	mBrane_sdk_node_h
 
-#include	"message.h"
+#include	"payload.h"
 
 
 namespace	mBrane{
 	namespace	sdk{
 
+		class	_Crank;
 		class	dll	Node{
-		protected:
+		private:
 			static	Node	*Singleton;
+		protected:
 			uint16	_ID;
 			Node();
-			virtual	~Node();
 		public:
 			static	Node	*Get();
+			virtual	~Node();
 			uint16	ID()	const;
-			virtual	void	buildCrank(uint16	CID)=0;
-			virtual	void	send(uint16	crankID,_Message	*m)=0;	//	crankID: of the sender
-			virtual	void	send(uint16	crankID,_ControlMessage	*m)=0;
-			virtual	void	send(uint16	crankID,_StreamData	*m)=0;
+			virtual	_Crank	*buildCrank(uint16	CID)=0;
+			virtual	void	start(_Crank	*c)=0;	//	TODO:	add parameters (target thread, migrable, etc)
+			virtual	void	stop(_Crank	*c)=0;
+			virtual	void	send(_Crank	*sender,_Payload	*p)=0;
 			virtual	int64	time()=0;	//	in ms since 01/01/70
 		};
 	}

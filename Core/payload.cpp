@@ -36,6 +36,11 @@
 namespace	mBrane{
 	namespace	sdk{
 
+		const	size_t	_Payload::Offset(){
+
+			return	sizeof(_Object)+sizeof(int64)*2;
+		}
+
 		inline	_Payload::_Payload():_Object(){
 		}
 
@@ -73,6 +78,16 @@ namespace	mBrane{
 		inline	bool	_Payload::isStreamData()	const{
 
 			return	false;
+		}
+
+		inline	int64	&_Payload::node_send_ts(){
+
+			return	_node_send_ts;
+		}
+
+		inline	int64	&_Payload::node_recv_ts(){
+
+			return	_node_recv_ts;
 		}
 
 		inline	int64	&_Payload::send_ts(){

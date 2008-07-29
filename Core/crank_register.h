@@ -31,7 +31,7 @@
 #ifndef mBrane_sdk_crank_register_h
 #define mBrane_sdk_crank_register_h
 
-#include	"register.h"
+#include	"array.h"
 #include	"crank.h"
 
 

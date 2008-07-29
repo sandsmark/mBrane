@@ -40,11 +40,14 @@ namespace	mBrane{
 		class	dll	_Payload:
 		public	_Object{
 		protected:
+			int64	_node_recv_ts;
 			int64	_recv_ts;
 			uint16	_cid;
+			int64	_node_send_ts;
 			int64	_send_ts;
 			_Payload();
 		public:
+			static	const	size_t	Offset();
 			virtual	~_Payload();
 			uint16	cid()	const;
 			virtual	uint8		ptrCount()	const;
@@ -53,8 +56,10 @@ namespace	mBrane{
 			virtual	bool	isControlMessage()	const;
 			virtual	bool	isMessage()	const;
 			virtual	bool	isStreamData()	const;
-			int64	&send_ts();
-			int64	&recv_ts();
+			int64	&node_send_ts();	//	send timestamp: time of emission from a node
+			int64	&node_recv_ts();	//	recv timestamp: time of reception by a node
+			int64	&send_ts();	//	send timestamp: time of emission from a crank (<= than node_send_ts)
+			int64	&recv_ts();	//	recv timestamp: time of reception by a crank (> than node_recv_ts)
 		};
 
 		template<class	M,class	U>	class	Payload:

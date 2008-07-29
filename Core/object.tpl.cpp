@@ -58,6 +58,16 @@ namespace	mBrane{
 			return	object!=c;
 		}
 
+		template<class	C>	template<class	D>	inline	bool	P<C>::operator	==(P<D>	&p)	const{
+
+			return	object==p.object;
+		}
+
+		template<class	C>	template<class	D>	inline	bool	P<C>::operator	!=(P<D>	&p)	const{
+
+			return	object!=p.object;
+		}
+
 		template<class	C>	inline	bool	P<C>::operator	!()	const{
 
 			return	!object;
@@ -72,6 +82,11 @@ namespace	mBrane{
 			object=c;
 			object->incRef();
 			return	*this;
+		}
+
+		template<class	C>	template<class	D>	inline	P<C>	&P<C>::operator	=(P<D>	&p){
+
+			return	this->operator	=((C	*)p.object);
 		}
 
 		template<class	C>	inline	P<C>	&P<C>::operator	=(P<C>	&p){

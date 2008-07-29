@@ -1,6 +1,6 @@
-//	application.h
+// utils.tpl.cpp
 //
-//	Author: Eric Nivel
+// Author: Eric Nivel
 //
 //	BSD license:
 //	Copyright (c) 2008, Eric Nivel, Thor List
@@ -28,46 +28,26 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef	_application_h_
-#define	_application_h_
+#include	<iostream>
 
-#define	CONTROL_MESSAGE_CLASSES	"control_message_classes.h"
 
-#define	CONTROL_MESSAGE_CLASS(C)	static	const	uint16	C##_class=__COUNTER__;
-#define	APPLICATION_CLASS(C)	CONTROL_MESSAGE_CLASS(C)
-#include	CONTROL_MESSAGE_CLASSES
-#include	APPLICATION_CLASSES
+namespace	mBrane{
 
-//	for use in switches (instead of user_class::CID())
-#define	CLASS_ID(C)	C##_class
+	template<typename	T>	T	SharedLibrary::getFunction(const	char	*functionName){
+		T	function=NULL;
+#if defined	WINDOWS
+		if(library){ 
 
-template<class	U>	class	Crank:	//	TODO:	in notify and preview switches: insert control message class processing
-public	_Crank{
-protected:
-	static	const	uint16	_CID;
-	Crank(uint16	ID):_Crank(ID){}
-public:
-	static	_Crank	*New(uint16	ID){	return	new	U(ID);	}
-	virtual	~Crank(){}
-	const	uint16	cid(){	return	_CID;	}
-	void	notify(_Payload	*p){
-		switch(p->cid()){
-		#define	CONTROL_MESSAGE_CLASS(C)	case	CLASS_ID(C):	((U	*)this)->process((C	*)p);	return;
-		#include	CONTROL_MESSAGE_CLASSES
-		#include	APPLICATION_CLASSES
-		default:	return;
+			T	function=(T)GetProcAddress(library,functionName);
+			if(!function){
+
+				DWORD	error=GetLastError();
+				std::cout<<"GetProcAddress Error: "<<error<<std::endl;
+			}
 		}
-	}
-	bool	preview(_Payload	*p){
-		switch(p->cid()){
-		#define	CONTROL_MESSAGE_CLASS(C)	case	CLASS_ID(C):	return	((U	*)this)->preview((C	*)p);
-		#include	CONTROL_MESSAGE_CLASSES
-		#include	APPLICATION_CLASSES
-		default:	return	false;
-		}
-	}
-};
-template<class	U>	uint16	Crank<U>::_CID=CrankRegister::Load(New);
-
-
+#elif defined LINUX
+#elif defined OSX
 #endif
+		return	function;
+	}
+}

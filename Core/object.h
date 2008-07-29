@@ -65,20 +65,11 @@ namespace	mBrane{
 			bool	operator	==(C	*c)	const;
 			bool	operator	!=(C	*c)	const;
 			bool	operator	!()	const;
-			template<class	D>	bool	operator	==(P<D>	&p)	const{
-
-				return	object==p.object;
-			}
-			template<class	D>	bool	operator	!=(P<D>	&p)	const{
-
-				return	object!=p.object;
-			}
+			template<class	D>	bool	operator	==(P<D>	&p)	const;
+			template<class	D>	bool	operator	!=(P<D>	&p)	const;
 			P<C>	&operator	=(C	*c);
 			P<C>	&operator	=(P<C>	&p);
-			template<class	D>	P<C>	&operator	=(P<D>	&p){
-
-				return	this->operator	=((C	*)p.object);
-			}
+			template<class	D>	P<C>	&operator	=(P<D>	&p);
 		};
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -1,12 +1,17 @@
 <NodeConfiguration application_configuration_file="C:\eric\work\mBrane\mBrane\test_application.xml">
 	<Network>
-		<Plugins>
-			<TCP shared_object="BuiltIn"/>
-			<UDP shared_object="BuiltIn"/>
-			<Infiniband shared_object=""/>
-		</Plugins>
-		<Control id="TCP" interface="eth0" port="10000"/>
-		<Data id="TCP" interface="eth0" port="10001"/>
-		<Streams id="TCP" interface="eth0" port="10002"/>
+		<Interfaces>
+			<TCP shared_library="mBrane_tcp"/>
+			<UDP shared_library="mBrane_udp"/>
+			<Infiniband shared_object="mBrane_ib"/>
+		</Interfaces>
+		<Discovery interface="UDP" nic="eth0" port="10000"/>
+		<Control interface="TCP" nic="eth0" port="10001"/>
+		<Data interface="TCP" nic="eth0" port="10002"/>
+		<Streams interface="TCP" nic="eth0" port="10003"/>
 	</Network>
+	<Nodes><!--SystemReady will be sent when all the nodes listed here are up and running; no need to list the local node (implicit)-->
+		<!--ex: <Node hostname=""/> or <Node address=""/>-->
+	</Nodes>
+	<Time period="10000"/><!--in ms; period at which sync signals are broadcast from the reference node-->
 </NodeConfiguration>

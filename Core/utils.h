@@ -1,4 +1,4 @@
-// register.tpl.cpp
+// utils.h
 //
 // Author: Eric Nivel
 //
@@ -28,47 +28,38 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#ifndef mBrane_utils_h
+#define mBrane_utils_h
+
+#include	"types.h"
+
+
 namespace	mBrane{
-	namespace	sdk{
 
-		template<class	Register>	Array<Register>::Array():_array(NULL),_count(0){
-		}
+	class	dll	SharedLibrary{
+	private:
+		shared_object	library;
+		SharedLibrary();
+		SharedLibrary	*load(const	char	*fileName);
+	public:
+		static	SharedLibrary	*New(const	char	*fileName);
+		~SharedLibrary();
+		template<typename	T>	T	getFunction(const	char	*functionName);
+	};
 
-		template<class	Register>	Array<Register>::~Array(){
-
-			if(_array)
-				delete[]	_array;
-		}
-
-		template<class	Register>	Register	*Array<Register>::alloc(){
-
-			if(_array){
-
-				Register	*oldArray=_array;
-				_array=new	Register[_count+1];
-				memcpy(_array,oldArray,_count*sizeof(Register));
-				_count++;
-			}else
-				_array=new	Register[(++_count)];
-			
-			return	_array+_count-1;
-		}
-
-		template<class	Register>	Register	*Array<Register>::alloc(uint16	&CID){
-
-			Register	*r=alloc();
-			CID=_count-1;
-			return	r;
-		}
-
-		template<class	Register>	inline	Register	*Array<Register>::get(uint16	CID){
-
-			return	_array+CID;
-		}
-
-		template<class	Register>	inline	uint16	Array<Register>::count()	const{
-
-			return	_count;
-		}
-	}
+	class	dll	Thread{
+	private:
+		thread		_thread;
+		Thread();
+	public:
+		static	Thread	*New(thread_function	f,void	*args);
+		static	void	Wait(Thread	**threads,uint32	threadCount);
+		~Thread();
+	};
 }
+
+
+#include	"utils.tpl.cpp"
+
+
+#endif

@@ -265,6 +265,8 @@ typedef struct XMLDLLENTRY XMLNode
     char isDeclaration() const;                                      // is this node a declaration <? .... ?>
     static XMLNode emptyNode();                                      // return XMLNode::emptyXMLNode;
 
+	bool	operator	!(){	return	isEmpty();	}
+
 // to allow shallow/fast copy:
     ~XMLNode();
     XMLNode(const XMLNode &A);

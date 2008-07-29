@@ -1,6 +1,6 @@
-//	application.h
+// utils.cpp
 //
-//	Author: Eric Nivel
+// Author: Eric Nivel
 //
 //	BSD license:
 //	Copyright (c) 2008, Eric Nivel, Thor List
@@ -28,46 +28,87 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef	_application_h_
-#define	_application_h_
+#include	"utils.h"
 
-#define	CONTROL_MESSAGE_CLASSES	"control_message_classes.h"
+#include	<iostream>
 
-#define	CONTROL_MESSAGE_CLASS(C)	static	const	uint16	C##_class=__COUNTER__;
-#define	APPLICATION_CLASS(C)	CONTROL_MESSAGE_CLASS(C)
-#include	CONTROL_MESSAGE_CLASSES
-#include	APPLICATION_CLASSES
 
-//	for use in switches (instead of user_class::CID())
-#define	CLASS_ID(C)	C##_class
+namespace	mBrane{
 
-template<class	U>	class	Crank:	//	TODO:	in notify and preview switches: insert control message class processing
-public	_Crank{
-protected:
-	static	const	uint16	_CID;
-	Crank(uint16	ID):_Crank(ID){}
-public:
-	static	_Crank	*New(uint16	ID){	return	new	U(ID);	}
-	virtual	~Crank(){}
-	const	uint16	cid(){	return	_CID;	}
-	void	notify(_Payload	*p){
-		switch(p->cid()){
-		#define	CONTROL_MESSAGE_CLASS(C)	case	CLASS_ID(C):	((U	*)this)->process((C	*)p);	return;
-		#include	CONTROL_MESSAGE_CLASSES
-		#include	APPLICATION_CLASSES
-		default:	return;
+	SharedLibrary	*SharedLibrary::New(const	char	*fileName){
+
+		SharedLibrary	*sl=new	SharedLibrary();
+		if(sl->load(fileName))
+			return	sl;
+		else{
+		
+			delete	sl;
+			return	NULL;
 		}
 	}
-	bool	preview(_Payload	*p){
-		switch(p->cid()){
-		#define	CONTROL_MESSAGE_CLASS(C)	case	CLASS_ID(C):	return	((U	*)this)->preview((C	*)p);
-		#include	CONTROL_MESSAGE_CLASSES
-		#include	APPLICATION_CLASSES
-		default:	return	false;
-		}
+
+	SharedLibrary::SharedLibrary():library(NULL){
 	}
-};
-template<class	U>	uint16	Crank<U>::_CID=CrankRegister::Load(New);
 
-
+	SharedLibrary::~SharedLibrary(){
+#if defined	WINDOWS
+		if(library)
+			FreeLibrary(library);
+#elif defined LINUX
+#elif defined OSX
 #endif
+	}
+
+	SharedLibrary	*SharedLibrary::load(const	char	*fileName){
+#if defined	WINDOWS
+		library=LoadLibrary(TEXT(fileName));
+		if(!library){
+
+			DWORD	error=GetLastError();
+			std::cout<<"Error: unable to load shared library "<<fileName<<" :"<<error<<std::endl;
+			return	NULL;
+		}
+#elif defined LINUX
+#elif defined OSX
+#endif
+		return	this;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+
+	Thread	*Thread::New(thread_function	f,void	*args){
+
+		Thread	*t=new	Thread();
+#if defined	WINDOWS
+		if(t->_thread=CreateThread(NULL,0,f,args,0,NULL))
+#elif defined LINUX
+#elif defined OSX
+#endif
+			return	t;
+		delete	t;
+		return	NULL;
+	}
+
+	void	Thread::Wait(Thread	**threads,uint32	threadCount){
+
+		if(!threads)
+			return;
+#if defined	WINDOWS
+		for(uint32	i=0;i<threadCount;i++)
+			WaitForSingleObject(threads[i]->_thread,INFINITE);
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
+
+	Thread::Thread(){
+	}
+
+	Thread::~Thread(){
+#if defined	WINDOWS
+		ExitThread(0);
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
+}

@@ -1,6 +1,6 @@
-//	register.h
+// network_interface.tpl.cpp
 //
-//	Author: Eric Nivel
+// Author: Eric Nivel
 //
 //	BSD license:
 //	Copyright (c) 2008, Eric Nivel, Thor List
@@ -28,32 +28,20 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef mBrane_sdk_register_h
-#define mBrane_sdk_register_h
-
-#include	"types.h"
-
-
 namespace	mBrane{
 	namespace	sdk{
 
-		template<class	Register>	class	Array{
-		protected:
-			Register	*_array;
-			uint16		_count;
-		public:
-			Array();
-			~Array();
-			Register	*alloc();
-			Register	*alloc(uint16	&CID);
-			Register	*get(uint16	CID);
-			uint16		count()	const;
-		};
+		template<class	N>	N	*NetworkInterface::New(XMLNode	&n){
+
+			if(!n)
+				return	NULL;
+			N	*_n=new	N();
+			if(!_n->load(n)){
+
+				delete	_n;
+				return	NULL;
+			}
+			return	_n;
+		}
 	}
 }
-
-
-#include	"register.tpl.cpp"
-
-
-#endif
