@@ -31,7 +31,7 @@
 #include	"udp.h"
 
 
-uint64	RTT(){
+uint64	RTT(){	//	TODO
 
 	return	0;
 }
@@ -41,40 +41,46 @@ bool	CanBroadcast(){
 	return	true;
 }
 
-bool	Start(XMLNode	&n){
-
-	return	true;
-}
-
-void	Stop(){
-
-}
-
-uint32	GetIDSize(){
+uint16	Start(XMLNode	&n){	//	TODO
 
 	return	0;
 }
 
-void	FillID(uint8	*ID){
-
-}
-
-uint16	BroadcastID(uint8	*ID,uint32	size){
+uint16	Stop(){	//	TODO
 
 	return	0;
 }
 
-uint16	ScanID(uint8	*ID,uint32	size){
+uint32	GetIDSize(){	//	TODO
+
+	return	0;
+}
+
+void	FillID(uint8	*ID){	//	TODO
+
+}
+
+uint16	BroadcastID(uint8	*ID,uint32	size){	//	TODO
+
+	return	0;
+}
+
+uint16	ScanID(uint8	*ID,uint32	size){	//	TODO
+
+	return	0;
+}
+
+uint16	Bind(uint8	*,BroadcastCommChannel	*&){	//	TODO
 
 	return	0;
 }
 
 uint16	Connect(uint8	*ID,ConnectedCommChannel	*&channel){
 
-	return	0;
+	return	1;
 }
 
-uint16	AcceptConnection(ConnectedCommChannel	*&channel){
+uint16	AcceptConnection(ConnectedCommChannel	*&channel,int32	timeout,bool	&timedout){
 
-	return	0;
+	return	1;
 }

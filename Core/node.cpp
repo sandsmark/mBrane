@@ -41,7 +41,7 @@ namespace	mBrane{
 			return	Singleton;
 		}
 
-		Node::Node(){
+		Node::Node(uint16	ID):_ID(ID){
 			
 			Singleton=this;
 		}

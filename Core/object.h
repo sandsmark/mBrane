@@ -37,7 +37,6 @@
 
 
 namespace	mBrane{
-	namespace	node{	class	Node;	}
 	namespace	sdk{
 
 		class	_Object;

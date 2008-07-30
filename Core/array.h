@@ -42,13 +42,13 @@ namespace	mBrane{
 			T		*_array;
 			uint32	_count;
 		public:
-			Array();
+			Array(uint32	count=0);
 			~Array();
-			T	*alloc();
-			T	*alloc(uint32	&i);
+			T	*alloc(uint32	count=1);
 			T	*get(uint32	i)	const;
 			uint32	count()	const;
-			operator	T	*();
+			T	&operator	[]	(uint32	i);
+			T	*data()	const;
 		};
 	}
 }

@@ -65,6 +65,11 @@ namespace	mBrane{
 		inline	void	_Payload::init(){
 		}
 
+		inline	bool	_Payload::isCrankData()	const{
+
+			return	false;
+		}
+
 		inline	bool	_Payload::isControlMessage()	const{
 
 			return	false;

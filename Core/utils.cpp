@@ -32,6 +32,13 @@
 
 #include	<iostream>
 
+#if defined	WINDOWS
+	#include <sys/timeb.h>
+	#include <time.h>
+#elif defined LINUX
+#elif defined OSX
+#endif
+
 
 namespace	mBrane{
 
@@ -107,6 +114,29 @@ namespace	mBrane{
 	Thread::~Thread(){
 #if defined	WINDOWS
 		ExitThread(0);
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+
+	int64	Time::Get(){
+#if defined	WINDOWS
+		struct	_timeb	local_time;
+		_ftime(&local_time);
+		return	(int64)local_time.time*1000+local_time.millitm;
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+
+	void	Host::Name(char	*name){
+#if defined	WINDOWS
+		uint32	s=255;
+		GetComputerName(name,&s);
 #elif defined LINUX
 #elif defined OSX
 #endif

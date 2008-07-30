@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="Node"
+	Name="mBrane"
 	ProjectGUID="{ABE9E01B-1AEC-4A3E-A65F-7816AA8CFC75}"
 	RootNamespace="mBrane"
 	Keyword="Win32Proj"
@@ -189,10 +189,6 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\control_channel.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\main.cpp"
 				>
 			</File>
@@ -206,10 +202,6 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath=".\control_channel.h"
-				>
-			</File>
 			<File
 				RelativePath=".\node.h"
 				>

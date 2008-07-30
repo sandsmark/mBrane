@@ -37,12 +37,18 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		class	SystemReady:	//	sent when all the nodes specified in the node cfg file are up and running
+		class	dll	SystemReady:	//	sent when all the nodes specified in the node cfg file are up and running
 		public	ControlMessage<SystemReady>{
+		public:
+			SystemReady();
+			~SystemReady();
 		};
 
-		class	TimeSync:
+		class	dll	TimeSync:
 		public	ControlMessage<TimeSync>{
+		public:
+			TimeSync();
+			~TimeSync();
 		};
 	}
 }

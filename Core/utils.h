@@ -56,6 +56,16 @@ namespace	mBrane{
 		static	void	Wait(Thread	**threads,uint32	threadCount);
 		~Thread();
 	};
+
+	class	dll	Time{
+	public:
+		static	int64	Get();	//	in ms since 01/01/1970
+	};
+
+	class	dll	Host{
+	public:
+		static	void	Name(char	*name);	//	name size=255
+	};
 }
 
 

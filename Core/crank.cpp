@@ -68,12 +68,12 @@ namespace	mBrane{
 			return	0;
 		}
 
-		uint8	*_Crank::dump(){
+		_Payload	*_Crank::dump(){
 
 			return	NULL;
 		}
 
-		void	_Crank::load(uint8	*chunk){
+		void	_Crank::load(_Payload	*chunk){
 
 		}
 

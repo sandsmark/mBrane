@@ -40,16 +40,17 @@ using	namespace	mBrane::sdk;
 
 
 extern	"C"{
-uint64	dll_export	RTT();	//	round trip time estimate
-bool	dll_export	CanBroadcast();	//	as opposed to connected mode
-bool	dll_export	Start(XMLNode	&n);	//	initialize the network interface; loads parameters from XML file
-void	dll_export	Stop();	//	the network interface
-uint32	dll_export	GetIDSize();	//	node ID to be broadcast
-void	dll_export	FillID(uint8	*ID);	//	with relevant parameters;
-uint16	dll_export	BroadcastID(uint8	*ID,uint32	size);	//	broadcast the ID of the local node
-uint16	dll_export	ScanID(uint8	*ID,uint32	size);	//	listen to IDs broadcast by remote nodes
-uint16	dll_export	Connect(uint8	*ID,ConnectedCommChannel	*&channel);	//	create a new channel from the received remote IDs (ScanID)
-uint16	dll_export	AcceptConnection(ConnectedCommChannel	*&channel);	//	listen
+uint64	dll_export	RTT();
+bool	dll_export	CanBroadcast();
+uint16	dll_export	Start(XMLNode	&n);
+uint16	dll_export	Stop();
+uint32	dll_export	GetIDSize();
+void	dll_export	FillID(uint8	*ID);
+uint16	dll_export	BroadcastID(uint8	*ID,uint32	size);
+uint16	dll_export	ScanID(uint8	*ID,uint32	size);
+uint16	dll_export	Bind(uint8	*,BroadcastCommChannel	*&);
+uint16	dll_export	Connect(uint8	*ID,ConnectedCommChannel	*&channel);
+uint16	dll_export	AcceptConnection(ConnectedCommChannel	*&channel,int32	timeout,bool	&timedout);
 }
 
 

@@ -38,12 +38,21 @@
 namespace	mBrane{
 	namespace	sdk{
 
+		template<class	Data>	class	CrankData:
+		public	Payload<Memory,CrankData<Data> >,
+		public	Data{
+		public:
+			CrankData();
+			virtual	~CrankData();
+			bool	isCrankData()	const;
+		};
+
 		class	dll	_ControlMessage{
 		protected:
 			uint32	_mid;	//	content identifer
 			uint8	_priority;
 			uint16	_senderNodeID;
-			_ControlMessage();
+			_ControlMessage(uint32	mid=0,uint8	priority=0);
 		public:
 			virtual	~_ControlMessage();
 			operator	_Payload	*()	const;
@@ -56,7 +65,7 @@ namespace	mBrane{
 		public	Payload<Memory,U>,
 		public	_ControlMessage{
 		protected:
-			ControlMessage();
+			ControlMessage(uint32	mid=0,uint8	priority=0);
 		public:
 			virtual	bool	isControlMessage();
 		};

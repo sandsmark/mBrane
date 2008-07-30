@@ -31,7 +31,10 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		template<typename	T>	Array<T>::Array():_array(NULL),_count(0){
+		template<typename	T>	Array<T>::Array(uint32	count):_array(NULL),_count(0){
+
+			if(count)
+				alloc(count);
 		}
 
 		template<typename	T>	Array<T>::~Array(){
@@ -40,25 +43,18 @@ namespace	mBrane{
 				delete[]	_array;
 		}
 
-		template<typename	T>	T	*Array<T>::alloc(){
+		template<typename	T>	T	*Array<T>::alloc(uint32	count){
 
 			if(_array){
 
 				T	*oldArray=_array;
-				_array=new	T[_count+1];
+				_array=new	T[_count+count];
 				memcpy(_array,oldArray,_count*sizeof(T));
 				_count++;
 			}else
-				_array=new	T[(++_count)];
+				_array=new	T[(_count=count)];
 			
 			return	_array+_count-1;
-		}
-
-		template<typename	T>	T	*Array<T>::alloc(uint32	&i){
-
-			T	*r=alloc();
-			i=_count-1;
-			return	r;
 		}
 
 		template<typename	T>	inline	T	*Array<T>::get(uint32	i)	const{
@@ -71,7 +67,14 @@ namespace	mBrane{
 			return	_count;
 		}
 
-		template<typename	T>	inline	Array<T>::operator	T	*(){
+		template<typename	T>	inline	T	&Array<T>::operator	[]	(uint32	i){
+
+			if(i>=_count)
+				alloc(i-_count+1);
+			return	_array[i];
+		}
+
+		template<typename	T>	inline	T	*Array<T>::data()	const{
 
 			return	_array;
 		}

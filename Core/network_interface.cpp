@@ -128,6 +128,11 @@ namespace	mBrane{
 				std::cout<<"Error: "<<n.getName()<<": could not find function FillID\n";
 				return	NULL;
 			}
+			if(!(bind=library->getFunction<Bind>("Bind"))){
+
+				std::cout<<"Error: "<<n.getName()<<": could not find function Bind\n";
+				return	NULL;
+			}
 			if(!(connect=library->getFunction<Connect>("Connect"))){
 
 				std::cout<<"Error: "<<n.getName()<<": could not find function Connect\n";
@@ -151,6 +156,7 @@ namespace	mBrane{
 
 		int16	CommChannel::send(_Payload	*p){
 
+			p->node_send_ts()=Time::Get();
 			ClassRegister	*CR=ClassRegister::Get(p->cid());
 			int16	r;
 			if(r=send(((uint8	*)p)+CR->offset(),CR->size()))
@@ -173,6 +179,7 @@ namespace	mBrane{
 			*p=(_Payload	*)CR->allocator()->alloc();
 			if(r=recv((uint8	*)*p,CR->size()))
 				return	r;
+			(*p)->node_recv_ts()=Time::Get();
 			_Payload	*ptr;
 			P<_Payload>	*_ptr;
 			for(uint8	i=0;i<(*p)->ptrCount();i++){

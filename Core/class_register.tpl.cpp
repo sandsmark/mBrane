@@ -34,7 +34,8 @@ namespace	mBrane{
 		template<class	C,class	M>	static	uint16	ClassRegister::Load(){
 
 			uint32	CID;
-			ClassRegister	*r=Classes.alloc(CID);
+			ClassRegister	*r=Classes.alloc();
+			CID=Classes.count()-1;
 			r->_allocator=C::_Allocator=M::Get(sizeof(C));
 			r->_size=sizeof(C)-C::Offset();
 			r->_offset=C::Offset();

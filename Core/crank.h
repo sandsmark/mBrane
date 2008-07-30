@@ -38,7 +38,7 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		class	dll	_Crank:
+		class	dll	_Crank:	//	migration: migrateOut->dump->payload->send-/ /-receive->load->migrateIn
 		public	CircularBuffer<P<_Payload> >{
 		protected:
 			uint16	_ID;
@@ -54,17 +54,17 @@ namespace	mBrane{
 			uint16	id()	const;
 			bool	canMigrate();	//	on another node; dynamic
 			bool	canBeSwapped();	//	on another thread within the same node; dynamic
-			virtual	uint32	dumpSize();	//	dynamic
-			virtual	uint8	*dump();	//	dumps the current state; can be called anytime
-			virtual	void	load(uint8	*chunk);	//	initializes itself from a previously saved state
-			virtual	void	start();	//	called when the crank is loaded in a thread for the first time, i.e. at node starting time
-			virtual	void	stop();	//	called just before the crank is unloaded from the thread for the last time, i.e. at node shutdown time
-			virtual	void	swapOut();	//	called when the crank is unloaded from its current thread for swapping
-			virtual	void	swapIn();	//	called when the crank is loaded in a new thread after having been swapped out
-			virtual	void	migrateOut();	//	callled when the crank is unloaded from its current thread for migration
-			virtual	void	migrateIn();	//	called when the crank is loaded in a new thread after having migrated
-			virtual	void	notify(_Payload	*p)=0;	//	called when the crank receives a message
-			virtual	bool	preview(_Payload	*p)=0;	//	calls triggered by peek(): one per message peeked at
+			virtual	uint32		dumpSize();	//	dynamic
+			virtual	_Payload	*dump();	//	dumps the current state; can be called anytime
+			virtual	void		load(_Payload	*chunk);	//	initializes itself from a previously saved state
+			virtual	void		start();	//	called when the crank is loaded in a thread for the first time, i.e. at node starting time
+			virtual	void		stop();	//	called just before the crank is unloaded from the thread for the last time, i.e. at node shutdown time
+			virtual	void		swapOut();	//	called when the crank is unloaded from its current thread for swapping
+			virtual	void		swapIn();	//	called when the crank is loaded in a new thread after having been swapped out
+			virtual	void		migrateOut();	//	called when the crank is unloaded from its current thread for migration
+			virtual	void		migrateIn();	//	called when the crank is loaded in a new thread after having migrated
+			virtual	void		notify(_Payload	*p)=0;	//	called when the crank receives a message
+			virtual	bool		preview(_Payload	*p)=0;	//	calls triggered by peek(): one per message peeked at
 			//	TODO: get actual count
 		};
 	}

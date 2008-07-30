@@ -34,6 +34,18 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		//	TODO:	define built-in control message classes
+		SystemReady::SystemReady():ControlMessage<SystemReady>(){
+		}
+
+		SystemReady::~SystemReady(){
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////////////////
+
+		TimeSync::TimeSync():ControlMessage<TimeSync>(){
+		}
+
+		TimeSync::~TimeSync(){
+		}
 	}
 }

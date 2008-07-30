@@ -37,8 +37,6 @@
 #include	"..\Core\array.h"
 #include	"..\Core\utils.h"
 
-#include	"control_channel.h"
-
 
 namespace	mBrane{
 
@@ -59,27 +57,47 @@ namespace	mBrane{
 			STREAM=2
 		}NetworkInterfaceType;
 
-		sdk::XMLNode	discovery;
+		int32	bcastTimeout;
+		uint8	*networkID;
+		uint32	network_ID_size;
+		uint32	network_ctrl_ID_size;
+		uint32	network_data_ID_size;
+		uint32	network_stream_ID_size;
+		sdk::XMLNode					discovery;
 		sdk::NetworkDiscoveryInterface	*networkDiscoveryInterface;
-		sdk::XMLNode	parameters[3];
+		sdk::XMLNode					parameters[3];
 		sdk::NetworkCommInterface		*networkInterfaces[3];
+		void	init(uint16	NID);
 
 		bool	startInterfaces();
 		void	stopInterfaces();
 
-		network::ControlChannel					*controlChannel;
-		sdk::Array<network::DataCommChannel	*>	dataChannels;
+		class	DataCommChannel{
+		public:
+			DataCommChannel();
+			~DataCommChannel();
+			sdk::ConnectedCommChannel	*data;
+			sdk::ConnectedCommChannel	*stream;
+		};
+		sdk::Array<sdk::CommChannel	*>	controlChannels;	//	1 (bcast capable) or many (connected)
+		sdk::Array<DataCommChannel	*>	dataChannels;
 
-		static	uint32	thread_function_call	SendTime(void	*args);
-		bool	_isTimeReference;
+		static	uint32	thread_function_call	Sync(void	*args);
+		bool	isTimeReference;
 		int64	timeDrift;	//	in ms
 		int64	lastSyncTime;	//	in ms
 		int64	syncPeriod;	//	in ms
-		int64	localTime();	//	in ms
 
 		static	uint32	thread_function_call	CrankExecutionUnit(void	*args);
 		//	TODO:	define crank exec units
 
+		void	processError(NetworkInterfaceType	type,uint16	entry);
+		typedef	struct{
+			Node					*n;
+			sdk::CommChannel		*c;
+			uint16					e;
+			NetworkInterfaceType	t;
+		}ReceiveThreadArgs;
 		static	uint32	thread_function_call	ReceiveMessages(void	*args);
 		static	uint32	thread_function_call	SendMessages(void	*args);
 		//	TODO:	define routing structures
@@ -88,9 +106,10 @@ namespace	mBrane{
 		bool	_shutdown;
 
 		Node();
-		Node	*init(const	char	*configFileName);
+		Node	*loadConfig(const	char	*configFileName);
 
 		void	sendLocal(sdk::_Crank	*sender,sdk::_Payload	*message);
+		void	sendTo(uint16	NID,sdk::_Payload	*message);
 	public:
 		static	Node	*New(const	char	*configFileName);
 		~Node();

@@ -38,19 +38,21 @@
 namespace	mBrane{
 	namespace	sdk{
 
+		class	BroadcastCommChannel;
 		class	ConnectedCommChannel;
 		class	dll	NetworkInterface{
 		public:
 			typedef	uint64	(*RTT)();	//	round trip time estimate
 			typedef	bool	(*CanBroadcast)();	//	as opposed to connected mode
-			typedef	bool	(*Start)(XMLNode	&);	//	initialize the network interface; loads parameters from XML file; returns true if successful
-			typedef	void	(*Stop)();	//	the network interface
+			typedef	uint16	(*Start)(XMLNode	&);	//	initialize the network interface; loads parameters from XML file; returns 0 if successful
+			typedef	uint16	(*Stop)();	//	the network interface; returns 0 if successful
 			typedef	uint32	(*GetIDSize)();	//	node ID to be broadcast
-			typedef	void	(*FillID)(uint8	*);	//	with relevant parameters;
-			typedef	uint16	(*BroadcastID)(uint8	*,uint32);	//	broadcast the ID of the local node
-			typedef	uint16	(*ScanID)(uint8	*,uint32);	//	listen to IDs broadcast by remote nodes
-			typedef	uint16	(*Connect)(uint8	*,ConnectedCommChannel	*&);	//	create a new channel from the received remote IDs (ScanID)
-			typedef	uint16	(*AcceptConnection)(ConnectedCommChannel	*&);	//	listen to connect attempts and creates a new channel accordingly
+			typedef	void	(*FillID)(uint8	*);	//	with relevant parameters (different from Node::_ID; ex: IP addr and port)
+			typedef	uint16	(*BroadcastID)(uint8	*,uint32);	//	broadcast the ID of the local node; returns 0 if successful
+			typedef	uint16	(*ScanID)(uint8	*,uint32);	//	listen to IDs broadcast by remote nodes; returns 0 if successful
+			typedef	uint16	(*Bind)(uint8	*,BroadcastCommChannel	*&);	//	create a new channel from the received remote IDs (ScanID); returns 0 if successful
+			typedef	uint16	(*Connect)(uint8	*,ConnectedCommChannel	*&);	//	create a new channel from the received remote IDs (ScanID); returns 0 if successful
+			typedef	uint16	(*AcceptConnection)(ConnectedCommChannel	*&,int32,bool	&);	//	listen to connect attempts and creates a new channel accordingly; returns 0 if successful
 		protected:
 			SharedLibrary	*library;
 			NetworkInterface();
@@ -86,6 +88,7 @@ namespace	mBrane{
 			CanBroadcast		canBroadcast;
 			GetIDSize			getIDSize;
 			FillID				fillID;
+			Bind				bind;
 			Connect				connect;
 			AcceptConnection	acceptConnection;
 		};
@@ -96,11 +99,10 @@ namespace	mBrane{
 			CommChannel();	//	initialization to be performed in subclasses' constructors
 		public:
 			virtual	~CommChannel();	//	shutdown to be performed in subclasses' destructors
-			int16	send(_Payload	*p);	//	return 0 if successfull, error code (>0) otherwise
-			int16	recv(_Payload	**p);
 			virtual	int16	send(uint8	*b,size_t	s)=0;	//	return 0 if successfull, error code (>0) otherwise
 			virtual	int16	recv(uint8	*b,size_t	s,bool	peek=false)=0;
-
+			int16	send(_Payload	*p);	//	return 0 if successfull, error code (>0) otherwise
+			int16	recv(_Payload	**p);
 		};
 
 		class	dll	ConnectedCommChannel:

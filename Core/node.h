@@ -42,8 +42,9 @@ namespace	mBrane{
 		private:
 			static	Node	*Singleton;
 		protected:
-			uint16	_ID;
-			Node();
+			static	const	uint16	NO_ID=0xFFFF;
+			uint16	_ID;	//	max: 0xFFFE
+			Node(uint16	ID=NO_ID);
 		public:
 			static	Node	*Get();
 			virtual	~Node();

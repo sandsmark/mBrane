@@ -34,7 +34,7 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		inline	_ControlMessage::_ControlMessage():_mid(0),_priority(0),_senderNodeID(0){
+		inline	_ControlMessage::_ControlMessage(uint32	mid,uint8	priority):_mid(mid),_priority(_priority),_senderNodeID(0){
 		}
 
 		inline	_ControlMessage::~_ControlMessage(){

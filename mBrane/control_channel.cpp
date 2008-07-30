@@ -42,19 +42,24 @@ namespace	mBrane{
 
 		////////////////////////////////////////////////////////////////////////////////////////////////
 
-		BroadcastControlChannel::BroadcastControlChannel(Node	*node,sdk::CommChannel	*c):ControlChannel(node),channel(c){
+		BroadcastControlChannel::BroadcastControlChannel(Node	*node,sdk::BroadcastCommChannel	*c):ControlChannel(node),channel(c){
 		}
 
 		BroadcastControlChannel::~BroadcastControlChannel(){
+
+			if(channel)
+				delete	channel;
 		}
 
-		int16	BroadcastControlChannel::send(sdk::_Payload	*m){
+		int16	BroadcastControlChannel::send(sdk::_Payload	*m){	//	TODO
 
+			//	TODO:	error=>remove remote node entry from node
 			return	0;
 		}
 
-		int16	BroadcastControlChannel::recv(sdk::_Payload	**m,bool	&more){
+		int16	BroadcastControlChannel::recv(sdk::_Payload	**m){	//	TODO
 
+			//	TODO:	error=>remove remote node entry from node
 			return	0;
 		}
 
@@ -70,21 +75,21 @@ namespace	mBrane{
 
 			for(uint32	i=0;i<channels.count();i++){
 
-				//	TODO:	error processing
+				//	TODO:	error=>remove remote node entry from node
 				channels[i]->send(m);
 			}
 			return	0;
 		}
 
-		int16	ConnectedControlChannel::recv(sdk::_Payload	**m,bool	&more){
+		int16	ConnectedControlChannel::recv(sdk::_Payload	**m){	//	TODO
 
+			//	TODO:	error=>remove remote node entry from node
 			return	0;
 		}
 
-		void	ConnectedControlChannel::addChannel(sdk::ConnectedCommChannel	*c){
+		void	ConnectedControlChannel::addChannel(sdk::ConnectedCommChannel	*c,uint16	NID){
 
-			channels.alloc();
-			channels[channels.count()-1]=c;
+			channels[NID]=c;
 		}
 
 		void	ConnectedControlChannel::removeChannel(uint16	nid){
@@ -93,5 +98,7 @@ namespace	mBrane{
 				delete	channels[nid];
 			channels[nid]=NULL;
 		}
+
+		
 	}
 }

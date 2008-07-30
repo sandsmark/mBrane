@@ -53,6 +53,7 @@ namespace	mBrane{
 			virtual	uint8		ptrCount()	const;
 			virtual	P<_Payload>	*ptr(uint8	i);
 			virtual	void	init();	//	invocation triggered by reception
+			virtual	bool	isCrankData()	const;
 			virtual	bool	isControlMessage()	const;
 			virtual	bool	isMessage()	const;
 			virtual	bool	isStreamData()	const;

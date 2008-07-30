@@ -31,7 +31,20 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		template<class	U>	inline	ControlMessage<U>::ControlMessage():Payload<Memory,U>(){
+		template<class	Data>	inline	CrankData<Data>::CrankData():Payload<Memory,CrankData<Data> >(),Data(){
+		}
+		
+		template<class	Data>	inline	CrankData<Data>::~CrankData(){
+		}
+
+		template<class	Data>	inline	bool	CrankData<Data>::isCrankData()	const{
+
+			return	true;
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////////////////
+
+		template<class	U>	inline	ControlMessage<U>::ControlMessage(uint32	mid,uint8	priority):Payload<Memory,U>(),_ControlMessage(mid,priority){
 		}
 
 		template<class	U>	inline	bool	ControlMessage<U>::isControlMessage(){
