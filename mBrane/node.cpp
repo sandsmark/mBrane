@@ -302,7 +302,7 @@ err:	shutdown();
 				_threads[_threads.count()]=Thread::New(ReceiveMessages,&args);
 			}
 		}
-		//	TODO:	build cranks and load them in CEU
+		//	TODO:	build cranks and start them in CEU
 		//			launch CEU
 		//			wait for nodes (specified in the config file) and send SystemReady to (local) cranks
 	}
@@ -337,6 +337,7 @@ err:	shutdown();
 
 		if(_shutdown)
 			return;
+		//	TODO:	stop cranks
 		_shutdown=true;
 		Thread::Wait(_threads.data(),_threads.count());
 		stopInterfaces();
