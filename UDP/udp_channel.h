@@ -1,4 +1,4 @@
-// network_interface.tpl.cpp
+// udp_channel.h
 //
 // Author: Eric Nivel
 //
@@ -28,20 +28,25 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-namespace	mBrane{
-	namespace	sdk{
+#ifndef	mBrane_udp_channel_h
+#define	mBrane_udp_channel_h
 
-		template<class	N>	N	*NetworkInterface::New(XMLNode	&n){
+#include	"..\Core\network_interface.h"
 
-			if(!n)
-				return	NULL;
-			N	*_n=new	N();
-			if(!_n->load(n)){
 
-				delete	_n;
-				return	NULL;
-			}
-			return	_n;
-		}
-	}
-}
+using	namespace	mBrane;
+using	namespace	mBrane::sdk;
+
+class	UDPChannel:
+public	BroadcastCommChannel{
+private:
+	mBrane::socket	s;
+public:
+	UDPChannel(mBrane::socket	s);
+	~UDPChannel();
+	int16	send(uint8	*b,size_t	s);
+	int16	recv(uint8	*b,size_t	s,bool	peek=false);
+};
+
+
+#endif

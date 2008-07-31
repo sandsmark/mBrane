@@ -37,16 +37,20 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		NetworkInterface::NetworkInterface(){
+		NetworkInterface::NetworkInterface(Protocol	_protocol):_protocol(_protocol){
 		}
 
 		NetworkInterface::~NetworkInterface(){
-
-			if(library)
-				delete	library;
 		}
 
-		NetworkInterface	*NetworkInterface::load(XMLNode	&n){
+		NetworkInterface::Protocol	NetworkInterface::protocol()	const{
+
+			return	_protocol;
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////////////////
+
+		NetworkInterfaceLoader	*NetworkInterfaceLoader::New(XMLNode	&n){
 
 			const	char	*l=n.getAttribute("shared_library");
 			if(!l){
@@ -54,96 +58,34 @@ namespace	mBrane{
 				std::cout<<"Error: "<<n.getName()<<"::shared_library is missing\n";
 				return	NULL;
 			}
+			SharedLibrary	*library;
 			if(library=SharedLibrary::New(l)){
 
-				if(!(start=library->getFunction<Start>("Start"))){
+				NetworkInterface::Load	load;
+				if(!(load=library->getFunction<NetworkInterface::Load>("Load"))){
 
-					std::cout<<"Error: "<<n.getName()<<": could not find function Start\n";
+					std::cout<<"Error: "<<n.getName()<<": could not find function Load\n";
 					return	NULL;
 				}
-				if(!(stop=library->getFunction<Stop>("Stop"))){
-
-					std::cout<<"Error: "<<n.getName()<<": could not find function Stop\n";
-					return	NULL;
-				}
-				return	this;
+				return	new	NetworkInterfaceLoader(library,load);
 			}
 			return	NULL;
 		}
 
-		////////////////////////////////////////////////////////////////////////////////////////////////
-
-		NetworkDiscoveryInterface::NetworkDiscoveryInterface():NetworkInterface(){
+		NetworkInterfaceLoader::NetworkInterfaceLoader(SharedLibrary	*library,NetworkInterface::Load	load):library(library),load(load){
 		}
 
-		NetworkDiscoveryInterface::~NetworkDiscoveryInterface(){
+		NetworkInterfaceLoader::~NetworkInterfaceLoader(){
+
+			if(library)
+				delete	library;
 		}
 
-		NetworkInterface	*NetworkDiscoveryInterface::load(XMLNode	&n){
+		NetworkInterface	*NetworkInterfaceLoader::getInterface(XMLNode	&n){
 
-			if(!NetworkInterface::load(n))
-				return	NULL;
-			if(!(broadcastID=library->getFunction<BroadcastID>("BroadcastID"))){
-
-				std::cout<<"Error: "<<n.getName()<<": could not find function BroadcastID\n";
-				return	NULL;
-			}
-			if(!(scanID=library->getFunction<ScanID>("ScanID"))){
-
-				std::cout<<"Error: "<<n.getName()<<": could not find function ScanID\n";
-				return	NULL;
-			}
-			return	this;
-		}
-
-		////////////////////////////////////////////////////////////////////////////////////////////////
-
-		NetworkCommInterface::NetworkCommInterface():NetworkInterface(){
-		}
-				
-		NetworkCommInterface::~NetworkCommInterface(){
-		}
-
-		NetworkInterface	*NetworkCommInterface::load(XMLNode	&n){
-
-			if(!NetworkInterface::load(n))
-				return	NULL;
-			if(!(rtt=library->getFunction<RTT>("RTT"))){
-
-				std::cout<<"Error: "<<n.getName()<<": could not find function RTT\n";
-				return	NULL;
-			}
-			if(!(canBroadcast=library->getFunction<CanBroadcast>("CanBroadcast"))){
-
-				std::cout<<"Error: "<<n.getName()<<": could not find function CanBroadcast\n";
-				return	NULL;
-			}
-			if(!(getIDSize=library->getFunction<GetIDSize>("GetIDSize"))){
-
-				std::cout<<"Error: "<<n.getName()<<": could not find function GetIDSize\n";
-				return	NULL;
-			}
-			if(!(fillID=library->getFunction<FillID>("FillID"))){
-
-				std::cout<<"Error: "<<n.getName()<<": could not find function FillID\n";
-				return	NULL;
-			}
-			if(!(bind=library->getFunction<Bind>("Bind"))){
-
-				std::cout<<"Error: "<<n.getName()<<": could not find function Bind\n";
-				return	NULL;
-			}
-			if(!(connect=library->getFunction<Connect>("Connect"))){
-
-				std::cout<<"Error: "<<n.getName()<<": could not find function Connect\n";
-				return	NULL;
-			}
-			if(!(acceptConnection=library->getFunction<AcceptConnection>("AcceptConnection"))){
-
-				std::cout<<"Error: "<<n.getName()<<": could not find function AcceptConnection\n";
-				return	NULL;
-			}
-			return	this;
+			if(load)
+				return	load(n);
+			return	NULL;
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////////////////
@@ -198,7 +140,7 @@ namespace	mBrane{
 
 		////////////////////////////////////////////////////////////////////////////////////////////////
 
-		ConnectedCommChannel::ConnectedCommChannel(uint16	remoteNID):CommChannel(),remoteNID(remoteNID){
+		ConnectedCommChannel::ConnectedCommChannel():CommChannel(){
 		}
 
 		ConnectedCommChannel::~ConnectedCommChannel(){

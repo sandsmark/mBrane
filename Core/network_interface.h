@@ -42,55 +42,43 @@ namespace	mBrane{
 		class	ConnectedCommChannel;
 		class	dll	NetworkInterface{
 		public:
-			typedef	uint64	(*RTT)();	//	round trip time estimate
-			typedef	bool	(*CanBroadcast)();	//	as opposed to connected mode
-			typedef	uint16	(*Start)(XMLNode	&);	//	initialize the network interface; loads parameters from XML file; returns 0 if successful
-			typedef	uint16	(*Stop)();	//	the network interface; returns 0 if successful
-			typedef	uint32	(*GetIDSize)();	//	node ID to be broadcast
-			typedef	void	(*FillID)(uint8	*);	//	with relevant parameters (different from Node::_ID; ex: IP addr and port)
-			typedef	uint16	(*BroadcastID)(uint8	*,uint32);	//	broadcast the ID of the local node; returns 0 if successful
-			typedef	uint16	(*ScanID)(uint8	*,uint32);	//	listen to IDs broadcast by remote nodes; returns 0 if successful
-			typedef	uint16	(*Bind)(uint8	*,BroadcastCommChannel	*&);	//	create a new channel from the received remote IDs (ScanID); returns 0 if successful
-			typedef	uint16	(*Connect)(uint8	*,ConnectedCommChannel	*&);	//	create a new channel from the received remote IDs (ScanID); returns 0 if successful
-			typedef	uint16	(*AcceptConnection)(ConnectedCommChannel	*&,int32,bool	&);	//	listen to connect attempts and creates a new channel accordingly; returns 0 if successful
+			typedef	enum{
+				UDP=0,
+				TCP=1,
+				PRM=2,
+				IB=3
+			}Protocol;
 		protected:
-			SharedLibrary	*library;
-			NetworkInterface();
-			virtual	NetworkInterface	*load(XMLNode	&n);
+			Protocol	_protocol;
+			NetworkInterface(Protocol	_protocol);
 		public:
-			template<class	N>	static	N	*New(XMLNode	&n);
+			typedef	NetworkInterface	*(*Load)(XMLNode	&);
 			virtual	~NetworkInterface();
-			Start	start;
-			Stop	stop;			
+			Protocol	protocol()	const;
+			virtual	bool	operator	=(NetworkInterface	*i)=0;
+			virtual	bool	operator	!=(NetworkInterface	*i)=0;
+			virtual	uint64	rtt()=0;	//	round trip time estimate
+			virtual	bool	canBroadcast()=0;	//	as opposed to connected mode
+			virtual	uint16	start()=0;	//	initialize the network interface; loads parameters from XML file; returns 0 if successful
+			virtual	uint16	stop()=0;	//	the network interface; returns 0 if successful
+			virtual	uint32	getIDSize()=0;	//	node ID to be broadcast
+			virtual	void	fillID(uint8	*ID)=0;	//	with relevant parameters (different from Node::_ID; ex: IP addr and port)
+			virtual	uint16	broadcastID(uint8	*ID,uint32	size)=0;	//	broadcast the ID of the local node; returns 0 if successful
+			virtual	uint16	scanID(uint8	*ID,uint32	size)=0;	//	listen to IDs broadcast by remote nodes; returns 0 if successful
+			virtual	uint16	bind(uint8	*,BroadcastCommChannel	*&)=0;	//	create a new channel from the received remote IDs (ScanID); returns 0 if successful
+			virtual	uint16	connect(uint8	*ID,ConnectedCommChannel	*&channel)=0;	//	create a new channel from the received remote IDs (ScanID); returns 0 if successful
+			virtual	uint16	acceptConnection(ConnectedCommChannel	*&channel,int32	timeout,bool	&timedout)=0;	//	listen to connect attempts and creates a new channel accordingly; returns 0 if successful
 		};
 
-		class	dll	NetworkDiscoveryInterface:
-		public	NetworkInterface{
-		friend	class	NetworkInterface;
-		protected:
-			NetworkInterface	*load(XMLNode	&n);
+		class	dll	NetworkInterfaceLoader{
+		private:
+			SharedLibrary	*library;
+			NetworkInterface::Load	load;
+			NetworkInterfaceLoader(SharedLibrary	*library,NetworkInterface::Load	load);
 		public:
-			NetworkDiscoveryInterface();
-			~NetworkDiscoveryInterface();
-			BroadcastID	broadcastID;
-			ScanID		scanID;
-		};
-
-		class	dll	NetworkCommInterface:
-		public	NetworkInterface{
-		friend	class	NetworkInterface;
-		protected:
-			NetworkInterface	*load(XMLNode	&n);
-		public:
-			NetworkCommInterface();
-			~NetworkCommInterface();
-			RTT					rtt;
-			CanBroadcast		canBroadcast;
-			GetIDSize			getIDSize;
-			FillID				fillID;
-			Bind				bind;
-			Connect				connect;
-			AcceptConnection	acceptConnection;
+			static	NetworkInterfaceLoader	*New(XMLNode	&n);
+			~NetworkInterfaceLoader();
+			NetworkInterface	*getInterface(XMLNode	&n);
 		};
 
 		class	_Payload;
@@ -107,10 +95,8 @@ namespace	mBrane{
 
 		class	dll	ConnectedCommChannel:
 		public	CommChannel{
-		private:
-			const	uint16	remoteNID;
 		protected:
-			ConnectedCommChannel(uint16	remoteNID);
+			ConnectedCommChannel();
 		public:
 			virtual	~ConnectedCommChannel();
 			const	uint16	nid()	const;
@@ -125,9 +111,6 @@ namespace	mBrane{
 		};
 	}
 }
-
-
-#include	"network_interface.tpl.cpp"
 
 
 #endif

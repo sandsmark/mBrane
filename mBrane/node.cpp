@@ -52,22 +52,36 @@ namespace	mBrane{
 
 	Node::Node():sdk::Node(),_shutdown(false),networkID(NULL),isTimeReference(false),timeDrift(0){
 
+		networkDiscoveryInterfaceLoader=NULL;
+		networkCommInterfaceLoaders[CONTROL]=NULL;
+		networkCommInterfaceLoaders[DATA]=NULL;
+		networkCommInterfaceLoaders[STREAM]=NULL;
+
 		networkDiscoveryInterface=NULL;
-		networkInterfaces[CONTROL]=NULL;
-		networkInterfaces[DATA]=NULL;
-		networkInterfaces[STREAM]=NULL;
+		networkCommInterfaces[CONTROL]=NULL;
+		networkCommInterfaces[DATA]=NULL;
+		networkCommInterfaces[STREAM]=NULL;
 	}
 
 	Node::~Node(){
 
 		if(networkDiscoveryInterface)
 			delete	networkDiscoveryInterface;
-		if(networkInterfaces[CONTROL])
-			delete	networkInterfaces[CONTROL];
-		if(networkInterfaces[DATA])
-			delete	networkInterfaces[DATA];
-		if(networkInterfaces[STREAM])
-			delete	networkInterfaces[STREAM];
+		if(networkCommInterfaces[CONTROL])
+			delete	networkCommInterfaces[CONTROL];
+		if(networkCommInterfaces[DATA])
+			delete	networkCommInterfaces[DATA];
+		if(networkCommInterfaces[STREAM])
+			delete	networkCommInterfaces[STREAM];
+
+		if(networkDiscoveryInterfaceLoader)
+			delete	networkDiscoveryInterfaceLoader;
+		if(networkCommInterfaceLoaders[CONTROL])
+			delete	networkCommInterfaceLoaders[CONTROL];
+		if(networkCommInterfaceLoaders[DATA])
+			delete	networkCommInterfaceLoaders[DATA];
+		if(networkCommInterfaceLoaders[STREAM])
+			delete	networkCommInterfaceLoaders[STREAM];
 
 		if(networkID)
 			delete[]	networkID;
@@ -95,7 +109,8 @@ namespace	mBrane{
 			std::cout<<"Error: NodeConfiguration::Network::Interfaces is missing\n";
 			return	NULL;
 		}
-		discovery=network.getChildNode("Discovery");
+
+		XMLNode	discovery=network.getChildNode("Discovery");
 		if(!discovery){
 
 			std::cout<<"Error: NodeConfiguration::Network::Discovery is missing\n";
@@ -111,10 +126,17 @@ namespace	mBrane{
 		if(!_ndi){
 
 			std::cout<<"Error: NodeConfiguration::Network::Interfaces::"<<_di<<" is missing\n";
-			networkDiscoveryInterface=NULL;
 			return	NULL;
-		}else	if(!(networkDiscoveryInterface=NetworkInterface::New<NetworkDiscoveryInterface>(_ndi)))
-			return	NULL;
+		}else{
+		
+			if(!(networkDiscoveryInterfaceLoader=NetworkInterfaceLoader::New(_ndi)))
+				return	NULL;
+			if(!(networkDiscoveryInterface=networkDiscoveryInterfaceLoader->getInterface(discovery)))
+				return	NULL;
+		}
+
+		XMLNode	parameters[3];
+
 		parameters[CONTROL]=network.getChildNode("Control");
 		if(!parameters[CONTROL]){
 
@@ -131,10 +153,16 @@ namespace	mBrane{
 		if(!nci){
 
 			std::cout<<"Error: NodeConfiguration::Network::Interfaces::"<<ci<<" is missing\n";
-			networkInterfaces[CONTROL]=NULL;
+			networkCommInterfaces[CONTROL]=NULL;
 			return	NULL;
-		}else	if(!(networkInterfaces[CONTROL]=NetworkInterface::New<NetworkCommInterface>(nci)))
-			return	NULL;
+		}else{
+			
+			if(!(networkCommInterfaceLoaders[CONTROL]=NetworkInterfaceLoader::New(nci)))
+				return	NULL;
+			if(!(networkCommInterfaces[CONTROL]=networkCommInterfaceLoaders[CONTROL]->getInterface(parameters[CONTROL])))
+				return	NULL;
+		}
+
 		parameters[DATA]=network.getChildNode("Data");
 		if(!parameters[DATA]){
 
@@ -151,10 +179,16 @@ namespace	mBrane{
 		if(!ndi){
 
 			std::cout<<"Error: NodeConfiguration::Network::Interfaces::"<<di<<" is missing\n";
-			networkInterfaces[DATA]=NULL;
+			networkCommInterfaces[DATA]=NULL;
 			return	NULL;
-		}else	if(!(networkInterfaces[DATA]=NetworkInterface::New<NetworkCommInterface>(ndi)))
-			return	NULL;
+		}else{
+			
+			if(!(networkCommInterfaceLoaders[DATA]=NetworkInterfaceLoader::New(ndi)))
+				return	NULL;
+			if(!(networkCommInterfaces[DATA]=networkCommInterfaceLoaders[DATA]->getInterface(parameters[DATA])))
+				return	NULL;
+		}
+
 		parameters[STREAM]=network.getChildNode("Stream");
 		if(!parameters[STREAM]){
 
@@ -166,16 +200,23 @@ namespace	mBrane{
 		if(!nsi){
 
 			std::cout<<"Error: NodeConfiguration::Interfaces::"<<si<<" is missing\n";
-			networkInterfaces[STREAM]=NULL;
+			networkCommInterfaces[STREAM]=NULL;
 			return	NULL;
-		}else	if(!(networkInterfaces[STREAM]=NetworkInterface::New<NetworkCommInterface>(nsi)))
-			return	NULL;
+		}else{
+			
+			if(!(networkCommInterfaceLoaders[STREAM]=NetworkInterfaceLoader::New(nsi)))
+				return	NULL;
+			if(!(networkCommInterfaces[STREAM]=networkCommInterfaceLoaders[STREAM]->getInterface(parameters[STREAM])))
+				return	NULL;
+		}
+
 		application_configuration_file=mainNode.getAttribute("application_configuration_file");
 		if(!application_configuration_file){
 
 			std::cout<<"Error: NodeConfiguration::application_configuration_file is missing\n";
 			return	NULL;
 		}
+
 		const	char	*sp=network.getAttribute("sync_period");
 		if(!sp){
 
@@ -183,6 +224,7 @@ namespace	mBrane{
 			return	NULL;
 		}
 		syncPeriod=atoi(sp);
+
 		const	char	*bt=network.getAttribute("bcast_timeout");
 		if(!bt){
 
@@ -190,6 +232,7 @@ namespace	mBrane{
 			return	NULL;
 		}
 		bcastTimeout=atoi(bt);
+
 		return	this;
 	}
 
@@ -244,18 +287,18 @@ namespace	mBrane{
 		if(!startInterfaces())
 			goto	err;
 
-		network_ctrl_ID_size=networkInterfaces[CONTROL]->getIDSize();
-		network_data_ID_size=networkInterfaces[DATA]->getIDSize();
-		network_stream_ID_size=networkInterfaces[STREAM]->getIDSize();
+		network_ctrl_ID_size=networkCommInterfaces[CONTROL]->getIDSize();
+		network_data_ID_size=networkCommInterfaces[DATA]->getIDSize();
+		network_stream_ID_size=networkCommInterfaces[STREAM]->getIDSize();
 		networkID=new	uint8[network_ID_size=network_ctrl_ID_size+network_data_ID_size+network_stream_ID_size];
-		networkInterfaces[CONTROL]->fillID(networkID);
-		networkInterfaces[DATA]->fillID(networkID+network_ctrl_ID_size);
-		networkInterfaces[STREAM]->fillID(networkID+network_ctrl_ID_size+network_data_ID_size);
+		networkCommInterfaces[CONTROL]->fillID(networkID);
+		networkCommInterfaces[DATA]->fillID(networkID+network_ctrl_ID_size);
+		networkCommInterfaces[STREAM]->fillID(networkID+network_ctrl_ID_size+network_data_ID_size);
 
-		if(networkInterfaces[CONTROL]->canBroadcast()){
+		if(networkCommInterfaces[CONTROL]->canBroadcast()){
 		
 			BroadcastCommChannel	*ctrl_c;
-			if(networkInterfaces[CONTROL]->bind(networkID,ctrl_c))
+			if(networkCommInterfaces[CONTROL]->bind(networkID,ctrl_c))
 				goto	err;
 			controlChannels[0]=ctrl_c;
 		}
@@ -287,7 +330,7 @@ err:	shutdown();
 
 		for(uint16	i=0;dataChannels.count();i++){
 
-			if(networkInterfaces[DATA]!=networkInterfaces[CONTROL]){
+			if(networkCommInterfaces[DATA]!=networkCommInterfaces[CONTROL]){
 
 				args.c=dataChannels[i]->data;
 				args.e=i;
@@ -295,7 +338,7 @@ err:	shutdown();
 				_threads[_threads.count()]=Thread::New(ReceiveMessages,&args);
 			}
 
-			if(networkInterfaces[STREAM]!=networkInterfaces[DATA]){
+			if(networkCommInterfaces[STREAM]!=networkCommInterfaces[DATA]){
 
 				args.c=dataChannels[i]->stream;
 				args.t=STREAM;
@@ -386,11 +429,11 @@ err:	shutdown();
 
 	bool	Node::startInterfaces(){
 
-		if(!networkDiscoveryInterface->start(discovery))
+		if(!networkDiscoveryInterface->start())
 			return	false;
 		for(uint8	i=0;i<3;i++){
 
-			if(!networkInterfaces[i]->start(parameters[i]))
+			if(!networkCommInterfaces[i]->start())
 				return	false;
 		}
 		return	true;
@@ -400,7 +443,7 @@ err:	shutdown();
 
 		networkDiscoveryInterface->stop();
 		for(uint8	i=0;i<3;i++)
-			networkInterfaces[i]->stop();
+			networkCommInterfaces[i]->stop();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
@@ -419,18 +462,18 @@ err:	shutdown();
 
 			if(r=node->networkDiscoveryInterface->scanID(remoteNetworkID,node->network_ID_size))
 				goto	err;
-			if(!node->networkInterfaces[CONTROL]->canBroadcast()){
+			if(!node->networkCommInterfaces[CONTROL]->canBroadcast()){
 
 				ConnectedCommChannel	*ctrl_c;
-				if(r=node->networkInterfaces[CONTROL]->connect(remoteNetworkID,ctrl_c))
+				if(r=node->networkCommInterfaces[CONTROL]->connect(remoteNetworkID,ctrl_c))
 					goto	err;
 
 				node->controlChannels[remoteNID]=ctrl_c;
 			}
 			
-			if(node->networkInterfaces[DATA]!=node->networkInterfaces[CONTROL]){
+			if(node->networkCommInterfaces[DATA]->operator !=(node->networkCommInterfaces[CONTROL])){
 
-				if(r=node->networkInterfaces[DATA]->connect(remoteNetworkID+node->network_ctrl_ID_size,data_c))
+				if(r=node->networkCommInterfaces[DATA]->connect(remoteNetworkID+node->network_ctrl_ID_size,data_c))
 					goto	err;
 				if(node->isTimeReference)
 					remoteNID=node->dataChannels.count();
@@ -440,9 +483,9 @@ err:	shutdown();
 					goto	err;
 			}
 
-			if(node->networkInterfaces[STREAM]!=node->networkInterfaces[DATA]){
+			if(node->networkCommInterfaces[STREAM]->operator !=(node->networkCommInterfaces[DATA])){
 
-				if(r=node->networkInterfaces[STREAM]->connect(remoteNetworkID+node->network_ctrl_ID_size+node->network_data_ID_size,stream_c))
+				if(r=node->networkCommInterfaces[STREAM]->connect(remoteNetworkID+node->network_ctrl_ID_size+node->network_data_ID_size,stream_c))
 					goto	err;
 			}
 
@@ -477,9 +520,9 @@ err:	delete[]	remoteNetworkID;
 			ConnectedCommChannel	*data_c;
 			ConnectedCommChannel	*stream_c;
 			
-			if(!node->networkInterfaces[CONTROL]->canBroadcast()){
+			if(!node->networkCommInterfaces[CONTROL]->canBroadcast()){
 
-				if(r=node->networkInterfaces[CONTROL]->acceptConnection(ctrl_c,timeout,timedout))
+				if(r=node->networkCommInterfaces[CONTROL]->acceptConnection(ctrl_c,timeout,timedout))
 					goto	err;
 				if(timedout)
 					goto	ref;
@@ -490,9 +533,9 @@ err:	delete[]	remoteNetworkID;
 				node->controlChannels[remoteNID]=ctrl_c;
 			}
 
-			if(node->networkInterfaces[DATA]!=node->networkInterfaces[CONTROL]){
+			if(node->networkCommInterfaces[DATA]->operator !=(node->networkCommInterfaces[CONTROL])){
 
-				if(r=node->networkInterfaces[DATA]->acceptConnection(data_c,timeout,timedout))
+				if(r=node->networkCommInterfaces[DATA]->acceptConnection(data_c,timeout,timedout))
 					goto	err;
 				if(timedout)
 					goto	ref;
@@ -508,9 +551,9 @@ err:	delete[]	remoteNetworkID;
 				node->dataChannels[remoteNID]->data=data_c;
 			}
 
-			if(node->networkInterfaces[STREAM]!=node->networkInterfaces[DATA]){
+			if(node->networkCommInterfaces[STREAM]->operator !=(node->networkCommInterfaces[DATA])){
 
-				if(r=node->networkInterfaces[STREAM]->acceptConnection(stream_c,-1,timedout))
+				if(r=node->networkCommInterfaces[STREAM]->acceptConnection(stream_c,-1,timedout))
 					goto	err;
 				if(r=stream_c->recv((uint8	*)&remoteNID,sizeof(uint16)))
 					goto	err;
@@ -579,7 +622,7 @@ ref:	node->isTimeReference=true;
 			}
 
 			if(!node->isTimeReference)
-				node->timeDrift=p->node_recv_ts()-p->node_send_ts()-node->networkInterfaces[type]->rtt();	//	TODO:	check how long rtt takes
+				node->timeDrift=p->node_recv_ts()-p->node_send_ts()-node->networkCommInterfaces[type]->rtt();	//	TODO:	check how long rtt takes
 			
 			if(p->cid()!=TimeSync::CID()){
 

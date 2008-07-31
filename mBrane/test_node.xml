@@ -5,6 +5,7 @@
 		<Interfaces>
 			<TCP shared_library="mBrane_tcp"/>
 			<UDP shared_library="mBrane_udp"/>
+			<PRM shared_library="mBrane_prm"/>
 			<Infiniband shared_object="mBrane_ib"/><!--MPI, Linux only-->
 		</Interfaces>
 		<Discovery interface="UDP" nic="eth0" port="10000"/>

@@ -63,10 +63,10 @@ namespace	mBrane{
 		uint32	network_ctrl_ID_size;
 		uint32	network_data_ID_size;
 		uint32	network_stream_ID_size;
-		sdk::XMLNode					discovery;
-		sdk::NetworkDiscoveryInterface	*networkDiscoveryInterface;
-		sdk::XMLNode					parameters[3];
-		sdk::NetworkCommInterface		*networkInterfaces[3];
+		sdk::NetworkInterfaceLoader	*networkDiscoveryInterfaceLoader;
+		sdk::NetworkInterface		*networkDiscoveryInterface;
+		sdk::NetworkInterfaceLoader	*networkCommInterfaceLoaders[3];
+		sdk::NetworkInterface		*networkCommInterfaces[3];
 		void	init(uint16	NID);
 
 		bool	startInterfaces();

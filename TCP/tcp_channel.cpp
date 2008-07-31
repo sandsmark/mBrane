@@ -1,4 +1,4 @@
-// udp.h
+// tcp_channel.cpp
 //
 // Author: Eric Nivel
 //
@@ -28,19 +28,24 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef	mBrane_udp_h
-#define	mBrane_udp_h
-
-#include	"..\Core\xml_parser.h"
-#include	"..\Core\network_interface.h"
+#include	"tcp_channel.h"
 
 
 using	namespace	mBrane;
 using	namespace	mBrane::sdk;
 
-extern	"C"{
-NetworkInterface	dll_export	*Load(XMLNode	&n);
+TCPChannel::TCPChannel(mBrane::socket	s):ConnectedCommChannel(),s(s){
 }
 
+TCPChannel::~TCPChannel(){
+}
 
-#endif
+int16	TCPChannel::send(uint8	*b,size_t	s){	//	TODO
+
+	return	0;
+}
+
+int16	TCPChannel::recv(uint8	*b,size_t	s,bool	peek){	//	TODO
+
+	return	0;
+}

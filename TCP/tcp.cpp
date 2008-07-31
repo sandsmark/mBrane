@@ -29,58 +29,10 @@
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include	"tcp.h"
+#include	"tcp_interface.h"
 
 
-uint64	RTT(){	//	TODO
+NetworkInterface	*Load(XMLNode	&n){
 
-	return	0;
-}
-
-bool	CanBroadcast(){
-
-	return	false;
-}
-
-uint16	Start(XMLNode	&n){	//	TODO
-
-	return	0;
-}
-
-uint16	Stop(){	//	TODO
-
-	return	0;
-}
-
-uint32	GetIDSize(){	//	TODO
-
-	return	0;
-}
-
-void	FillID(uint8	*ID){	//	TODO
-
-}
-
-uint16	BroadcastID(uint8	*ID,uint32	size){
-
-	return	1;
-}
-
-uint16	ScanID(uint8	*ID,uint32	size){
-
-	return	1;
-}
-
-uint16	Bind(uint8	*,BroadcastCommChannel	*&){
-
-	return	1;
-}
-
-uint16	Connect(uint8	*ID,ConnectedCommChannel	*&channel){	//	TODO
-
-	return	0;
-}
-
-uint16	AcceptConnection(ConnectedCommChannel	*&channel,int32	timeout,bool	&timedout){	//	TODO
-
-	return	0;
+	return	TCPInterface::New(n);
 }

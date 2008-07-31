@@ -62,7 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Core.lib"
+				AdditionalDependencies="Core.lib WS2_32.lib"
 				OutputFile="$(OutDir)\mBrane_udp.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="$(OutDir)"
@@ -140,7 +140,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Core.lib"
+				AdditionalDependencies="Core.lib WS2_32.lib"
 				OutputFile="$(OutDir)\mBrane_udp.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(OutDir)"
@@ -188,6 +188,14 @@
 				RelativePath=".\udp.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\udp_channel.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\udp_interface.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -196,6 +204,14 @@
 			>
 			<File
 				RelativePath=".\udp.h"
+				>
+			</File>
+			<File
+				RelativePath=".\udp_channel.h"
+				>
+			</File>
+			<File
+				RelativePath=".\udp_interface.h"
 				>
 			</File>
 		</Filter>

@@ -1,4 +1,4 @@
-// udp.h
+// tcp_interface.cpp
 //
 // Author: Eric Nivel
 //
@@ -28,19 +28,93 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef	mBrane_udp_h
-#define	mBrane_udp_h
-
-#include	"..\Core\xml_parser.h"
-#include	"..\Core\network_interface.h"
+#include	"tcp_interface.h"
+#include	"tcp_channel.h"
 
 
-using	namespace	mBrane;
-using	namespace	mBrane::sdk;
+TCPInterface	*TCPInterface::New(XMLNode &n){
 
-extern	"C"{
-NetworkInterface	dll_export	*Load(XMLNode	&n);
+	TCPInterface	*i=new	TCPInterface();
+	if(!i->load(n)){
+
+		delete	i;
+		return	NULL;
+	}
+	return	i;
 }
 
+TCPInterface::TCPInterface():NetworkInterface(TCP){
+}
 
-#endif
+TCPInterface::~TCPInterface(){
+}
+
+bool	TCPInterface::load(XMLNode	&n){	//	TODO
+
+	return	false;
+}
+
+bool	TCPInterface::operator	=(NetworkInterface	*i){	//	TODO
+
+	return	false;
+}
+
+bool	TCPInterface::operator	!=(NetworkInterface	*i){
+
+	return	!operator	=(i);
+}
+
+uint64	TCPInterface::rtt(){	//	TODO
+
+	return	0;
+}
+
+bool	TCPInterface::canBroadcast(){
+
+	return	false;
+}
+
+uint16	TCPInterface::start(){	//	TODO
+
+	return	0;
+}
+
+uint16	TCPInterface::stop(){	//	TODO
+
+	return	0;
+}
+
+uint32	TCPInterface::getIDSize(){	//	TODO
+
+	return	0;
+}
+
+void	TCPInterface::fillID(uint8	*ID){	//	TODO
+
+	
+}
+
+uint16	TCPInterface::broadcastID(uint8	*ID,uint32	size){
+
+	return	1;
+}
+
+uint16	TCPInterface::scanID(uint8	*ID,uint32	size){
+
+	return	1;
+}
+
+uint16	TCPInterface::bind(uint8	*,BroadcastCommChannel	*&){
+
+	return	1;
+}
+
+uint16	TCPInterface::connect(uint8	*ID,ConnectedCommChannel	*&channel){	//	TODO
+
+	return	0;
+}
+
+uint16	TCPInterface::acceptConnection(ConnectedCommChannel	*&channel,int32	timeout,bool	&timedout){	//	TODO
+
+	return	0;
+}

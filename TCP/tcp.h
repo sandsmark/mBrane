@@ -28,29 +28,18 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef	mBrane_udp_h
-#define	mBrane_udp_h
+#ifndef	mBrane_tcp_h
+#define	mBrane_tcp_h
 
-#include	"..\Core\types.h"
 #include	"..\Core\xml_parser.h"
 #include	"..\Core\network_interface.h"
+
 
 using	namespace	mBrane;
 using	namespace	mBrane::sdk;
 
-
 extern	"C"{
-uint64	dll_export	RTT();
-bool	dll_export	CanBroadcast();
-uint16	dll_export	Start(XMLNode	&n);
-uint16	dll_export	Stop();
-uint32	dll_export	GetIDSize();
-void	dll_export	FillID(uint8	*ID);
-uint16	dll_export	BroadcastID(uint8	*ID,uint32	size);
-uint16	dll_export	ScanID(uint8	*ID,uint32	size);
-uint16	dll_export	Bind(uint8	*,BroadcastCommChannel	*&);
-uint16	dll_export	Connect(uint8	*ID,ConnectedCommChannel	*&channel);
-uint16	dll_export	AcceptConnection(ConnectedCommChannel	*&channel,int32	timeout,bool	&timedout);
+NetworkInterface	dll_export	*Load(XMLNode	&n);
 }
 
 

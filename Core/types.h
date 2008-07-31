@@ -36,7 +36,9 @@
 #include	"config.h"
 
 #if defined WINDOWS
+	#define	WIN32_LEAN_AND_MEAN
 	#include	<windows.h>
+	#include	<winsock2.h>
 
 	#if defined	BUILD_DLL
 		#define dll	__declspec(dllexport)
@@ -106,6 +108,7 @@ namespace	mBrane{
 	typedef	HANDLE					thread;
 	typedef	LPTHREAD_START_ROUTINE	thread_function;
 	#define	thread_function_call	WINAPI
+	typedef	SOCKET					socket;
 #elif defined	LINUX
 #elif defined	OSX
 #endif
