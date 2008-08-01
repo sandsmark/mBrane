@@ -105,6 +105,8 @@ namespace	mBrane{
 
 				((_StreamData	*)p)->compress();
 				uint32	s=((_StreamData	*)p)->compressedSize();
+				if(r=send(((uint8	*)&s,sizeof(uint32)))
+					return	r;
 				if(r=send(((uint8	*)p)+CR->offset(),s>CR->size()?s:CR->size()))
 					return	r;
 			}else	if(r=send(((uint8	*)p)+CR->offset(),CR->size()))
@@ -117,7 +119,7 @@ namespace	mBrane{
 			return	0;
 		}
 
-		int16	CommChannel::recv(_Payload	**p){
+		int16	CommChannel::recv(_Payload	**p){	//	TODO:	recv compressed size; decompress; BTW: generalize hascodec/co/dec to _Payload
 
 			uint16	cid;
 			int16	r;
