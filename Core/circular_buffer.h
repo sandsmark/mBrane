@@ -49,7 +49,7 @@ namespace	mBrane{
 			uint32	_count;
 			void	_clear();
 		public:
-			class	Iterator{
+			class	Iterator{	//	usage:	protect loops by Mutex
 			friend	class	CircularBuffer;
 			private:
 				const	CircularBuffer	*buffer;
@@ -75,6 +75,7 @@ namespace	mBrane{
 			void	clear();
 			Iterator	&begin()	const{	return	Iterator(this,head);	}
 			Iterator	&end()	const{	return	Iterator(this,tail);	}
+			Iterator	&very_end()	const{	if(head-1)	return	Iterator(this,head-1);	else	return	Iterator(this,_size);	}
 		};
 	}
 }

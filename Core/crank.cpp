@@ -124,6 +124,8 @@ namespace	mBrane{
 
 		inline	void	_Crank::peek(int32	depth){
 
+			Mutex::acquire();
+
 			Iterator	i;
 			uint32	d=0;
 			for(i=begin();i!=end()	&&	d<depth;i++,d++){
@@ -134,6 +136,8 @@ namespace	mBrane{
 				if(preview(p))
 					((P<_Payload>)i)=NULL;
 			}
+
+			Mutex::release();
 		}
 
 		inline	void	_Crank::send(_Payload	*p)	const{

@@ -40,6 +40,7 @@
 using	namespace	mBrane::sdk;
 
 #define	DEFAULT_TIME_GATE_DEPTH	32
+#define	DEFAULT_MESSAGE_QUEUE_SIZE	16
 
 namespace	mBrane{
 
@@ -65,6 +66,10 @@ namespace	mBrane{
 		networkCommInterfaces[STREAM]=NULL;
 
 		timeGate.init(DEFAULT_TIME_GATE_DEPTH);
+		CircularBuffer<MessageBuffer>::Iterator	i;
+		for(i=timeGate.begin();i!=timeGate.very_end();i++)
+			for(uint32	j=0;j<MESSAGE_PRIORITY_LEVELS;j++)
+				((MessageBuffer)i)[j].init(DEFAULT_MESSAGE_QUEUE_SIZE);
 	}
 
 	Node::~Node(){
@@ -683,15 +688,19 @@ ref:	node->isTimeReference=true;
 			P<_Payload>	*p;
 			if(crank->run()){
 
-				p=crank->pop();
+				do
+					p=crank->pop();
+				while(!*p);	//	*p can be NULL (when preview returns true)
 				(*p)->recv_ts()=Time::Get();
 				crank->notify(*p);
 				*p=NULL;
 			}else{
 
-				p=crank->pop(false);
+loop:			p=crank->pop(false);
 				if(p){
 
+					if(!*p)	//	*p can be NULL (when preview returns true)
+						goto	loop;
 					(*p)->recv_ts()=Time::Get();
 					crank->notify(*p);
 					*p=NULL;
