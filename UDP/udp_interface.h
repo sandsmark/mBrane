@@ -52,7 +52,7 @@ private:
 public:
 	static	UDPInterface	*New(XMLNode	&n);
 	~UDPInterface();
-	bool	operator	=(NetworkInterface	*i);
+	bool	operator	==(NetworkInterface	*i);
 	bool	operator	!=(NetworkInterface	*i);
 	uint64	rtt();
 	bool	canBroadcast();

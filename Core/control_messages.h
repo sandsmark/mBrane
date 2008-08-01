@@ -50,6 +50,26 @@ namespace	mBrane{
 			TimeSync();
 			~TimeSync();
 		};
+
+		class	dll	NodeJoined:
+		public	ControlMessage<NodeJoined>{
+		private:
+			uint16	NID;
+		public:
+			NodeJoined();
+			~NodeJoined();
+			uint16	&nid();
+		};
+
+		class	dll	NodeLeft:
+		public	ControlMessage<NodeLeft>{
+		private:
+			uint16	NID;
+		public:
+			NodeLeft();
+			~NodeLeft();
+			uint16	&nid();
+		};
 	}
 }
 

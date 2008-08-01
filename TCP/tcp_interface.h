@@ -41,12 +41,18 @@ using	namespace	mBrane::sdk;
 class	TCPInterface:
 public	NetworkInterface{
 private:
+	static	uint32	Intialized;
+	static	bool	Init();
+	static	void	Shutdown();
+	mBrane::socket	s;
+	struct in_addr	address;
+	uint32	port;
 	TCPInterface();
 	bool	load(XMLNode	&n);
 public:
 	static	TCPInterface	*New(XMLNode	&n);
 	~TCPInterface();
-	bool	operator	=(NetworkInterface	*i);
+	bool	operator	==(NetworkInterface	*i);
 	bool	operator	!=(NetworkInterface	*i);
 	uint64	rtt();
 	bool	canBroadcast();

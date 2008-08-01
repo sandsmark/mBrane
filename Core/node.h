@@ -52,8 +52,8 @@ namespace	mBrane{
 			virtual	_Crank	*buildCrank(uint16	CID)=0;
 			virtual	void	start(_Crank	*c)=0;	//	TODO:	add parameters (target thread, migrable, etc)
 			virtual	void	stop(_Crank	*c)=0;
-			virtual	void	send(_Crank	*sender,_Payload	*p)=0;
-			virtual	int64	time()=0;	//	in ms since 01/01/70
+			virtual	void	send(const	_Crank	*sender,_Payload	*p)=0;
+			virtual	int64	time()	const=0;	//	in ms since 01/01/70
 		};
 	}
 }

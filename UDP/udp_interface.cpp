@@ -105,7 +105,7 @@ err:Shutdown();
 	return	false;
 }
 
-bool	UDPInterface::operator	=(NetworkInterface	*i){
+bool	UDPInterface::operator	==(NetworkInterface	*i){
 
 	if(i->protocol()!=protocol())
 		return	false;
@@ -114,7 +114,7 @@ bool	UDPInterface::operator	=(NetworkInterface	*i){
 
 bool	UDPInterface::operator	!=(NetworkInterface	*i){
 
-	return	!operator	=(i);
+	return	!operator	==(i);
 }
 
 uint64	UDPInterface::rtt(){	//	TODO (use IP Helper API)

@@ -34,15 +34,25 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		template<typename	T>	CircularBuffer<T>::CircularBuffer(uint32	size){
-
-			buffer=new	T[_size];
-			clear();
+		template<typename	T>	CircularBuffer<T>::CircularBuffer():Semaphore(0,65535),Mutex(){
 		}
 
 		template<typename	T>	CircularBuffer<T>::~CircularBuffer(){
 
 			delete[]	buffer;
+		}
+
+		template<typename	T>	inline	void	CircularBuffer<T>::init(uint32	size){
+
+			buffer=new	T[_size=size];
+			_clear();
+		}
+
+		template<typename	T>	inline	void	CircularBuffer<T>::_clear(){
+
+			head=tail=0;
+			_count=0;
+			freeSlots=_size;
 		}
 
 		template<typename	T>	inline	uint32	CircularBuffer<T>::size()	const{
@@ -57,6 +67,8 @@ namespace	mBrane{
 
 		template<typename	T>	inline	void	CircularBuffer<T>::push(T	&t){
 
+			Mutex::acquire();
+
 			if(!freeSlots){
 
 				T	*oldBuffer=buffer;
@@ -66,6 +78,7 @@ namespace	mBrane{
 				head=0;
 				tail=_size-1;
 				_size*=2;
+				freeSlots=_size;
 				delete[]	oldBuffer;
 			}
 
@@ -78,25 +91,39 @@ namespace	mBrane{
 
 			freeSlots--;
 			_count++;
+
+			Semaphore::release();
+
+			Mutex::release();
 		}
 
-		template<typename	T>	inline	T	*CircularBuffer<T>::pop(){
+		template<typename	T>	inline	T	*CircularBuffer<T>::pop(bool	blocking){
 
-			if(!_count)
+			if(blocking)
+				Semaphore::acquire();
+			else	if(Semaphore::acquire(0))
 				return	NULL;
+
+			Mutex::acquire();
+
 			T	*t=buffer+head;
 			if(++head>=_size)
 				head=0;
 			freeSlots++;
 			_count--;
+
+			Mutex::release();
+
 			return	t;
 		}
 
 		template<typename	T>	inline	void	CircularBuffer<T>::clear(){
 
-			head=tail=0;
-			_count=0;
-			freeSlots=_size;
+			Mutex::acquire();
+
+			Semaphore::reset();
+			_clear();
+			Mutex::release();
 		}
 	}
 }

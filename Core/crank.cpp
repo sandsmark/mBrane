@@ -30,6 +30,7 @@
 
 #include	"crank.h"
 #include	"node.h"
+#include	"utils.h"
 
 #define	CRANK_INPUT_QUEUE_SIZE	512
 
@@ -42,7 +43,9 @@ namespace	mBrane{
 			Node::Get()->buildCrank(CID);
 		}
 
-		_Crank::_Crank(uint16	_ID,bool	canMigrate,bool	canBeSwapped):CircularBuffer<P<_Payload> >(CRANK_INPUT_QUEUE_SIZE),_ID(_ID),_canMigrate(canMigrate),_canBeSwapped(canBeSwapped){
+		_Crank::_Crank(uint16	_ID,bool	canMigrate,bool	canBeSwapped):CircularBuffer<P<_Payload> >(),_ID(_ID),_canMigrate(canMigrate),_canBeSwapped(canBeSwapped),_alive(true){
+
+			init(CRANK_INPUT_QUEUE_SIZE);
 		}
 
 		_Crank::~_Crank(){
@@ -53,6 +56,11 @@ namespace	mBrane{
 			return	_ID;
 		}
 
+		inline	bool	_Crank::alive()	const{
+
+			return	_alive;
+		}
+
 		inline	bool	_Crank::canMigrate(){
 
 			return	_canMigrate;
@@ -61,6 +69,11 @@ namespace	mBrane{
 		inline	bool	_Crank::canBeSwapped(){
 
 			return	_canBeSwapped;
+		}
+
+		inline	bool	_Crank::run(){
+
+			return	true;
 		}
 
 		uint32	_Crank::dumpSize(){
@@ -74,7 +87,6 @@ namespace	mBrane{
 		}
 
 		void	_Crank::load(_Payload	*chunk){
-
 		}
 
 		void	_Crank::start(){
@@ -95,14 +107,19 @@ namespace	mBrane{
 		inline	void	_Crank::migrateIn(){
 		}
 
-		inline	void	_Crank::send(_Payload	*p){
-
-			Node::Get()->send(this,p);
-		}
-
-		inline	int64	_Crank::time(){
+		inline	int64	_Crank::time()	const{
 
 			return	Node::Get()->time();
+		}
+
+		void	_Crank::sleep(int64	d)	const{
+
+			Thread::Sleep(d);
+		}
+
+		void	_Crank::quit(){
+
+			_alive=false;
 		}
 
 		inline	void	_Crank::peek(int32	depth){
@@ -117,6 +134,11 @@ namespace	mBrane{
 				if(preview(p))
 					((P<_Payload>)i)=NULL;
 			}
+		}
+
+		inline	void	_Crank::send(_Payload	*p)	const{
+
+			Node::Get()->send(this,p);
 		}
 	}
 }

@@ -39,6 +39,8 @@
 
 using	namespace	mBrane::sdk;
 
+#define	DEFAULT_TIME_GATE_DEPTH	32
+
 namespace	mBrane{
 
 	Node	*Node::New(const	char	*configFileName){
@@ -61,6 +63,8 @@ namespace	mBrane{
 		networkCommInterfaces[CONTROL]=NULL;
 		networkCommInterfaces[DATA]=NULL;
 		networkCommInterfaces[STREAM]=NULL;
+
+		timeGate.init(DEFAULT_TIME_GATE_DEPTH);
 	}
 
 	Node::~Node(){
@@ -303,8 +307,8 @@ namespace	mBrane{
 			controlChannels[0]=ctrl_c;
 		}
 
-		_threads.alloc(4);
-		_threads[0]=Thread::New(AcceptConnections,this);
+		commThreads.alloc(4);
+		commThreads[0]=Thread::New(AcceptConnections,this);
 		
 		return;
 err:	shutdown();
@@ -313,10 +317,8 @@ err:	shutdown();
 	void	Node::init(uint16	NID){
 
 		_ID=NID;
-		_threads[_threads.count()]=Thread::New(ScanIDs,this);
-		if(isTimeReference)
-			_threads[_threads.count()]=Thread::New(Sync,this);
-		_threads[_threads.count()]=Thread::New(SendMessages,this);
+		commThreads[commThreads.count()]=Thread::New(ScanIDs,this);
+		commThreads[commThreads.count()]=Thread::New(SendMessages,this);
 		
 		ReceiveThreadArgs	args;
 		args.n=this;
@@ -325,8 +327,10 @@ err:	shutdown();
 			args.c=controlChannels[i];
 			args.e=i;
 			args.t=CONTROL;
-			_threads[_threads.count()]=Thread::New(ReceiveMessages,&args);
+			commThreads[commThreads.count()]=Thread::New(ReceiveMessages,&args);
 		}
+
+		commThreads[commThreads.count()]=Thread::New(ReceiveMessages,this);
 
 		for(uint16	i=0;dataChannels.count();i++){
 
@@ -335,44 +339,95 @@ err:	shutdown();
 				args.c=dataChannels[i]->data;
 				args.e=i;
 				args.t=DATA;
-				_threads[_threads.count()]=Thread::New(ReceiveMessages,&args);
+				commThreads[commThreads.count()]=Thread::New(ReceiveMessages,&args);
 			}
 
 			if(networkCommInterfaces[STREAM]!=networkCommInterfaces[DATA]){
 
 				args.c=dataChannels[i]->stream;
 				args.t=STREAM;
-				_threads[_threads.count()]=Thread::New(ReceiveMessages,&args);
+				commThreads[commThreads.count()]=Thread::New(ReceiveMessages,&args);
 			}
 		}
-		//	TODO:	build cranks and start them in CEU
-		//			launch CEU
-		//			wait for nodes (specified in the config file) and send SystemReady to (local) cranks
+
+		if(isTimeReference)
+			commThreads[commThreads.count()]=Thread::New(Sync,this);
+
+		//	TODO:	build cranks
+		//			launch CEU (-> start cranks)
+
+		//	TODO:	if(isTimeReference) wait for nodes (listed in the config file) and send SystemReady to (local) cranks
+		//			else send NID to reference node
 	}
 
 	void	Node::processError(NetworkInterfaceType	type,uint16	entry){
 
+		notifyNodeLeft(entry);
+
 		switch(type){
 		case	CONTROL:
-			//	TODO:	notify channel disappearance (ctrl msg? std::cout?)
 			delete	controlChannels[entry];
 			controlChannels[entry]=NULL;
 			break;
 		case	DATA:
-			//	TODO:	notify channel disappearance (ctrl msg? std::cout?)
 			delete	dataChannels[entry]->data;
 			dataChannels[entry]->data=NULL;
 			break;
 		case	STREAM:
-			//	TODO:	notify channel disappearance (ctrl msg? std::cout?)
 			delete	dataChannels[entry]->stream;
 			dataChannels[entry]->stream=NULL;
 			break;
 		}
 
-		if(!controlChannels[entry]	&&	!dataChannels[entry]->data	&&	!dataChannels[entry]->stream){
+		if(entry==referenceNID)
+			setNewReference();
+	}
 
-			//	TODO:	notify node disappearance (ctrl msg? std::cout?)
+	void	Node::setNewReference(){	//	elect the first node in the list
+
+		for(uint16	i=0;i<dataChannels.count();i++){
+
+			if(dataChannels[i]->data	&&	i==_ID){
+
+				isTimeReference=true;
+				commThreads[commThreads.count()]=Thread::New(Sync,this);
+				return;
+			}
+		}
+	}
+
+	void	Node::notifyNodeJoined(uint16	NID){
+
+		static	NodeJoined	m;
+
+		if(controlChannels[NID]	&&	dataChannels[NID]->data	&&	dataChannels[NID]->stream){
+
+			m.nid()=NID;
+			m.send_ts()=Time::Get();
+			sendLocal(&m);
+
+			std::cout<<"Node joined: "<<NID<<std::endl;
+		}
+	}
+
+	void	Node::notifyNodeLeft(uint16	NID){
+
+		static	NodeLeft	m;
+
+		uint8	alive=3;
+		if(!controlChannels[NID])
+			alive--;
+		if(!dataChannels[NID]->data)
+			alive--;
+		if(!dataChannels[NID]->stream)
+			alive--;
+		if(alive==2){
+
+			m.nid()=NID;
+			m.send_ts()=Time::Get();
+			sendLocal(&m);
+
+			std::cout<<"Node left: "<<NID<<std::endl;
 		}
 	}
 
@@ -380,9 +435,9 @@ err:	shutdown();
 
 		if(_shutdown)
 			return;
-		//	TODO:	stop cranks
 		_shutdown=true;
-		Thread::Wait(_threads.data(),_threads.count());
+		Thread::Wait(crankThreads.data(),crankThreads.count());
+		Thread::Wait(commThreads.data(),commThreads.count());
 		stopInterfaces();
 	}
 
@@ -392,12 +447,19 @@ err:	shutdown();
 	void	Node::load(const	char	*fileName){	//	TODO
 	}
 
-	void	Node::send(sdk::_Crank	*sender,_Payload	*message){	//	TODO
+	void	Node::send(const	sdk::_Crank	*sender,_Payload	*message){	//	TODO
 
 		//	must be thread safe
 	}
 
-	void	Node::sendLocal(sdk::_Crank	*sender,_Payload	*message){	//	TODO
+	void	Node::sendLocal(_Payload	*message){	//	TODO
+
+
+	}
+
+	void	Node::sendLocal(const	sdk::_Crank	*sender,_Payload	*message){	//	TODO
+
+
 	}
 
 	void	Node::sendTo(uint16	NID,_Payload	*message){	//	TODO
@@ -405,7 +467,7 @@ err:	shutdown();
 		//	must be thread safe
 	}
 
-	inline	int64	Node::time(){
+	inline	int64	Node::time()	const{
 
 		if(isTimeReference)
 			return	Time::Get();
@@ -492,7 +554,7 @@ err:	shutdown();
 			node->dataChannels[remoteNID]->data=data_c;
 			node->dataChannels[remoteNID]->stream=stream_c;
 
-			//	TODO:	notify node appearance (ctrl msg? std::cout?) => flag apparitions to notify only once (when ctrl+data+stream are present)
+			node->notifyNodeJoined(remoteNID);
 		}
 
 		delete[]	remoteNetworkID;
@@ -531,6 +593,8 @@ err:	delete[]	remoteNetworkID;
 					goto	err;
 
 				node->controlChannels[remoteNID]=ctrl_c;
+
+				std::cout<<"Connected <control> node: "<<remoteNID<<std::endl;
 			}
 
 			if(node->networkCommInterfaces[DATA]->operator !=(node->networkCommInterfaces[CONTROL])){
@@ -545,10 +609,15 @@ err:	delete[]	remoteNetworkID;
 				uint16	assignedNID;
 				if(r=data_c->recv((uint8	*)&assignedNID,sizeof(uint16)))
 					goto	err;
-				if(assignedNID!=NO_ID)
+				if(assignedNID!=NO_ID){
+
+					node->referenceNID=remoteNID;
 					node->init(assignedNID);
+				}
 
 				node->dataChannels[remoteNID]->data=data_c;
+
+				std::cout<<"Connected <data> node: "<<remoteNID<<std::endl;
 			}
 
 			if(node->networkCommInterfaces[STREAM]->operator !=(node->networkCommInterfaces[DATA])){
@@ -559,12 +628,16 @@ err:	delete[]	remoteNetworkID;
 					goto	err;
 
 				node->dataChannels[remoteNID]->data=stream_c;
-			}
+
+				std::cout<<"Connected <stream> node: "<<remoteNID<<std::endl;
+			}	
 		}
+
 		return	0;
 err:	node->shutdown();
 		return	r;
 ref:	node->isTimeReference=true;
+		node->referenceNID=0;
 		node->init(0);
 		return	0;
 	}
@@ -576,6 +649,8 @@ ref:	node->isTimeReference=true;
 		sdk::TimeSync	sync;
 		sync.senderNode_id()=node->_ID;
 		while(!node->_shutdown){
+
+			Thread::Sleep(node->syncPeriod);
 
 			int64	t=node->time();
 			if(t-node->lastSyncTime>=node->syncPeriod){
@@ -595,12 +670,37 @@ ref:	node->isTimeReference=true;
 	
 	uint32	thread_function_call	Node::CrankExecutionUnit(void	*args){
 
-		Node	*node=(Node	*)args;
+		Node	*node=((CrankThreadArgs	*)args)->n;
+		_Crank	*crank=((CrankThreadArgs	*)args)->c;
+
+		crank->start();
 
 		while(!node->_shutdown){
 
-			//	TODO:	
+			if(!crank->alive())
+				break;
+
+			P<_Payload>	*p;
+			if(crank->run()){
+
+				p=crank->pop();
+				(*p)->recv_ts()=Time::Get();
+				crank->notify(*p);
+				*p=NULL;
+			}else{
+
+				p=crank->pop(false);
+				if(p){
+
+					(*p)->recv_ts()=Time::Get();
+					crank->notify(*p);
+					*p=NULL;
+				}
+			}
 		}
+
+		crank->stop();
+		delete	crank;
 
 		return	0;
 	}
@@ -626,7 +726,7 @@ ref:	node->isTimeReference=true;
 			
 			if(p->cid()!=TimeSync::CID()){
 
-				//	TODO:	inject in pub-sub structure (latched input queue: thread safe)
+				//	TODO:	inject in timeGate
 			}
 		}
 
@@ -655,11 +755,22 @@ ref:	node->isTimeReference=true;
 				//	TODO:	send p where required (remote nodes on data or stream channels)
 			}
 			
-			int64	t=node->time();
 			if(node->isTimeReference)
-				node->lastSyncTime=t;
+				node->lastSyncTime=p->node_send_ts();
 		}
 
+		return	0;
+	}
+
+	uint32	thread_function_call	Node::NotifyMessages(void	*args){
+
+		Node	*node=(Node	*)args;
+/*
+		while(!node->_shutdown){
+
+			//	TODO:	pop MessageBuffer from timeGate; for increasing priroities, pop message from buffer; find receiving cranks (from pub-sub structure); push message in cranks
+		}
+		*/
 		return	0;
 	}
 

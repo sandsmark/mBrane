@@ -31,11 +31,15 @@
 #ifndef mBrane_sdk_circular_buffer_h
 #define mBrane_sdk_circular_buffer_h
 
+#include	"utils.h"
+
 
 namespace	mBrane{
 	namespace	sdk{
 
-		template<typename	T>	class	CircularBuffer{
+		template<typename	T>	class	CircularBuffer:	//	Thread safe
+		public	Semaphore,
+		public	Mutex{
 		private:
 			uint32	_size;
 			T	*buffer;
@@ -43,6 +47,7 @@ namespace	mBrane{
 			uint32	tail;
 			uint32	freeSlots;
 			uint32	_count;
+			void	_clear();
 		public:
 			class	Iterator{
 			friend	class	CircularBuffer;
@@ -60,12 +65,13 @@ namespace	mBrane{
 				bool	operator	!=(Iterator	&i)	const{	return	index!=i.index;	}
 				operator	T&()	const{	return	buffer->buffer[index];	}
 			};
-			CircularBuffer(uint32	size);
+			CircularBuffer();
 			virtual	~CircularBuffer();
+			void	init(uint32	size);
 			uint32	size()	const;
 			uint32	count()	const;
 			void	push(T	&t);
-			T	*pop();
+			T	*pop(bool	blocking=true);
 			void	clear();
 			Iterator	&begin()	const{	return	Iterator(this,head);	}
 			Iterator	&end()	const{	return	Iterator(this,tail);	}

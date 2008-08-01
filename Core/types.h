@@ -109,6 +109,8 @@ namespace	mBrane{
 	typedef	LPTHREAD_START_ROUTINE	thread_function;
 	#define	thread_function_call	WINAPI
 	typedef	SOCKET					socket;
+	typedef	HANDLE					semaphore;
+	typedef	HANDLE					mutex;
 #elif defined	LINUX
 #elif defined	OSX
 #endif

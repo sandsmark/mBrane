@@ -40,20 +40,26 @@ namespace	mBrane{
 
 		class	dll	_Crank:	//	migration: migrateOut->dump->payload->send-/ /-receive->load->migrateIn
 		public	CircularBuffer<P<_Payload> >{
-		protected:
+		private:
 			uint16	_ID;
 			bool	_canMigrate;
 			bool	_canBeSwapped;
+			bool	_alive;
+		protected:
 			_Crank(uint16	_ID,bool	canMigrate=true,bool	canBeSwapped=true);
+			int64	time()	const;
+			void	sleep(int64	d)	const;
+			void	quit();
 			void	peek(int32	depth);	//	-1 means all messages
-			int64	time();
-			void	send(_Payload	*p);
+			void	send(_Payload	*p)	const;
 		public:
 			static	void	Build(uint16	CID);
 			virtual	~_Crank();
 			uint16	id()	const;
+			bool	alive()	const;
 			bool	canMigrate();	//	on another node; dynamic
 			bool	canBeSwapped();	//	on another thread within the same node; dynamic
+			virtual	bool		run();	//	return true: notification is blocking (run called first, then only if there are msg pending); false: non blocking (run called all the time even if there is no msg)
 			virtual	uint32		dumpSize();	//	dynamic
 			virtual	_Payload	*dump();	//	dumps the current state; can be called anytime
 			virtual	void		load(_Payload	*chunk);	//	initializes itself from a previously saved state
@@ -64,7 +70,7 @@ namespace	mBrane{
 			virtual	void		migrateOut();	//	called when the crank is unloaded from its current thread for migration
 			virtual	void		migrateIn();	//	called when the crank is loaded in a new thread after having migrated
 			virtual	void		notify(_Payload	*p)=0;	//	called when the crank receives a message
-			virtual	bool		preview(_Payload	*p)=0;	//	calls triggered by peek(): one per message peeked at
+			virtual	bool		preview(_Payload	*p)=0;	//	calls triggered by peek(): one per message peeked at; return true to remove the message from the queue
 			//	TODO: get actual count
 		};
 	}

@@ -108,6 +108,14 @@ namespace	mBrane{
 #endif
 	}
 
+	void	Thread::Sleep(int64	d){
+#if defined	WINDOWS
+		Sleep(d);
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
+
 	Thread::Thread(){
 	}
 
@@ -137,6 +145,99 @@ namespace	mBrane{
 #if defined	WINDOWS
 		uint32	s=255;
 		GetComputerName(name,&s);
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if defined	WINDOWS
+	const	uint32	Semaphore::Infinite=INFINITE;
+#elif defined LINUX
+#elif defined OSX
+#endif
+
+	Semaphore::Semaphore(uint32	initialCount,uint32	maxCount){
+#if defined	WINDOWS
+		s=CreateSemaphore(NULL,initialCount,maxCount,NULL);
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
+
+	Semaphore::~Semaphore(){
+#if defined	WINDOWS
+		CloseHandle(s);
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
+
+	inline	bool	Semaphore::acquire(uint32	timeout){
+#if defined	WINDOWS
+		uint32	r=WaitForSingleObject(s,timeout);
+		return	r==WAIT_TIMEOUT;
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
+
+	inline	void	Semaphore::release(){
+#if defined	WINDOWS
+		ReleaseSemaphore(s,1,NULL);
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
+
+	inline	void	Semaphore::reset(){
+#if defined	WINDOWS
+		bool	r;
+		do
+			r=acquire(0);
+		while(!r);
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if defined	WINDOWS
+	const	uint32	Mutex::Infinite=INFINITE;
+#elif defined LINUX
+#elif defined OSX
+#endif
+
+	Mutex::Mutex(){
+#if defined	WINDOWS
+		m=CreateMutex(NULL,false,NULL);
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
+
+	Mutex::~Mutex(){
+#if defined	WINDOWS
+		CloseHandle(m);
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
+
+	inline	bool	Mutex::acquire(uint32	timeout){
+#if defined	WINDOWS
+		uint32	r=WaitForSingleObject(m,timeout);
+		return	r==WAIT_TIMEOUT;
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
+
+	inline	void	Mutex::release(){
+#if defined	WINDOWS
+		ReleaseMutex(m);
 #elif defined LINUX
 #elif defined OSX
 #endif

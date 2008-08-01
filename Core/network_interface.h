@@ -55,7 +55,7 @@ namespace	mBrane{
 			typedef	NetworkInterface	*(*Load)(XMLNode	&);
 			virtual	~NetworkInterface();
 			Protocol	protocol()	const;
-			virtual	bool	operator	=(NetworkInterface	*i)=0;
+			virtual	bool	operator	==(NetworkInterface	*i)=0;
 			virtual	bool	operator	!=(NetworkInterface	*i)=0;
 			virtual	uint64	rtt()=0;	//	round trip time estimate
 			virtual	bool	canBroadcast()=0;	//	as opposed to connected mode

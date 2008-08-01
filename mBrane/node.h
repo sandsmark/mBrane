@@ -35,8 +35,11 @@
 #include	"..\Core\network_interface.h"
 #include	"..\Core\message.h"
 #include	"..\Core\array.h"
+#include	"..\Core\circular_buffer.h"
 #include	"..\Core\utils.h"
 
+
+#define	MESSAGE_PRIORITY_LEVELS	128
 
 namespace	mBrane{
 
@@ -82,14 +85,24 @@ namespace	mBrane{
 		sdk::Array<sdk::CommChannel	*>	controlChannels;	//	1 (bcast capable) or many (connected)
 		sdk::Array<DataCommChannel	*>	dataChannels;
 
-		static	uint32	thread_function_call	Sync(void	*args);
 		bool	isTimeReference;
+		uint16	referenceNID;
+		void	setNewReference();
+		void	notifyNodeJoined(uint16	NID);
+		void	notifyNodeLeft(uint16	NID);
+
+		static	uint32	thread_function_call	Sync(void	*args);
 		int64	timeDrift;	//	in ms
 		int64	lastSyncTime;	//	in ms
 		int64	syncPeriod;	//	in ms
 
-		static	uint32	thread_function_call	CrankExecutionUnit(void	*args);
-		//	TODO:	define crank exec units
+		typedef	struct{
+			Node		*n;
+			sdk::_Crank	*c;
+		}CrankThreadArgs;
+		static	uint32	thread_function_call	CrankExecutionUnit(void	*args);	//	First step: 1 crank<->1 thread and evaluate performance; TODO (if first step satisfying):	1 thread<->many cranks => ctrl at instruction (asm) level...
+		typedef	sdk::CircularBuffer<sdk::P<sdk::_Payload> >	MessageBuffer[MESSAGE_PRIORITY_LEVELS];
+		sdk::CircularBuffer<MessageBuffer>	timeGate;
 
 		void	processError(NetworkInterfaceType	type,uint16	entry);
 		typedef	struct{
@@ -100,15 +113,18 @@ namespace	mBrane{
 		}ReceiveThreadArgs;
 		static	uint32	thread_function_call	ReceiveMessages(void	*args);
 		static	uint32	thread_function_call	SendMessages(void	*args);
-		//	TODO:	define routing structures
+		static	uint32	thread_function_call	NotifyMessages(void	*args);
+		//	TODO:	define pub-sub routing structures
 
-		sdk::Array<Thread	*>	_threads;
+		sdk::Array<Thread	*>	commThreads;
+		sdk::Array<Thread	*>	crankThreads;
 		bool	_shutdown;
 
 		Node();
 		Node	*loadConfig(const	char	*configFileName);
 
-		void	sendLocal(sdk::_Crank	*sender,sdk::_Payload	*message);
+		void	sendLocal(sdk::_Payload	*message);
+		void	sendLocal(const	sdk::_Crank	*sender,sdk::_Payload	*message);
 		void	sendTo(uint16	NID,sdk::_Payload	*message);
 	public:
 		static	Node	*New(const	char	*configFileName);
@@ -119,8 +135,8 @@ namespace	mBrane{
 		void	load(const	char	*fileName);	//	initializes itself from a previously saved system state
 		Node	*loadApplication(const	char	*fileName=NULL);	//	return NULL if unsuccessful; fileName overrides the fileName found in the node config file
 		void	unloadApplication();
-		void	send(sdk::_Crank	*sender,sdk::_Payload	*message);
-		int64	time();	//	in ms since 01/01/70
+		void	send(const	sdk::_Crank	*sender,sdk::_Payload	*message);
+		int64	time()	const;	//	in ms since 01/01/70
 		sdk::_Crank	*buildCrank(uint16	CID);
 		void	start(sdk::_Crank	*c);
 		void	stop(sdk::_Crank	*c);

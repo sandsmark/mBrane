@@ -49,10 +49,14 @@ namespace	mBrane{
 
 				T	*oldArray=_array;
 				_array=new	T[_count+count];
+				memset(_array+_count,0,count);
 				memcpy(_array,oldArray,_count*sizeof(T));
-				_count++;
-			}else
-				_array=new	T[(_count=count)];
+				_count+=count;
+			}else{
+
+				_array=new	T[_count=count];
+				memset(_array,0,_count);
+			}
 			
 			return	_array+_count-1;
 		}

@@ -32,6 +32,35 @@
 #include	"tcp_channel.h"
 
 
+uint32	TCPInterface::Intialized=0;
+
+bool	TCPInterface::Init(){
+
+	if(Intialized){
+
+		Intialized++;
+		return	true;
+	}
+
+	WSADATA	wsaData;
+	int32	r;
+
+	r=WSAStartup(MAKEWORD(2,2),&wsaData);
+	if(r){
+
+		std::cout<<"Error: WSAStartup failed: "<<r<<std::endl;
+		return	false;
+	}
+	Intialized++;
+	return	true;
+}
+
+void	TCPInterface::Shutdown(){
+
+	if(!--Intialized)
+		WSACleanup();
+}
+
 TCPInterface	*TCPInterface::New(XMLNode &n){
 
 	TCPInterface	*i=new	TCPInterface();
@@ -49,19 +78,41 @@ TCPInterface::TCPInterface():NetworkInterface(TCP){
 TCPInterface::~TCPInterface(){
 }
 
-bool	TCPInterface::load(XMLNode	&n){	//	TODO
+bool	TCPInterface::load(XMLNode	&n){
 
+	if(!Init())
+		return	false;
+
+	const	char	*_nic=n.getAttribute("nic");
+	if(!_nic){
+
+		std::cout<<"Error: NodeConfiguration::Network::"<<n.getName()<<"::nic is missing\n";
+		goto	err;
+	}
+	//	TODO:	set address to the addr of the eth interface specified by nic
+	const	char	*_port=n.getAttribute("port");
+	if(!_port){
+
+		std::cout<<"Error: NodeConfiguration::Network::"<<n.getName()<<"::port is missing\n";
+		goto	err;
+	}
+	port=atoi(_port);
+
+	return	true;
+err:Shutdown();
 	return	false;
 }
 
-bool	TCPInterface::operator	=(NetworkInterface	*i){	//	TODO
+bool	TCPInterface::operator	==(NetworkInterface	*i){
 
-	return	false;
+	if(i->protocol()!=protocol())
+		return	false;
+	return	strcmp(inet_ntoa(address),inet_ntoa(((TCPInterface	*)i)->address))==0	&&	port==((TCPInterface	*)i)->port;
 }
 
 bool	TCPInterface::operator	!=(NetworkInterface	*i){
 
-	return	!operator	=(i);
+	return	!operator	==(i);
 }
 
 uint64	TCPInterface::rtt(){	//	TODO

@@ -47,5 +47,31 @@ namespace	mBrane{
 
 		TimeSync::~TimeSync(){
 		}
+
+		////////////////////////////////////////////////////////////////////////////////////////////////
+
+		NodeJoined::NodeJoined():ControlMessage<NodeJoined>(){
+		}
+
+		NodeJoined::~NodeJoined(){
+		}
+
+		uint16	&NodeJoined::nid(){
+
+			return	NID;
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////////////////
+
+		NodeLeft::NodeLeft():ControlMessage<NodeLeft>(){
+		}
+
+		NodeLeft::~NodeLeft(){
+		}
+
+		uint16	&NodeLeft::nid(){
+
+			return	NID;
+		}
 	}
 }

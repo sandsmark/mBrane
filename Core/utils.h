@@ -54,6 +54,7 @@ namespace	mBrane{
 	public:
 		static	Thread	*New(thread_function	f,void	*args);
 		static	void	Wait(Thread	**threads,uint32	threadCount);
+		static	void	Sleep(int64	d);
 		~Thread();
 	};
 
@@ -65,6 +66,29 @@ namespace	mBrane{
 	class	dll	Host{
 	public:
 		static	void	Name(char	*name);	//	name size=255
+	};
+
+	class	dll	Semaphore{
+	private:
+		semaphore	s;
+		static	const	uint32	Infinite;
+	public:
+		Semaphore(uint32	initialCount,uint32	maxCount);
+		~Semaphore();
+		bool	acquire(uint32	timeout=Infinite);	//	returns true if timedout
+		void	release();
+		void	reset();
+	};
+
+	class	dll	Mutex{
+	private:
+		mutex	m;
+		static	const	uint32	Infinite;
+	public:
+		Mutex();
+		~Mutex();
+		bool	acquire(uint32	timeout=Infinite);	//	returns true if timedout
+		void	release();
 	};
 }
 
