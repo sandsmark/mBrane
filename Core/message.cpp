@@ -78,6 +78,22 @@ namespace	mBrane{
 			return	(_Payload	*)(((uint8	*)this)-sizeof(_ControlMessage)-sizeof(_Payload));
 		}
 
+		inline	bool	_StreamData::hasCodec(){
+
+			return	false;
+		}
+
+		void	_StreamData::compress(){
+		}
+
+		void	_StreamData::decompress(){
+		}
+
+		uint32	_StreamData::compressedSize(){
+
+			return	0;
+		}
+
 		////////////////////////////////////////////////////////////////////////////////////////////////
 
 		inline	_Message::_Message():_senderEntityCID(0),_senderEntityIID(0),_senderCrankCID(0),_senderCrankIID(0){

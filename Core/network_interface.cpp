@@ -29,7 +29,7 @@
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include	"network_interface.h"
-#include	"payload.h"
+#include	"message.h"
 
 #include	<iostream>
 
@@ -101,7 +101,13 @@ namespace	mBrane{
 			p->node_send_ts()=Time::Get();
 			ClassRegister	*CR=ClassRegister::Get(p->cid());
 			int16	r;
-			if(r=send(((uint8	*)p)+CR->offset(),CR->size()))
+			if(p->isStreamData()	&&	((_StreamData	*)p)->hasCodec()){
+
+				((_StreamData	*)p)->compress();
+				uint32	s=((_StreamData	*)p)->compressedSize();
+				if(r=send(((uint8	*)p)+CR->offset(),s>CR->size()?s:CR->size()))
+					return	r;
+			}else	if(r=send(((uint8	*)p)+CR->offset(),CR->size()))
 				return	r;
 			for(uint8	i=0;i<p->ptrCount();i++){
 

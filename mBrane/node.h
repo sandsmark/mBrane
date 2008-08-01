@@ -39,7 +39,7 @@
 #include	"..\Core\utils.h"
 
 
-#define	MESSAGE_PRIORITY_LEVELS	128
+//#define	MESSAGE_PRIORITY_LEVELS	128
 
 namespace	mBrane{
 
@@ -101,8 +101,7 @@ namespace	mBrane{
 			sdk::_Crank	*c;
 		}CrankThreadArgs;
 		static	uint32	thread_function_call	CrankExecutionUnit(void	*args);	//	First step: 1 crank<->1 thread and evaluate performance; TODO (if first step satisfying):	1 thread<->many cranks => ctrl at instruction (asm) level...
-		typedef	sdk::CircularBuffer<sdk::P<sdk::_Payload> >	MessageBuffer[MESSAGE_PRIORITY_LEVELS];
-		sdk::CircularBuffer<MessageBuffer>	timeGate;
+		sdk::CircularBuffer<sdk::P<sdk::_Payload> >	timeGate;	//	First step: time granularity=0; TODO: increase granularity (2 ms) if possible and useful. In that case, typedef	sdk::CircularBuffer<sdk::P<sdk::_Payload> >	MessageBuffer[MESSAGE_PRIORITY_LEVELS]; sdk::CircularBuffer<MessageBuffer>	timeGate; maintain a time latch (2ms)
 
 		void	processError(NetworkInterfaceType	type,uint16	entry);
 		typedef	struct{

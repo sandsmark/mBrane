@@ -40,7 +40,6 @@
 using	namespace	mBrane::sdk;
 
 #define	DEFAULT_TIME_GATE_DEPTH	32
-#define	DEFAULT_MESSAGE_QUEUE_SIZE	16
 
 namespace	mBrane{
 
@@ -66,10 +65,6 @@ namespace	mBrane{
 		networkCommInterfaces[STREAM]=NULL;
 
 		timeGate.init(DEFAULT_TIME_GATE_DEPTH);
-		CircularBuffer<MessageBuffer>::Iterator	i;
-		for(i=timeGate.begin();i!=timeGate.very_end();i++)
-			for(uint32	j=0;j<MESSAGE_PRIORITY_LEVELS;j++)
-				((MessageBuffer)i)[j].init(DEFAULT_MESSAGE_QUEUE_SIZE);
 	}
 
 	Node::~Node(){
@@ -266,13 +261,13 @@ namespace	mBrane{
 		if(!(userLibrary=SharedLibrary::New(ul)))
 			return	NULL;
 		//	TODO:	load:
-		//		entities, modules, groups, cranks
-		//		initial subscriptions (per crank, group)
-		//		schedulers (per crank)
+		//		modules, groups, cranks: NB: module==entity
+		//		initial subscriptions (per crank and per group)
+		//		schedulers (per thread): 2nd step
 		//		migrable or not (per crank)
-		//		reception policy: time first or priority first (for all cranks)
-		//		user thread count
-		//		target thread (per crank)
+		//		reception policy: time first or priority first (for all cranks): 2nd step
+		//		user thread count: 2nd step
+		//		target thread (per crank): 2nd step
 
 		//	test
 		CrankInstantiator	instantiator=userLibrary->getFunction<CrankInstantiator>("NewCR1");
@@ -731,12 +726,11 @@ loop:			p=crank->pop(false);
 			}
 
 			if(!node->isTimeReference)
-				node->timeDrift=p->node_recv_ts()-p->node_send_ts()-node->networkCommInterfaces[type]->rtt();	//	TODO:	check how long rtt takes
+				node->timeDrift=p->node_recv_ts()-p->node_send_ts()-node->networkCommInterfaces[type]->rtt();	//	TODO:	make sure rtt() is quick to return
 			
-			if(p->cid()!=TimeSync::CID()){
-
-				//	TODO:	inject in timeGate
-			}
+			P<_Payload>	_p=p;
+			if(p->cid()!=TimeSync::CID())
+				node->timeGate.push(_p);
 		}
 
 		return	0;
@@ -761,7 +755,7 @@ loop:			p=crank->pop(false);
 				}
 			}else{
 
-				//	TODO:	send p where required (remote nodes on data or stream channels)
+				//	TODO:	send p where required (use pub-sub structure to find target remote nodes; send on data/stream channels; push in timeGate if the local node is a target)
 			}
 			
 			if(node->isTimeReference)
@@ -774,12 +768,22 @@ loop:			p=crank->pop(false);
 	uint32	thread_function_call	Node::NotifyMessages(void	*args){
 
 		Node	*node=(Node	*)args;
-/*
+
+		P<_Payload>	*p;
 		while(!node->_shutdown){
 
-			//	TODO:	pop MessageBuffer from timeGate; for increasing priroities, pop message from buffer; find receiving cranks (from pub-sub structure); push message in cranks
+			p=node->timeGate.pop();
+			if((*p)->isControlMessage()){
+
+				switch((*p)->cid()){
+				//	TODO:	process p
+				default:	break;
+				}
+			}
+
+			//	TODO:	find receiving cranks (from pub-sub structure); push p in cranks
 		}
-		*/
+
 		return	0;
 	}
 

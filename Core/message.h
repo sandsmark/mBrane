@@ -77,6 +77,10 @@ namespace	mBrane{
 			virtual	~_StreamData();
 			operator	_ControlMessage	*()	const;
 			operator	_Payload	*()	const;
+			virtual	bool	hasCodec();
+			virtual	void	compress();
+			virtual	void	decompress();
+			virtual	uint32	compressedSize();
 		};
 
 		template<class	U>	class	StreamData:
