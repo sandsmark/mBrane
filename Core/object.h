@@ -40,7 +40,7 @@ namespace	mBrane{
 	namespace	sdk{
 
 		class	_Object;
-		class	_P{
+		class	dll	_P{
 		protected:
 			_Object	*object;
 		public:
