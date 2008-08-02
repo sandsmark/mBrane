@@ -108,7 +108,7 @@ namespace	mBrane{
 		public	_CompressedStreamData,
 		public	D{
 		protected:
-			F	compressedFrame;
+			F	compressedFrame;	//	the last data to be transmitted, i.e. anything declared afterwards will not be transmitted
 			F	uncompressedFrame;
 			CompressedStreamData();
 		public:
