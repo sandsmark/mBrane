@@ -52,14 +52,19 @@ namespace	mBrane{
 		char	hostName[255];
 		uint8	hostNameSize;
 
-		static	uint32	thread_function_call	ScanIDs(void	*args);
-		static	uint32	thread_function_call	AcceptConnections(void	*args);
-
 		typedef	enum{
 			CONTROL=0,
 			DATA=1,
 			STREAM=2
 		}NetworkInterfaceType;
+
+		static	uint32	thread_function_call	ScanIDs(void	*args);
+		typedef	struct{
+			Node					*n;
+			int32					t;
+			NetworkInterfaceType	type;
+		}AcceptConnectionArgs;
+		static	uint32	thread_function_call	AcceptConnections(void	*args);
 
 		//	Nodes must boot in sequence (Cf boot delay in main)
 		//	accept connections
