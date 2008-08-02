@@ -93,7 +93,7 @@ namespace	mBrane{
 
 	Node	*Node::loadConfig(const	char	*configFileName){
 
-		Host::Name(hostName);
+		hostNameSize=Host::Name(hostName);
 
 		XMLNode	mainNode=XMLNode::openFileHelper(configFileName,"NodeConfiguration");
 		if(!mainNode){
@@ -294,10 +294,12 @@ namespace	mBrane{
 		network_ctrl_ID_size=networkCommInterfaces[CONTROL]->getIDSize();
 		network_data_ID_size=networkCommInterfaces[DATA]->getIDSize();
 		network_stream_ID_size=networkCommInterfaces[STREAM]->getIDSize();
-		networkID=new	uint8[network_ID_size=network_ctrl_ID_size+network_data_ID_size+network_stream_ID_size];
-		networkCommInterfaces[CONTROL]->fillID(networkID);
-		networkCommInterfaces[DATA]->fillID(networkID+network_ctrl_ID_size);
-		networkCommInterfaces[STREAM]->fillID(networkID+network_ctrl_ID_size+network_data_ID_size);
+		networkID=new	uint8[network_ID_size=sizeof(uint8)+hostNameSize+network_ctrl_ID_size+network_data_ID_size+network_stream_ID_size];
+		networkID[0]=hostNameSize;
+		strcpy(((char	*)networkID)+sizeof(uint8),hostName);
+		networkCommInterfaces[CONTROL]->fillID(networkID+sizeof(uint8)+hostNameSize);
+		networkCommInterfaces[DATA]->fillID(networkID+sizeof(uint8)+hostNameSize+network_ctrl_ID_size);
+		networkCommInterfaces[STREAM]->fillID(networkID+sizeof(uint8)+hostNameSize+network_ctrl_ID_size+network_data_ID_size);
 
 		if(networkCommInterfaces[CONTROL]->canBroadcast()){
 		
@@ -362,25 +364,43 @@ err:	shutdown();
 
 	void	Node::processError(NetworkInterfaceType	type,uint16	entry){
 
+		m.acquire();
+
 		notifyNodeLeft(entry);
 
-		switch(type){
-		case	CONTROL:
+		if(controlChannels[entry])
 			delete	controlChannels[entry];
-			controlChannels[entry]=NULL;
-			break;
-		case	DATA:
+		controlChannels[entry]=NULL;
+		if(dataChannels[entry]->data)
 			delete	dataChannels[entry]->data;
-			dataChannels[entry]->data=NULL;
-			break;
-		case	STREAM:
+		dataChannels[entry]->data=NULL;
+		if(dataChannels[entry]->stream)
 			delete	dataChannels[entry]->stream;
-			dataChannels[entry]->stream=NULL;
-			break;
-		}
+		dataChannels[entry]->stream=NULL;
 
 		if(entry==referenceNID)
 			setNewReference();
+
+		m.release();
+	}
+
+	uint16	Node::addNode(){
+
+		m.acquire();
+
+		for(uint16	i=0;i<dataChannels.count();i++){
+
+			if(i==_ID)
+				continue;
+			if(!dataChannels[i]->data){
+
+				m.release();
+				return	i;
+			}
+		}
+		
+		m.release();
+		return	dataChannels.count();
 	}
 
 	void	Node::setNewReference(){	//	elect the first node in the list
@@ -396,38 +416,28 @@ err:	shutdown();
 		}
 	}
 
-	void	Node::notifyNodeJoined(uint16	NID){
+	void	Node::notifyNodeJoined(uint16	NID,char	*name){
 
 		static	NodeJoined	m;
 
-		if(controlChannels[NID]	&&	dataChannels[NID]->data	&&	dataChannels[NID]->stream){
+		m.nid()=NID;
+		m.send_ts()=Time::Get();
+		sendLocal(&m);
 
-			m.nid()=NID;
-			m.send_ts()=Time::Get();
-			sendLocal(&m);
-
-			std::cout<<"Node joined: "<<NID<<std::endl;
-		}
+		std::cout<<"Node joined: "<<name<<":"<<NID<<std::endl;
 	}
 
 	void	Node::notifyNodeLeft(uint16	NID){
 
 		static	NodeLeft	m;
 
-		uint8	alive=3;
-		if(!controlChannels[NID])
-			alive--;
-		if(!dataChannels[NID]->data)
-			alive--;
-		if(!dataChannels[NID]->stream)
-			alive--;
-		if(alive==2){
+		if(controlChannels[NID]	||	dataChannels[NID]->data	||	dataChannels[NID]->stream){
 
 			m.nid()=NID;
 			m.send_ts()=Time::Get();
 			sendLocal(&m);
 
-			std::cout<<"Node left: "<<NID<<std::endl;
+			std::cout<<"Node left: "<<dataChannels[NID]->name<<":"<<NID<<std::endl;
 		}
 	}
 
@@ -493,19 +503,25 @@ err:	shutdown();
 
 		if(!networkDiscoveryInterface->start())
 			return	false;
-		for(uint8	i=0;i<3;i++){
-
-			if(!networkCommInterfaces[i]->start())
+		if(!networkCommInterfaces[CONTROL]->start())
+			return	false;
+		if(networkCommInterfaces[DATA]->operator !=(networkCommInterfaces[CONTROL]))
+			if(!networkCommInterfaces[DATA]->start())
 				return	false;
-		}
+		if(networkCommInterfaces[STREAM]->operator !=(networkCommInterfaces[DATA]))
+			if(!networkCommInterfaces[STREAM]->start())
+				return	false;
 		return	true;
 	}
 
 	void	Node::stopInterfaces(){
 
 		networkDiscoveryInterface->stop();
-		for(uint8	i=0;i<3;i++)
-			networkCommInterfaces[i]->stop();
+		networkCommInterfaces[CONTROL]->stop();
+		if(networkCommInterfaces[DATA]->operator !=(networkCommInterfaces[CONTROL]))
+			networkCommInterfaces[DATA]->stop();
+		if(networkCommInterfaces[STREAM]->operator !=(networkCommInterfaces[DATA]))
+			networkCommInterfaces[STREAM]->stop();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
@@ -516,50 +532,70 @@ err:	shutdown();
 
 		uint16	r;
 		
+		ConnectedCommChannel	*ctrl_c;
 		ConnectedCommChannel	*data_c;
 		ConnectedCommChannel	*stream_c;
 		uint16	remoteNID;
+		uint16	assignedNID;
 		uint8	*remoteNetworkID=new	uint8[node->network_ID_size];
 		while(!node->_shutdown){
 
 			if(r=node->networkDiscoveryInterface->scanID(remoteNetworkID,node->network_ID_size))
-				goto	err;
+				goto	err1;
+			uint8	remoteNameSize=remoteNetworkID[0];
+
+			ctrl_c=NULL;
 			if(!node->networkCommInterfaces[CONTROL]->canBroadcast()){
 
-				ConnectedCommChannel	*ctrl_c;
-				if(r=node->networkCommInterfaces[CONTROL]->connect(remoteNetworkID,ctrl_c))
-					goto	err;
-
-				node->controlChannels[remoteNID]=ctrl_c;
+				if(r=node->networkCommInterfaces[CONTROL]->connect(remoteNetworkID+sizeof(uint8)+remoteNameSize,ctrl_c))
+					goto	err1;
 			}
 			
 			if(node->networkCommInterfaces[DATA]->operator !=(node->networkCommInterfaces[CONTROL])){
 
-				if(r=node->networkCommInterfaces[DATA]->connect(remoteNetworkID+node->network_ctrl_ID_size,data_c))
-					goto	err;
-				if(node->isTimeReference)
-					remoteNID=node->dataChannels.count();
-				else
-					remoteNID=NO_ID;
-				if(r=data_c->send((uint8	*)&remoteNID,sizeof(uint16)))
-					goto	err;
-			}
+				if(r=node->networkCommInterfaces[DATA]->connect(remoteNetworkID+sizeof(uint8)+remoteNameSize+node->network_ctrl_ID_size,data_c))
+					goto	err1;
+			}else
+				data_c=ctrl_c;
+
+			if(r=data_c->send((uint8	*)&node->_ID,sizeof(uint16)))
+				goto	err0;
+			if(r=data_c->send((uint8	*)&node->hostNameSize,sizeof(uint8)))
+				goto	err0;
+			if(r=data_c->send((uint8	*)node->hostName,node->hostNameSize))
+				goto	err0;
+			if(node->isTimeReference)
+				assignedNID=node->dataChannels.count();
+			else
+				assignedNID=NO_ID;
+			if(r=data_c->send((uint8	*)&assignedNID,sizeof(uint16)))
+				goto	err0;
 
 			if(node->networkCommInterfaces[STREAM]->operator !=(node->networkCommInterfaces[DATA])){
 
-				if(r=node->networkCommInterfaces[STREAM]->connect(remoteNetworkID+node->network_ctrl_ID_size+node->network_data_ID_size,stream_c))
-					goto	err;
-			}
+				if(r=node->networkCommInterfaces[STREAM]->connect(remoteNetworkID+sizeof(uint8)+remoteNameSize+node->network_ctrl_ID_size+node->network_data_ID_size,stream_c))
+					goto	err0;
+			}else
+				stream_c=data_c;
 
+			remoteNID=node->addNode();
+			node->dataChannels[remoteNID]->nameSize=remoteNameSize;
+			node->dataChannels[remoteNID]->name=new	char[remoteNameSize];
+			memcpy(node->dataChannels[remoteNID]->name,remoteNetworkID+1,remoteNameSize);
 			node->dataChannels[remoteNID]->data=data_c;
 			node->dataChannels[remoteNID]->stream=stream_c;
-
-			node->notifyNodeJoined(remoteNID);
+			if(ctrl_c)
+				node->controlChannels[remoteNID]=ctrl_c;
+			node->notifyNodeJoined(remoteNID,node->dataChannels[remoteNID]->name);
 		}
 
 		delete[]	remoteNetworkID;
 		return	0;
-err:	delete[]	remoteNetworkID;
+err0:	if(ctrl_c)
+			delete	ctrl_c;
+		if(data_c!=ctrl_c)
+			delete	data_c;
+err1:	delete[]	remoteNetworkID;
 		node->shutdown();
 		return	r;
 	}
@@ -571,73 +607,82 @@ err:	delete[]	remoteNetworkID;
 		uint16	r;
 
 		if(r=node->networkDiscoveryInterface->broadcastID(node->networkID,node->network_ID_size))
-			goto	err;
+			goto	err2;
 
+		ConnectedCommChannel	*ctrl_c;
+		ConnectedCommChannel	*data_c;
+		ConnectedCommChannel	*stream_c;
 		int32	timeout=node->bcastTimeout;
 		int16	remoteNID;
+		char	*remoteName;
 		while(!node->_shutdown){
 
 			bool	timedout;
-			ConnectedCommChannel	*ctrl_c;
-			ConnectedCommChannel	*data_c;
-			ConnectedCommChannel	*stream_c;
-			
+			ctrl_c=NULL;
 			if(!node->networkCommInterfaces[CONTROL]->canBroadcast()){
 
 				if(r=node->networkCommInterfaces[CONTROL]->acceptConnection(ctrl_c,timeout,timedout))
-					goto	err;
+					goto	err2;
 				if(timedout)
 					goto	ref;
 				timeout=-1;
-				if(r=ctrl_c->recv((uint8	*)&remoteNID,sizeof(uint16)))
-					goto	err;
-
-				node->controlChannels[remoteNID]=ctrl_c;
-
-				std::cout<<"Connected <control> node: "<<remoteNID<<std::endl;
 			}
 
+			char	*remoteName;
 			if(node->networkCommInterfaces[DATA]->operator !=(node->networkCommInterfaces[CONTROL])){
 
 				if(r=node->networkCommInterfaces[DATA]->acceptConnection(data_c,timeout,timedout))
-					goto	err;
+					goto	err2;
 				if(timedout)
 					goto	ref;
-				if(r=data_c->recv((uint8	*)&remoteNID,sizeof(uint16)))
-					goto	err;
+			}else
+				data_c=ctrl_c;
 
-				uint16	assignedNID;
-				if(r=data_c->recv((uint8	*)&assignedNID,sizeof(uint16)))
-					goto	err;
-				if(assignedNID!=NO_ID){
+			if(r=data_c->recv((uint8	*)&remoteNID,sizeof(uint16)))
+				goto	err1;
+			uint8	remoteNameSize;
+			if(r=data_c->recv((uint8	*)&remoteNameSize,sizeof(uint8)))
+				goto	err1;
+			remoteName=new	char[remoteNameSize];
+			if(r=data_c->recv((uint8	*)remoteName,remoteNameSize))
+				goto	err0;
+			uint16	assignedNID;
+			if(r=data_c->recv((uint8	*)&assignedNID,sizeof(uint16)))
+				goto	err0;
 
-					node->referenceNID=remoteNID;
-					node->init(assignedNID);
-				}
+			if(assignedNID!=NO_ID){
 
-				node->dataChannels[remoteNID]->data=data_c;
-
-				std::cout<<"Connected <data> node: "<<remoteNID<<std::endl;
+				node->referenceNID=remoteNID;
+				node->init(assignedNID);
 			}
 
 			if(node->networkCommInterfaces[STREAM]->operator !=(node->networkCommInterfaces[DATA])){
 
 				if(r=node->networkCommInterfaces[STREAM]->acceptConnection(stream_c,-1,timedout))
-					goto	err;
-				if(r=stream_c->recv((uint8	*)&remoteNID,sizeof(uint16)))
-					goto	err;
+					goto	err2;
+			}else
+				stream_c=data_c;
 
-				node->dataChannels[remoteNID]->data=stream_c;
-
-				std::cout<<"Connected <stream> node: "<<remoteNID<<std::endl;
-			}	
+			node->dataChannels[remoteNID]->name=remoteName;
+			node->dataChannels[remoteNID]->nameSize=remoteNameSize;
+			node->dataChannels[remoteNID]->data=data_c;
+			node->dataChannels[remoteNID]->data=stream_c;
+			if(ctrl_c)
+				node->controlChannels[remoteNID]=ctrl_c;
+			node->notifyNodeJoined(remoteNID,node->dataChannels[remoteNID]->name);
 		}
 
 		return	0;
-err:	node->shutdown();
+err0:	delete[]	remoteName;
+err1:	if(ctrl_c)
+			delete	ctrl_c;
+		if(ctrl_c!=data_c)
+			delete	data_c;
+err2:	node->shutdown();
 		return	r;
 ref:	node->isTimeReference=true;
 		node->referenceNID=0;
+		node->dataChannels[0];	//	alloc for one self
 		node->init(0);
 		return	0;
 	}
@@ -789,7 +834,7 @@ loop:			p=crank->pop(false);
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	Node::DataCommChannel::DataCommChannel():data(NULL),stream(NULL){
+	Node::DataCommChannel::DataCommChannel():data(NULL),stream(NULL),name(NULL),nameSize(0){
 	}
 
 	Node::DataCommChannel::~DataCommChannel(){
@@ -798,5 +843,7 @@ loop:			p=crank->pop(false);
 			delete	data;
 		if(stream)
 			delete	stream;
+		if(name)
+			delete[]	name;
 	}
 }

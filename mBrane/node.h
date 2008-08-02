@@ -50,6 +50,7 @@ namespace	mBrane{
 		SharedLibrary	*userLibrary;
 
 		char	hostName[255];
+		uint8	hostNameSize;
 
 		static	uint32	thread_function_call	ScanIDs(void	*args);
 		static	uint32	thread_function_call	AcceptConnections(void	*args);
@@ -60,6 +61,16 @@ namespace	mBrane{
 			STREAM=2
 		}NetworkInterfaceType;
 
+		//	Nodes must boot in sequence (Cf boot delay in main)
+		//	accept connections
+		//		bcast ID and name
+		//		if accept timedout
+		//			node is time reference
+		//		else
+		//			recv remote NID, name and assigned NID
+		//			if assigned NID!=NO_ID
+		//				remote NID=reference NID
+		//	scan IDs and connect in reply to bcast: send local NID, name and assigned NID (if is time reference or NO_ID otherwise)
 		int32	bcastTimeout;
 		uint8	*networkID;
 		uint32	network_ID_size;
@@ -81,14 +92,17 @@ namespace	mBrane{
 			~DataCommChannel();
 			sdk::ConnectedCommChannel	*data;
 			sdk::ConnectedCommChannel	*stream;
+			char	*name;
+			uint8	nameSize;
 		};
 		sdk::Array<sdk::CommChannel	*>	controlChannels;	//	1 (bcast capable) or many (connected)
 		sdk::Array<DataCommChannel	*>	dataChannels;
+		Mutex	m;	//	protects controlChannels and dataChannels
 
 		bool	isTimeReference;
 		uint16	referenceNID;
 		void	setNewReference();
-		void	notifyNodeJoined(uint16	NID);
+		void	notifyNodeJoined(uint16	NID,char	*name);
 		void	notifyNodeLeft(uint16	NID);
 
 		static	uint32	thread_function_call	Sync(void	*args);
@@ -104,6 +118,7 @@ namespace	mBrane{
 		sdk::CircularBuffer<sdk::P<sdk::_Payload> >	timeGate;	//	First step: time granularity=0; TODO: increase granularity (2 ms) if possible and useful. In that case, typedef	sdk::CircularBuffer<sdk::P<sdk::_Payload> >	MessageBuffer[MESSAGE_PRIORITY_LEVELS]; sdk::CircularBuffer<MessageBuffer>	timeGate; maintain a time latch (2ms)
 
 		void	processError(NetworkInterfaceType	type,uint16	entry);
+		uint16	addNode();
 		typedef	struct{
 			Node					*n;
 			sdk::CommChannel		*c;

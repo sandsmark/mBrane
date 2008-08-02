@@ -141,10 +141,11 @@ namespace	mBrane{
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	void	Host::Name(char	*name){
+	uint8	Host::Name(char	*name){
 #if defined	WINDOWS
 		uint32	s=255;
 		GetComputerName(name,&s);
+		return	s;
 #elif defined LINUX
 #elif defined OSX
 #endif

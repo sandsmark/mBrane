@@ -21,13 +21,15 @@ public:
 
 int	main(int	argc,char	**argv){
 
-	if(argc!=2){
+	if(argc!=3){
 	
-		std::cout<<"usage: mBrane <config file name>\n";
+		std::cout<<"usage: mBrane <boot delay in ms> <config file name>\n";
 		return	0;
 	}
 
-	mBrane::Node	*n=mBrane::Node::New(argv[1]);
+	Thread::Sleep(atoi(argv[1]));
+
+	mBrane::Node	*n=mBrane::Node::New(argv[2]);
 	if(n){
 
 		if(!n->loadApplication()){

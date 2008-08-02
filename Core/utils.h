@@ -65,7 +65,7 @@ namespace	mBrane{
 
 	class	dll	Host{
 	public:
-		static	void	Name(char	*name);	//	name size=255
+		static	uint8	Name(char	*name);	//	name size=255; return the actual size
 	};
 
 	class	dll	Semaphore{
