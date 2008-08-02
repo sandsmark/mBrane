@@ -81,5 +81,15 @@ namespace	mBrane{
 
 			return	true;
 		}
+
+		////////////////////////////////////////////////////////////////////////////////////////////////
+
+		template<class	U,class	D,class	F>	inline	const	size_t	CompressedStreamData<U,D,F>::CoreSize(){
+
+			return	Size()-2*sizeof(F);
+		}
+
+		template<class	U,class	D,class	F>	CompressedStreamData<U,D,F>::CompressedStreamData():StreamData<U>(),_CompressedStreamData(),D(){
+		}
 	}
 }

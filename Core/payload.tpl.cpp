@@ -41,6 +41,16 @@ namespace	mBrane{
 			return	_CID;
 		}
 
+		template<class	M,class	U>	inline	const	size_t	Payload<M,U>::Size(){
+
+			return	sizeof(U);
+		}
+
+		template<class	M,class	U>	inline	const	size_t	Payload<M,U>::CoreSize(){
+
+			return	sizeof(U);
+		}
+
 		template<class	M,class	U>	inline	Payload<M,U>::Payload():Object<M,_Payload,U>(){
 		}
 

@@ -101,13 +101,11 @@ namespace	mBrane{
 			p->node_send_ts()=Time::Get();
 			ClassRegister	*CR=ClassRegister::Get(p->cid());
 			int16	r;
-			if(p->isStreamData()	&&	((_StreamData	*)p)->hasCodec()){
+			if(p->isCompressedStreamData()	&&	((_CompressedStreamData	*)p)->isCompressed){
 
-				((_StreamData	*)p)->compress();
-				uint32	s=((_StreamData	*)p)->compressedSize();
-				if(r=send(((uint8	*)&s,sizeof(uint32)))
-					return	r;
-				if(r=send(((uint8	*)p)+CR->offset(),s>CR->size()?s:CR->size()))
+				((_CompressedStreamData	*)p)->compress();
+				((_CompressedStreamData	*)p)->isCompressed=true;
+				if(r=send(((uint8	*)p)+CR->offset(),CR->coreSize()+((_CompressedStreamData	*)p)->compressedSize))
 					return	r;
 			}else	if(r=send(((uint8	*)p)+CR->offset(),CR->size()))
 				return	r;
@@ -127,7 +125,14 @@ namespace	mBrane{
 				return	r;
 			ClassRegister	*CR=ClassRegister::Get(cid);
 			*p=(_Payload	*)CR->allocator()->alloc();
-			if(r=recv((uint8	*)*p,CR->size()))
+			if((*p)->isCompressedStreamData()){
+
+				if(r=recv((uint8	*)*p,CR->coreSize()))
+					return	r;
+				if(r=recv(((uint8	*)*p)+CR->coreSize(),((_CompressedStreamData	*)p)->compressedSize))
+					return	r;
+				((_CompressedStreamData	*)*p)->decompress();
+			}else	if(r=recv((uint8	*)*p,CR->size()))
 				return	r;
 			(*p)->node_recv_ts()=Time::Get();
 			_Payload	*ptr;

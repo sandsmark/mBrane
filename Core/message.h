@@ -49,7 +49,7 @@ namespace	mBrane{
 
 		class	dll	_ControlMessage{
 		protected:
-			uint32	_mid;	//	content identifer
+			uint32	_mid;	//	content identifer (for streams: stream identifier, as ooposed to frame identifier: to be defined in U classes)
 			uint8	_priority;
 			uint16	_senderNodeID;
 			_ControlMessage(uint32	mid=0,uint8	priority=0);
@@ -77,10 +77,6 @@ namespace	mBrane{
 			virtual	~_StreamData();
 			operator	_ControlMessage	*()	const;
 			operator	_Payload	*()	const;
-			virtual	bool	hasCodec();
-			virtual	void	compress();
-			virtual	void	decompress();
-			virtual	uint32	compressedSize();
 		};
 
 		template<class	U>	class	StreamData:
@@ -91,6 +87,32 @@ namespace	mBrane{
 		public:
 			bool	isControlMessage();
 			bool	isStreamData();
+		};
+
+		class	CommChannel;
+		class	dll	_CompressedStreamData{
+		friend	class	CommChannel;
+		protected:
+			bool	isCompressed;	//	must be updated by compress() and any method changing the content of the frame, defined in U classes
+			size_t	compressedSize;	//	of a frame (not of the whole class)
+			_CompressedStreamData();
+		public:
+			virtual	~_CompressedStreamData();
+			bool	isCompressedStreamData()	const;
+			virtual	void	compress();
+			virtual	void	decompress();
+		};
+
+		template<class	U,class	D,class	F>	class	CompressedStreamData:	//	subclass U shall not define any data at all (already defined by class D); F: frame data
+		public	StreamData<U>,
+		public	_CompressedStreamData,
+		public	D{
+		protected:
+			F	compressedFrame;
+			F	uncompressedFrame;
+			CompressedStreamData();
+		public:
+			static	const	size_t	CoreSize();
 		};
 
 		class	dll	_Message{

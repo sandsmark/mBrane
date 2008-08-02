@@ -63,6 +63,11 @@ namespace	mBrane{
 			return	_size;
 		}
 
+		inline	size_t	ClassRegister::coreSize()	const{
+
+			return	_coreSize;
+		}
+
 		inline	size_t	ClassRegister::offset()	const{
 
 			return	_offset;

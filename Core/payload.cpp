@@ -85,6 +85,11 @@ namespace	mBrane{
 			return	false;
 		}
 
+		inline	bool	_Payload::isCompressedStreamData()	const{
+
+			return	false;
+		}
+
 		inline	int64	&_Payload::node_send_ts(){
 
 			return	_node_send_ts;

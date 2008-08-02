@@ -45,6 +45,7 @@ namespace	mBrane{
 			static	Array<ClassRegister>	Classes;
 			Allocator	*_allocator;
 			size_t		_size;	//	transmission size
+			size_t		_coreSize;	//	transmission size for compressed payloads: size of the payload minus the size of the compressed data
 			size_t		_offset;	//	from this
 		public:
 			template<class	C,class	M>	static	uint16	Load();
@@ -54,6 +55,7 @@ namespace	mBrane{
 			~ClassRegister();
 			Allocator	*allocator()	const;
 			size_t		size()	const;
+			size_t		coreSize()	const;
 			size_t		offset()	const;
 		};
 	}

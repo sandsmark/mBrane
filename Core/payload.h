@@ -57,6 +57,7 @@ namespace	mBrane{
 			virtual	bool	isControlMessage()	const;
 			virtual	bool	isMessage()	const;
 			virtual	bool	isStreamData()	const;
+			virtual	bool	isCompressedStreamData()	const;
 			int64	&node_send_ts();	//	send timestamp: time of emission from a node
 			int64	&node_recv_ts();	//	recv timestamp: time of reception by a node
 			int64	&send_ts();	//	send timestamp: time of emission from a crank (<= than node_send_ts)
@@ -73,6 +74,8 @@ namespace	mBrane{
 			void	*operator	new(size_t	s);
 			void	operator	delete(void	*o);
 			static	const	uint16	CID();
+			static	const	size_t	Size();
+			static	const	size_t	CoreSize();
 		};
 
 		//	Usage:	template<class	C>	class	DaughterClass: public Payload<Memory,C>{ ... };
