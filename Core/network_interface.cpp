@@ -117,7 +117,7 @@ namespace	mBrane{
 			return	0;
 		}
 
-		int16	CommChannel::recv(_Payload	**p){	//	TODO:	recv compressed size; decompress; BTW: generalize hascodec/co/dec to _Payload
+		int16	CommChannel::recv(_Payload	**p){
 
 			uint16	cid;
 			int16	r;
