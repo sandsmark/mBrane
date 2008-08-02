@@ -117,8 +117,8 @@ namespace	mBrane{
 
 		class	dll	_Message{
 		protected:
-			uint16	_senderEntityCID;
-			uint16	_senderEntityIID;
+			uint16	_senderModuleCID;
+			uint16	_senderModuleIID;
 			uint16	_senderCrankCID;
 			uint16	_senderCrankIID;
 			_Message();
@@ -126,8 +126,8 @@ namespace	mBrane{
 			virtual	~_Message();
 			operator	_ControlMessage	*()	const;
 			operator	_Payload	*()	const;
-			uint16	&senderEntity_cid();
-			uint16	&senderEntity_iid();
+			uint16	&senderModule_cid();
+			uint16	&senderModule_iid();
 			uint16	&senderCrank_cid();
 			uint16	&senderCrank_iid();
 		};

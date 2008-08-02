@@ -99,7 +99,7 @@ namespace	mBrane{
 
 		////////////////////////////////////////////////////////////////////////////////////////////////
 
-		inline	_Message::_Message():_senderEntityCID(0),_senderEntityIID(0),_senderCrankCID(0),_senderCrankIID(0){
+		inline	_Message::_Message():_senderModuleCID(0),_senderModuleIID(0),_senderCrankCID(0),_senderCrankIID(0){
 		}
 
 		inline	_Message::~_Message(){
@@ -115,14 +115,14 @@ namespace	mBrane{
 			return	(_Payload	*)(((uint8	*)this)-sizeof(_ControlMessage)-sizeof(_Payload));
 		}
 
-		inline	uint16	&_Message::senderEntity_cid(){
+		inline	uint16	&_Message::senderModule_cid(){
 
-			return	_senderEntityCID;
+			return	_senderModuleCID;
 		}
 
-		inline	uint16	&_Message::senderEntity_iid(){
+		inline	uint16	&_Message::senderModule_iid(){
 
-			return	_senderEntityIID;
+			return	_senderModuleIID;
 		}
 
 		inline	uint16	&_Message::senderCrank_cid(){
