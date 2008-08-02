@@ -269,20 +269,20 @@ namespace	mBrane{
 		//		user thread count: 2nd step
 		//		target thread (per crank): 2nd step
 
-		//	test
+		//	begin test
 		CrankInstantiator	instantiator=userLibrary->getFunction<CrankInstantiator>("NewCR1");
 		if(instantiator){
 
 			sdk::_Crank	*c=(instantiator)(0);
 			delete	c;
 		}
+		//	end test
 		return	this;
 	}
 
 	void	Node::unloadApplication(){
-		//	to unload
-		//		entities, modules, groups, cranks
-		//		user library
+		
+		//	TODO:	unload entities, modules, groups, cranks
 		delete	userLibrary;
 	}
 
@@ -321,36 +321,17 @@ err:	shutdown();
 		_ID=NID;
 		commThreads[commThreads.count()]=Thread::New(ScanIDs,this);
 		commThreads[commThreads.count()]=Thread::New(SendMessages,this);
-		
-		ReceiveThreadArgs	args;
-		args.n=this;
-		for(uint16	i=0;controlChannels.count();i++){
+		if(networkCommInterfaces[CONTROL]->canBroadcast()){
 
-			args.c=controlChannels[i];
-			args.e=i;
+			ReceiveThreadArgs	args;
+			args.n=this;
+			args.c=controlChannels[0];
+			args.e=0;
 			args.t=CONTROL;
 			commThreads[commThreads.count()]=Thread::New(ReceiveMessages,&args);
 		}
-
-		commThreads[commThreads.count()]=Thread::New(ReceiveMessages,this);
-
-		for(uint16	i=0;dataChannels.count();i++){
-
-			if(networkCommInterfaces[DATA]!=networkCommInterfaces[CONTROL]){
-
-				args.c=dataChannels[i]->data;
-				args.e=i;
-				args.t=DATA;
-				commThreads[commThreads.count()]=Thread::New(ReceiveMessages,&args);
-			}
-
-			if(networkCommInterfaces[STREAM]!=networkCommInterfaces[DATA]){
-
-				args.c=dataChannels[i]->stream;
-				args.t=STREAM;
-				commThreads[commThreads.count()]=Thread::New(ReceiveMessages,&args);
-			}
-		}
+		
+		commThreads[commThreads.count()]=Thread::New(NotifyMessages,this);
 
 		if(isTimeReference)
 			commThreads[commThreads.count()]=Thread::New(Sync,this);
@@ -360,6 +341,36 @@ err:	shutdown();
 
 		//	TODO:	if(isTimeReference) wait for nodes (listed in the config file) and send SystemReady to (local) cranks
 		//			else send NID to reference node
+	}
+
+	void	Node::startReceivingThreads(uint16	NID){
+
+		ReceiveThreadArgs	args;
+		args.n=this;
+
+		if(!networkCommInterfaces[CONTROL]->canBroadcast()){
+
+			args.c=controlChannels[NID];
+			args.e=NID;
+			args.t=CONTROL;
+			commThreads[commThreads.count()]=Thread::New(ReceiveMessages,&args);
+		}
+
+		if(networkCommInterfaces[DATA]!=networkCommInterfaces[CONTROL]){
+
+			args.c=dataChannels[NID]->data;
+			args.e=NID;
+			args.t=DATA;
+			commThreads[commThreads.count()]=Thread::New(ReceiveMessages,&args);
+		}
+
+		if(networkCommInterfaces[STREAM]!=networkCommInterfaces[DATA]){
+
+			args.c=dataChannels[NID]->stream;
+			args.e=NID;
+			args.t=STREAM;
+			commThreads[commThreads.count()]=Thread::New(ReceiveMessages,&args);
+		}
 	}
 
 	void	Node::processError(NetworkInterfaceType	type,uint16	entry){
@@ -384,7 +395,7 @@ err:	shutdown();
 		m.release();
 	}
 
-	uint16	Node::addNode(){
+	uint16	Node::addNodeEntry(){
 
 		m.acquire();
 
@@ -578,15 +589,16 @@ err:	shutdown();
 			}else
 				stream_c=data_c;
 
-			remoteNID=node->addNode();
+			remoteNID=node->addNodeEntry();
 			node->dataChannels[remoteNID]->nameSize=remoteNameSize;
 			node->dataChannels[remoteNID]->name=new	char[remoteNameSize];
 			memcpy(node->dataChannels[remoteNID]->name,remoteNetworkID+1,remoteNameSize);
-			node->dataChannels[remoteNID]->data=data_c;
-			node->dataChannels[remoteNID]->stream=stream_c;
 			if(ctrl_c)
 				node->controlChannels[remoteNID]=ctrl_c;
+			node->dataChannels[remoteNID]->data=data_c;
+			node->dataChannels[remoteNID]->stream=stream_c;
 			node->notifyNodeJoined(remoteNID,node->dataChannels[remoteNID]->name);
+			node->startReceivingThreads(remoteNID);
 		}
 
 		delete[]	remoteNetworkID;
@@ -653,6 +665,7 @@ err1:	delete[]	remoteNetworkID;
 			if(assignedNID!=NO_ID){
 
 				node->referenceNID=remoteNID;
+				node->dataChannels[assignedNID];	//	alloc for one self
 				node->init(assignedNID);
 			}
 
@@ -665,11 +678,12 @@ err1:	delete[]	remoteNetworkID;
 
 			node->dataChannels[remoteNID]->name=remoteName;
 			node->dataChannels[remoteNID]->nameSize=remoteNameSize;
-			node->dataChannels[remoteNID]->data=data_c;
-			node->dataChannels[remoteNID]->data=stream_c;
 			if(ctrl_c)
 				node->controlChannels[remoteNID]=ctrl_c;
+			node->dataChannels[remoteNID]->data=data_c;
+			node->dataChannels[remoteNID]->stream=stream_c;
 			node->notifyNodeJoined(remoteNID,node->dataChannels[remoteNID]->name);
+			node->startReceivingThreads(remoteNID);
 		}
 
 		return	0;

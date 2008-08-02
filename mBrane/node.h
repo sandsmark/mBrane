@@ -118,7 +118,8 @@ namespace	mBrane{
 		sdk::CircularBuffer<sdk::P<sdk::_Payload> >	timeGate;	//	First step: time granularity=0; TODO: increase granularity (2 ms) if possible and useful. In that case, typedef	sdk::CircularBuffer<sdk::P<sdk::_Payload> >	MessageBuffer[MESSAGE_PRIORITY_LEVELS]; sdk::CircularBuffer<MessageBuffer>	timeGate; maintain a time latch (2ms)
 
 		void	processError(NetworkInterfaceType	type,uint16	entry);
-		uint16	addNode();
+		uint16	addNodeEntry();
+		void	startReceivingThreads(uint16	NID);
 		typedef	struct{
 			Node					*n;
 			sdk::CommChannel		*c;
