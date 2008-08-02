@@ -681,7 +681,7 @@ err3:	delete[]	remoteNetworkID;
 				if(assignedNID!=NO_ID){
 
 					node->referenceNID=remoteNID;
-					node->dataChannels[assignedNID];	//	alloc for one self
+					node->dataChannels[assignedNID];	//	alloc for oneself
 					node->init(assignedNID);
 				}
 
@@ -708,7 +708,7 @@ err3:	delete[]	remoteNetworkID;
 				if(assignedNID!=NO_ID){
 
 					node->referenceNID=remoteNID;
-					node->dataChannels[assignedNID];	//	alloc for one self
+					node->dataChannels[assignedNID];	//	alloc for oneself
 					node->init(assignedNID);
 				}
 			}else
@@ -737,7 +737,7 @@ err3:	delete[]	remoteNetworkID;
 				if(assignedNID!=NO_ID){
 
 					node->referenceNID=remoteNID;
-					node->dataChannels[assignedNID];	//	alloc for one self
+					node->dataChannels[assignedNID];	//	alloc for oneself
 					node->init(assignedNID);
 				}
 			}else
@@ -767,7 +767,7 @@ err3:	node->shutdown();
 		return	r;
 ref:	node->isTimeReference=true;
 		node->referenceNID=0;
-		node->dataChannels[0];	//	alloc for one self
+		node->dataChannels[0];	//	alloc for oneself
 		node->init(0);
 		return	0;
 	}
