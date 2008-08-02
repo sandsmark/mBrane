@@ -535,6 +535,41 @@ err:	shutdown();
 			networkCommInterfaces[STREAM]->stop();
 	}
 
+	uint16	Node::sendID(ConnectedCommChannel	*c,uint16	assignedNID){
+
+		uint16	r;
+		if(r=c->send((uint8	*)&_ID,sizeof(uint16)))
+			return	r;
+		if(r=c->send((uint8	*)&hostNameSize,sizeof(uint8)))
+			return	r;
+		if(r=c->send((uint8	*)hostName,hostNameSize))
+			return	r;
+		if(r=c->send((uint8	*)&assignedNID,sizeof(uint16)))
+			return	r;
+		return	0;
+	}
+
+	uint16	Node::recvID(ConnectedCommChannel	*c,uint16	&NID,char	*&name,uint8	&nameSize,uint16	&assignedNID){
+
+		uint16	r;
+		if(r=c->recv((uint8	*)&NID,sizeof(uint16)))
+			return	r;
+		if(r=c->recv((uint8	*)&nameSize,sizeof(uint8)))
+			return	r;
+		name=new	char[nameSize];
+		if(r=c->recv((uint8	*)name,nameSize)){
+
+			delete[]	name;
+			return	r;
+		}
+		if(r=c->recv((uint8	*)&assignedNID,sizeof(uint16))){
+
+			delete[]	name;
+			return	r;
+		}
+		return	0;
+	}
+
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
 	uint32	thread_function_call	Node::ScanIDs(void	*args){
@@ -552,62 +587,62 @@ err:	shutdown();
 		while(!node->_shutdown){
 
 			if(r=node->networkDiscoveryInterface->scanID(remoteNetworkID,node->network_ID_size))
-				goto	err1;
+				goto	err3;
+
 			uint8	remoteNameSize=remoteNetworkID[0];
+
+			if(node->isTimeReference)
+				assignedNID=node->addNodeEntry();
+			else
+				assignedNID=NO_ID;
 
 			ctrl_c=NULL;
 			if(!node->networkCommInterfaces[CONTROL]->canBroadcast()){
 
 				if(r=node->networkCommInterfaces[CONTROL]->connect(remoteNetworkID+sizeof(uint8)+remoteNameSize,ctrl_c))
-					goto	err1;
+					goto	err3;
+				if(node->sendID(ctrl_c,assignedNID))
+					goto	err2;
 			}
 			
 			if(node->networkCommInterfaces[DATA]->operator !=(node->networkCommInterfaces[CONTROL])){
 
 				if(r=node->networkCommInterfaces[DATA]->connect(remoteNetworkID+sizeof(uint8)+remoteNameSize+node->network_ctrl_ID_size,data_c))
+					goto	err2;
+				if(node->sendID(data_c,assignedNID))
 					goto	err1;
 			}else
 				data_c=ctrl_c;
 
-			if(r=data_c->send((uint8	*)&node->_ID,sizeof(uint16)))
-				goto	err0;
-			if(r=data_c->send((uint8	*)&node->hostNameSize,sizeof(uint8)))
-				goto	err0;
-			if(r=data_c->send((uint8	*)node->hostName,node->hostNameSize))
-				goto	err0;
-			if(node->isTimeReference)
-				assignedNID=node->dataChannels.count();
-			else
-				assignedNID=NO_ID;
-			if(r=data_c->send((uint8	*)&assignedNID,sizeof(uint16)))
-				goto	err0;
-
 			if(node->networkCommInterfaces[STREAM]->operator !=(node->networkCommInterfaces[DATA])){
 
 				if(r=node->networkCommInterfaces[STREAM]->connect(remoteNetworkID+sizeof(uint8)+remoteNameSize+node->network_ctrl_ID_size+node->network_data_ID_size,stream_c))
+					goto	err1;
+				if(node->sendID(stream_c,assignedNID))
 					goto	err0;
 			}else
 				stream_c=data_c;
 
-			remoteNID=node->addNodeEntry();
-			node->dataChannels[remoteNID]->nameSize=remoteNameSize;
-			node->dataChannels[remoteNID]->name=new	char[remoteNameSize];
-			memcpy(node->dataChannels[remoteNID]->name,remoteNetworkID+1,remoteNameSize);
+			node->dataChannels[assignedNID]->nameSize=remoteNameSize;
+			node->dataChannels[assignedNID]->name=new	char[remoteNameSize];
+			memcpy(node->dataChannels[assignedNID]->name,remoteNetworkID+1,remoteNameSize);
 			if(ctrl_c)
-				node->controlChannels[remoteNID]=ctrl_c;
-			node->dataChannels[remoteNID]->data=data_c;
-			node->dataChannels[remoteNID]->stream=stream_c;
-			node->notifyNodeJoined(remoteNID,node->dataChannels[remoteNID]->name);
-			node->startReceivingThreads(remoteNID);
+				node->controlChannels[assignedNID]=ctrl_c;
+			node->dataChannels[assignedNID]->data=data_c;
+			node->dataChannels[assignedNID]->stream=stream_c;
+			node->notifyNodeJoined(assignedNID,node->dataChannels[assignedNID]->name);
+			node->startReceivingThreads(assignedNID);
 		}
 
 		delete[]	remoteNetworkID;
 		return	0;
-err0:	if(ctrl_c)
-			delete	ctrl_c;
-		if(data_c!=ctrl_c)
+err0:	if(stream_c!=data_c)
+			delete	stream_c;
+err1:	if(data_c!=ctrl_c)
 			delete	data_c;
-err1:	delete[]	remoteNetworkID;
+err2:	if(ctrl_c)
+			delete	ctrl_c;
+err3:	delete[]	remoteNetworkID;
 		node->shutdown();
 		return	r;
 	}
@@ -625,8 +660,9 @@ err1:	delete[]	remoteNetworkID;
 		ConnectedCommChannel	*data_c;
 		ConnectedCommChannel	*stream_c;
 		int32	timeout=node->bcastTimeout;
-		int16	remoteNID;
+		uint16	remoteNID;
 		char	*remoteName;
+		uint8	remoteNameSize;
 		while(!node->_shutdown){
 
 			bool	timedout;
@@ -634,65 +670,100 @@ err1:	delete[]	remoteNetworkID;
 			if(!node->networkCommInterfaces[CONTROL]->canBroadcast()){
 
 				if(r=node->networkCommInterfaces[CONTROL]->acceptConnection(ctrl_c,timeout,timedout))
-					goto	err2;
+					goto	err3;
 				if(timedout)
 					goto	ref;
 				timeout=-1;
+				
+				uint16	assignedNID;
+				if(r=node->recvID(ctrl_c,remoteNID,remoteName,remoteNameSize,assignedNID))
+					goto	err2;
+				if(assignedNID!=NO_ID){
+
+					node->referenceNID=remoteNID;
+					node->dataChannels[assignedNID];	//	alloc for one self
+					node->init(assignedNID);
+				}
+
+				node->dataChannels[remoteNID]->name=remoteName;
+				node->dataChannels[remoteNID]->nameSize=remoteNameSize;
+				node->controlChannels[remoteNID]=ctrl_c;
+				if(node->dataChannels[remoteNID]->data	&&	node->dataChannels[remoteNID]->stream){
+					
+					node->notifyNodeJoined(remoteNID,node->dataChannels[remoteNID]->name);
+					node->startReceivingThreads(remoteNID);
+				}
 			}
 
-			char	*remoteName;
 			if(node->networkCommInterfaces[DATA]->operator !=(node->networkCommInterfaces[CONTROL])){
 
 				if(r=node->networkCommInterfaces[DATA]->acceptConnection(data_c,timeout,timedout))
 					goto	err2;
 				if(timedout)
 					goto	ref;
+
+				uint16	assignedNID;
+				if(r=node->recvID(data_c,remoteNID,remoteName,remoteNameSize,assignedNID))
+					goto	err1;
+				if(assignedNID!=NO_ID){
+
+					node->referenceNID=remoteNID;
+					node->dataChannels[assignedNID];	//	alloc for one self
+					node->init(assignedNID);
+				}
 			}else
 				data_c=ctrl_c;
 
-			if(r=data_c->recv((uint8	*)&remoteNID,sizeof(uint16)))
-				goto	err1;
-			uint8	remoteNameSize;
-			if(r=data_c->recv((uint8	*)&remoteNameSize,sizeof(uint8)))
-				goto	err1;
-			remoteName=new	char[remoteNameSize];
-			if(r=data_c->recv((uint8	*)remoteName,remoteNameSize))
-				goto	err0;
-			uint16	assignedNID;
-			if(r=data_c->recv((uint8	*)&assignedNID,sizeof(uint16)))
-				goto	err0;
+			node->dataChannels[remoteNID]->name=remoteName;
+			node->dataChannels[remoteNID]->nameSize=remoteNameSize;
+			node->dataChannels[remoteNID]->data=data_c;
+			if(node->dataChannels[remoteNID]->stream){
+					
+				if((!node->networkCommInterfaces[CONTROL]->canBroadcast()	&&	node->controlChannels[remoteNID])	||	node->networkCommInterfaces[CONTROL]->canBroadcast()){
 
-			if(assignedNID!=NO_ID){
-
-				node->referenceNID=remoteNID;
-				node->dataChannels[assignedNID];	//	alloc for one self
-				node->init(assignedNID);
+					node->notifyNodeJoined(remoteNID,node->dataChannels[remoteNID]->name);
+					node->startReceivingThreads(remoteNID);
+				}
 			}
 
 			if(node->networkCommInterfaces[STREAM]->operator !=(node->networkCommInterfaces[DATA])){
 
 				if(r=node->networkCommInterfaces[STREAM]->acceptConnection(stream_c,-1,timedout))
-					goto	err2;
+					goto	err1;
+				
+				uint16	assignedNID;
+				if(r=node->recvID(stream_c,remoteNID,remoteName,remoteNameSize,assignedNID))
+					goto	err0;
+				if(assignedNID!=NO_ID){
+
+					node->referenceNID=remoteNID;
+					node->dataChannels[assignedNID];	//	alloc for one self
+					node->init(assignedNID);
+				}
 			}else
 				stream_c=data_c;
 
 			node->dataChannels[remoteNID]->name=remoteName;
 			node->dataChannels[remoteNID]->nameSize=remoteNameSize;
-			if(ctrl_c)
-				node->controlChannels[remoteNID]=ctrl_c;
-			node->dataChannels[remoteNID]->data=data_c;
 			node->dataChannels[remoteNID]->stream=stream_c;
-			node->notifyNodeJoined(remoteNID,node->dataChannels[remoteNID]->name);
-			node->startReceivingThreads(remoteNID);
+			if(node->dataChannels[remoteNID]->data){
+					
+				if((!node->networkCommInterfaces[CONTROL]->canBroadcast()	&&	node->controlChannels[remoteNID])	||	node->networkCommInterfaces[CONTROL]->canBroadcast()){
+
+					node->notifyNodeJoined(remoteNID,node->dataChannels[remoteNID]->name);
+					node->startReceivingThreads(remoteNID);
+				}
+			}
 		}
 
 		return	0;
-err0:	delete[]	remoteName;
-err1:	if(ctrl_c)
-			delete	ctrl_c;
-		if(ctrl_c!=data_c)
+err0:	if(stream_c!=data_c)
+			delete	stream_c;
+err1:	if(ctrl_c!=data_c)
 			delete	data_c;
-err2:	node->shutdown();
+err2:	if(ctrl_c)
+			delete	ctrl_c;
+err3:	node->shutdown();
 		return	r;
 ref:	node->isTimeReference=true;
 		node->referenceNID=0;

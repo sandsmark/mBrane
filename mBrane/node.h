@@ -117,6 +117,8 @@ namespace	mBrane{
 		static	uint32	thread_function_call	CrankExecutionUnit(void	*args);	//	First step: 1 crank<->1 thread and evaluate performance; TODO (if first step satisfying):	1 thread<->many cranks => ctrl at instruction (asm) level...
 		sdk::CircularBuffer<sdk::P<sdk::_Payload> >	timeGate;	//	First step: time granularity=0; TODO: increase granularity (2 ms) if possible and useful. In that case, typedef	sdk::CircularBuffer<sdk::P<sdk::_Payload> >	MessageBuffer[MESSAGE_PRIORITY_LEVELS]; sdk::CircularBuffer<MessageBuffer>	timeGate; maintain a time latch (2ms)
 
+		uint16	sendID(sdk::ConnectedCommChannel	*c,uint16	assignedNID);
+		uint16	recvID(sdk::ConnectedCommChannel	*c,uint16	&NID,char	*&name,uint8	&nameSize,uint16	&assignedNID);
 		void	processError(NetworkInterfaceType	type,uint16	entry);
 		uint16	addNodeEntry();
 		void	startReceivingThreads(uint16	NID);
