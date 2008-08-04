@@ -33,6 +33,7 @@
 
 #include	"utils.h"
 #include	"xml_parser.h"
+#include	"node_api.h"
 
 
 namespace	mBrane{
@@ -52,12 +53,11 @@ namespace	mBrane{
 			Protocol	_protocol;
 			NetworkInterface(Protocol	_protocol);
 		public:
-			typedef	NetworkInterface	*(*Load)(XMLNode	&);
+			typedef	NetworkInterface	*(*Load)(XMLNode	&,NodeAPI	*n);	//	function exported by the shared library
 			virtual	~NetworkInterface();
 			Protocol	protocol()	const;
 			virtual	bool	operator	==(NetworkInterface	*i)=0;
 			virtual	bool	operator	!=(NetworkInterface	*i)=0;
-			virtual	uint64	rtt()=0;	//	round trip time estimate
 			virtual	bool	canBroadcast()=0;	//	as opposed to connected mode
 			virtual	uint16	start()=0;	//	initialize the network interface; loads parameters from XML file; returns 0 if successful
 			virtual	uint16	stop()=0;	//	the network interface; returns 0 if successful
@@ -70,17 +70,6 @@ namespace	mBrane{
 			virtual	uint16	acceptConnection(ConnectedCommChannel	*&channel,int32	timeout,bool	&timedout)=0;	//	listen to connect attempts and creates a new channel accordingly; returns 0 if successful
 		};
 
-		class	dll	NetworkInterfaceLoader{
-		private:
-			SharedLibrary	*library;
-			NetworkInterface::Load	load;
-			NetworkInterfaceLoader(SharedLibrary	*library,NetworkInterface::Load	load);
-		public:
-			static	NetworkInterfaceLoader	*New(XMLNode	&n);
-			~NetworkInterfaceLoader();
-			NetworkInterface	*getInterface(XMLNode	&n);
-		};
-
 		class	_Payload;
 		class	dll	CommChannel{
 		protected:
@@ -89,6 +78,7 @@ namespace	mBrane{
 			virtual	~CommChannel();	//	shutdown to be performed in subclasses' destructors
 			virtual	int16	send(uint8	*b,size_t	s)=0;	//	return 0 if successfull, error code (>0) otherwise
 			virtual	int16	recv(uint8	*b,size_t	s,bool	peek=false)=0;
+			virtual	uint64	rtt()=0;	//	round trip time estimate
 			int16	send(_Payload	*p);	//	return 0 if successfull, error code (>0) otherwise
 			int16	recv(_Payload	**p);
 		};

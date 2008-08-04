@@ -247,6 +247,26 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dynamic_class_loader.tpl.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\memory.cpp"
 				>
 			</File>
@@ -280,6 +300,10 @@
 			</File>
 			<File
 				RelativePath=".\node.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\node_api.cpp"
 				>
 			</File>
 			<File
@@ -401,6 +425,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dynamic_class_loader.h"
+				>
+			</File>
+			<File
 				RelativePath=".\mBrane.h"
 				>
 			</File>
@@ -418,6 +446,10 @@
 			</File>
 			<File
 				RelativePath=".\node.h"
+				>
+			</File>
+			<File
+				RelativePath=".\node_api.h"
 				>
 			</File>
 			<File

@@ -80,21 +80,21 @@ namespace	mBrane{
 
 		////////////////////////////////////////////////////////////////////////////////////////////////
 
-		inline	_CompressedStreamData::_CompressedStreamData():isCompressed(false),compressedSize(0){
+		inline	_CompressedPayload::_CompressedPayload():isCompressed(false),compressedSize(0){
 		}
 
-		inline	_CompressedStreamData::~_CompressedStreamData(){
+		inline	_CompressedPayload::~_CompressedPayload(){
 		}
 
-		inline	bool	_CompressedStreamData::isCompressedStreamData()	const{
+		inline	bool	_CompressedPayload::isCompressedPayload()	const{
 
 			return	true;
 		}
 
-		inline	void	_CompressedStreamData::compress(){
+		inline	void	_CompressedPayload::compress(){
 		}
 
-		inline	void	_CompressedStreamData::decompress(){
+		inline	void	_CompressedPayload::decompress(){
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////////////////

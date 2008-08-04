@@ -117,11 +117,6 @@ bool	UDPInterface::operator	!=(NetworkInterface	*i){
 	return	!operator	==(i);
 }
 
-uint64	UDPInterface::rtt(){	//	TODO (use IP Helper API)
-
-	return	0;
-}
-
 bool	UDPInterface::canBroadcast(){
 
 	return	true;

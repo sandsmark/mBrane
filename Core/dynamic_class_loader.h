@@ -1,4 +1,4 @@
-// tcp_interface.h
+// dynamic_class_loader.h
 //
 // Author: Eric Nivel
 //
@@ -28,43 +28,32 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef	mBrane_tcp_interface_h
-#define	mBrane_tcp_interface_h
+#ifndef	mBrane_sdk_dynamic_class_loader_h
+#define	mBrane_sdk_dynamic_class_loader_h
 
-#include	"..\Core\xml_parser.h"
-#include	"..\Core\network_interface.h"
+#include	"utils.h"
+#include	"xml_parser.h"
+#include	"node_api.h"
 
 
-using	namespace	mBrane;
-using	namespace	mBrane::sdk;
+namespace	mBrane{
+	namespace	sdk{
 
-class	TCPInterface:
-public	NetworkInterface{
-private:
-	static	uint32	Intialized;
-	static	bool	Init();
-	static	void	Shutdown();
-	mBrane::socket	s;
-	struct in_addr	address;
-	uint32	port;
-	TCPInterface();
-	bool	load(XMLNode	&n);
-public:
-	static	TCPInterface	*New(XMLNode	&n);
-	~TCPInterface();
-	bool	operator	==(NetworkInterface	*i);
-	bool	operator	!=(NetworkInterface	*i);
-	bool	canBroadcast();
-	uint16	start();
-	uint16	stop();
-	uint32	getIDSize();
-	void	fillID(uint8	*ID);
-	uint16	broadcastID(uint8	*ID,uint32	size);
-	uint16	scanID(uint8	*ID,uint32	size);
-	uint16	bind(uint8	*,BroadcastCommChannel	*&);
-	uint16	connect(uint8	*ID,ConnectedCommChannel	*&channel);
-	uint16	acceptConnection(ConnectedCommChannel	*&channel,int32	timeout,bool	&timedout);
-};
+		template<class	C>	class	DynamicClassLoader{
+		private:
+			SharedLibrary	*library;
+			typename	C::Load	load;
+			DynamicClassLoader(SharedLibrary	*library,typename	C::Load	load);
+		public:
+			static	DynamicClassLoader	*New(XMLNode	&n);
+			~DynamicClassLoader();
+			C	*getInstance(XMLNode	&n,NodeAPI	*node);
+		};
+	}
+}
+
+
+#include	"dynamic_class_loader.tpl.cpp"
 
 
 #endif

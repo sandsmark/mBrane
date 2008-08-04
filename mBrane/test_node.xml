@@ -1,7 +1,7 @@
 <NodeConfiguration application_configuration_file="C:\eric\work\mBrane\mBrane\test_application.xml">
 	<Network sync_period="10000" bcast_timeout="1000">
 		<!--sync_period: in ms; period at which sync signals are broadcast from the reference node-->
-		<!--bcast_timeout: in ms; delay after which a node believes it is the reference node-->
+		<!--bcast_timeout: in ms; delay after which a node believes it is the reference node; if 0, the node will be the time reference-->
 		<Interfaces>
 			<TCP shared_library="mBrane_tcp"/>
 			<UDP shared_library="mBrane_udp"/>
@@ -13,6 +13,9 @@
 		<Data interface="TCP" nic="eth0" port="10002"/>
 		<Streams interface="TCP" nic="eth0" port="10003"/>
 	</Network>
+	<Daemons>
+		<!--ex: <Daemon shared_library="..." parameter0="..." ... parameterN="..."/>-->	   
+	</Daemons>
 	<Nodes><!--SystemReady will be sent when all the nodes listed here are up and running; no need to list the local node (implicit)-->
 		<!--ex: <Node hostname=""/> or <Node address=""/>-->
 	</Nodes>

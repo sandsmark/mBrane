@@ -54,7 +54,6 @@ public:
 	~UDPInterface();
 	bool	operator	==(NetworkInterface	*i);
 	bool	operator	!=(NetworkInterface	*i);
-	uint64	rtt();
 	bool	canBroadcast();
 	uint16	start();
 	uint16	stop();

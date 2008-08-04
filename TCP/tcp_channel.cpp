@@ -49,3 +49,8 @@ int16	TCPChannel::recv(uint8	*b,size_t	s,bool	peek){	//	TODO
 
 	return	0;
 }
+
+uint64	TCPChannel::rtt(){	//	TODO (use IP Helper API)
+
+	return	0;
+}

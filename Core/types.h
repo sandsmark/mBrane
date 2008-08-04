@@ -37,6 +37,7 @@
 
 #if defined WINDOWS
 	#define	WIN32_LEAN_AND_MEAN
+	#define	_WIN32_WINNT	0x0501	//	i.e. win xp sp2
 	#include	<windows.h>
 	#include	<winsock2.h>
 
@@ -111,6 +112,7 @@ namespace	mBrane{
 	typedef	SOCKET					socket;
 	typedef	HANDLE					semaphore;
 	typedef	HANDLE					mutex;
+	typedef	HANDLE					timer;
 #elif defined	LINUX
 #elif defined	OSX
 #endif

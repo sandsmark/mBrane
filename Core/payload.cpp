@@ -85,7 +85,7 @@ namespace	mBrane{
 			return	false;
 		}
 
-		inline	bool	_Payload::isCompressedStreamData()	const{
+		inline	bool	_Payload::isCompressedPayload()	const{
 
 			return	false;
 		}

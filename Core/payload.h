@@ -57,7 +57,7 @@ namespace	mBrane{
 			virtual	bool	isControlMessage()	const;
 			virtual	bool	isMessage()	const;
 			virtual	bool	isStreamData()	const;
-			virtual	bool	isCompressedStreamData()	const;
+			virtual	bool	isCompressedPayload()	const;
 			int64	&node_send_ts();	//	send timestamp: time of emission from a node
 			int64	&node_recv_ts();	//	recv timestamp: time of reception by a node
 			int64	&send_ts();	//	send timestamp: time of emission from a crank (<= than node_send_ts)

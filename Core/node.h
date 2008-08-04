@@ -44,7 +44,7 @@ namespace	mBrane{
 		protected:
 			static	const	uint16	NO_ID=0xFFFF;
 			uint16	_ID;	//	max: 0xFFFE
-			Node(uint16	ID=NO_ID);
+			Node(uint16	ID);
 		public:
 			static	Node	*Get();
 			virtual	~Node();

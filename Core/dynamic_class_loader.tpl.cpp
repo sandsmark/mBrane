@@ -1,4 +1,4 @@
-// tcp_interface.h
+// dynamic_class_loader.tpl.cpp
 //
 // Author: Eric Nivel
 //
@@ -28,43 +28,45 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef	mBrane_tcp_interface_h
-#define	mBrane_tcp_interface_h
+namespace	mBrane{
+	namespace	sdk{
 
-#include	"..\Core\xml_parser.h"
-#include	"..\Core\network_interface.h"
+		template<class	C>	DynamicClassLoader<C>	*DynamicClassLoader<C>::New(XMLNode	&n){
 
+			const	char	*l=n.getAttribute("shared_library");
+			if(!l){
 
-using	namespace	mBrane;
-using	namespace	mBrane::sdk;
+				std::cout<<"Error: "<<n.getName()<<"::shared_library is missing\n";
+				return	NULL;
+			}
+			SharedLibrary	*library;
+			if(library=SharedLibrary::New(l)){
 
-class	TCPInterface:
-public	NetworkInterface{
-private:
-	static	uint32	Intialized;
-	static	bool	Init();
-	static	void	Shutdown();
-	mBrane::socket	s;
-	struct in_addr	address;
-	uint32	port;
-	TCPInterface();
-	bool	load(XMLNode	&n);
-public:
-	static	TCPInterface	*New(XMLNode	&n);
-	~TCPInterface();
-	bool	operator	==(NetworkInterface	*i);
-	bool	operator	!=(NetworkInterface	*i);
-	bool	canBroadcast();
-	uint16	start();
-	uint16	stop();
-	uint32	getIDSize();
-	void	fillID(uint8	*ID);
-	uint16	broadcastID(uint8	*ID,uint32	size);
-	uint16	scanID(uint8	*ID,uint32	size);
-	uint16	bind(uint8	*,BroadcastCommChannel	*&);
-	uint16	connect(uint8	*ID,ConnectedCommChannel	*&channel);
-	uint16	acceptConnection(ConnectedCommChannel	*&channel,int32	timeout,bool	&timedout);
-};
+				C::Load	load;
+				if(!(load=library->getFunction<C::Load>("Load"))){
 
+					std::cout<<"Error: "<<n.getName()<<": could not find function Load\n";
+					return	NULL;
+				}
+				return	new	DynamicClassLoader(library,load);
+			}
+			return	NULL;
+		}
 
-#endif
+		template<class	C>	DynamicClassLoader<C>::DynamicClassLoader(SharedLibrary	*library,typename	C::Load	load):library(library),load(load){
+		}
+
+		template<class	C>	DynamicClassLoader<C>::~DynamicClassLoader(){
+
+			if(library)
+				delete	library;
+		}
+
+		template<class	C>	C	*DynamicClassLoader<C>::getInstance(XMLNode	&n,NodeAPI	*node){
+
+			if(load)
+				return	load(n,node);
+			return	NULL;
+		}
+	}
+}

@@ -90,27 +90,27 @@ namespace	mBrane{
 		};
 
 		class	CommChannel;
-		class	dll	_CompressedStreamData{
+		class	dll	_CompressedPayload{
 		friend	class	CommChannel;
 		protected:
 			bool	isCompressed;	//	must be updated by compress() and any method changing the content of the frame, defined in U classes
 			size_t	compressedSize;	//	of a frame (not of the whole class)
-			_CompressedStreamData();
+			_CompressedPayload();
 		public:
-			virtual	~_CompressedStreamData();
-			bool	isCompressedStreamData()	const;
+			virtual	~_CompressedPayload();
+			bool	isCompressedPayload()	const;
 			virtual	void	compress();
 			virtual	void	decompress();
 		};
 
-		template<class	U,class	D,class	F>	class	CompressedStreamData:	//	subclass U shall not define any data at all (already defined by class D); F: frame data
-		public	StreamData<U>,
-		public	_CompressedStreamData,
+		template<class	S,class	D,class	F>	class	CompressedPayload:	//	S: superclass, either Message<U> or StreamData<U>; subclass U shall not define any data at all (already defined by class D); F: frame data
+		public	S,
+		public	_CompressedPayload,
 		public	D{
 		protected:
 			F	compressedFrame;	//	the last data to be transmitted, i.e. anything declared afterwards will not be transmitted
 			F	uncompressedFrame;
-			CompressedStreamData();
+			CompressedPayload();
 		public:
 			static	const	size_t	CoreSize();
 		};

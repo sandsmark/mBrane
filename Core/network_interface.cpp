@@ -50,46 +50,6 @@ namespace	mBrane{
 
 		////////////////////////////////////////////////////////////////////////////////////////////////
 
-		NetworkInterfaceLoader	*NetworkInterfaceLoader::New(XMLNode	&n){
-
-			const	char	*l=n.getAttribute("shared_library");
-			if(!l){
-
-				std::cout<<"Error: "<<n.getName()<<"::shared_library is missing\n";
-				return	NULL;
-			}
-			SharedLibrary	*library;
-			if(library=SharedLibrary::New(l)){
-
-				NetworkInterface::Load	load;
-				if(!(load=library->getFunction<NetworkInterface::Load>("Load"))){
-
-					std::cout<<"Error: "<<n.getName()<<": could not find function Load\n";
-					return	NULL;
-				}
-				return	new	NetworkInterfaceLoader(library,load);
-			}
-			return	NULL;
-		}
-
-		NetworkInterfaceLoader::NetworkInterfaceLoader(SharedLibrary	*library,NetworkInterface::Load	load):library(library),load(load){
-		}
-
-		NetworkInterfaceLoader::~NetworkInterfaceLoader(){
-
-			if(library)
-				delete	library;
-		}
-
-		NetworkInterface	*NetworkInterfaceLoader::getInterface(XMLNode	&n){
-
-			if(load)
-				return	load(n);
-			return	NULL;
-		}
-
-		////////////////////////////////////////////////////////////////////////////////////////////////
-
 		CommChannel::CommChannel(){
 		}
 
@@ -101,11 +61,11 @@ namespace	mBrane{
 			p->node_send_ts()=Time::Get();
 			ClassRegister	*CR=ClassRegister::Get(p->cid());
 			int16	r;
-			if(p->isCompressedStreamData()	&&	((_CompressedStreamData	*)p)->isCompressed){
+			if(p->isCompressedPayload()	&&	((_CompressedPayload	*)p)->isCompressed){
 
-				((_CompressedStreamData	*)p)->compress();
-				((_CompressedStreamData	*)p)->isCompressed=true;
-				if(r=send(((uint8	*)p)+CR->offset(),CR->coreSize()+((_CompressedStreamData	*)p)->compressedSize))
+				((_CompressedPayload	*)p)->compress();
+				((_CompressedPayload	*)p)->isCompressed=true;
+				if(r=send(((uint8	*)p)+CR->offset(),CR->coreSize()+((_CompressedPayload	*)p)->compressedSize))
 					return	r;
 			}else	if(r=send(((uint8	*)p)+CR->offset(),CR->size()))
 				return	r;
@@ -125,13 +85,13 @@ namespace	mBrane{
 				return	r;
 			ClassRegister	*CR=ClassRegister::Get(cid);
 			*p=(_Payload	*)CR->allocator()->alloc();
-			if((*p)->isCompressedStreamData()){
+			if((*p)->isCompressedPayload()){
 
 				if(r=recv((uint8	*)*p,CR->coreSize()))
 					return	r;
-				if(r=recv(((uint8	*)*p)+CR->coreSize(),((_CompressedStreamData	*)p)->compressedSize))
+				if(r=recv(((uint8	*)*p)+CR->coreSize(),((_CompressedPayload	*)p)->compressedSize))
 					return	r;
-				((_CompressedStreamData	*)*p)->decompress();
+				((_CompressedPayload	*)*p)->decompress();
 			}else	if(r=recv((uint8	*)*p,CR->size()))
 				return	r;
 			(*p)->node_recv_ts()=Time::Get();

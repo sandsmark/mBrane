@@ -31,12 +31,12 @@
 #ifndef	mBrane_node_h
 #define	mBrane_node_h
 
-#include	"..\Core\node.h"
 #include	"..\Core\network_interface.h"
 #include	"..\Core\message.h"
 #include	"..\Core\array.h"
 #include	"..\Core\circular_buffer.h"
 #include	"..\Core\utils.h"
+#include	"..\Core\dynamic_class_loader.h"
 
 
 //#define	MESSAGE_PRIORITY_LEVELS	128
@@ -44,7 +44,7 @@
 namespace	mBrane{
 
 	class	Node:
-	public	sdk::Node{
+	public	sdk::NodeAPI{
 	private:
 		const	char	*application_configuration_file;
 		SharedLibrary	*userLibrary;
@@ -55,7 +55,8 @@ namespace	mBrane{
 		typedef	enum{
 			CONTROL=0,
 			DATA=1,
-			STREAM=2
+			STREAM=2,
+			DISCOVERY=3
 		}NetworkInterfaceType;
 
 		static	uint32	thread_function_call	ScanIDs(void	*args);
@@ -82,14 +83,16 @@ namespace	mBrane{
 		uint32	network_ctrl_ID_size;
 		uint32	network_data_ID_size;
 		uint32	network_stream_ID_size;
-		sdk::NetworkInterfaceLoader	*networkDiscoveryInterfaceLoader;
-		sdk::NetworkInterface		*networkDiscoveryInterface;
-		sdk::NetworkInterfaceLoader	*networkCommInterfaceLoaders[3];
-		sdk::NetworkInterface		*networkCommInterfaces[3];
-		void	init(uint16	NID);
-
+		sdk::DynamicClassLoader<sdk::NetworkInterface>	*networkInterfaceLoaders[4];
+		sdk::NetworkInterface							*networkInterfaces[4];
+		bool	loadInterface(sdk::XMLNode	&n,const	char	*name,NetworkInterfaceType	type);
 		bool	startInterfaces();
 		void	stopInterfaces();
+
+		sdk::Array<sdk::DynamicClassLoader<sdk::Daemon>	*>	daemonLoaders;
+		sdk::Array<sdk::Daemon	*>							daemons;
+
+		void	init(uint16	assignedNID,uint16	remoteNID,bool	isTimeReference);
 
 		class	DataCommChannel{
 		public:
@@ -119,8 +122,10 @@ namespace	mBrane{
 			Node		*n;
 			sdk::_Crank	*c;
 		}CrankThreadArgs;
-		static	uint32	thread_function_call	CrankExecutionUnit(void	*args);	//	First step: 1 crank<->1 thread and evaluate performance; TODO (if first step satisfying):	1 thread<->many cranks => ctrl at instruction (asm) level...
-		sdk::CircularBuffer<sdk::P<sdk::_Payload> >	timeGate;	//	First step: time granularity=0; TODO: increase granularity (2 ms) if possible and useful. In that case, typedef	sdk::CircularBuffer<sdk::P<sdk::_Payload> >	MessageBuffer[MESSAGE_PRIORITY_LEVELS]; sdk::CircularBuffer<MessageBuffer>	timeGate; maintain a time latch (2ms)
+		static	uint32	thread_function_call	CrankExecutionUnit(void	*args);
+		
+		sdk::CircularBuffer<sdk::P<sdk::_Payload> >	timeGate;
+		sdk::CircularBuffer<sdk::P<sdk::_Payload> >	outputQueue;
 
 		uint16	sendID(sdk::ConnectedCommChannel	*c,uint16	assignedNID);
 		uint16	recvID(sdk::ConnectedCommChannel	*c,uint16	&NID,char	*&name,uint8	&nameSize,uint16	&assignedNID);
@@ -140,6 +145,7 @@ namespace	mBrane{
 
 		sdk::Array<Thread	*>	commThreads;
 		sdk::Array<Thread	*>	crankThreads;
+		sdk::Array<Thread	*>	daemonThreads;
 		bool	_shutdown;
 
 		Node();
@@ -162,6 +168,7 @@ namespace	mBrane{
 		sdk::_Crank	*buildCrank(uint16	CID);
 		void	start(sdk::_Crank	*c);
 		void	stop(sdk::_Crank	*c);
+		void	migrate(sdk::_Crank	*c,uint16	NID);
 	};
 }
 

@@ -120,7 +120,6 @@ namespace	mBrane{
 		template<typename	T>	inline	void	CircularBuffer<T>::clear(){
 
 			Mutex::acquire();
-
 			Semaphore::reset();
 			_clear();
 			Mutex::release();

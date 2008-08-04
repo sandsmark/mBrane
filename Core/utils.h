@@ -90,6 +90,17 @@ namespace	mBrane{
 		bool	acquire(uint32	timeout=Infinite);	//	returns true if timedout
 		void	release();
 	};
+
+	class	dll	Timer{
+	private:
+		timer	t;
+		static	const	uint32	Infinite;
+	public:
+		Timer();
+		~Timer();
+		void	start(uint32	deadline);
+		bool	wait(uint32	timeout=Infinite);	//	returns true if timedout
+	};
 }
 
 

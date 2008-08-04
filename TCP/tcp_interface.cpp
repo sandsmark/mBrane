@@ -115,11 +115,6 @@ bool	TCPInterface::operator	!=(NetworkInterface	*i){
 	return	!operator	==(i);
 }
 
-uint64	TCPInterface::rtt(){	//	TODO
-
-	return	0;
-}
-
 bool	TCPInterface::canBroadcast(){
 
 	return	false;

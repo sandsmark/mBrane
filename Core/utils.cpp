@@ -243,4 +243,47 @@ namespace	mBrane{
 #elif defined OSX
 #endif
 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if defined	WINDOWS
+	const	uint32	Timer::Infinite=INFINITE;
+#elif defined LINUX
+#elif defined OSX
+#endif
+
+	Timer::Timer(){
+#if defined	WINDOWS
+		t=CreateWaitableTimer(NULL,true,NULL);
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
+
+	Timer::~Timer(){
+#if defined	WINDOWS
+		CloseHandle(t);
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
+
+	void	Timer::start(uint32	deadline){
+#if defined	WINDOWS
+	LARGE_INTEGER	_deadline;	//	in 100 ns intervals
+    _deadline.QuadPart=-10*deadline;	//	negative means relative
+    SetWaitableTimer(t,&_deadline,0,NULL,NULL,0);
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
+
+	bool	Timer::wait(uint32	timeout){
+#if defined	WINDOWS
+		uint32	r=WaitForSingleObject(t,timeout);
+		return	r==WAIT_TIMEOUT;
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
 }
