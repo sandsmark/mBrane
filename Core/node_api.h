@@ -45,6 +45,8 @@ namespace	mBrane{
 		public:
 			virtual	~NodeAPI();
 			//	TODO:	define API as pure virtual functions
+			//			-> node map
+			//			-> ...
 		};
 
 		class	dll	Daemon{

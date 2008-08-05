@@ -133,8 +133,11 @@ namespace	mBrane{
 				_Payload	*p=(_Payload	*)(P<_Payload>)i;
 				if(!p)
 					continue;
-				if(preview(p))
+				if(preview(p)){
+
 					((P<_Payload>)i)=NULL;
+					_messageCount--;
+				}
 			}
 
 			Mutex::release();
@@ -143,6 +146,30 @@ namespace	mBrane{
 		inline	void	_Crank::send(_Payload	*p)	const{
 
 			Node::Get()->send(this,p);
+		}
+
+		inline	uint32	_Crank::messageCount(){
+
+			return	_messageCount;
+		}
+
+		inline	void	_Crank::push(P<_Payload>	&p){
+
+			CircularBuffer<P<_Payload> >::push(p);
+			_messageCount++;
+		}
+
+		inline	P<_Payload>	*_Crank::pop(bool	blocking){
+
+			P<_Payload>	*p=CircularBuffer<P<_Payload> >::pop(blocking);
+			_messageCount--;
+			return	p;
+		}
+
+		inline	void	_Crank::_clear(){
+
+			CircularBuffer<P<_Payload> >::_clear();
+			_messageCount=0;
 		}
 	}
 }

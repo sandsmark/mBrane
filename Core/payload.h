@@ -71,6 +71,7 @@ namespace	mBrane{
 		protected:
 			Payload();
 		public:
+			static	void	*New();
 			void	*operator	new(size_t	s);
 			void	operator	delete(void	*o);
 			static	const	uint16	CID();

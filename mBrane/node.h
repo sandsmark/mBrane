@@ -46,11 +46,6 @@ namespace	mBrane{
 	class	Node:
 	public	sdk::NodeAPI{
 	private:
-		const	char	*application_configuration_file;
-		SharedLibrary	*userLibrary;
-
-		char	hostName[255];
-		uint8	hostNameSize;
 
 		typedef	enum{
 			CONTROL=0,
@@ -58,6 +53,21 @@ namespace	mBrane{
 			STREAM=2,
 			DISCOVERY=3
 		}NetworkInterfaceType;
+
+		//	CONFIG
+
+		const	char	*application_configuration_file;
+		SharedLibrary	*userLibrary;
+
+		sdk::DynamicClassLoader<sdk::NetworkInterface>	*networkInterfaceLoaders[4];
+		bool	loadInterface(sdk::XMLNode	&n,const	char	*name,NetworkInterfaceType	type);
+
+		Node	*loadConfig(const	char	*configFileName);
+
+		//	NETWORKING
+
+		char	hostName[255];
+		uint8	hostNameSize;
 
 		static	uint32	thread_function_call	ScanIDs(void	*args);
 		typedef	struct{
@@ -83,16 +93,10 @@ namespace	mBrane{
 		uint32	network_ctrl_ID_size;
 		uint32	network_data_ID_size;
 		uint32	network_stream_ID_size;
-		sdk::DynamicClassLoader<sdk::NetworkInterface>	*networkInterfaceLoaders[4];
-		sdk::NetworkInterface							*networkInterfaces[4];
-		bool	loadInterface(sdk::XMLNode	&n,const	char	*name,NetworkInterfaceType	type);
+
+		sdk::NetworkInterface	*networkInterfaces[4];
 		bool	startInterfaces();
 		void	stopInterfaces();
-
-		sdk::Array<sdk::DynamicClassLoader<sdk::Daemon>	*>	daemonLoaders;
-		sdk::Array<sdk::Daemon	*>							daemons;
-
-		void	init(uint16	assignedNID,uint16	remoteNID,bool	isTimeReference);
 
 		class	DataCommChannel{
 		public:
@@ -109,6 +113,7 @@ namespace	mBrane{
 
 		bool	isTimeReference;
 		uint16	referenceNID;
+		void	init(uint16	assignedNID,uint16	remoteNID,bool	isTimeReference);
 		void	setNewReference();
 		void	notifyNodeJoined(uint16	NID,char	*name);
 		void	notifyNodeLeft(uint16	NID);
@@ -117,15 +122,6 @@ namespace	mBrane{
 		int64	timeDrift;	//	in ms
 		int64	lastSyncTime;	//	in ms
 		int64	syncPeriod;	//	in ms
-
-		typedef	struct{
-			Node		*n;
-			sdk::_Crank	*c;
-		}CrankThreadArgs;
-		static	uint32	thread_function_call	CrankExecutionUnit(void	*args);
-		
-		sdk::CircularBuffer<sdk::P<sdk::_Payload> >	timeGate;
-		sdk::CircularBuffer<sdk::P<sdk::_Payload> >	outputQueue;
 
 		uint16	sendID(sdk::ConnectedCommChannel	*c,uint16	assignedNID);
 		uint16	recvID(sdk::ConnectedCommChannel	*c,uint16	&NID,char	*&name,uint8	&nameSize,uint16	&assignedNID);
@@ -141,19 +137,42 @@ namespace	mBrane{
 		static	uint32	thread_function_call	ReceiveMessages(void	*args);
 		static	uint32	thread_function_call	SendMessages(void	*args);
 		static	uint32	thread_function_call	NotifyMessages(void	*args);
-		//	TODO:	define pub-sub routing structures
-
+		
 		sdk::Array<Thread	*>	commThreads;
-		sdk::Array<Thread	*>	crankThreads;
-		sdk::Array<Thread	*>	daemonThreads;
-		bool	_shutdown;
 
-		Node();
-		Node	*loadConfig(const	char	*configFileName);
+		//	MESSAGING
+
+		sdk::CircularBuffer<sdk::P<sdk::_Payload> >	timeGate;
+		sdk::CircularBuffer<sdk::P<sdk::_Payload> >	outputQueue;
 
 		void	sendLocal(sdk::_Payload	*message);
 		void	sendLocal(const	sdk::_Crank	*sender,sdk::_Payload	*message);
 		void	sendTo(uint16	NID,sdk::_Payload	*message);
+
+		//	CRANK EXECUTION
+
+		typedef	struct{
+			Node		*n;
+			sdk::_Crank	*c;
+		}CrankThreadArgs;
+		static	uint32	thread_function_call	CrankExecutionUnit(void	*args);
+
+		sdk::Array<Thread	*>	crankThreads;
+
+		//	PUBLISH-SUBSCRIBE
+
+		//	TODO:	
+
+		//	DAEMONS
+
+		sdk::Array<sdk::DynamicClassLoader<sdk::Daemon>	*>	daemonLoaders;
+		sdk::Array<sdk::Daemon	*>							daemons;
+		sdk::Array<Thread	*>								daemonThreads;
+
+		//	NODE
+
+		bool	_shutdown;
+		Node();
 	public:
 		static	Node	*New(const	char	*configFileName);
 		~Node();

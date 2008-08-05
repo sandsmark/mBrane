@@ -49,10 +49,9 @@ namespace	mBrane{
 
 		uint16	CrankRegister::Load(CrankBuilder	b){
 
-			uint32	CID;
-			CrankRegister	*r=Cranks.alloc(CID);
+			CrankRegister	*r=Cranks.alloc();
 			r->_builder=b;
-			return	CID;
+			return	Cranks.count()-1;
 		}
 
 		CrankRegister::CrankRegister():_builder(NULL){

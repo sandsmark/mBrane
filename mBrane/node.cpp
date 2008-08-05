@@ -40,6 +40,7 @@
 using	namespace	mBrane::sdk;
 
 #define	DEFAULT_TIME_GATE_DEPTH	32
+#define	DEFAULT_OUTPUT_QUEUE_DEPTH	32
 
 namespace	mBrane{
 
@@ -65,6 +66,7 @@ namespace	mBrane{
 		networkInterfaces[STREAM]=NULL;
 
 		timeGate.init(DEFAULT_TIME_GATE_DEPTH);
+		outputQueue.init(DEFAULT_OUTPUT_QUEUE_DEPTH);
 	}
 
 	Node::~Node(){

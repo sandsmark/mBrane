@@ -47,8 +47,7 @@ namespace	mBrane{
 			uint32	tail;
 			uint32	freeSlots;
 			uint32	_count;
-			void	_clear();
-		public:
+		protected:
 			class	Iterator{	//	usage:	protect loops by Mutex
 			friend	class	CircularBuffer;
 			private:
@@ -65,17 +64,18 @@ namespace	mBrane{
 				bool	operator	!=(Iterator	&i)	const{	return	index!=i.index;	}
 				operator	T&()	const{	return	buffer->buffer[index];	}
 			};
+			Iterator	&begin()	const{	return	Iterator(this,head);	}
+			Iterator	&end()	const{	return	Iterator(this,tail);	}
+			virtual	void	_clear();
+		public:
 			CircularBuffer();
 			virtual	~CircularBuffer();
 			void	init(uint32	size);
+			void	clear();
 			uint32	size()	const;
 			uint32	count()	const;
-			void	push(T	&t);
-			T	*pop(bool	blocking=true);
-			void	clear();
-			Iterator	&begin()	const{	return	Iterator(this,head);	}
-			Iterator	&end()	const{	return	Iterator(this,tail);	}
-			Iterator	&very_end()	const{	if(head-1)	return	Iterator(this,head-1);	else	return	Iterator(this,_size);	}
+			virtual	void	push(T	&t);	//	increases the total size if necessary
+			virtual	T	*pop(bool	blocking=true);
 		};
 	}
 }

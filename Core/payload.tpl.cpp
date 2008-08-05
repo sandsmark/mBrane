@@ -36,6 +36,11 @@ namespace	mBrane{
 
 		template<class	M,class	U>	const	uint16	Payload<M,U>::_CID=ClassRegister::Load<U,M>();
 
+		template<class	M,class	U>	inline	void	*Payload<M,U>::New(){	//	to initialize the _vftable
+
+			return	new	U();
+		}
+
 		template<class	M,class	U>	inline	const	uint16	Payload<M,U>::CID(){
 
 			return	_CID;

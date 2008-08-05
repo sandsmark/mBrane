@@ -68,7 +68,6 @@ namespace	mBrane{
 		template<typename	T>	inline	void	CircularBuffer<T>::push(T	&t){
 
 			Mutex::acquire();
-
 			if(!freeSlots){
 
 				T	*oldBuffer=buffer;
@@ -81,6 +80,7 @@ namespace	mBrane{
 				freeSlots=_size;
 				delete[]	oldBuffer;
 			}
+			Mutex::release();
 
 			if(_count){
 
@@ -91,10 +91,7 @@ namespace	mBrane{
 
 			freeSlots--;
 			_count++;
-
 			Semaphore::release();
-
-			Mutex::release();
 		}
 
 		template<typename	T>	inline	T	*CircularBuffer<T>::pop(bool	blocking){

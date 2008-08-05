@@ -53,7 +53,7 @@ namespace	mBrane{
 		ClassRegister::~ClassRegister(){
 		}
 
-		inline	Allocator	*ClassRegister::allocator()	const{
+		inline	ClassRegister::Allocator	ClassRegister::allocator()	const{
 
 			return	_allocator;
 		}

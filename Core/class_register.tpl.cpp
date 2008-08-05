@@ -36,7 +36,8 @@ namespace	mBrane{
 			uint32	CID;
 			ClassRegister	*r=Classes.alloc();
 			CID=Classes.count()-1;
-			r->_allocator=C::_Allocator=M::Get(C::Size());
+			C::_Allocator=M::Get(C::Size());
+			r->_allocator=C::New;
 			r->_size=C::Size()-C::Offset();
 			r->_coreSize=C::CoreSize();
 			r->_offset=C::Offset();

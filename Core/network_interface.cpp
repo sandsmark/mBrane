@@ -84,7 +84,7 @@ namespace	mBrane{
 			if(r=recv((uint8	*)&cid,sizeof(uint16),true))
 				return	r;
 			ClassRegister	*CR=ClassRegister::Get(cid);
-			*p=(_Payload	*)CR->allocator()->alloc();
+			*p=(_Payload	*)CR->allocator();
 			if((*p)->isCompressedPayload()){
 
 				if(r=recv((uint8	*)*p,CR->coreSize()))

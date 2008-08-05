@@ -41,9 +41,11 @@ namespace	mBrane{
 
 		class	dll	ClassRegister{
 		template<class	Register>	friend	class	Array;
+		public:
+			typedef	void	*(*Allocator)();
 		private:
 			static	Array<ClassRegister>	Classes;
-			Allocator	*_allocator;
+			Allocator	_allocator;
 			size_t		_size;	//	transmission size
 			size_t		_coreSize;	//	transmission size for compressed payloads: size of the payload minus the size of the compressed data
 			size_t		_offset;	//	from this
@@ -53,7 +55,7 @@ namespace	mBrane{
 			static	uint16	Count();
 			ClassRegister();
 			~ClassRegister();
-			Allocator	*allocator()	const;
+			Allocator	allocator()	const;
 			size_t		size()	const;
 			size_t		coreSize()	const;
 			size_t		offset()	const;

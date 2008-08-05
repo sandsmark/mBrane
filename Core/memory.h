@@ -39,14 +39,7 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		class	Allocator{
-		public:
-			virtual	void	*alloc()=0;
-			virtual	void	dealloc(void	*o)=0;
-		};
-
-		class	dll	Memory:
-		public	Allocator{
+		class	dll	Memory{
 		template<class	Register>	friend	class	Array;
 		private:
 			class	MArray:

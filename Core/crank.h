@@ -45,8 +45,10 @@ namespace	mBrane{
 			bool	_canMigrate;
 			bool	_canBeSwapped;
 			bool	_alive;
+			uint32	_messageCount;
 		protected:
 			_Crank(uint16	_ID,bool	canMigrate=true,bool	canBeSwapped=true);
+			void	_clear();
 			int64	time()	const;
 			void	sleep(int64	d)	const;
 			void	quit();
@@ -56,6 +58,9 @@ namespace	mBrane{
 			static	void	Build(uint16	CID);
 			virtual	~_Crank();
 			uint16	id()	const;
+			void	push(P<_Payload>	&p);
+			P<_Payload>	*pop(bool	blocking=true);
+			uint32	messageCount();	//	actual count: peek can remove messages from the buffer
 			bool	alive()	const;
 			bool	canMigrate();	//	on another node; dynamic
 			bool	canBeSwapped();	//	on another thread within the same node; dynamic
@@ -71,7 +76,6 @@ namespace	mBrane{
 			virtual	void		migrateIn();	//	called when the crank is loaded in a new thread after having migrated
 			virtual	void		notify(_Payload	*p)=0;	//	called when the crank receives a message
 			virtual	bool		preview(_Payload	*p)=0;	//	calls triggered by peek(): one per message peeked at; return true to remove the message from the queue
-			//	TODO: get actual count
 		};
 	}
 }
