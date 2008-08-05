@@ -31,56 +31,22 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		template<typename	T>	Array<T>::Array(uint32	count):_array(NULL),_count(0){
+		template<typename	T>	List<T>::List(uint32	count):Array<ListElement<T> >(count){
 
-			if(count)
-				alloc(count);
+			clear();
 		}
 
-		template<typename	T>	Array<T>::~Array(){
-
-			if(_array)
-				delete[]	_array;
+		template<typename	T>	List<T>::~List(){
 		}
 
-		template<typename	T>	T	*Array<T>::alloc(uint32	count){
+		template<typename	T>	inline	uint32	List<T>::elementCount()	const{
 
-			if(_array){
-
-				T	*oldArray=_array;
-				_array=new	T[_count+count];
-				memset(_array+_count,0,count);
-				memcpy(_array,oldArray,_count*sizeof(T));
-				_count+=count;
-			}else{
-
-				_array=new	T[_count=count];
-				memset(_array,0,_count);
-			}
-			
-			return	_array+_count-1;
+			return	_elementCount;
 		}
 
-		template<typename	T>	inline	T	*Array<T>::get(uint32	i)	const{
+		template<typename	T>	inline	void	List<T>::clear(){
 
-			return	_array+i;
-		}
-
-		template<typename	T>	inline	uint32	Array<T>::count()	const{
-
-			return	_count;
-		}
-
-		template<typename	T>	inline	T	&Array<T>::operator	[]	(uint32	i){
-
-			if(i>=_count)
-				alloc(i-_count+1);
-			return	_array[i];
-		}
-
-		template<typename	T>	inline	T	*Array<T>::data()	const{
-
-			return	_array;
+			first=last=_elementCount=0;
 		}
 	}
 }

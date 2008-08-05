@@ -1,4 +1,4 @@
-//	array.tpl.cpp
+//	list.h
 //
 //	Author: Eric Nivel
 //
@@ -28,59 +28,57 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#ifndef mBrane_sdk_list_h
+#define mBrane_sdk_list_h
+
+#include	"array.h"
+
+
 namespace	mBrane{
 	namespace	sdk{
 
-		template<typename	T>	Array<T>::Array(uint32	count):_array(NULL),_count(0){
+		template<typename	T>	class	ListElement{
+		public:
+			T	data;
+			uint32	next;
+			uint32	prev;
+		};
 
-			if(count)
-				alloc(count);
-		}
-
-		template<typename	T>	Array<T>::~Array(){
-
-			if(_array)
-				delete[]	_array;
-		}
-
-		template<typename	T>	T	*Array<T>::alloc(uint32	count){
-
-			if(_array){
-
-				T	*oldArray=_array;
-				_array=new	T[_count+count];
-				memset(_array+_count,0,count);
-				memcpy(_array,oldArray,_count*sizeof(T));
-				_count+=count;
-			}else{
-
-				_array=new	T[_count=count];
-				memset(_array,0,_count);
-			}
-			
-			return	_array+_count-1;
-		}
-
-		template<typename	T>	inline	T	*Array<T>::get(uint32	i)	const{
-
-			return	_array+i;
-		}
-
-		template<typename	T>	inline	uint32	Array<T>::count()	const{
-
-			return	_count;
-		}
-
-		template<typename	T>	inline	T	&Array<T>::operator	[]	(uint32	i){
-
-			if(i>=_count)
-				alloc(i-_count+1);
-			return	_array[i];
-		}
-
-		template<typename	T>	inline	T	*Array<T>::data()	const{
-
-			return	_array;
-		}
+		template<typename	T>	class	List:
+		protected	Array<ListElement<T> >{
+		public:
+			class	Iterator{
+			private:
+				List	*list;
+				uint32	index;
+				Iterator(const	List	*l,uint32	index):list(l),index(index){}
+			public:
+				Iterator():list(NULL),index(0xFFFFFFFF){}
+				Iterator(Iterator	&i):list(i.list),index(i.index){}
+				~Iterator(){}
+				Iterator	&operator	=(Iterator	&i){	list=i.list;	index=i.index;	return	*this;	}
+				Iterator	&operator	++(){	if(list->buffer[index].next!=0xFFFFFFFF)	index=list->buffer[index].next;	return	*this;	}
+				bool	operator	==(Iterator	&i)	const{	return	index==i.index;	}
+				bool	operator	!=(Iterator	&i)	const{	return	index!=i.index;	}
+				operator	T&()	const{	return	list->buffer[index].data;	}
+			};
+		protected:
+			uint32	first;
+			uint32	last;
+			uint32	_elementCount;
+		public:
+			List(uint32	count=0);
+			~List();
+			uint32	elementCount()	const;
+			void	clear();
+			Iterator	&begin()	const{	return	Iterator(this,first);	}
+			Iterator	&end()	const{	return	Iterator(this,last);	}
+		};
 	}
 }
+
+
+#include	"list.tpl.cpp"
+
+
+#endif

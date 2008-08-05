@@ -91,7 +91,7 @@ bool	UDPInterface::load(XMLNode	&n){
 		std::cout<<"Error: NodeConfiguration::Network::"<<n.getName()<<"::nic is missing\n";
 		goto	err;
 	}
-	//	TODO:	set address to the addr of the eth interface specified by nic
+	//	TODO:	set address to the addr of the eth interface specified by nic: see Psyclone::CoreLibrary::getLocalInterfaceAddresses
 	const	char	*_port=n.getAttribute("port");
 	if(!_port){
 

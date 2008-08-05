@@ -1,4 +1,4 @@
-//	// array.h
+//	array.h
 //
 //	Author: Eric Nivel
 //
