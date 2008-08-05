@@ -109,9 +109,15 @@ namespace	mBrane{
 
 			for(uint32	j=0;j<routes[i]->count();j++){
 
-				for(uint32	k=0;k<routes[i]->operator[](j)->count();k++)
-					delete	routes[i]->operator[](j)->operator[](k).cranks;
-				delete	routes[i]->operator[](j);
+				if(*(routes[i]->get(j))){
+
+					for(uint32	k=0;k<routes[i]->operator[](j)->count();k++){
+
+						if(routes[i]->operator[](j)->operator[](k).cranks)
+							delete	routes[i]->operator[](j)->operator[](k).cranks;
+					}
+					delete	routes[i]->operator[](j);
+				}
 			}
 			delete	routes[i];
 		}
@@ -598,7 +604,7 @@ err:	shutdown();
 
 	Array<Node::NodeEntry>	*Node::getNodeEntries(uint16	messageClassID,uint32	messageContentID){
 
-		return	routes[messageClassID]->operator[](messageContentID);
+		return	*(routes[messageClassID]->get(messageContentID));
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
@@ -859,7 +865,7 @@ loop:			p=crank->pop(false);
 
 				//	find target remote nodes; send on data/stream channels; push in timeGate if the local node is a target
 				Array<NodeEntry>	*nodeEntries=node->getNodeEntries(p->cid(),((_ControlMessage	*)p)->mid());
-				if(nodeEntries){
+				if(nodeEntries){	//	else: mid has never been subscribed for before
 
 					P<_Payload>	_p=p;
 					uint16	r;
@@ -867,7 +873,7 @@ loop:			p=crank->pop(false);
 
 						for(uint32	i=0;i<nodeEntries->count();i++){
 
-							if(nodeEntries->operator[](i).activationCount){
+							if(nodeEntries->get(i)->activationCount){
 
 								if(i==node->_ID)
 									node->timeGate.push(_p);
@@ -879,7 +885,7 @@ loop:			p=crank->pop(false);
 
 						for(uint32	i=0;i<nodeEntries->count();i++){
 
-							if(nodeEntries->operator[](i).activationCount){
+							if(nodeEntries->get(i)->activationCount){
 
 								if(i==node->_ID)
 									node->timeGate.push(_p);
@@ -920,12 +926,12 @@ loop:			p=crank->pop(false);
 
 			//	find local receiving cranks (from pub-sub structure); push p in crank input queues
 			Array<NodeEntry>	*nodeEntries=node->getNodeEntries(p->cid(),((_ControlMessage	*)p)->mid());
-			if(nodeEntries){
+			if(nodeEntries){	//	else: mid has never been subscribed for before
 
 				if(nodeEntries->operator[](node->_ID).activationCount){
 
 					P<_Payload>	_p=p;
-					List<CrankEntry>	*l=nodeEntries->operator[](node->_ID).cranks;
+					List<CrankEntry>	*l=nodeEntries->get(node->_ID)->cranks;
 					if(l){
 
 						List<CrankEntry>::Iterator	i;
