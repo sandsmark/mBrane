@@ -33,13 +33,11 @@
 
 #include	"..\Core\network_interface.h"
 #include	"..\Core\message.h"
-#include	"..\Core\array.h"
+#include	"..\Core\list.h"
 #include	"..\Core\circular_buffer.h"
 #include	"..\Core\utils.h"
 #include	"..\Core\dynamic_class_loader.h"
 
-
-//#define	MESSAGE_PRIORITY_LEVELS	128
 
 namespace	mBrane{
 
@@ -161,7 +159,20 @@ namespace	mBrane{
 
 		//	PUBLISH-SUBSCRIBE
 
-		//	TODO:	
+		typedef	struct{
+			uint32	activationCount;
+			sdk::CircularBuffer<sdk::P<sdk::_Payload> >	*inputQueue;
+		}CrankEntry;
+
+		typedef	struct{
+			uint32	activationCount;
+			sdk::List<CrankEntry>	*cranks;
+		}NodeEntry;
+		
+		sdk::Array<sdk::Array<sdk::Array<NodeEntry>	*>	*>	routes;
+		sdk::Array<NodeEntry>	*getNodeEntries(uint16	messageClassID,uint32	messageContentID);
+
+		//	TODO:	groups,crank descriptors
 
 		//	DAEMONS
 
@@ -183,7 +194,7 @@ namespace	mBrane{
 		Node	*loadApplication(const	char	*fileName=NULL);	//	return NULL if unsuccessful; fileName overrides the fileName found in the node config file
 		void	unloadApplication();
 		void	send(const	sdk::_Crank	*sender,sdk::_Payload	*message);
-		int64	time()	const;	//	in ms since 01/01/70
+		int64	time()	const;	//	in ms since midnight 01/01/70
 		sdk::_Crank	*buildCrank(uint16	CID);
 		void	start(sdk::_Crank	*c);
 		void	stop(sdk::_Crank	*c);

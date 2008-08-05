@@ -39,8 +39,9 @@
 
 using	namespace	mBrane::sdk;
 
-#define	DEFAULT_TIME_GATE_DEPTH	32
-#define	DEFAULT_OUTPUT_QUEUE_DEPTH	32
+#define	INITIAL_TIME_GATE_DEPTH	32
+#define	INITIAL_OUTPUT_QUEUE_DEPTH	32
+#define	INITIAL_MID_ARRAY_LENGTH	16
 
 namespace	mBrane{
 
@@ -65,8 +66,12 @@ namespace	mBrane{
 		networkInterfaces[DATA]=NULL;
 		networkInterfaces[STREAM]=NULL;
 
-		timeGate.init(DEFAULT_TIME_GATE_DEPTH);
-		outputQueue.init(DEFAULT_OUTPUT_QUEUE_DEPTH);
+		timeGate.init(INITIAL_TIME_GATE_DEPTH);
+		outputQueue.init(INITIAL_OUTPUT_QUEUE_DEPTH);
+
+		routes.alloc(ClassRegister::Count());
+		for(uint32	i=0;i<ClassRegister::Count();i++)
+			routes[i]=new	Array<Array<NodeEntry>	*>(INITIAL_MID_ARRAY_LENGTH);
 	}
 
 	Node::~Node(){
@@ -98,6 +103,17 @@ namespace	mBrane{
 				delete	daemonLoaders[i];
 			if(daemons[i])
 				delete	daemons[i];
+		}
+
+		for(uint32	i=0;i<ClassRegister::Count();i++){
+
+			for(uint32	j=0;j<routes[i]->count();j++){
+
+				for(uint32	k=0;k<routes[i]->operator[](j)->count();k++)
+					delete	routes[i]->operator[](j)->operator[](k).cranks;
+				delete	routes[i]->operator[](j);
+			}
+			delete	routes[i];
 		}
 	}
 
@@ -472,9 +488,12 @@ err:	shutdown();
 	void	Node::load(const	char	*fileName){	//	TODO
 	}
 
-	void	Node::send(const	sdk::_Crank	*sender,_Payload	*message){	//	TODO
+	void	Node::send(const	sdk::_Crank	*sender,_Payload	*message){
 
-		//	must be thread safe
+		message->send_ts()=time();
+		((_ControlMessage	*)message)->senderNode_id()=sender->id();
+		P<_Payload>	p=message;
+		outputQueue.push(p);
 	}
 
 	void	Node::sendLocal(_Payload	*message){	//	TODO
@@ -575,6 +594,11 @@ err:	shutdown();
 			return	r;
 		}
 		return	0;
+	}
+
+	Array<Node::NodeEntry>	*Node::getNodeEntries(uint16	messageClassID,uint32	messageContentID){
+
+		return	routes[messageClassID]->operator[](messageContentID);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
@@ -818,10 +842,12 @@ loop:			p=crank->pop(false);
 
 		uint16	r;
 
+		P<_Payload>	*_p;
 		_Payload	*p;
 		while(!node->_shutdown){
 
-			//	TODO:	extract p from pub-sub output queue (blocking call)
+			_p=node->outputQueue.pop();
+			p=*_p;
 			if(p->isControlMessage()){
 
 				for(uint16	i=0;i<node->controlChannels.count();i++){
@@ -829,13 +855,45 @@ loop:			p=crank->pop(false);
 					if(node->controlChannels[i]	&&	node->controlChannels[i]->send(p))
 						node->processError(CONTROL,i);
 				}
-			}else{
-
-				//	TODO:	send p where required (use pub-sub structure to find target remote nodes; send on data/stream channels; push in timeGate if the local node is a target)
 			}
-			
+
+			//	send p where required (find target remote nodes; send on data/stream channels; push in timeGate if the local node is a target)
+			Array<NodeEntry>	*nodeEntries=node->getNodeEntries(p->cid(),((_ControlMessage	*)p)->mid());
+			if(nodeEntries){
+
+				P<_Payload>	_p=p;
+				uint16	r;
+				if(p->isMessage()){
+
+					for(uint32	i=0;i<nodeEntries->count();i++){
+
+						if(nodeEntries->operator[](i).activationCount){
+
+							if(i==node->_ID)
+								node->timeGate.push(_p);
+							else	if(r=node->dataChannels[i]->data->send(p))
+								node->processError(DATA,i);
+						}
+					}
+				}else{
+
+					for(uint32	i=0;i<nodeEntries->count();i++){
+
+						if(nodeEntries->operator[](i).activationCount){
+
+							if(i==node->_ID)
+								node->timeGate.push(_p);
+							else	if(r=node->dataChannels[i]->stream->send(p))
+								node->processError(STREAM,i);
+						}
+					}
+				}
+			}
+
 			if(node->isTimeReference)
 				node->lastSyncTime=p->node_send_ts();
+
+			(*_p)=NULL;
 		}
 
 		return	0;
@@ -845,19 +903,39 @@ loop:			p=crank->pop(false);
 
 		Node	*node=(Node	*)args;
 
-		P<_Payload>	*p;
+		P<_Payload>	*_p;
+		_Payload	*p;
 		while(!node->_shutdown){
 
-			p=node->timeGate.pop();
-			if((*p)->isControlMessage()){
+			_p=node->timeGate.pop();
+			p=*_p;
+			if(p->isControlMessage()){
 
-				switch((*p)->cid()){
+				switch(p->cid()){
 				//	TODO:	process p
 				default:	break;
 				}
 			}
 
-			//	TODO:	find receiving cranks (from pub-sub structure); push p in cranks
+			//	find receiving cranks (from pub-sub structure); push p in cranks
+			Array<NodeEntry>	*nodeEntries=node->getNodeEntries(p->cid(),((_ControlMessage	*)p)->mid());
+			if(nodeEntries){
+
+				if(nodeEntries->operator[](node->_ID).activationCount){
+
+					P<_Payload>	_p=p;
+					List<CrankEntry>	*l=nodeEntries->operator[](node->_ID).cranks;
+					if(l){
+
+						List<CrankEntry>::Iterator	i;
+						for(i=l->begin();i!=l->end();i++){
+
+							if(((CrankEntry)i).activationCount)
+								((CrankEntry)i).inputQueue->push(_p);
+						}
+					}
+				}
+			}
 		}
 
 		return	0;

@@ -48,24 +48,41 @@ namespace	mBrane{
 		protected	Array<ListElement<T> >{
 		public:
 			class	Iterator{
+			friend	class	List;
 			private:
-				List	*list;
+				const	List	*list;
 				uint32	index;
 				Iterator(const	List	*l,uint32	index):list(l),index(index){}
 			public:
-				Iterator():list(NULL),index(0xFFFFFFFF){}
+				Iterator():list(NULL),index(NullIndex){}
 				Iterator(Iterator	&i):list(i.list),index(i.index){}
 				~Iterator(){}
 				Iterator	&operator	=(Iterator	&i){	list=i.list;	index=i.index;	return	*this;	}
-				Iterator	&operator	++(){	if(list->buffer[index].next!=0xFFFFFFFF)	index=list->buffer[index].next;	return	*this;	}
+				Iterator	&operator	++(){	if(index!=NullIndex)	index=list->_array[index].next;	return	*this;	}
+				Iterator	&operator	--(){	if(index!=NullIndex)	index=list->_array[index].prev;	return	*this;	}
 				bool	operator	==(Iterator	&i)	const{	return	index==i.index;	}
 				bool	operator	!=(Iterator	&i)	const{	return	index!=i.index;	}
-				operator	T&()	const{	return	list->buffer[index].data;	}
+				bool	operator	!()	const{	return	index==NullIndex;	}
+				operator	T&()	const{	return	list->_array[index].data;	}
+				void	insertAfter(T	&t)	const{	list->insertAfter(index,t);	}
+				void	insertBefore(T	&t)	const{	list->insertBefore(index,t);	}
+				void	removeJumpNext()	const{	index=list->removeReturnNext(index);	}
+				void	removeJumpPrevious()	const{	index=list->removeReturnPrevious(index);	}
 			};
 		protected:
+			static	const	uint32	NullIndex;
 			uint32	first;
 			uint32	last;
 			uint32	_elementCount;
+			uint32	firstFree;
+			uint32	lastFree;
+			void	initFreeZone(uint32	start);
+			uint32	getFreeSlot(uint32	i);
+			void	remove(uint32	i);
+			uint32	removeReturnNext(uint32	i);
+			uint32	removeReturnPrevious(uint32	i);
+			void	insertAfter(uint32	i,T	&t);
+			void	insertBefore(uint32	i,T	&t);
 		public:
 			List(uint32	count=0);
 			~List();

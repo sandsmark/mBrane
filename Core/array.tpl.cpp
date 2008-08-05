@@ -45,6 +45,9 @@ namespace	mBrane{
 
 		template<typename	T>	T	*Array<T>::alloc(uint32	count){
 
+			if(!count)
+				return	NULL;
+
 			if(_array){
 
 				T	*oldArray=_array;

@@ -31,6 +31,8 @@
 namespace	mBrane{
 	namespace	sdk{
 
+		template<typename	T>	const	uint32	List<T>::NullIndex=0xFFFFFFFF;
+
 		template<typename	T>	List<T>::List(uint32	count):Array<ListElement<T> >(count){
 
 			clear();
@@ -44,9 +46,102 @@ namespace	mBrane{
 			return	_elementCount;
 		}
 
+		template<typename	T>	inline	void	List<T>::initFreeZone(uint32	start){
+
+			for(uint32	i=start;i<_count;i++){
+
+				if(i>start)
+					get(i)->prev=i-1;
+				else
+					get(i)->prev=NullIndex;
+				if(i<_count-1)
+					get(i)->next=i+1;
+				else
+					get(i)->next=NullIndex;
+			}
+			firstFree=start;
+			lastFree=_count-1;
+		}
+
 		template<typename	T>	inline	void	List<T>::clear(){
 
-			first=last=_elementCount=0;
+			first=last=NullIndex;
+			_elementCount=0;
+			initFreeZone(0);
+		}
+
+		template<typename	T>	inline	void	List<T>::remove(uint32	i){
+
+			if(get(i)->prev!=NullIndex)
+				get(get(i)->prev)->next=get(i)->next;
+			if(get(i)->next!=NullIndex)
+				get(get(i)->next)->prev=get(i)->prev;
+			if(first==i)
+				first=get(i)->next;
+			if(last==i)
+				last=get(i)->prev;
+			lastFree->next=i;
+			i->prev=lastFree;
+			i->next=NullIndex;
+			lastFree=i;
+			_elementCount--;
+		}
+
+		template<typename	T>	inline	uint32	List<T>::removeReturnNext(uint32	i){
+
+			remove(i);
+			return	get(i)->next;
+		}
+
+		template<typename	T>	inline	uint32	List<T>::removeReturnPrevious(uint32	i){
+
+			remove(i);
+			return	get(i)->prev;
+		}
+
+		template<typename	T>	inline	void	List<T>::insertAfter(uint32	i,T	&t){
+
+			uint32	target=getFreeSlot(i);
+			get(target)->next=get(i)->next;
+			get(target)->prev=i;
+			get(target)->data=t;
+			if(get(i)->next!=NullIndex)
+				get(get(i)->next)->prev=target;
+			if(last==i)
+				last==target;
+		}
+
+		template<typename	T>	inline	void	List<T>::insertBefore(uint32	i,T	&t){
+
+			uint32	target=getFreeSlot(i);
+			get(target)->prev=get(i)->prev;
+			get(target)->next=i;
+			get(target)->data=t;
+			if(get(i)->prev!=NullIndex)
+				get(get(i)->prev)->next=target;
+			if(first==i)
+				first==target;
+		}
+
+		template<typename	T>	inline	uint32	List<T>::getFreeSlot(uint32	i){
+
+			if(_elementCount==_count){
+
+				uint32	oldCount=_count;
+				alloc(_count);
+				initFreeZone(oldCount);
+			}
+
+			uint32	freeSlot=firstFree;
+			firstFree=firstFree->next;
+			_elementCount++;
+
+			if(get(i)->prev!=NullIndex)
+				get(get(i)->prev)->next=get(i)->next;
+			if(get(i)->next!=NullIndex)
+				get(get(i)->next)->prev=get(i)->prev;
+			
+			return	freeSlot;
 		}
 	}
 }
