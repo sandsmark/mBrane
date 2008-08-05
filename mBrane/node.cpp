@@ -855,36 +855,37 @@ loop:			p=crank->pop(false);
 					if(node->controlChannels[i]	&&	node->controlChannels[i]->send(p))
 						node->processError(CONTROL,i);
 				}
-			}
+			}else{
 
-			//	send p where required (find target remote nodes; send on data/stream channels; push in timeGate if the local node is a target)
-			Array<NodeEntry>	*nodeEntries=node->getNodeEntries(p->cid(),((_ControlMessage	*)p)->mid());
-			if(nodeEntries){
+				//	find target remote nodes; send on data/stream channels; push in timeGate if the local node is a target
+				Array<NodeEntry>	*nodeEntries=node->getNodeEntries(p->cid(),((_ControlMessage	*)p)->mid());
+				if(nodeEntries){
 
-				P<_Payload>	_p=p;
-				uint16	r;
-				if(p->isMessage()){
+					P<_Payload>	_p=p;
+					uint16	r;
+					if(p->isMessage()){
 
-					for(uint32	i=0;i<nodeEntries->count();i++){
+						for(uint32	i=0;i<nodeEntries->count();i++){
 
-						if(nodeEntries->operator[](i).activationCount){
+							if(nodeEntries->operator[](i).activationCount){
 
-							if(i==node->_ID)
-								node->timeGate.push(_p);
-							else	if(r=node->dataChannels[i]->data->send(p))
-								node->processError(DATA,i);
+								if(i==node->_ID)
+									node->timeGate.push(_p);
+								else	if(r=node->dataChannels[i]->data->send(p))
+									node->processError(DATA,i);
+							}
 						}
-					}
-				}else{
+					}else{
 
-					for(uint32	i=0;i<nodeEntries->count();i++){
+						for(uint32	i=0;i<nodeEntries->count();i++){
 
-						if(nodeEntries->operator[](i).activationCount){
+							if(nodeEntries->operator[](i).activationCount){
 
-							if(i==node->_ID)
-								node->timeGate.push(_p);
-							else	if(r=node->dataChannels[i]->stream->send(p))
-								node->processError(STREAM,i);
+								if(i==node->_ID)
+									node->timeGate.push(_p);
+								else	if(r=node->dataChannels[i]->stream->send(p))
+									node->processError(STREAM,i);
+							}
 						}
 					}
 				}
@@ -917,7 +918,7 @@ loop:			p=crank->pop(false);
 				}
 			}
 
-			//	find receiving cranks (from pub-sub structure); push p in cranks
+			//	find local receiving cranks (from pub-sub structure); push p in crank input queues
 			Array<NodeEntry>	*nodeEntries=node->getNodeEntries(p->cid(),((_ControlMessage	*)p)->mid());
 			if(nodeEntries){
 
