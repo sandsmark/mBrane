@@ -30,7 +30,6 @@
 
 #include	<memory>
 #include	"payload.h"
-#include	"node.h"
 
 
 namespace	mBrane{

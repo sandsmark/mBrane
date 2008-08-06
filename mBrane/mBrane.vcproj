@@ -189,6 +189,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\executing.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\group.cpp"
 				>
 			</File>
@@ -213,7 +217,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\pub_sub.cpp"
+				RelativePath=".\publishing_subscribing.cpp"
 				>
 			</File>
 		</Filter>
@@ -222,6 +226,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\executing.h"
+				>
+			</File>
 			<File
 				RelativePath=".\group.h"
 				>
@@ -250,7 +258,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\pub_sub.h"
+				RelativePath=".\publishing_subscribing.h"
 				>
 			</File>
 		</Filter>

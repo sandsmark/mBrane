@@ -47,7 +47,7 @@ namespace	mBrane{
 		return	NULL;
 	}
 
-	Node::Node():Networking(),Messaging(),PubSub(){
+	Node::Node():Networking(),Messaging(),PublishingSubscribing(),Executing(){
 	}
 
 	Node::~Node(){
@@ -65,7 +65,13 @@ namespace	mBrane{
 		}
 		
 		if(!Networking::loadConfig(mainNode))
-			return	false;
+			return	NULL;
+
+		if(!Executing::loadConfig(mainNode))
+			return	NULL;
+
+		if(!daemon::Node::loadConfig(mainNode))
+			return	NULL;
 
 		application_configuration_file=mainNode.getAttribute("application_configuration_file");
 		if(!application_configuration_file){
@@ -73,9 +79,6 @@ namespace	mBrane{
 			std::cout<<"Error: NodeConfiguration::application_configuration_file is missing\n";
 			return	NULL;
 		}
-
-		if(!daemon::Node::loadConfig(mainNode))
-			return	false;
 
 		return	this;
 	}
@@ -219,8 +222,7 @@ namespace	mBrane{
 		if(_shutdown)
 			return;
 		_shutdown=true;
-		Thread::Wait(daemonThreads.data(),daemonThreads.count());
-		Thread::Wait(crankThreads.data(),crankThreads.count());
+		Executing::shutdown();
 		daemon::Node::shutdown();
 		Networking::shutdown();
 	}
@@ -262,47 +264,6 @@ namespace	mBrane{
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	uint32	thread_function_call	Node::CrankExecutionUnit(void	*args){
-
-		Node	*node=((CrankThreadArgs	*)args)->n;
-		_Crank	*crank=((CrankThreadArgs	*)args)->c;
-
-		crank->start();
-
-		while(!node->_shutdown){
-
-			if(!crank->alive())
-				break;
-
-			P<_Payload>	*p;
-			if(crank->run()){
-
-				do
-					p=crank->pop();
-				while(!*p);	//	*p can be NULL (when preview returns true)
-				(*p)->recv_ts()=Time::Get();
-				crank->notify(*p);
-				*p=NULL;
-			}else{
-
-loop:			p=crank->pop(false);
-				if(p){
-
-					if(!*p)	//	*p can be NULL (when preview returns true)
-						goto	loop;
-					(*p)->recv_ts()=Time::Get();
-					crank->notify(*p);
-					*p=NULL;
-				}
-			}
-		}
-
-		crank->stop();
-		delete	crank;
-
-		return	0;
-	}
 
 	uint32	thread_function_call	Node::ReceiveMessages(void	*args){
 

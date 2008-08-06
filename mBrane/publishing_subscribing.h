@@ -1,4 +1,4 @@
-//	messaging.cpp
+//	publishing_subscribing.h
 //
 //	Author: Eric Nivel
 //
@@ -28,45 +28,39 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include	"messaging.h"
-#include	"..\Core\message.h"
+#ifndef	mBrane_publishing_subscribing_h
+#define	mBrane_publishing_subscribing_h
+
+#include	"..\Core\payload.h"
+#include	"..\Core\list.h"
+#include	"..\Core\circular_buffer.h"
 
 
-#define	INITIAL_MESSAGE_INPUT_QUEUE_DEPTH	32
-#define	INITIAL_MESSAGE_OUTPUT_QUEUE_DEPTH	32
+using	namespace	mBrane::sdk;
 
 namespace	mBrane{
 
-	Messaging::Messaging(){
+	class	PublishingSubscribing{
+	protected:
+		typedef	struct{
+			uint32	activationCount;
+			CircularBuffer<P<_Payload> >	*inputQueue;
+		}CrankEntry;
 
-		messageInputQueue.init(INITIAL_MESSAGE_INPUT_QUEUE_DEPTH);
-		messageOutputQueue.init(INITIAL_MESSAGE_OUTPUT_QUEUE_DEPTH);
-	}
-
-	Messaging::~Messaging(){
-
-	}
-	
-	void	Messaging::send(const	_Crank	*sender,_Payload	*message){
-
-		message->send_ts()=Time::Get();
-		((_ControlMessage	*)message)->senderNode_id()=sender->id();
-		P<_Payload>	p=message;
-		messageOutputQueue.push(p);
-	}
-
-	void	Messaging::sendLocal(_Payload	*message){	//	TODO
-
-
-	}
-
-	void	Messaging::sendLocal(const	_Crank	*sender,_Payload	*message){	//	TODO
-
-
-	}
-
-	void	Messaging::sendTo(uint16	NID,_Payload	*message){	//	TODO
-
-		//	must be thread safe
-	}
+		typedef	struct{
+			uint32	activationCount;
+			List<CrankEntry>	*cranks;
+		}NodeEntry;
+		
+		Array<Array<Array<NodeEntry>	*>	*>	routes;
+		CriticalSection							routesCS;
+		
+		//	TODO:	groups,crank descriptors
+		PublishingSubscribing();
+		~PublishingSubscribing();
+		Array<NodeEntry>	*getNodeEntries(uint16	messageClassID,uint32	messageContentID);
+	};
 }
+
+
+#endif

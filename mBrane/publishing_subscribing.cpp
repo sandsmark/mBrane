@@ -1,6 +1,6 @@
-// pub_sub.h
+//	publishing_subscribing.cpp
 //
-// Author: Eric Nivel
+//	Author: Eric Nivel
 //
 //	BSD license:
 //	Copyright (c) 2008, Eric Nivel, Thor List
@@ -28,39 +28,42 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef	mBrane_pub_sub_h
-#define	mBrane_pub_sub_h
-
-#include	"..\Core\payload.h"
-#include	"..\Core\list.h"
-#include	"..\Core\circular_buffer.h"
+#include	"publishing_subscribing.h"
 
 
-using	namespace	mBrane::sdk;
+#define	INITIAL_MID_ARRAY_LENGTH	16
 
 namespace	mBrane{
 
-	class	PubSub{
-	protected:
-		typedef	struct{
-			uint32	activationCount;
-			CircularBuffer<P<_Payload> >	*inputQueue;
-		}CrankEntry;
+	PublishingSubscribing::PublishingSubscribing(){
 
-		typedef	struct{
-			uint32	activationCount;
-			List<CrankEntry>	*cranks;
-		}NodeEntry;
-		
-		Array<Array<Array<NodeEntry>	*>	*>	routes;
-		CriticalSection							routesCS;
-		
-		//	TODO:	groups,crank descriptors
-		PubSub();
-		~PubSub();
-		Array<NodeEntry>	*getNodeEntries(uint16	messageClassID,uint32	messageContentID);
-	};
+		routes.alloc(ClassRegister::Count());
+		for(uint32	i=0;i<ClassRegister::Count();i++)
+			routes[i]=new	Array<Array<NodeEntry>	*>(INITIAL_MID_ARRAY_LENGTH);
+	}
+
+	PublishingSubscribing::~PublishingSubscribing(){
+
+		for(uint32	i=0;i<ClassRegister::Count();i++){
+
+			for(uint32	j=0;j<routes[i]->count();j++){
+
+				if(*(routes[i]->get(j))){
+
+					for(uint32	k=0;k<routes[i]->operator[](j)->count();k++){
+
+						if(routes[i]->operator[](j)->operator[](k).cranks)
+							delete	routes[i]->operator[](j)->operator[](k).cranks;
+					}
+					delete	routes[i]->operator[](j);
+				}
+			}
+			delete	routes[i];
+		}
+	}
+
+	Array<PublishingSubscribing::NodeEntry>	*PublishingSubscribing::getNodeEntries(uint16	messageClassID,uint32	messageContentID){
+
+		return	*(routes[messageClassID]->get(messageContentID));
+	}
 }
-
-
-#endif

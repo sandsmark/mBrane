@@ -50,14 +50,14 @@ namespace	mBrane{
 				Array<DynamicClassLoader<Daemon>	*>	daemonLoaders;
 				Array<Daemon	*>						daemons;
 				Array<Thread	*>						daemonThreads;
+				Node(uint16	ID=NO_ID);
+				bool	loadConfig(XMLNode	&n);
 				void	start();
 				virtual	void	shutdown();
-				Node(uint16	ID=NO_ID);
-			public:
 				~Node();
+			public:
 				uint16	ID()	const;
 				bool	isRunning();
-				bool	loadConfig(XMLNode	&n);
 				//	TODO:	define API as pure virtual functions
 				//			-> node map
 				//			-> stats

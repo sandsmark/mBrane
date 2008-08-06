@@ -1,6 +1,6 @@
-// pub_sub.cpp
+//	executing.h
 //
-// Author: Eric Nivel
+//	Author: Eric Nivel
 //
 //	BSD license:
 //	Copyright (c) 2008, Eric Nivel, Thor List
@@ -28,42 +28,34 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include	"pub_sub.h"
+#ifndef	mBrane_executing_h
+#define	mBrane_executing_h
+
+#include	"..\Core\crank.h"
+#include	"..\Core\xml_parser.h"
 
 
-#define	INITIAL_MID_ARRAY_LENGTH	16
+using	namespace	mBrane::sdk;
+using	namespace	mBrane::sdk::crank;
 
 namespace	mBrane{
 
-	PubSub::PubSub(){
-
-		routes.alloc(ClassRegister::Count());
-		for(uint32	i=0;i<ClassRegister::Count();i++)
-			routes[i]=new	Array<Array<NodeEntry>	*>(INITIAL_MID_ARRAY_LENGTH);
-	}
-
-	PubSub::~PubSub(){
-
-		for(uint32	i=0;i<ClassRegister::Count();i++){
-
-			for(uint32	j=0;j<routes[i]->count();j++){
-
-				if(*(routes[i]->get(j))){
-
-					for(uint32	k=0;k<routes[i]->operator[](j)->count();k++){
-
-						if(routes[i]->operator[](j)->operator[](k).cranks)
-							delete	routes[i]->operator[](j)->operator[](k).cranks;
-					}
-					delete	routes[i]->operator[](j);
-				}
-			}
-			delete	routes[i];
-		}
-	}
-
-	Array<PubSub::NodeEntry>	*PubSub::getNodeEntries(uint16	messageClassID,uint32	messageContentID){
-
-		return	*(routes[messageClassID]->get(messageContentID));
-	}
+	class	Executing{
+	protected:
+		typedef	struct{
+			Executing	*n;
+			_Crank		*c;
+		}CrankThreadArgs;
+		static	uint32	thread_function_call	CrankExecutionUnit(void	*args);
+		Array<Thread	*>	crankThreads;
+		bool	__shutdown;
+		Executing();
+		~Executing();
+		bool	loadConfig(XMLNode	&n);
+		void	start();
+		void	shutdown();
+	};
 }
+
+
+#endif

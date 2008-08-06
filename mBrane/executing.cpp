@@ -1,4 +1,4 @@
-//	messaging.cpp
+//	executing.cpp
 //
 //	Author: Eric Nivel
 //
@@ -28,45 +28,75 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include	"messaging.h"
-#include	"..\Core\message.h"
+#include	"executing.h"
 
-
-#define	INITIAL_MESSAGE_INPUT_QUEUE_DEPTH	32
-#define	INITIAL_MESSAGE_OUTPUT_QUEUE_DEPTH	32
 
 namespace	mBrane{
 
-	Messaging::Messaging(){
-
-		messageInputQueue.init(INITIAL_MESSAGE_INPUT_QUEUE_DEPTH);
-		messageOutputQueue.init(INITIAL_MESSAGE_OUTPUT_QUEUE_DEPTH);
+	Executing::Executing():__shutdown(false){
 	}
 
-	Messaging::~Messaging(){
-
-	}
-	
-	void	Messaging::send(const	_Crank	*sender,_Payload	*message){
-
-		message->send_ts()=Time::Get();
-		((_ControlMessage	*)message)->senderNode_id()=sender->id();
-		P<_Payload>	p=message;
-		messageOutputQueue.push(p);
+	Executing::~Executing(){
 	}
 
-	void	Messaging::sendLocal(_Payload	*message){	//	TODO
+	bool	Executing::loadConfig(XMLNode	&n){
 
-
+		return	true;
 	}
 
-	void	Messaging::sendLocal(const	_Crank	*sender,_Payload	*message){	//	TODO
+	void	Executing::start(){
 
-
+		//	TODO:	start thread (CEU) pool;
 	}
 
-	void	Messaging::sendTo(uint16	NID,_Payload	*message){	//	TODO
+	void	Executing::shutdown(){
 
-		//	must be thread safe
+		if(__shutdown)
+			return;	
+		__shutdown=true;
+		Thread::Wait(crankThreads.data(),crankThreads.count());
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+
+	uint32	thread_function_call	Executing::CrankExecutionUnit(void	*args){
+
+		Executing	*node=((CrankThreadArgs	*)args)->n;
+		_Crank		*crank=((CrankThreadArgs	*)args)->c;
+
+		crank->start();
+
+		while(!node->__shutdown){
+
+			if(!crank->alive())
+				break;
+
+			P<_Payload>	*p;
+			if(crank->run()){
+
+				do
+					p=crank->pop();
+				while(!*p);	//	*p can be NULL (when preview returns true)
+				(*p)->recv_ts()=Time::Get();
+				crank->notify(*p);
+				*p=NULL;
+			}else{
+
+loop:			p=crank->pop(false);
+				if(p){
+
+					if(!*p)	//	*p can be NULL (when preview returns true)
+						goto	loop;
+					(*p)->recv_ts()=Time::Get();
+					crank->notify(*p);
+					*p=NULL;
+				}
+			}
+		}
+
+		crank->stop();
+		delete	crank;
+
+		return	0;
 	}
 }

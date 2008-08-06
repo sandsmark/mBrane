@@ -29,7 +29,7 @@
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include	"crank.h"
-#include	"node.h"
+#include	"crank_node.h"
 #include	"utils.h"
 
 #define	CRANK_INPUT_QUEUE_SIZE	512

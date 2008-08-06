@@ -36,7 +36,8 @@
 
 #include	"networking.h"
 #include	"messaging.h"
-#include	"pub_sub.h"
+#include	"publishing_subscribing.h"
+#include	"executing.h"
 
 
 using	namespace	mBrane::sdk;
@@ -48,7 +49,8 @@ namespace	mBrane{
 	class	Node:
 	public	Networking,
 	public	Messaging,
-	public	PubSub{
+	public	PublishingSubscribing,
+	public	Executing{
 	private:
 
 		//	CONFIG
@@ -60,17 +62,6 @@ namespace	mBrane{
 
 		//	NETWORKING
 
-		//	Nodes must boot in sequence (Cf boot delay in main)
-		//	accept connections
-		//		bcast ID and name
-		//		if accept timedout
-		//			node is time reference
-		//		else
-		//			recv remote NID, name and assigned NID
-		//			if assigned NID!=NO_ID
-		//				remote NID=reference NID
-		//	scan IDs and connect in reply to bcast: send local NID, name and assigned NID (if is time reference or NO_ID otherwise)
-		
 		typedef	struct{
 			Node					*n;
 			CommChannel				*c;
@@ -81,25 +72,16 @@ namespace	mBrane{
 		static	uint32	thread_function_call	SendMessages(void	*args);
 		static	uint32	thread_function_call	NotifyMessages(void	*args);
 
-		//	CRANK EXECUTION
-
-		//	REDO:	thread pool + scheduler
-
-		typedef	struct{
-			Node	*n;
-			_Crank	*c;
-		}CrankThreadArgs;
-		static	uint32	thread_function_call	CrankExecutionUnit(void	*args);
-
-		Array<Thread	*>	crankThreads;
-
-		//	NODE
-
-		Node();
 		void	start(uint16	assignedNID,uint16	remoteNID,bool	isTimeReference);
 		void	startReceivingThreads(uint16	NID);
 		void	notifyNodeJoined(uint16	NID,char	*name);
 		void	notifyNodeLeft(uint16	NID);
+
+		//	CRANK EXECUTION
+
+		//	NODE
+
+		Node();
 	public:
 		static	Node	*New(const	char	*configFileName);
 		~Node();
