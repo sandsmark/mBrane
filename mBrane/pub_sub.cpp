@@ -1,4 +1,4 @@
-// messaging.h
+// pub_sub.cpp
 //
 // Author: Eric Nivel
 //
@@ -28,29 +28,42 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef	mBrane_messaging_h
-#define	mBrane_messaging_h
-
-#include	"..\Core\crank.h"
+#include	"pub_sub.h"
 
 
-using	namespace	mBrane::sdk;
-using	namespace	mBrane::sdk::crank;
+#define	INITIAL_MID_ARRAY_LENGTH	16
 
 namespace	mBrane{
 
-	class	Messaging{
-	protected:
-		CircularBuffer<P<_Payload> >	messageInputQueue;
-		CircularBuffer<P<_Payload> >	messageOutputQueue;
-		Messaging();
-		~Messaging();
-		void	sendLocal(_Payload	*message);
-		void	sendLocal(const	_Crank	*sender,_Payload	*message);
-		void	sendTo(uint16	NID,_Payload	*message);
-		void	send(const	_Crank	*sender,_Payload	*message);
-	};
+	PubSub::PubSub(){
+
+		routes.alloc(ClassRegister::Count());
+		for(uint32	i=0;i<ClassRegister::Count();i++)
+			routes[i]=new	Array<Array<NodeEntry>	*>(INITIAL_MID_ARRAY_LENGTH);
+	}
+
+	PubSub::~PubSub(){
+
+		for(uint32	i=0;i<ClassRegister::Count();i++){
+
+			for(uint32	j=0;j<routes[i]->count();j++){
+
+				if(*(routes[i]->get(j))){
+
+					for(uint32	k=0;k<routes[i]->operator[](j)->count();k++){
+
+						if(routes[i]->operator[](j)->operator[](k).cranks)
+							delete	routes[i]->operator[](j)->operator[](k).cranks;
+					}
+					delete	routes[i]->operator[](j);
+				}
+			}
+			delete	routes[i];
+		}
+	}
+
+	Array<PubSub::NodeEntry>	*PubSub::getNodeEntries(uint16	messageClassID,uint32	messageContentID){
+
+		return	*(routes[messageClassID]->get(messageContentID));
+	}
 }
-
-
-#endif

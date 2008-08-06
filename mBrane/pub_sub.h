@@ -1,4 +1,4 @@
-// messaging.h
+// pub_sub.h
 //
 // Author: Eric Nivel
 //
@@ -28,27 +28,37 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef	mBrane_messaging_h
-#define	mBrane_messaging_h
+#ifndef	mBrane_pub_sub_h
+#define	mBrane_pub_sub_h
 
-#include	"..\Core\crank.h"
+#include	"..\Core\payload.h"
+#include	"..\Core\list.h"
+#include	"..\Core\circular_buffer.h"
 
 
 using	namespace	mBrane::sdk;
-using	namespace	mBrane::sdk::crank;
 
 namespace	mBrane{
 
-	class	Messaging{
+	class	PubSub{
 	protected:
-		CircularBuffer<P<_Payload> >	messageInputQueue;
-		CircularBuffer<P<_Payload> >	messageOutputQueue;
-		Messaging();
-		~Messaging();
-		void	sendLocal(_Payload	*message);
-		void	sendLocal(const	_Crank	*sender,_Payload	*message);
-		void	sendTo(uint16	NID,_Payload	*message);
-		void	send(const	_Crank	*sender,_Payload	*message);
+		typedef	struct{
+			uint32	activationCount;
+			CircularBuffer<P<_Payload> >	*inputQueue;
+		}CrankEntry;
+
+		typedef	struct{
+			uint32	activationCount;
+			List<CrankEntry>	*cranks;
+		}NodeEntry;
+		
+		Array<Array<Array<NodeEntry>	*>	*>	routes;
+		CriticalSection							routesCS;
+		
+		//	TODO:	groups,crank descriptors
+		PubSub();
+		~PubSub();
+		Array<NodeEntry>	*getNodeEntries(uint16	messageClassID,uint32	messageContentID);
 	};
 }
 

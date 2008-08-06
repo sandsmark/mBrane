@@ -36,6 +36,7 @@
 
 #include	"networking.h"
 #include	"messaging.h"
+#include	"pub_sub.h"
 
 
 using	namespace	mBrane::sdk;
@@ -46,7 +47,8 @@ namespace	mBrane{
 
 	class	Node:
 	public	Networking,
-	public	Messaging{
+	public	Messaging,
+	public	PubSub{
 	private:
 
 		//	CONFIG
@@ -90,24 +92,6 @@ namespace	mBrane{
 		static	uint32	thread_function_call	CrankExecutionUnit(void	*args);
 
 		Array<Thread	*>	crankThreads;
-
-		//	PUBLISH-SUBSCRIBE
-
-		typedef	struct{
-			uint32	activationCount;
-			CircularBuffer<P<_Payload> >	*inputQueue;
-		}CrankEntry;
-
-		typedef	struct{
-			uint32	activationCount;
-			List<CrankEntry>	*cranks;
-		}NodeEntry;
-		
-		Array<Array<Array<NodeEntry>	*>	*>	routes;
-		CriticalSection							routesCS;
-		Array<NodeEntry>	*getNodeEntries(uint16	messageClassID,uint32	messageContentID);
-		
-		//	TODO:	groups,crank descriptors
 
 		//	NODE
 

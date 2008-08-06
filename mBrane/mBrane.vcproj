@@ -212,6 +212,10 @@
 				RelativePath=".\node.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\pub_sub.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -244,6 +248,10 @@
 						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\pub_sub.h"
+				>
 			</File>
 		</Filter>
 		<File

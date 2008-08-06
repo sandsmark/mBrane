@@ -36,8 +36,6 @@
 #include	<iostream>
 
 
-#define	INITIAL_MID_ARRAY_LENGTH	16
-
 namespace	mBrane{
 
 	Node	*Node::New(const	char	*configFileName){
@@ -49,31 +47,10 @@ namespace	mBrane{
 		return	NULL;
 	}
 
-	Node::Node():Networking(),Messaging(){
-
-		routes.alloc(ClassRegister::Count());
-		for(uint32	i=0;i<ClassRegister::Count();i++)
-			routes[i]=new	Array<Array<NodeEntry>	*>(INITIAL_MID_ARRAY_LENGTH);
+	Node::Node():Networking(),Messaging(),PubSub(){
 	}
 
 	Node::~Node(){
-
-		for(uint32	i=0;i<ClassRegister::Count();i++){
-
-			for(uint32	j=0;j<routes[i]->count();j++){
-
-				if(*(routes[i]->get(j))){
-
-					for(uint32	k=0;k<routes[i]->operator[](j)->count();k++){
-
-						if(routes[i]->operator[](j)->operator[](k).cranks)
-							delete	routes[i]->operator[](j)->operator[](k).cranks;
-					}
-					delete	routes[i]->operator[](j);
-				}
-			}
-			delete	routes[i];
-		}
 	}
 
 	Node	*Node::loadConfig(const	char	*configFileName){
@@ -282,11 +259,6 @@ namespace	mBrane{
 	void	Node::send(const	_Crank	*sender,_Payload	*message){
 
 		Messaging::send(sender,message);
-	}
-
-	Array<Node::NodeEntry>	*Node::getNodeEntries(uint16	messageClassID,uint32	messageContentID){
-
-		return	*(routes[messageClassID]->get(messageContentID));
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
