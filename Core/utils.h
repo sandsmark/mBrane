@@ -91,6 +91,16 @@ namespace	mBrane{
 		void	release();
 	};
 
+	class	dll	CriticalSection{
+	private:
+		critical_section	cs;
+	public:
+		CriticalSection();
+		~CriticalSection();
+		void	enter();
+		void	leave();
+	};
+
 	class	dll	Timer{
 	private:
 		timer	t;

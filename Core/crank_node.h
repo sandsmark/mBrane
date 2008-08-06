@@ -1,4 +1,4 @@
-// node.h
+// crank_node.h
 //
 // Author: Eric Nivel
 //
@@ -28,33 +28,32 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef	mBrane_sdk_node_h
-#define	mBrane_sdk_node_h
+#ifndef	mBrane_sdk_crank_node_h
+#define	mBrane_sdk_crank_node_h
 
 #include	"payload.h"
 
 
 namespace	mBrane{
 	namespace	sdk{
+		namespace	crank{
 
-		class	_Crank;
-		class	dll	Node{
-		private:
-			static	Node	*Singleton;
-		protected:
-			static	const	uint16	NO_ID=0xFFFF;
-			uint16	_ID;	//	max: 0xFFFE
-			Node(uint16	ID);
-		public:
-			static	Node	*Get();
-			virtual	~Node();
-			uint16	ID()	const;
-			virtual	_Crank	*buildCrank(uint16	CID)=0;
-			virtual	void	start(_Crank	*c)=0;	//	TODO:	add parameters (target thread, migrable, etc)
-			virtual	void	stop(_Crank	*c)=0;
-			virtual	void	send(const	_Crank	*sender,_Payload	*p)=0;
-			virtual	int64	time()	const=0;	//	in ms since 01/01/70
-		};
+			class	_Crank;
+			class	dll	Node{
+			private:
+				static	Node	*Singleton;
+			protected:
+				Node();
+			public:
+				static	Node	*Get();
+				virtual	~Node();
+				virtual	_Crank	*buildCrank(uint16	CID)=0;
+				virtual	void	start(_Crank	*c)=0;	//	TODO:	add parameters (target thread, migrable, etc)
+				virtual	void	stop(_Crank	*c)=0;
+				virtual	void	send(const	_Crank	*sender,_Payload	*p)=0;
+				virtual	int64	time()	const=0;	//	in ms since 01/01/70
+			};
+		}
 	}
 }
 

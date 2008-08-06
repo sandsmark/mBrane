@@ -32,7 +32,7 @@
 #include	"udp_interface.h"
 
 
-NetworkInterface	*Load(XMLNode	&n,NodeAPI	*node){
+NetworkInterface	*Load(XMLNode	&n,daemon::Node	*node){
 
 	return	UDPInterface::New(n);
 }

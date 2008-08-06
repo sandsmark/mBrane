@@ -42,12 +42,12 @@
 #define	CLASS_ID(C)	C##_class
 
 template<class	U>	class	Crank:	//	TODO:	in notify and preview switches: insert control message class processing
-public	_Crank{
+public	crank::_Crank{
 protected:
 	static	const	uint16	_CID;
-	Crank(uint16	ID):_Crank(ID){}
+	Crank(uint16	ID):crank::_Crank(ID){}
 public:
-	static	_Crank	*New(uint16	ID){	return	new	U(ID);	}
+	static	crank::_Crank	*New(uint16	ID){	return	new	U(ID);	}
 	virtual	~Crank(){}
 	const	uint16	cid(){	return	_CID;	}
 	void	notify(_Payload	*p){

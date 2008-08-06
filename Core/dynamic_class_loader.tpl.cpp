@@ -62,7 +62,7 @@ namespace	mBrane{
 				delete	library;
 		}
 
-		template<class	C>	C	*DynamicClassLoader<C>::getInstance(XMLNode	&n,NodeAPI	*node){
+		template<class	C>	C	*DynamicClassLoader<C>::getInstance(XMLNode	&n,daemon::Node	*node){
 
 			if(load)
 				return	load(n,node);

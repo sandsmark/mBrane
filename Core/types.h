@@ -112,6 +112,7 @@ namespace	mBrane{
 	typedef	SOCKET					socket;
 	typedef	HANDLE					semaphore;
 	typedef	HANDLE					mutex;
+	typedef	CRITICAL_SECTION		critical_section;
 	typedef	HANDLE					timer;
 #elif defined	LINUX
 #elif defined	OSX

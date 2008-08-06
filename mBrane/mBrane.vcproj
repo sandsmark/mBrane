@@ -197,7 +197,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\messaging.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\module.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\networking.cpp"
 				>
 			</File>
 			<File
@@ -215,7 +223,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\messaging.h"
+				>
+			</File>
+			<File
 				RelativePath=".\module.h"
+				>
+			</File>
+			<File
+				RelativePath=".\networking.h"
 				>
 			</File>
 			<File

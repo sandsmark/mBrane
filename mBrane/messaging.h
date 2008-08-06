@@ -1,4 +1,4 @@
-// tcp.h
+// messaging.h
 //
 // Author: Eric Nivel
 //
@@ -28,18 +28,29 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef	mBrane_tcp_h
-#define	mBrane_tcp_h
+#ifndef	mBrane_messaging_h
+#define	mBrane_messaging_h
 
-#include	"..\Core\xml_parser.h"
-#include	"..\Core\network_interface.h"
+#include	"..\Core\crank.h"
 
 
-using	namespace	mBrane;
 using	namespace	mBrane::sdk;
+using	namespace	mBrane::sdk::crank;
 
-extern	"C"{
-NetworkInterface	dll_export	*Load(XMLNode	&n,daemon::Node	*node);
+namespace	mBrane{
+
+	class	Messaging{
+	protected:
+		CircularBuffer<P<_Payload> >	messageInputQueue;
+		CircularBuffer<P<_Payload> >	messageOutputQueue;
+		Messaging();
+		~Messaging();
+		void	sendLocal(_Payload	*message);
+		void	sendLocal(const	_Crank	*sender,_Payload	*message);
+		void	sendTo(uint16	NID,_Payload	*message);
+	public:
+		void	send(const	_Crank	*sender,_Payload	*message);
+	};
 }
 
 

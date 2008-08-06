@@ -10,7 +10,7 @@
 
 
 extern	"C"{
-mBrane::sdk::_Crank *	__cdecl	NewCR1(uint16);
+mBrane::sdk::crank::_Crank *	__cdecl	NewCR1(uint16);
 }
 
 

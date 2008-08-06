@@ -37,139 +37,141 @@
 
 namespace	mBrane{
 	namespace	sdk{
+		namespace	crank{
 
-		void	_Crank::Build(uint16	CID){
+			void	_Crank::Build(uint16	CID){
 
-			Node::Get()->buildCrank(CID);
-		}
-
-		_Crank::_Crank(uint16	_ID,bool	canMigrate,bool	canBeSwapped):CircularBuffer<P<_Payload> >(),_ID(_ID),_canMigrate(canMigrate),_canBeSwapped(canBeSwapped),_alive(true){
-
-			init(CRANK_INPUT_QUEUE_SIZE);
-		}
-
-		_Crank::~_Crank(){
-		}
-
-		inline	uint16	_Crank::id()	const{
-
-			return	_ID;
-		}
-
-		inline	bool	_Crank::alive()	const{
-
-			return	_alive;
-		}
-
-		inline	bool	_Crank::canMigrate(){
-
-			return	_canMigrate;
-		}
-
-		inline	bool	_Crank::canBeSwapped(){
-
-			return	_canBeSwapped;
-		}
-
-		inline	bool	_Crank::run(){
-
-			return	true;
-		}
-
-		uint32	_Crank::dumpSize(){
-
-			return	0;
-		}
-
-		_Payload	*_Crank::dump(){
-
-			return	NULL;
-		}
-
-		void	_Crank::load(_Payload	*chunk){
-		}
-
-		void	_Crank::start(){
-		}
-
-		void	_Crank::stop(){
-		}
-
-		inline	void	_Crank::swapOut(){
-		}
-
-		inline	void	_Crank::swapIn(){
-		}
-
-		inline	void	_Crank::migrateOut(){
-		}
-
-		inline	void	_Crank::migrateIn(){
-		}
-
-		inline	int64	_Crank::time()	const{
-
-			return	Node::Get()->time();
-		}
-
-		void	_Crank::sleep(int64	d)	const{
-
-			Thread::Sleep(d);
-		}
-
-		void	_Crank::quit(){
-
-			_alive=false;
-		}
-
-		inline	void	_Crank::peek(int32	depth){
-
-			Mutex::acquire();
-
-			Iterator	i;
-			uint32	d=0;
-			for(i=begin();i!=end()	&&	d<depth;i++,d++){
-
-				_Payload	*p=(_Payload	*)(P<_Payload>)i;
-				if(!p)
-					continue;
-				if(preview(p)){
-
-					((P<_Payload>)i)=NULL;
-					_messageCount--;
-				}
+				Node::Get()->buildCrank(CID);
 			}
 
-			Mutex::release();
-		}
+			_Crank::_Crank(uint16	_ID,bool	canMigrate,bool	canBeSwapped):CircularBuffer<P<_Payload> >(),_ID(_ID),_canMigrate(canMigrate),_canBeSwapped(canBeSwapped),_alive(true){
 
-		inline	void	_Crank::send(_Payload	*p)	const{
+				init(CRANK_INPUT_QUEUE_SIZE);
+			}
 
-			Node::Get()->send(this,p);
-		}
+			_Crank::~_Crank(){
+			}
 
-		inline	uint32	_Crank::messageCount(){
+			inline	uint16	_Crank::id()	const{
 
-			return	_messageCount;
-		}
+				return	_ID;
+			}
 
-		inline	void	_Crank::push(P<_Payload>	&p){
+			inline	bool	_Crank::alive()	const{
 
-			CircularBuffer<P<_Payload> >::push(p);
-			_messageCount++;
-		}
+				return	_alive;
+			}
 
-		inline	P<_Payload>	*_Crank::pop(bool	blocking){
+			inline	bool	_Crank::canMigrate(){
 
-			P<_Payload>	*p=CircularBuffer<P<_Payload> >::pop(blocking);
-			_messageCount--;
-			return	p;
-		}
+				return	_canMigrate;
+			}
 
-		inline	void	_Crank::_clear(){
+			inline	bool	_Crank::canBeSwapped(){
 
-			CircularBuffer<P<_Payload> >::_clear();
-			_messageCount=0;
+				return	_canBeSwapped;
+			}
+
+			inline	bool	_Crank::run(){
+
+				return	true;
+			}
+
+			uint32	_Crank::dumpSize(){
+
+				return	0;
+			}
+
+			_Payload	*_Crank::dump(){
+
+				return	NULL;
+			}
+
+			void	_Crank::load(_Payload	*chunk){
+			}
+
+			void	_Crank::start(){
+			}
+
+			void	_Crank::stop(){
+			}
+
+			inline	void	_Crank::swapOut(){
+			}
+
+			inline	void	_Crank::swapIn(){
+			}
+
+			inline	void	_Crank::migrateOut(){
+			}
+
+			inline	void	_Crank::migrateIn(){
+			}
+
+			inline	int64	_Crank::time()	const{
+
+				return	Node::Get()->time();
+			}
+
+			void	_Crank::sleep(int64	d)	const{
+
+				Thread::Sleep(d);
+			}
+
+			void	_Crank::quit(){
+
+				_alive=false;
+			}
+
+			inline	void	_Crank::peek(int32	depth){
+
+				CriticalSection::enter();
+
+				Iterator	i;
+				uint32	d=0;
+				for(i=begin();i!=end()	&&	d<depth;i++,d++){
+
+					_Payload	*p=(_Payload	*)(P<_Payload>)i;
+					if(!p)
+						continue;
+					if(preview(p)){
+
+						((P<_Payload>)i)=NULL;
+						_messageCount--;
+					}
+				}
+
+				CriticalSection::leave();
+			}
+
+			inline	void	_Crank::send(_Payload	*p)	const{
+
+				Node::Get()->send(this,p);
+			}
+
+			inline	uint32	_Crank::messageCount(){
+
+				return	_messageCount;
+			}
+
+			inline	void	_Crank::push(P<_Payload>	&p){
+
+				CircularBuffer<P<_Payload> >::push(p);
+				_messageCount++;
+			}
+
+			inline	P<_Payload>	*_Crank::pop(bool	blocking){
+
+				P<_Payload>	*p=CircularBuffer<P<_Payload> >::pop(blocking);
+				_messageCount--;
+				return	p;
+			}
+
+			inline	void	_Crank::_clear(){
+
+				CircularBuffer<P<_Payload> >::_clear();
+				_messageCount=0;
+			}
 		}
 	}
 }

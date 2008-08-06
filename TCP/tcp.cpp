@@ -32,7 +32,7 @@
 #include	"tcp_interface.h"
 
 
-NetworkInterface	*Load(XMLNode	&n,NodeAPI	*node){
+NetworkInterface	*Load(XMLNode	&n,daemon::Node	*node){
 
 	return	TCPInterface::New(n);
 }

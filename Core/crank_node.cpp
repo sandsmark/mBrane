@@ -1,4 +1,4 @@
-// node.cpp
+// crank_node.cpp
 //
 // Author: Eric Nivel
 //
@@ -28,32 +28,29 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include	"node.h"
+#include	"crank_node.h"
 
 
 namespace	mBrane{
 	namespace	sdk{
+		namespace	crank{
 
-		Node	*Node::Singleton=NULL;
+			Node	*Node::Singleton=NULL;
 
-		inline	Node	*Node::Get(){
+			inline	Node	*Node::Get(){
 
-			return	Singleton;
-		}
+				return	Singleton;
+			}
 
-		Node::Node(uint16	ID):_ID(ID){
-			
-			Singleton=this;
-		}
+			Node::Node(){
+				
+				Singleton=this;
+			}
 
-		Node::~Node(){
+			Node::~Node(){
 
-			Singleton=NULL;
-		}
-
-		inline	uint16	Node::ID()	const{
-
-			return	_ID;
+				Singleton=NULL;
+			}
 		}
 	}
 }

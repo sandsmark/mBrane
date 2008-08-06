@@ -39,7 +39,7 @@ using	namespace	mBrane;
 using	namespace	mBrane::sdk;
 
 extern	"C"{
-NetworkInterface	dll_export	*Load(XMLNode	&n,NodeAPI	*node);
+NetworkInterface	dll_export	*Load(XMLNode	&n,daemon::Node	*node);
 }
 
 

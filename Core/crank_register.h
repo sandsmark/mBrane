@@ -41,7 +41,7 @@ namespace	mBrane{
 		class	dll	CrankRegister{
 		template<class	Register>	friend	class	Array;
 		public:
-			typedef	_Crank	*(*CrankBuilder)(uint16);
+			typedef	crank::_Crank	*(*CrankBuilder)(uint16);
 		private:
 			static	Array<CrankRegister>	Cranks;
 			CrankBuilder	_builder;

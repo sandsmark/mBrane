@@ -1,4 +1,4 @@
-// dynamic_class_loader.h
+// daemon_node.cpp
 //
 // Author: Eric Nivel
 //
@@ -28,36 +28,90 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef	mBrane_sdk_dynamic_class_loader_h
-#define	mBrane_sdk_dynamic_class_loader_h
-
-#include	"utils.h"
-#include	"xml_parser.h"
 #include	"daemon_node.h"
 
 
 namespace	mBrane{
 	namespace	sdk{
-
 		namespace	daemon{
-			class	Node;
-		}
 
-		template<class	C>	class	DynamicClassLoader{
-		private:
-			SharedLibrary	*library;
-			typename	C::Load	load;
-			DynamicClassLoader(SharedLibrary	*library,typename	C::Load	load);
-		public:
-			static	DynamicClassLoader	*New(XMLNode	&n);
-			~DynamicClassLoader();
-			C	*getInstance(XMLNode	&n,daemon::Node	*node);
-		};
+			Node::Node(uint16	ID):crank::Node(),_ID(ID),_shutdown(false){
+			}
+
+			Node::~Node(){
+
+				for(uint32	i=0;i<daemonLoaders.count();i++){
+
+					if(daemonLoaders[i])
+						delete	daemonLoaders[i];
+					if(daemons[i])
+						delete	daemons[i];
+				}
+			}
+
+			inline	uint16	Node::ID()	const{
+
+				return	_ID;
+			}
+
+			inline	bool	Node::isRunning(){
+
+				return	!_shutdown;
+			}
+
+			bool	Node::loadConfig(XMLNode	&n){
+
+				XMLNode	daemons=n.getChildNode("Daemons");
+				if(!!daemons){
+
+					int32	daemonCount=daemons.nChildNode("Daemon");
+					for(uint32	i=0;i<daemonCount;i++){
+
+						XMLNode	n=daemons.getChildNode(i);
+						DynamicClassLoader<Daemon>	*dl;
+						if(!(dl=DynamicClassLoader<Daemon>::New(n)))
+							return	false;
+						daemonLoaders[i]=dl;
+						Daemon	*d;
+						if(!(d=dl->getInstance(n,this)))
+							return	false;
+						this->daemons[i]=d;
+					}
+				}
+			}
+
+			void	Node::start(){
+
+				for(uint32	i=0;i<daemons.count();i++)
+					daemonThreads[i]=Thread::New(Daemon::Run,daemons[i]);
+			}
+
+			void	Node::shutdown(){
+
+				Thread::Wait(daemonThreads.data(),daemonThreads.count());
+			}
+
+			////////////////////////////////////////////////////////////////////////////////////////////////
+
+			uint32	thread_function_call	Daemon::Run(void	*args){
+
+				uint32	r;
+				((Daemon	*)args)->init();
+				while(((Daemon	*)args)->node->isRunning())
+					if(r=((Daemon	*)args)->run()){
+
+						((Daemon	*)args)->shutdown();
+						return	r;
+					}
+				((Daemon	*)args)->shutdown();
+				return	0;
+			}
+
+			Daemon::Daemon(Node	*node):node(node){
+			}
+
+			Daemon::~Daemon(){
+			}
+		}
 	}
 }
-
-
-#include	"dynamic_class_loader.tpl.cpp"
-
-
-#endif

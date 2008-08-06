@@ -33,7 +33,7 @@
 
 #include	"utils.h"
 #include	"xml_parser.h"
-#include	"node_api.h"
+#include	"daemon_node.h"
 
 
 namespace	mBrane{
@@ -53,7 +53,7 @@ namespace	mBrane{
 			Protocol	_protocol;
 			NetworkInterface(Protocol	_protocol);
 		public:
-			typedef	NetworkInterface	*(*Load)(XMLNode	&,NodeAPI	*n);	//	function exported by the shared library
+			typedef	NetworkInterface	*(*Load)(XMLNode	&,daemon::Node	*n);	//	function exported by the shared library
 			virtual	~NetworkInterface();
 			Protocol	protocol()	const;
 			virtual	bool	operator	==(NetworkInterface	*i)=0;

@@ -31,49 +31,32 @@
 #ifndef	mBrane_node_h
 #define	mBrane_node_h
 
-#include	"..\Core\network_interface.h"
 #include	"..\Core\message.h"
 #include	"..\Core\list.h"
-#include	"..\Core\circular_buffer.h"
-#include	"..\Core\utils.h"
-#include	"..\Core\dynamic_class_loader.h"
 
+#include	"networking.h"
+#include	"messaging.h"
+
+
+using	namespace	mBrane::sdk;
+using	namespace	mBrane::sdk::crank;
+using	namespace	mBrane::sdk::daemon;
 
 namespace	mBrane{
 
 	class	Node:
-	public	sdk::NodeAPI{
+	public	Networking,
+	public	Messaging{
 	private:
-
-		typedef	enum{
-			CONTROL=0,
-			DATA=1,
-			STREAM=2,
-			DISCOVERY=3
-		}NetworkInterfaceType;
 
 		//	CONFIG
 
 		const	char	*application_configuration_file;
 		SharedLibrary	*userLibrary;
 
-		sdk::DynamicClassLoader<sdk::NetworkInterface>	*networkInterfaceLoaders[4];
-		bool	loadInterface(sdk::XMLNode	&n,const	char	*name,NetworkInterfaceType	type);
-
 		Node	*loadConfig(const	char	*configFileName);
 
 		//	NETWORKING
-
-		char	hostName[255];
-		uint8	hostNameSize;
-
-		static	uint32	thread_function_call	ScanIDs(void	*args);
-		typedef	struct{
-			Node					*n;
-			int32					t;
-			NetworkInterfaceType	type;
-		}AcceptConnectionArgs;
-		static	uint32	thread_function_call	AcceptConnections(void	*args);
 
 		//	Nodes must boot in sequence (Cf boot delay in main)
 		//	accept connections
@@ -85,105 +68,54 @@ namespace	mBrane{
 		//			if assigned NID!=NO_ID
 		//				remote NID=reference NID
 		//	scan IDs and connect in reply to bcast: send local NID, name and assigned NID (if is time reference or NO_ID otherwise)
-		int32	bcastTimeout;
-		uint8	*networkID;
-		uint32	network_ID_size;
-		uint32	network_ctrl_ID_size;
-		uint32	network_data_ID_size;
-		uint32	network_stream_ID_size;
-
-		sdk::NetworkInterface	*networkInterfaces[4];
-		bool	startInterfaces();
-		void	stopInterfaces();
-
-		class	DataCommChannel{
-		public:
-			DataCommChannel();
-			~DataCommChannel();
-			sdk::ConnectedCommChannel	*data;
-			sdk::ConnectedCommChannel	*stream;
-			char	*name;
-			uint8	nameSize;
-		};
-		sdk::Array<sdk::CommChannel	*>	controlChannels;	//	1 (bcast capable) or many (connected)
-		sdk::Array<DataCommChannel	*>	dataChannels;
-		Mutex	m;	//	protects controlChannels and dataChannels
-
-		bool	isTimeReference;
-		uint16	referenceNID;
-		void	init(uint16	assignedNID,uint16	remoteNID,bool	isTimeReference);
-		void	setNewReference();
-		void	notifyNodeJoined(uint16	NID,char	*name);
-		void	notifyNodeLeft(uint16	NID);
-
-		static	uint32	thread_function_call	Sync(void	*args);
-		int64	timeDrift;	//	in ms
-		int64	lastSyncTime;	//	in ms
-		int64	syncPeriod;	//	in ms
-
-		uint16	sendID(sdk::ConnectedCommChannel	*c,uint16	assignedNID);
-		uint16	recvID(sdk::ConnectedCommChannel	*c,uint16	&NID,char	*&name,uint8	&nameSize,uint16	&assignedNID);
-		void	processError(NetworkInterfaceType	type,uint16	entry);
-		uint16	addNodeEntry();
-		void	startReceivingThreads(uint16	NID);
+		
 		typedef	struct{
 			Node					*n;
-			sdk::CommChannel		*c;
+			CommChannel				*c;
 			uint16					e;
 			NetworkInterfaceType	t;
 		}ReceiveThreadArgs;
 		static	uint32	thread_function_call	ReceiveMessages(void	*args);
 		static	uint32	thread_function_call	SendMessages(void	*args);
 		static	uint32	thread_function_call	NotifyMessages(void	*args);
-		
-		sdk::Array<Thread	*>	commThreads;
-
-		//	MESSAGING
-
-		sdk::CircularBuffer<sdk::P<sdk::_Payload> >	timeGate;
-		sdk::CircularBuffer<sdk::P<sdk::_Payload> >	outputQueue;
-
-		void	sendLocal(sdk::_Payload	*message);
-		void	sendLocal(const	sdk::_Crank	*sender,sdk::_Payload	*message);
-		void	sendTo(uint16	NID,sdk::_Payload	*message);
 
 		//	CRANK EXECUTION
 
+		//	REDO:	thread pool + scheduler
+
 		typedef	struct{
-			Node		*n;
-			sdk::_Crank	*c;
+			Node	*n;
+			_Crank	*c;
 		}CrankThreadArgs;
 		static	uint32	thread_function_call	CrankExecutionUnit(void	*args);
 
-		sdk::Array<Thread	*>	crankThreads;
+		Array<Thread	*>	crankThreads;
 
 		//	PUBLISH-SUBSCRIBE
 
 		typedef	struct{
 			uint32	activationCount;
-			sdk::CircularBuffer<sdk::P<sdk::_Payload> >	*inputQueue;
+			CircularBuffer<P<_Payload> >	*inputQueue;
 		}CrankEntry;
 
 		typedef	struct{
 			uint32	activationCount;
-			sdk::List<CrankEntry>	*cranks;
+			List<CrankEntry>	*cranks;
 		}NodeEntry;
 		
-		sdk::Array<sdk::Array<sdk::Array<NodeEntry>	*>	*>	routes;
-		sdk::Array<NodeEntry>	*getNodeEntries(uint16	messageClassID,uint32	messageContentID);
-
+		Array<Array<Array<NodeEntry>	*>	*>	routes;
+		CriticalSection							routesCS;
+		Array<NodeEntry>	*getNodeEntries(uint16	messageClassID,uint32	messageContentID);
+		
 		//	TODO:	groups,crank descriptors
-
-		//	DAEMONS
-
-		sdk::Array<sdk::DynamicClassLoader<sdk::Daemon>	*>	daemonLoaders;
-		sdk::Array<sdk::Daemon	*>							daemons;
-		sdk::Array<Thread	*>								daemonThreads;
 
 		//	NODE
 
-		bool	_shutdown;
 		Node();
+		void	start(uint16	assignedNID,uint16	remoteNID,bool	isTimeReference);
+		void	startReceivingThreads(uint16	NID);
+		void	notifyNodeJoined(uint16	NID,char	*name);
+		void	notifyNodeLeft(uint16	NID);
 	public:
 		static	Node	*New(const	char	*configFileName);
 		~Node();
@@ -193,12 +125,12 @@ namespace	mBrane{
 		void	load(const	char	*fileName);	//	initializes itself from a previously saved system state
 		Node	*loadApplication(const	char	*fileName=NULL);	//	return NULL if unsuccessful; fileName overrides the fileName found in the node config file
 		void	unloadApplication();
-		void	send(const	sdk::_Crank	*sender,sdk::_Payload	*message);
 		int64	time()	const;	//	in ms since midnight 01/01/70
-		sdk::_Crank	*buildCrank(uint16	CID);
-		void	start(sdk::_Crank	*c);
-		void	stop(sdk::_Crank	*c);
-		void	migrate(sdk::_Crank	*c,uint16	NID);
+		void	send(const	_Crank	*sender,_Payload	*message);
+		_Crank	*buildCrank(uint16	CID);
+		void	start(_Crank	*c);
+		void	stop(_Crank	*c);
+		void	migrate(_Crank	*c,uint16	NID);
 	};
 }
 

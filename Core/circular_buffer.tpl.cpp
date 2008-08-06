@@ -34,7 +34,7 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		template<typename	T>	CircularBuffer<T>::CircularBuffer():Semaphore(0,65535),Mutex(){
+		template<typename	T>	CircularBuffer<T>::CircularBuffer():Semaphore(0,65535),CriticalSection(){
 		}
 
 		template<typename	T>	CircularBuffer<T>::~CircularBuffer(){
@@ -67,7 +67,7 @@ namespace	mBrane{
 
 		template<typename	T>	inline	void	CircularBuffer<T>::push(T	&t){
 
-			Mutex::acquire();
+			CriticalSection::enter();
 			if(!freeSlots){
 
 				T	*oldBuffer=buffer;
@@ -80,7 +80,7 @@ namespace	mBrane{
 				freeSlots=_size;
 				delete[]	oldBuffer;
 			}
-			Mutex::release();
+			CriticalSection::leave();
 
 			if(_count){
 
@@ -101,7 +101,7 @@ namespace	mBrane{
 			else	if(Semaphore::acquire(0))
 				return	NULL;
 
-			Mutex::acquire();
+			CriticalSection::enter();
 
 			T	*t=buffer+head;
 			if(++head>=_size)
@@ -109,17 +109,17 @@ namespace	mBrane{
 			freeSlots++;
 			_count--;
 
-			Mutex::release();
+			CriticalSection::leave();
 
 			return	t;
 		}
 
 		template<typename	T>	inline	void	CircularBuffer<T>::clear(){
 
-			Mutex::acquire();
+			CriticalSection::enter();
 			Semaphore::reset();
 			_clear();
-			Mutex::release();
+			CriticalSection::leave();
 		}
 	}
 }

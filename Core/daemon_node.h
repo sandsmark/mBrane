@@ -1,4 +1,4 @@
-// node_api.h
+// daemon_node.h
 //
 // Author: Eric Nivel
 //
@@ -28,37 +28,55 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef	mBrane_sdk_node_api_h
-#define	mBrane_sdk_node_api_h
+#ifndef	mBrane_sdk_daemon_node_h
+#define	mBrane_sdk_daemon_node_h
 
-#include	"node.h"
+#include	"crank_node.h"
 #include	"xml_parser.h"
+#include	"dynamic_class_loader.h"
 
 
 namespace	mBrane{
 	namespace	sdk{
+		namespace	daemon{
 
-		class	dll	NodeAPI:
-		public	Node{
-		protected:
-			NodeAPI(uint16	ID=NO_ID);
-		public:
-			virtual	~NodeAPI();
-			//	TODO:	define API as pure virtual functions
-			//			-> node map
-			//			-> ...
-		};
+			class	Daemon;
+			class	dll	Node:
+			public	crank::Node{
+			protected:
+				static	const	uint16	NO_ID=0xFFFF;
+				uint16	_ID;	//	max: 0xFFFE
+				bool	_shutdown;
+				Array<DynamicClassLoader<Daemon>	*>	daemonLoaders;
+				Array<Daemon	*>						daemons;
+				Array<Thread	*>						daemonThreads;
+				void	start();
+				virtual	void	shutdown();
+				Node(uint16	ID=NO_ID);
+			public:
+				~Node();
+				uint16	ID()	const;
+				bool	isRunning();
+				bool	loadConfig(XMLNode	&n);
+				//	TODO:	define API as pure virtual functions
+				//			-> node map
+				//			-> stats
+				//			-> ...
+			};
 
-		class	dll	Daemon{
-		protected:
-			NodeAPI	*node;
-			Daemon(NodeAPI	*node);
-		public:
-			typedef	Daemon	*(*Load)(XMLNode	&,NodeAPI	*);	//	function exported by the shared library
-			static	uint32	thread_function_call	Run(void	*args);	//	args=this daemon
-			virtual	~Daemon();
-			virtual	uint32	run()=0;	//	retunrs error code (or 0 if none)
-		};
+			class	dll	Daemon{
+			protected:
+				Node	*node;
+				Daemon(Node	*node);
+			public:
+				typedef	Daemon	*(*Load)(XMLNode	&,Node	*);	//	function exported by the shared library
+				static	uint32	thread_function_call	Run(void	*args);	//	args=this daemon
+				virtual	~Daemon();
+				virtual	void	init()=0;	//	called once, before looping
+				virtual	uint32	run()=0;	//	called in a loop: while(!node->_shutdown); returns error code (or 0 if none)
+				virtual	void	shutdown()=0;	//	called when run returns an error, and when the node shutsdown
+			};
+		}
 	}
 }
 

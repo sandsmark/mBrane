@@ -243,7 +243,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\crank_node.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\crank_register.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\daemon_node.cpp"
 				>
 			</File>
 			<File
@@ -316,14 +324,6 @@
 			</File>
 			<File
 				RelativePath=".\network_interface.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\node.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\node_api.cpp"
 				>
 			</File>
 			<File
@@ -441,7 +441,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\crank_node.h"
+				>
+			</File>
+			<File
 				RelativePath=".\crank_register.h"
+				>
+			</File>
+			<File
+				RelativePath=".\daemon_node.h"
 				>
 			</File>
 			<File
@@ -466,14 +474,6 @@
 			</File>
 			<File
 				RelativePath=".\network_interface.h"
-				>
-			</File>
-			<File
-				RelativePath=".\node.h"
-				>
-			</File>
-			<File
-				RelativePath=".\node_api.h"
 				>
 			</File>
 			<File

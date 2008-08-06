@@ -39,7 +39,7 @@ namespace	mBrane{
 
 		template<typename	T>	class	CircularBuffer:	//	Thread safe
 		public	Semaphore,
-		public	Mutex{
+		public	CriticalSection{
 		private:
 			uint32	_size;
 			T	*buffer;

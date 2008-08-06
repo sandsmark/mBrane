@@ -1,4 +1,4 @@
-// node_api.cpp
+// messaging.cpp
 //
 // Author: Eric Nivel
 //
@@ -28,29 +28,45 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include	"node_api.h"
+#include	"messaging.h"
+#include	"..\Core\message.h"
 
+
+#define	INITIAL_MESSAGE_INPUT_QUEUE_DEPTH	32
+#define	INITIAL_MESSAGE_OUTPUT_QUEUE_DEPTH	32
 
 namespace	mBrane{
-	namespace	sdk{
 
-		NodeAPI::NodeAPI(uint16	ID):Node(ID){
-		}
+	Messaging::Messaging(){
 
-		NodeAPI::~NodeAPI(){
-		}
+		messageInputQueue.init(INITIAL_MESSAGE_INPUT_QUEUE_DEPTH);
+		messageOutputQueue.init(INITIAL_MESSAGE_OUTPUT_QUEUE_DEPTH);
+	}
 
-		////////////////////////////////////////////////////////////////////////////////////////////////
+	Messaging::~Messaging(){
 
-		uint32	thread_function_call	Daemon::Run(void	*args){
+	}
+	
+	void	Messaging::send(const	_Crank	*sender,_Payload	*message){
 
-			return	((Daemon	*)args)->run();
-		}
+		message->send_ts()=Time::Get();
+		((_ControlMessage	*)message)->senderNode_id()=sender->id();
+		P<_Payload>	p=message;
+		messageOutputQueue.push(p);
+	}
 
-		Daemon::Daemon(NodeAPI	*node):node(node){
-		}
+	void	Messaging::sendLocal(_Payload	*message){	//	TODO
 
-		Daemon::~Daemon(){
-		}
+
+	}
+
+	void	Messaging::sendLocal(const	_Crank	*sender,_Payload	*message){	//	TODO
+
+
+	}
+
+	void	Messaging::sendTo(uint16	NID,_Payload	*message){	//	TODO
+
+		//	must be thread safe
 	}
 }

@@ -96,7 +96,7 @@ namespace	mBrane{
 		return	NULL;
 	}
 
-	void	Thread::Wait(Thread	**threads,uint32	threadCount){
+	inline	void	Thread::Wait(Thread	**threads,uint32	threadCount){
 
 		if(!threads)
 			return;
@@ -108,7 +108,7 @@ namespace	mBrane{
 #endif
 	}
 
-	void	Thread::Sleep(int64	d){
+	inline	void	Thread::Sleep(int64	d){
 #if defined	WINDOWS
 		Sleep(d);
 #elif defined LINUX
@@ -129,7 +129,7 @@ namespace	mBrane{
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	int64	Time::Get(){
+	inline	int64	Time::Get(){
 #if defined	WINDOWS
 		struct	_timeb	local_time;
 		_ftime(&local_time);
@@ -246,6 +246,40 @@ namespace	mBrane{
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
+	CriticalSection::CriticalSection(){
+#if defined	WINDOWS
+		InitializeCriticalSection(&cs);
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
+
+	CriticalSection::~CriticalSection(){
+#if defined	WINDOWS
+		DeleteCriticalSection(&cs);
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
+
+	inline	void	CriticalSection::enter(){
+#if defined	WINDOWS
+		EnterCriticalSection(&cs);
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
+
+	inline	void	CriticalSection::leave(){
+#if defined	WINDOWS
+		LeaveCriticalSection(&cs);
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+
 #if defined	WINDOWS
 	const	uint32	Timer::Infinite=INFINITE;
 #elif defined LINUX
@@ -268,7 +302,7 @@ namespace	mBrane{
 #endif
 	}
 
-	void	Timer::start(uint32	deadline){
+	inline	void	Timer::start(uint32	deadline){
 #if defined	WINDOWS
 	LARGE_INTEGER	_deadline;	//	in 100 ns intervals
     _deadline.QuadPart=-10*deadline;	//	negative means relative
@@ -278,7 +312,7 @@ namespace	mBrane{
 #endif
 	}
 
-	bool	Timer::wait(uint32	timeout){
+	inline	bool	Timer::wait(uint32	timeout){
 #if defined	WINDOWS
 		uint32	r=WaitForSingleObject(t,timeout);
 		return	r==WAIT_TIMEOUT;
