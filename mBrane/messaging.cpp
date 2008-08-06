@@ -44,29 +44,26 @@ namespace	mBrane{
 	}
 
 	Messaging::~Messaging(){
-
 	}
 	
-	void	Messaging::send(const	_Crank	*sender,_Payload	*message){
+	void	Messaging::send(uint16	NID,const	_Crank	*sender,_Payload	*message,bool	local){
 
 		message->send_ts()=Time::Get();
-		((_ControlMessage	*)message)->senderNode_id()=sender->id();
-		P<_Payload>	p=message;
-		messageOutputQueue.push(p);
+		((_ControlMessage	*)message)->senderNode_id()=NID;
+		//	TODO:	if message, fill in sender info
+		OutputSlot	o;
+		o.p=message;
+		o.local=local;
+		messageOutputQueue.push(o);
 	}
 
-	void	Messaging::sendLocal(_Payload	*message){	//	TODO
+	void	Messaging::send(uint16	NID,_Payload	*message,bool	local){
 
-
-	}
-
-	void	Messaging::sendLocal(const	_Crank	*sender,_Payload	*message){	//	TODO
-
-
-	}
-
-	void	Messaging::sendTo(uint16	NID,_Payload	*message){	//	TODO
-
-		//	must be thread safe
+		message->send_ts()=Time::Get();
+		((_ControlMessage	*)message)->senderNode_id()=NID;
+		OutputSlot	o;
+		o.p=message;
+		o.local=local;
+		messageOutputQueue.push(o);
 	}
 }

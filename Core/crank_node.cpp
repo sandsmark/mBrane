@@ -42,7 +42,7 @@ namespace	mBrane{
 				return	Singleton;
 			}
 
-			Node::Node(){
+			Node::Node(uint16	ID):_ID(ID){
 				
 				Singleton=this;
 			}
@@ -50,6 +50,11 @@ namespace	mBrane{
 			Node::~Node(){
 
 				Singleton=NULL;
+			}
+
+			inline	uint16	Node::ID()	const{
+
+				return	_ID;
 			}
 		}
 	}

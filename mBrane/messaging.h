@@ -41,14 +41,16 @@ namespace	mBrane{
 
 	class	Messaging{
 	protected:
+		typedef	struct{
+			bool		local;
+			P<_Payload>	p;
+		}OutputSlot;
 		CircularBuffer<P<_Payload> >	messageInputQueue;
-		CircularBuffer<P<_Payload> >	messageOutputQueue;
+		CircularBuffer<OutputSlot>		messageOutputQueue;
 		Messaging();
 		~Messaging();
-		void	sendLocal(_Payload	*message);
-		void	sendLocal(const	_Crank	*sender,_Payload	*message);
-		void	sendTo(uint16	NID,_Payload	*message);
-		void	send(const	_Crank	*sender,_Payload	*message);
+		void	send(uint16	NID,_Payload	*message,bool	local);
+		void	send(uint16	NID,const	_Crank	*sender,_Payload	*message,bool	local);
 	};
 }
 

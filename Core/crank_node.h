@@ -43,10 +43,13 @@ namespace	mBrane{
 			private:
 				static	Node	*Singleton;
 			protected:
-				Node();
+				static	const	uint16	NO_ID=0xFFFF;
+				uint16	_ID;	//	max: 0xFFFE
+				Node(uint16	ID);
 				~Node();
 			public:
 				static	Node	*Get();
+				uint16	ID()	const;
 				virtual	_Crank	*buildCrank(uint16	CID)=0;
 				virtual	void	start(_Crank	*c)=0;	//	TODO:	add parameters (target thread, migrable, etc)
 				virtual	void	stop(_Crank	*c)=0;

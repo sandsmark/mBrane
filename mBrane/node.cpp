@@ -153,13 +153,12 @@ namespace	mBrane{
 		
 		commThreads[commThreads.count()]=Thread::New(NotifyMessages,this);
 
-		//	TODO:	build cranks
-		//			launch CEU (-> start cranks)
-
 		//	TODO:	if(isTimeReference) wait for nodes (listed in the config file) and send SystemReady to (local) cranks
 		//			else send NID to reference node
 		
 		daemon::Node::start();
+		//	TODO:	build cranks
+		Executing::start();
 	}
 
 	void	Node::notifyNodeJoined(uint16	NID,char	*name){
@@ -168,7 +167,7 @@ namespace	mBrane{
 
 		m.nid()=NID;
 		m.send_ts()=Time::Get();
-		sendLocal(&m);
+		Messaging::send(_ID,&m,true);
 
 		std::cout<<"Node joined: "<<name<<":"<<NID<<std::endl;
 	}
@@ -181,7 +180,7 @@ namespace	mBrane{
 
 			m.nid()=NID;
 			m.send_ts()=Time::Get();
-			sendLocal(&m);
+			Messaging::send(_ID,&m,true);
 
 			std::cout<<"Node left: "<<dataChannels[NID]->name<<":"<<NID<<std::endl;
 		}
@@ -260,7 +259,7 @@ namespace	mBrane{
 
 	void	Node::send(const	_Crank	*sender,_Payload	*message){
 
-		Messaging::send(sender,message);
+		Messaging::send(_ID,sender,message,false);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
@@ -298,13 +297,25 @@ namespace	mBrane{
 
 		uint16	r;
 
-		P<_Payload>	*_p;
+		OutputSlot	*o;
 		_Payload	*p;
 		while(!node->_shutdown){
 
-			_p=node->messageOutputQueue.pop();
-			p=*_p;
-			if(p->isControlMessage()){
+			o=node->messageOutputQueue.pop();
+			p=o->p;
+			if(o->local){
+
+				Array<NodeEntry>	*nodeEntries=node->getNodeEntries(p->cid(),((_ControlMessage	*)p)->mid());
+				if(nodeEntries){	//	else: mid has never been subscribed for before
+
+					P<_Payload>	_p=p;
+					node->routesCS.enter();
+					uint32	act=nodeEntries->get(node->_ID)->activationCount;
+					node->routesCS.leave();
+					if(act)
+						node->messageInputQueue.push(_p);
+				}
+			}else	if(p->isControlMessage()){
 
 				for(uint16	i=0;i<node->controlChannels.count();i++){
 
@@ -351,7 +362,7 @@ namespace	mBrane{
 			if(node->isTimeReference)
 				node->lastSyncTime=p->node_send_ts();
 
-			(*_p)=NULL;
+			o->p=NULL;
 		}
 
 		return	0;

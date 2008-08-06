@@ -44,8 +44,6 @@ namespace	mBrane{
 			class	dll	Node:
 			public	crank::Node{
 			protected:
-				static	const	uint16	NO_ID=0xFFFF;
-				uint16	_ID;	//	max: 0xFFFE
 				bool	_shutdown;
 				Array<DynamicClassLoader<Daemon>	*>	daemonLoaders;
 				Array<Daemon	*>						daemons;
@@ -56,7 +54,6 @@ namespace	mBrane{
 				virtual	void	shutdown();
 				~Node();
 			public:
-				uint16	ID()	const;
 				bool	isRunning();
 				//	TODO:	define API as pure virtual functions
 				//			-> node map

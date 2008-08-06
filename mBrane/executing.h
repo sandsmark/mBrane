@@ -48,6 +48,7 @@ namespace	mBrane{
 		}CrankThreadArgs;
 		static	uint32	thread_function_call	CrankExecutionUnit(void	*args);
 		Array<Thread	*>	crankThreads;
+		//	TODO:	define crank list, scheduling function
 		bool	__shutdown;
 		Executing();
 		~Executing();

@@ -41,6 +41,17 @@ namespace	mBrane{
 
 	bool	Executing::loadConfig(XMLNode	&n){
 
+		XMLNode	threads=n.getChildNode("Threads");
+		if(!!threads){
+
+			const	char	*tc=n.getAttribute("thread_count");
+			if(!tc){
+
+				std::cout<<"Error: "<<n.getName()<<"::Threads::thread_count is missing\n";
+				return	false;
+			}
+			crankThreads.alloc(atoi(tc));
+		}
 		return	true;
 	}
 

@@ -35,7 +35,7 @@ namespace	mBrane{
 	namespace	sdk{
 		namespace	daemon{
 
-			Node::Node(uint16	ID):crank::Node(),_ID(ID),_shutdown(false){
+			Node::Node(uint16	ID):crank::Node(ID),_shutdown(false){
 			}
 
 			Node::~Node(){
@@ -47,11 +47,6 @@ namespace	mBrane{
 					if(daemons[i])
 						delete	daemons[i];
 				}
-			}
-
-			inline	uint16	Node::ID()	const{
-
-				return	_ID;
 			}
 
 			inline	bool	Node::isRunning(){

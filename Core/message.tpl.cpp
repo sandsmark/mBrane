@@ -54,7 +54,7 @@ namespace	mBrane{
 
 		////////////////////////////////////////////////////////////////////////////////////////////////
 
-		template<class	U>	inline	Message<U>::Message():ControlMessage<U>(){
+		template<class	U>	inline	Message<U>::Message(uint32	mid,uint8	priority):ControlMessage<U>(mid,priority){
 		}
 
 		template<class	U>	inline	bool	Message<U>::isControlMessage(){
@@ -69,7 +69,7 @@ namespace	mBrane{
 
 		////////////////////////////////////////////////////////////////////////////////////////////////
 
-		template<class	U>	inline	StreamData<U>::StreamData():ControlMessage<U>(){
+		template<class	U>	inline	StreamData<U>::StreamData(uint32	mid,uint8	priority):ControlMessage<U>(mid,priority){
 		}
 
 		template<class	U>	inline	bool	StreamData<U>::isControlMessage(){

@@ -52,7 +52,7 @@ namespace	mBrane{
 			uint32	_mid;	//	content identifer (for streams: stream identifier, as ooposed to frame identifier: to be defined in U classes)
 			uint8	_priority;
 			uint16	_senderNodeID;
-			_ControlMessage(uint32	mid=0,uint8	priority=0);
+			_ControlMessage(uint32	mid,uint8	priority);
 		public:
 			virtual	~_ControlMessage();
 			operator	_Payload	*()	const;
@@ -83,7 +83,7 @@ namespace	mBrane{
 		public	ControlMessage<U>,
 		public	_StreamData{
 		protected:
-			StreamData();
+			StreamData(uint32	mid=0,uint8	priority=0);
 		public:
 			bool	isControlMessage();
 			bool	isStreamData();
@@ -136,7 +136,7 @@ namespace	mBrane{
 		public	ControlMessage<U>,
 		public	_Message{
 		protected:
-			Message();
+			Message(uint32	mid=0,uint8	priority=0);
 		public:
 			bool	isControlMessage();
 			bool	isMessage();

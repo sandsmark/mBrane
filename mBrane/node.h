@@ -52,16 +52,12 @@ namespace	mBrane{
 	public	PublishingSubscribing,
 	public	Executing{
 	private:
-
 		//	CONFIG
-
 		const	char	*application_configuration_file;
 		SharedLibrary	*userLibrary;
-
 		Node	*loadConfig(const	char	*configFileName);
 
 		//	NETWORKING
-
 		typedef	struct{
 			Node					*n;
 			CommChannel				*c;
@@ -71,16 +67,12 @@ namespace	mBrane{
 		static	uint32	thread_function_call	ReceiveMessages(void	*args);
 		static	uint32	thread_function_call	SendMessages(void	*args);
 		static	uint32	thread_function_call	NotifyMessages(void	*args);
-
 		void	start(uint16	assignedNID,uint16	remoteNID,bool	isTimeReference);
 		void	startReceivingThreads(uint16	NID);
 		void	notifyNodeJoined(uint16	NID,char	*name);
 		void	notifyNodeLeft(uint16	NID);
 
-		//	CRANK EXECUTION
-
 		//	NODE
-
 		Node();
 	public:
 		static	Node	*New(const	char	*configFileName);
