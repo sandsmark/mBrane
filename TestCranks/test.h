@@ -3,7 +3,7 @@
 
 //	LIMITATION: DO NOT USE __COUNTER__
 
-#include	"3rd_party_library.h"
+#include	"3rd_party_library.h"	//	static linkage
 
 #include	"c.h"	//	user classes declarations
 
