@@ -41,9 +41,26 @@ namespace	mBrane{
 
 	class	Networking:
 	public	Node{
+		//	boot one single node with a timeout (if it times out, it's the ref node)
+		//	when ready (callback), boot all the other nodes
+		//	algorithm:
+		//		bcast its net ID
+		//		accept connections:
+		//			if timedout this is ref node, scan IDs
+		//			else
+		//				the ref node sends: an assigned NID and the net map (i.e. the list of ready nodes NID and net ID, including the sender's)
+		//				connect to each node in the list excepted the sender
+		//		if(ref node) send time sync periodically
+		//		start messages sending and receiving threads
+		//	when at least one connection to a remote node dies, the node in question is considred dead and the other connections to it are terminated
+		//	if the ref node dies, the node with the lowest NID is the new ref node
 	protected:
 		char	hostName[255];
 		uint8	hostNameSize;
+
+		typedef	void	(*BootCallback)();
+		SharedLibrary	*callbackLibrary;
+		BootCallback	bootCallback;
 
 		typedef	enum{
 			CONTROL=0,
@@ -56,11 +73,26 @@ namespace	mBrane{
 		NetworkInterface						*networkInterfaces[4];
 
 		int32	bcastTimeout;
-		uint8	*networkID;
-		uint32	network_ID_size;
-		uint32	network_ctrl_ID_size;
-		uint32	network_data_ID_size;
-		uint32	network_stream_ID_size;
+
+		uint16	connectedNodeCount;
+
+		class	NetworkID{
+		public:
+			static	uint16	Size;
+			static	uint16	CtrlIDSize;
+			static	uint16	DataIDSize;
+			static	uint16	StreamIDSize;
+			static	uint16	DiscoveryIDSize;
+			uint8	headerSize;
+			uint8	*data;
+			NetworkID();
+			NetworkID(uint16	NID,uint8	nameSize,char	*name);
+			~NetworkID();
+			uint16	NID()	const;
+			char	*name()	const;
+			uint8	*at(NetworkInterfaceType	t)	const;
+		};
+		NetworkID	*networkID;
 
 		bool	startInterfaces();
 		void	stopInterfaces();
@@ -71,9 +103,9 @@ namespace	mBrane{
 			~DataCommChannel();
 			ConnectedCommChannel	*data;
 			ConnectedCommChannel	*stream;
-			char	*name;
-			uint8	nameSize;
+			NetworkID				*networkID;
 		};
+		BroadcastCommChannel		*discoveryChannel;
 		Array<CommChannel	*>		controlChannels;	//	1 (bcast capable) or many (connected)
 		Array<DataCommChannel	*>	dataChannels;
 		CriticalSection				channelsCS;	//	protects controlChannels and dataChannels
@@ -83,7 +115,7 @@ namespace	mBrane{
 		void	setNewReference();
 
 		virtual	void	startReceivingThreads(uint16	NID)=0;
-		virtual	void	notifyNodeJoined(uint16	NID,char	*name)=0;
+		virtual	void	notifyNodeJoined(uint16	NID,NetworkID	*networkID)=0;
 		virtual	void	notifyNodeLeft(uint16	NID)=0;
 		virtual	void	shutdown();
 
@@ -91,8 +123,8 @@ namespace	mBrane{
 
 		static	uint32	thread_function_call	ScanIDs(void	*args);
 		typedef	struct{
-			Networking				*n;
-			int32					t;
+			Networking				*node;
+			int32					timeout;
 			NetworkInterfaceType	type;
 		}AcceptConnectionArgs;
 		static	uint32	thread_function_call	AcceptConnections(void	*args);
@@ -101,13 +133,16 @@ namespace	mBrane{
 		int64	lastSyncTime;	//	in ms
 		int64	syncPeriod;	//	in ms
 
-		uint16	sendID(ConnectedCommChannel	*c,uint16	assignedNID);
-		uint16	recvID(ConnectedCommChannel	*c,uint16	&NID,char	*&name,uint8	&nameSize,uint16	&assignedNID);
+		uint16	sendID(CommChannel	*c,NetworkID	*networkID);
+		uint16	recvID(CommChannel	*c,NetworkID	*&networkID);
+		uint16	sendMap(ConnectedCommChannel	*c);
+		uint16	recvMap(ConnectedCommChannel	*c);
+		uint16	connect(NetworkID	*networkID);
 		void	processError(NetworkInterfaceType	type,uint16	entry);
 		uint16	addNodeEntry();
 
 		bool	init();
-		virtual	void	start(uint16	assignedNID,uint16	remoteNID,bool	isTimeReference);
+		virtual	void	start(uint16	assignedNID,NetworkID	*networkNID,bool	isTimeReference);
 
 		Networking();
 		~Networking();

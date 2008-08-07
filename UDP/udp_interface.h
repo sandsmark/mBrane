@@ -52,15 +52,13 @@ private:
 public:
 	static	UDPInterface	*New(XMLNode	&n);
 	~UDPInterface();
-	bool	operator	==(NetworkInterface	*i);
-	bool	operator	!=(NetworkInterface	*i);
+	bool	operator	==(NetworkInterface	&i);
+	bool	operator	!=(NetworkInterface	&i);
 	bool	canBroadcast();
 	uint16	start();
 	uint16	stop();
-	uint32	getIDSize();
+	uint16	getIDSize();
 	void	fillID(uint8	*ID);
-	uint16	broadcastID(uint8	*ID,uint32	size);
-	uint16	scanID(uint8	*ID,uint32	size);
 	uint16	bind(uint8	*,BroadcastCommChannel	*&);
 	uint16	connect(uint8	*ID,ConnectedCommChannel	*&channel);
 	uint16	acceptConnection(ConnectedCommChannel	*&channel,int32	timeout,bool	&timedout);

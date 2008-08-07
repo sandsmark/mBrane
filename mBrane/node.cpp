@@ -135,9 +135,9 @@ namespace	mBrane{
 			shutdown();
 	}
 
-	void	Node::start(uint16	assignedNID,uint16	remoteNID,bool	isTimeReference){
+	void	Node::start(uint16	assignedNID,NetworkID	*networkID,bool	isTimeReference){
 
-		Networking::start(assignedNID,remoteNID,isTimeReference);
+		Networking::start(assignedNID,networkID,isTimeReference);
 
 		commThreads[commThreads.count()]=Thread::New(SendMessages,this);
 		
@@ -161,7 +161,7 @@ namespace	mBrane{
 		Executing::start();
 	}
 
-	void	Node::notifyNodeJoined(uint16	NID,char	*name){
+	void	Node::notifyNodeJoined(uint16	NID,NetworkID	*networkID){
 
 		static	NodeJoined	m;
 
@@ -169,7 +169,7 @@ namespace	mBrane{
 		m.send_ts()=Time::Get();
 		Messaging::send(_ID,&m,true);
 
-		std::cout<<"Node joined: "<<name<<":"<<NID<<std::endl;
+		std::cout<<"Node joined: "<<networkID->name()<<":"<<NID<<std::endl;
 	}
 
 	void	Node::notifyNodeLeft(uint16	NID){
@@ -182,7 +182,7 @@ namespace	mBrane{
 			m.send_ts()=Time::Get();
 			Messaging::send(_ID,&m,true);
 
-			std::cout<<"Node left: "<<dataChannels[NID]->name<<":"<<NID<<std::endl;
+			std::cout<<"Node left: "<<dataChannels[NID]->networkID->name()<<":"<<NID<<std::endl;
 		}
 	}
 
@@ -408,20 +408,5 @@ namespace	mBrane{
 		}
 
 		return	0;
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////
-
-	Node::DataCommChannel::DataCommChannel():data(NULL),stream(NULL),name(NULL),nameSize(0){
-	}
-
-	Node::DataCommChannel::~DataCommChannel(){
-
-		if(data)
-			delete	data;
-		if(stream)
-			delete	stream;
-		if(name)
-			delete[]	name;
 	}
 }

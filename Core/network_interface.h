@@ -56,16 +56,14 @@ namespace	mBrane{
 			typedef	NetworkInterface	*(*Load)(XMLNode	&,daemon::Node	*n);	//	function exported by the shared library
 			virtual	~NetworkInterface();
 			Protocol	protocol()	const;
-			virtual	bool	operator	==(NetworkInterface	*i)=0;
-			virtual	bool	operator	!=(NetworkInterface	*i)=0;
+			virtual	bool	operator	==(NetworkInterface	&i)=0;
+			virtual	bool	operator	!=(NetworkInterface	&i)=0;
 			virtual	bool	canBroadcast()=0;	//	as opposed to connected mode
 			virtual	uint16	start()=0;	//	initialize the network interface; loads parameters from XML file; returns 0 if successful
 			virtual	uint16	stop()=0;	//	the network interface; returns 0 if successful
-			virtual	uint32	getIDSize()=0;	//	node ID to be broadcast
+			virtual	uint16	getIDSize()=0;	//	node ID to be broadcast
 			virtual	void	fillID(uint8	*ID)=0;	//	with relevant parameters (different from Node::_ID; ex: IP addr and port)
-			virtual	uint16	broadcastID(uint8	*ID,uint32	size)=0;	//	broadcast the ID of the local node; returns 0 if successful
-			virtual	uint16	scanID(uint8	*ID,uint32	size)=0;	//	listen to IDs broadcast by remote nodes; returns 0 if successful
-			virtual	uint16	bind(uint8	*,BroadcastCommChannel	*&)=0;	//	create a new channel from the received remote IDs (ScanID); returns 0 if successful
+			virtual	uint16	bind(uint8	*,BroadcastCommChannel	*&)=0;	//	create a new broadcast channel
 			virtual	uint16	connect(uint8	*ID,ConnectedCommChannel	*&channel)=0;	//	create a new channel from the received remote IDs (ScanID); returns 0 if successful
 			virtual	uint16	acceptConnection(ConnectedCommChannel	*&channel,int32	timeout,bool	&timedout)=0;	//	listen to connect attempts and creates a new channel accordingly; returns 0 if successful
 		};

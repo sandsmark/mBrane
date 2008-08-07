@@ -1,6 +1,6 @@
-// networking.cpp
+//	networking.cpp
 //
-// Author: Eric Nivel
+//	Author: Eric Nivel
 //
 //	BSD license:
 //	Copyright (c) 2008, Eric Nivel, Thor List
@@ -35,7 +35,7 @@
 
 namespace	mBrane{
 
-	Networking::Networking():Node(),isTimeReference(false),timeDrift(0),networkID(NULL){
+	Networking::Networking():Node(),isTimeReference(false),timeDrift(0),networkID(NULL),callbackLibrary(NULL),discoveryChannel(NULL),connectedNodeCount(0){
 
 		networkInterfaceLoaders[DISCOVERY]=NULL;
 		networkInterfaceLoaders[CONTROL]=NULL;
@@ -69,7 +69,13 @@ namespace	mBrane{
 			delete	networkInterfaceLoaders[STREAM];
 
 		if(networkID)
-			delete[]	networkID;
+			delete	networkID;
+
+		if(callbackLibrary)
+			delete	callbackLibrary;
+
+		if(discoveryChannel)
+			delete	discoveryChannel;
 	}
 
 	bool	Networking::loadInterface(XMLNode	&n,const	char	*name,NetworkInterfaceType	type){
@@ -118,6 +124,11 @@ namespace	mBrane{
 		}
 		if(!loadInterface(network,"Discovery",DISCOVERY))
 			return	false;
+		if(!networkInterfaces[DISCOVERY]->canBroadcast()){
+
+			std::cout<<"Error: discovery interface is not broadcast capable\n";
+			return	false;
+		}
 		if(!loadInterface(network,"Control",CONTROL))
 			return	false;
 		if(!loadInterface(network,"Data",DATA))
@@ -129,7 +140,7 @@ namespace	mBrane{
 		if(!sp){
 
 			std::cout<<"Error: NodeConfiguration::Network::sync_period is missing\n";
-			return	NULL;
+			return	false;
 		}
 		syncPeriod=atoi(sp);
 
@@ -143,76 +154,21 @@ namespace	mBrane{
 		if(!bcastTimeout)
 			isTimeReference=true;
 
-		return	true;
-	}
+		const	char	*bc=network.getAttribute("boot_callback");
+		if(!bc){
 
-	bool	Networking::init(){
-
-		if(!startInterfaces())
+			std::cout<<"Error: NodeConfiguration::Network::boot_callback is missing\n";
 			return	false;
+		}
+		if(strcmp(bc,"NULL")!=0){
 
-		network_ctrl_ID_size=networkInterfaces[CONTROL]->getIDSize();
-		network_data_ID_size=networkInterfaces[DATA]->getIDSize();
-		network_stream_ID_size=networkInterfaces[STREAM]->getIDSize();
-		networkID=new	uint8[network_ID_size=sizeof(uint8)+hostNameSize+network_ctrl_ID_size+network_data_ID_size+network_stream_ID_size];
-		networkID[0]=hostNameSize;
-		strcpy(((char	*)networkID)+sizeof(uint8),hostName);
-		networkInterfaces[CONTROL]->fillID(networkID+sizeof(uint8)+hostNameSize);
-		networkInterfaces[DATA]->fillID(networkID+sizeof(uint8)+hostNameSize+network_ctrl_ID_size);
-		networkInterfaces[STREAM]->fillID(networkID+sizeof(uint8)+hostNameSize+network_ctrl_ID_size+network_data_ID_size);
-
-		if(networkInterfaces[CONTROL]->canBroadcast()){
-		
-			BroadcastCommChannel	*ctrl_c;
-			if(networkInterfaces[CONTROL]->bind(networkID,ctrl_c))
+			if(!(callbackLibrary=SharedLibrary::New(bc)))
 				return	false;
-			controlChannels[0]=ctrl_c;
+			if(!(bootCallback=callbackLibrary->getFunction<BootCallback>("BootCallback")))
+				return	false;
 		}
 
-		if(networkInterfaces[DISCOVERY]->broadcastID(networkID,network_ID_size))
-			return	false;
-
-		if(isTimeReference){
-
-			start(0,0,true);
-			return	true;
-		}
-
-		AcceptConnectionArgs	args;
-		args.n=this;
-		args.t=bcastTimeout;
-		if(!networkInterfaces[CONTROL]->canBroadcast()){
-
-			args.type=CONTROL;
-			commThreads[commThreads.count()]=Thread::New(AcceptConnections,&args);
-			args.t=-1;
-		}
-		if(networkInterfaces[DATA]->operator !=(networkInterfaces[CONTROL])){
-		
-			args.type=DATA;
-			commThreads[commThreads.count()]=Thread::New(AcceptConnections,&args);
-			args.t=-1;
-		}
-		if(networkInterfaces[STREAM]->operator !=(networkInterfaces[DATA])){
-		
-			args.type=STREAM;
-			commThreads[commThreads.count()]=Thread::New(AcceptConnections,&args);
-		}
-		
 		return	true;
-	}
-
-	void	Networking::start(uint16	assignedNID,uint16	remoteNID,bool	isTimeReference){
-
-		this->isTimeReference=isTimeReference;
-		dataChannels[assignedNID];	//	alloc and reserve for oneself
-		_ID=assignedNID;
-		referenceNID=remoteNID;
-
-		commThreads[commThreads.count()]=Thread::New(ScanIDs,this);
-
-		if(isTimeReference)
-			commThreads[commThreads.count()]=Thread::New(Sync,this);
 	}
 
 	bool	Networking::startInterfaces(){
@@ -221,10 +177,10 @@ namespace	mBrane{
 			return	false;
 		if(!networkInterfaces[CONTROL]->start())
 			return	false;
-		if(networkInterfaces[DATA]->operator !=(networkInterfaces[CONTROL]))
+		if(*networkInterfaces[DATA]!=*networkInterfaces[CONTROL])
 			if(!networkInterfaces[DATA]->start())
 				return	false;
-		if(networkInterfaces[STREAM]->operator !=(networkInterfaces[DATA]))
+		if(*networkInterfaces[STREAM]!=*networkInterfaces[DATA])
 			if(!networkInterfaces[STREAM]->start())
 				return	false;
 		return	true;
@@ -234,45 +190,214 @@ namespace	mBrane{
 
 		networkInterfaces[DISCOVERY]->stop();
 		networkInterfaces[CONTROL]->stop();
-		if(networkInterfaces[DATA]->operator !=(networkInterfaces[CONTROL]))
+		if(*networkInterfaces[DATA]!=*networkInterfaces[CONTROL])
 			networkInterfaces[DATA]->stop();
-		if(networkInterfaces[STREAM]->operator !=(networkInterfaces[DATA]))
+		if(*networkInterfaces[STREAM]!=*networkInterfaces[DATA])
 			networkInterfaces[STREAM]->stop();
 	}
 
-	uint16	Networking::sendID(ConnectedCommChannel	*c,uint16	assignedNID){
+	bool	Networking::init(){
+
+		if(!startInterfaces())
+			return	false;
+
+		NetworkID::CtrlIDSize=networkInterfaces[CONTROL]->getIDSize();
+		NetworkID::DataIDSize=networkInterfaces[DATA]->getIDSize();
+		NetworkID::StreamIDSize=networkInterfaces[STREAM]->getIDSize();
+		NetworkID::DiscoveryIDSize=networkInterfaces[DISCOVERY]->getIDSize();
+		NetworkID::Size=NetworkID::CtrlIDSize+NetworkID::DataIDSize+NetworkID::StreamIDSize+NetworkID::DiscoveryIDSize;
+
+		networkID=new	NetworkID(_ID,hostNameSize,hostName);
+
+		networkInterfaces[CONTROL]->fillID(networkID->at(CONTROL));
+		networkInterfaces[DATA]->fillID(networkID->at(DATA));
+		networkInterfaces[STREAM]->fillID(networkID->at(STREAM));
+		networkInterfaces[DISCOVERY]->fillID(networkID->at(DISCOVERY));
+
+		if(networkInterfaces[DISCOVERY]->bind(networkID->at(DISCOVERY),discoveryChannel))
+			return	false;
+
+		if(networkInterfaces[CONTROL]->canBroadcast()){
+		
+			if(networkInterfaces[CONTROL]->bind(networkID->at(CONTROL),(BroadcastCommChannel	*&)controlChannels[0]))
+				return	false;
+		}
+
+		AcceptConnectionArgs	args;
+		args.node=this;
+		args.timeout=bcastTimeout;
+		if(!networkInterfaces[CONTROL]->canBroadcast()){
+
+			args.type=CONTROL;
+			commThreads[commThreads.count()]=Thread::New(AcceptConnections,&args);
+			args.timeout=-1;
+		}
+		if(*networkInterfaces[DATA]!=*networkInterfaces[CONTROL]){
+		
+			args.type=DATA;
+			commThreads[commThreads.count()]=Thread::New(AcceptConnections,&args);
+			args.timeout=-1;
+		}
+		if(*networkInterfaces[STREAM]!=*networkInterfaces[DATA]){
+		
+			args.type=STREAM;
+			commThreads[commThreads.count()]=Thread::New(AcceptConnections,&args);
+		}
+
+		if(discoveryChannel->send(networkID->data,NetworkID::Size+networkID->headerSize))
+			return	false;
+		
+		return	true;
+	}
+
+	void	Networking::start(uint16	assignedNID,NetworkID	*networkNID,bool	isTimeReference){
+
+		this->isTimeReference=isTimeReference;
+		dataChannels[assignedNID]->networkID=this->networkID;
+		_ID=assignedNID;
+		referenceNID=networkID->NID();
+
+		if(isTimeReference){
+
+			commThreads[commThreads.count()]=Thread::New(ScanIDs,this);
+			commThreads[commThreads.count()]=Thread::New(Sync,this);
+		}
+	}
+
+	uint16	Networking::sendID(CommChannel	*c,NetworkID	*networkID){
 
 		uint16	r;
-		if(r=c->send((uint8	*)&_ID,sizeof(uint16)))
-			return	r;
-		if(r=c->send((uint8	*)&hostNameSize,sizeof(uint8)))
-			return	r;
-		if(r=c->send((uint8	*)hostName,hostNameSize))
-			return	r;
-		if(r=c->send((uint8	*)&assignedNID,sizeof(uint16)))
+		if(r=c->send(networkID->data,NetworkID::Size+networkID->headerSize))
 			return	r;
 		return	0;
 	}
 
-	uint16	Networking::recvID(ConnectedCommChannel	*c,uint16	&NID,char	*&name,uint8	&nameSize,uint16	&assignedNID){
+	uint16	Networking::recvID(CommChannel	*c,NetworkID	*&networkID){
 
 		uint16	r;
-		if(r=c->recv((uint8	*)&NID,sizeof(uint16)))
+		uint16	remoteNID;
+		if(r=c->recv((uint8	*)&remoteNID,sizeof(uint16)))
 			return	r;
-		if(r=c->recv((uint8	*)&nameSize,sizeof(uint8)))
+		uint8	remoteNameSize;
+		if(r=c->recv((uint8	*)&remoteNameSize,sizeof(uint8)))
 			return	r;
-		name=new	char[nameSize];
-		if(r=c->recv((uint8	*)name,nameSize)){
+		char	*remoteName=new	char[remoteNameSize];
+		if(r=c->recv((uint8	*)remoteName,remoteNameSize)){
 
-			delete[]	name;
+			delete[]	remoteName;
 			return	r;
 		}
-		if(r=c->recv((uint8	*)&assignedNID,sizeof(uint16))){
+		networkID=new	NetworkID(remoteNID,remoteNameSize,remoteName);
+		delete[]	remoteName;
+		if(r=c->recv(networkID->data,NetworkID::Size+networkID->headerSize)){
 
-			delete[]	name;
+			delete	networkID;
 			return	r;
 		}
 		return	0;
+	}
+
+	uint16	Networking::recvMap(ConnectedCommChannel	*c){
+
+		uint16	r;
+		uint16	mapElementCount;
+		if(r=c->recv((uint8	*)&mapElementCount,sizeof(uint16)))
+			return	r;
+		NetworkID	*networkID;
+		for(uint16	i=0;i<mapElementCount;i++){
+
+			if(r=recvID(c,networkID))
+				return	r;
+			if(r=connect(networkID))
+				return	r;
+		}
+		return	0;
+	}
+
+	uint16	Networking::sendMap(ConnectedCommChannel	*c){
+
+		uint16	r;
+		uint16	mapElementCount;
+		if(r=c->send((uint8	*)&mapElementCount,sizeof(uint16)))
+			return	r;
+		for(uint16	i=0;i<dataChannels.count();i++){
+
+			if(i==_ID)
+				continue;
+			if(!dataChannels[i]->networkID)
+				continue;
+			if(r=sendID(c,dataChannels[i]->networkID))
+				return	r;
+		}
+		return	0;
+	}
+
+	uint16	Networking::connect(NetworkID	*networkID){
+
+		uint16	r;
+		ConnectedCommChannel	*ctrl_c=NULL;
+		ConnectedCommChannel	*data_c;
+		ConnectedCommChannel	*stream_c;
+		uint16	assignedNID;
+
+		if(isTimeReference)
+			assignedNID=addNodeEntry();
+		else
+			assignedNID=NO_ID;
+
+		if(!networkInterfaces[CONTROL]->canBroadcast()){
+
+			if(r=networkInterfaces[CONTROL]->connect(networkID->at(CONTROL),ctrl_c))
+				goto	err2;
+			if(r=sendID(ctrl_c,this->networkID))
+				goto	err1;
+			if(r=ctrl_c->send((uint8	*)&assignedNID,sizeof(uint16)))
+				goto	err1;
+			if(isTimeReference)
+				if(r=sendMap(ctrl_c))
+					goto	err1;
+		}
+			
+		if(*networkInterfaces[DATA]!=*networkInterfaces[CONTROL]){
+
+			if(r=networkInterfaces[DATA]->connect(networkID->at(DATA),data_c))
+				goto	err1;
+			if(networkInterfaces[CONTROL]->canBroadcast()){
+
+				if(r=sendID(data_c,this->networkID))
+					goto	err0;
+				if(r=data_c->send((uint8	*)&assignedNID,sizeof(uint16)))
+					goto	err0;
+				if(isTimeReference)
+					if(r=sendMap(data_c))
+						goto	err0;
+			}
+		}else
+			data_c=ctrl_c;
+
+		if(*networkInterfaces[STREAM]!=*networkInterfaces[DATA]){
+
+			if(r=networkInterfaces[STREAM]->connect(networkID->at(STREAM),stream_c))
+				goto	err0;
+		}else
+			stream_c=data_c;
+
+		controlChannels[assignedNID]=ctrl_c;
+		dataChannels[assignedNID]->data=data_c;
+		dataChannels[assignedNID]->stream=stream_c;
+		dataChannels[assignedNID]->networkID=networkID;
+		connectedNodeCount++;
+		notifyNodeJoined(assignedNID,networkID);
+		startReceivingThreads(assignedNID);
+
+		return	0;
+err0:	if(data_c!=ctrl_c)
+			delete	data_c;
+err1:	if(ctrl_c)
+			delete	ctrl_c;
+err2:	delete[]	networkID;
+		shutdown();
+		return	r;
 	}
 
 	uint16	Networking::addNodeEntry(){	//	assigns the first free slot
@@ -321,6 +446,8 @@ namespace	mBrane{
 			delete	dataChannels[entry]->stream;
 		dataChannels[entry]->stream=NULL;
 
+		connectedNodeCount--;
+
 		if(entry==referenceNID)
 			setNewReference();
 
@@ -335,113 +462,47 @@ namespace	mBrane{
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	uint32	thread_function_call	Networking::ScanIDs(void	*args){
-
-		Networking	*node=(Networking	*)args;
-
-		uint16	r;
-		
-		ConnectedCommChannel	*ctrl_c;
-		ConnectedCommChannel	*data_c;
-		ConnectedCommChannel	*stream_c;
-		uint16	remoteNID;
-		uint16	assignedNID;
-		uint8	*remoteNetworkID=new	uint8[node->network_ID_size];
-		while(!node->_shutdown){
-
-			if(r=node->networkInterfaces[DISCOVERY]->scanID(remoteNetworkID,node->network_ID_size))
-				goto	err3;
-
-			uint8	remoteNameSize=remoteNetworkID[0];
-
-			if(node->isTimeReference)
-				assignedNID=node->addNodeEntry();
-			else
-				assignedNID=NO_ID;
-
-			ctrl_c=NULL;
-			if(!node->networkInterfaces[CONTROL]->canBroadcast()){
-
-				if(r=node->networkInterfaces[CONTROL]->connect(remoteNetworkID+sizeof(uint8)+remoteNameSize,ctrl_c))
-					goto	err3;
-				if(node->sendID(ctrl_c,assignedNID))
-					goto	err2;
-			}
-			
-			if(node->networkInterfaces[DATA]->operator !=(node->networkInterfaces[CONTROL])){
-
-				if(r=node->networkInterfaces[DATA]->connect(remoteNetworkID+sizeof(uint8)+remoteNameSize+node->network_ctrl_ID_size,data_c))
-					goto	err2;
-				if(node->sendID(data_c,assignedNID))
-					goto	err1;
-			}else
-				data_c=ctrl_c;
-
-			if(node->networkInterfaces[STREAM]->operator !=(node->networkInterfaces[DATA])){
-
-				if(r=node->networkInterfaces[STREAM]->connect(remoteNetworkID+sizeof(uint8)+remoteNameSize+node->network_ctrl_ID_size+node->network_data_ID_size,stream_c))
-					goto	err1;
-				if(node->sendID(stream_c,assignedNID))
-					goto	err0;
-			}else
-				stream_c=data_c;
-
-			node->dataChannels[assignedNID]->nameSize=remoteNameSize;
-			node->dataChannels[assignedNID]->name=new	char[remoteNameSize];
-			memcpy(node->dataChannels[assignedNID]->name,remoteNetworkID+1,remoteNameSize);
-			if(ctrl_c)
-				node->controlChannels[assignedNID]=ctrl_c;
-			node->dataChannels[assignedNID]->data=data_c;
-			node->dataChannels[assignedNID]->stream=stream_c;
-			node->notifyNodeJoined(assignedNID,node->dataChannels[assignedNID]->name);
-			node->startReceivingThreads(assignedNID);
-		}
-
-		delete[]	remoteNetworkID;
-		return	0;
-err0:	if(stream_c!=data_c)
-			delete	stream_c;
-err1:	if(data_c!=ctrl_c)
-			delete	data_c;
-err2:	if(ctrl_c)
-			delete	ctrl_c;
-err3:	delete[]	remoteNetworkID;
-		node->shutdown();
-		return	r;
-	}
-
 	uint32	thread_function_call	Networking::AcceptConnections(void	*args){
 
-		Networking				*node=((AcceptConnectionArgs	*)args)->n;
+		Networking				*node=((AcceptConnectionArgs	*)args)->node;
 		NetworkInterfaceType	type=((AcceptConnectionArgs	*)args)->type;
-		int32					timeout=((AcceptConnectionArgs	*)args)->t;
+		int32					timeout=((AcceptConnectionArgs	*)args)->timeout;
 		NetworkInterface		*networkInterface=node->networkInterfaces[type];
 
 		uint16	r;
 
 		ConnectedCommChannel	*c;
-		uint16	remoteNID;
-		char	*remoteName;
-		uint8	remoteNameSize;
+		NetworkID	*networkID;
+		uint16	assignedID;
 		while(!node->_shutdown){
 
 			bool	timedout;
 			if(r=networkInterface->acceptConnection(c,timeout,timedout))
 				goto	err1;
-			if(timedout){
+			if(timedout){	//	reference node
 
 				node->start(0,0,true);
 				return	0;
 			}
 			
-			uint16	assignedNID;
-			if(r=node->recvID(c,remoteNID,remoteName,remoteNameSize,assignedNID))
-				goto	err0;
-			if(assignedNID!=NO_ID)
-				node->start(assignedNID,remoteNID,false);
+			//	non reference nodes
+			if(type==CONTROL	||	(type==DATA	&&	node->networkInterfaces[CONTROL]->canBroadcast())){
 
-			node->dataChannels[remoteNID]->name=remoteName;
-			node->dataChannels[remoteNID]->nameSize=remoteNameSize;
+				uint16	assignedNID;
+				if(r=node->recvID(c,networkID))
+					goto	err0;
+				if(r=c->recv((uint8	*)&assignedID,sizeof(uint16)))
+					goto	err0;
+				if(assignedNID!=NO_ID){
+
+					if(r=node->recvMap(c))
+						goto	err0;
+					node->start(assignedNID,networkID,false);
+				}
+			}
+
+			uint16	remoteNID=((uint16	*)networkID)[0];
+			node->dataChannels[remoteNID]->networkID=networkID;
 
 			bool	start=false;
 			switch(type){
@@ -460,18 +521,39 @@ err3:	delete[]	remoteNetworkID;
 				if(node->dataChannels[remoteNID]->data	&&	(node->networkInterfaces[CONTROL]->canBroadcast()	||	(!node->networkInterfaces[CONTROL]->canBroadcast()	&&	node->controlChannels[remoteNID])))
 					start=true;
 				break;
+			default:
+				break;
 			}
 			if(start){
 
-				node->notifyNodeJoined(remoteNID,node->dataChannels[remoteNID]->name);
+				node->connectedNodeCount++;
+				node->notifyNodeJoined(remoteNID,node->dataChannels[remoteNID]->networkID);
 				node->startReceivingThreads(remoteNID);
 			}
 		}
-
 		return	0;
 err0:	delete	c;
 err1:	node->shutdown();
 		return	r;
+	}
+
+	uint32	thread_function_call	Networking::ScanIDs(void	*args){
+
+		Networking	*node=(Networking	*)args;
+
+		uint16	r;
+		NetworkID	*networkID;
+		while(!node->_shutdown){
+
+			if(r=node->recvID(node->discoveryChannel,networkID)){
+
+				node->shutdown();
+				return	r;
+			}
+
+			node->connect(networkID);
+		}
+		return	0;
 	}
 
 	uint32	thread_function_call	Networking::Sync(void	*args){
@@ -496,7 +578,71 @@ err1:	node->shutdown();
 				node->lastSyncTime=t;
 			}
 		}
-
 		return	0;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+
+	Networking::DataCommChannel::DataCommChannel():data(NULL),stream(NULL),networkID(NULL){
+	}
+
+	Networking::DataCommChannel::~DataCommChannel(){
+
+		if(data)
+			delete	data;
+		if(stream)
+			delete	stream;
+		if(networkID)
+			delete	networkID;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+
+	uint16	Networking::NetworkID::Size;
+	
+	uint16	Networking::NetworkID::CtrlIDSize;
+	
+	uint16	Networking::NetworkID::DataIDSize;
+	
+	uint16	Networking::NetworkID::StreamIDSize;
+
+	uint16	Networking::NetworkID::DiscoveryIDSize;
+	
+	Networking::NetworkID::NetworkID():data(NULL){
+	}
+
+	Networking::NetworkID::NetworkID(uint16	NID,uint8	nameSize,char	*name){
+
+		headerSize=sizeof(uint16)+sizeof(uint8)+nameSize;
+		data=new	uint8[headerSize+Size];
+		((uint16	*)data)[0]=NID;
+		data[1]=nameSize;
+		memcpy(data+sizeof(uint16)+sizeof(uint8),name,data[1]);
+	}
+
+	Networking::NetworkID::~NetworkID(){
+
+		if(data)
+			delete	data;
+	}
+
+	uint16	Networking::NetworkID::NID()	const{
+
+		return	((uint16	*)data)[0];
+	}
+	
+	char	*Networking::NetworkID::name()	const{
+
+		return	(char	*)(data+sizeof(uint16)+sizeof(uint8));
+	}
+
+	uint8	*Networking::NetworkID::at(NetworkInterfaceType	t)	const{
+
+		switch(t){
+		case	CONTROL:	return	data+headerSize;
+		case	DATA:		return	data+headerSize+CtrlIDSize;
+		case	STREAM:		return	data+headerSize+CtrlIDSize+DataIDSize;
+		case	DISCOVERY:	return	data+headerSize+CtrlIDSize+DataIDSize+StreamIDSize;
+		}
 	}
 }

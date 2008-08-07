@@ -67,9 +67,9 @@ namespace	mBrane{
 		static	uint32	thread_function_call	ReceiveMessages(void	*args);
 		static	uint32	thread_function_call	SendMessages(void	*args);
 		static	uint32	thread_function_call	NotifyMessages(void	*args);
-		void	start(uint16	assignedNID,uint16	remoteNID,bool	isTimeReference);
+		void	start(uint16	assignedNID,NetworkID	*networkID,bool	isTimeReference);
 		void	startReceivingThreads(uint16	NID);
-		void	notifyNodeJoined(uint16	NID,char	*name);
+		void	notifyNodeJoined(uint16	NID,NetworkID	*networkID);
 		void	notifyNodeLeft(uint16	NID);
 
 		//	NODE

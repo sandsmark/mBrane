@@ -105,14 +105,14 @@ err:Shutdown();
 	return	false;
 }
 
-bool	UDPInterface::operator	==(NetworkInterface	*i){
+bool	UDPInterface::operator	==(NetworkInterface	&i){
 
-	if(i->protocol()!=protocol())
+	if(i.protocol()!=protocol())
 		return	false;
-	return	strcmp(inet_ntoa(address),inet_ntoa(((UDPInterface	*)i)->address))==0	&&	port==((UDPInterface	*)i)->port;
+	return	strcmp(inet_ntoa(address),inet_ntoa(((UDPInterface	*)&i)->address))==0	&&	port==((UDPInterface	*)&i)->port;
 }
 
-bool	UDPInterface::operator	!=(NetworkInterface	*i){
+bool	UDPInterface::operator	!=(NetworkInterface	&i){
 
 	return	!operator	==(i);
 }
@@ -132,7 +132,7 @@ uint16	UDPInterface::stop(){	//	TODO
 	return	0;
 }
 
-uint32	UDPInterface::getIDSize(){	//	TODO
+uint16	UDPInterface::getIDSize(){	//	TODO
 
 	return	0;
 }
@@ -140,16 +140,6 @@ uint32	UDPInterface::getIDSize(){	//	TODO
 void	UDPInterface::fillID(uint8	*ID){	//	TODO
 
 	
-}
-
-uint16	UDPInterface::broadcastID(uint8	*ID,uint32	size){	//	TODO
-
-	return	0;
-}
-
-uint16	UDPInterface::scanID(uint8	*ID,uint32	size){	//	TODO
-
-	return	0;
 }
 
 uint16	UDPInterface::bind(uint8	*,BroadcastCommChannel	*&){	//	TODO
