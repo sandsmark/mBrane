@@ -429,10 +429,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\control_message_classes.h"
-				>
-			</File>
-			<File
 				RelativePath=".\control_messages.h"
 				>
 			</File>
@@ -462,6 +458,10 @@
 			</File>
 			<File
 				RelativePath=".\mBrane.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mBrane_message_classes.h"
 				>
 			</File>
 			<File

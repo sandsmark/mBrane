@@ -31,10 +31,10 @@
 #ifndef	_application_h_
 #define	_application_h_
 
-#define	MBRANE_MESSAGE_CLASSES	"°mBrane_message_classes.h"
+#define	MBRANE_MESSAGE_CLASSES	"mBrane_message_classes.h"
 
-#define	CONTROL_MESSAGE_CLASS(C)	static	const	uint16	C##_class=__COUNTER__;
-#define	APPLICATION_CLASS(C)	CONTROL_MESSAGE_CLASS(C)
+#define	MBRANE_MESSAGE_CLASS(C)	static	const	uint16	C##_class=__COUNTER__;
+#define	APPLICATION_CLASS(C)	MBRANE_MESSAGE_CLASS(C)
 #include	MBRANE_MESSAGE_CLASSES
 #include	APPLICATION_CLASSES
 
@@ -52,7 +52,8 @@ public:
 	const	uint16	cid(){	return	_CID;	}
 	void	notify(_Payload	*p){
 		switch(p->cid()){
-		#define	CONTROL_MESSAGE_CLASS(C)	case	CLASS_ID(C):	((U	*)this)->process((C	*)p);	return;
+		#define	MBRANE_MESSAGE_CLASS(C)	case	CLASS_ID(C):	((U	*)this)->process((C	*)p);	return;
+		#define	APPLICATION_CLASS(C)	MBRANE_MESSAGE_CLASS(C)
 		#include	MBRANE_MESSAGE_CLASSES
 		#include	APPLICATION_CLASSES
 		default:	return;
@@ -60,7 +61,8 @@ public:
 	}
 	bool	preview(_Payload	*p){
 		switch(p->cid()){
-		#define	CONTROL_MESSAGE_CLASS(C)	case	CLASS_ID(C):	return	((U	*)this)->preview((C	*)p);
+		#define	MBRANE_MESSAGE_CLASS(C)	case	CLASS_ID(C):	return	((U	*)this)->preview((C	*)p);
+		#define	APPLICATION_CLASS(C)	MBRANE_MESSAGE_CLASS(C)
 		#include	MBRANE_MESSAGE_CLASSES
 		#include	APPLICATION_CLASSES
 		default:	return	false;
