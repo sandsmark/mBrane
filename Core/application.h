@@ -34,7 +34,9 @@
 #define	MBRANE_MESSAGE_CLASSES	"mBrane_message_classes.h"
 
 #define	MBRANE_MESSAGE_CLASS(C)	static	const	uint16	C##_class=__COUNTER__;
-#include	MBRANE_MESSAGE_CLASSES
+#ifndef	LIBRARY_CLASSES
+	#include	MBRANE_MESSAGE_CLASSES
+#endif
 #include	APPLICATION_CLASSES
 
 //	for use in switches (instead of user_class::CID())
@@ -52,7 +54,11 @@ public:
 	void	notify(_Payload	*p){
 		switch(p->cid()){
 		#define	MBRANE_MESSAGE_CLASS(C)	case	CLASS_ID(C):	((U	*)this)->process((C	*)p);	return;
-		#include	MBRANE_MESSAGE_CLASSES
+		#if defined	LIBRARY_CLASSES
+			#include	LIBRARY_CLASSES	
+		#else
+			#include	MBRANE_MESSAGE_CLASSES
+		#endif
 		#include	APPLICATION_CLASSES
 		default:	return;
 		}
@@ -60,7 +66,11 @@ public:
 	bool	preview(_Payload	*p){
 		switch(p->cid()){
 		#define	MBRANE_MESSAGE_CLASS(C)	case	CLASS_ID(C):	return	((U	*)this)->preview((C	*)p);
-		#include	MBRANE_MESSAGE_CLASSES
+		#if defined	LIBRARY_CLASSES
+			#include	LIBRARY_CLASSES	
+		#else
+			#include	MBRANE_MESSAGE_CLASSES
+		#endif
 		#include	APPLICATION_CLASSES
 		default:	return	false;
 		}
