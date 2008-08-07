@@ -48,7 +48,7 @@ namespace	mBrane{
 		//		accept connections:
 		//			if timedout this is ref node, scan IDs on discovery channel
 		//			else
-		//				the ref node sends (on data channel if control channel is bcast, on control channel otherwise): its net ID, an assigned NID and the net map (i.e. the list of ready nodes net ID)
+		//				the ref node sends (on data channel if control channel is bcast, on control channel otherwise): its own net ID, an assigned NID and the net map (i.e. the list of ready nodes net ID)
 		//				connect to each node in the list excepted the sender
 		//		if(ref node) send time sync periodically on control channle
 		//		start messages sending and receiving threads
@@ -72,19 +72,22 @@ namespace	mBrane{
 		DynamicClassLoader<NetworkInterface>	*networkInterfaceLoaders[4];
 		NetworkInterface						*networkInterfaces[4];
 
+		bool	startInterfaces();
+		void	stopInterfaces();
+
 		int32	bcastTimeout;
 
 		uint16	connectedNodeCount;
 
-		class	NetworkID{
+		class	NetworkID{	//	total size: Size+headerSize
 		public:
 			static	uint16	Size;
 			static	uint16	CtrlIDSize;
 			static	uint16	DataIDSize;
 			static	uint16	StreamIDSize;
 			static	uint16	DiscoveryIDSize;
-			uint8	headerSize;
-			uint8	*data;
+			uint8	headerSize;	//	sizeof(NID)+sizeof(name size)+name size
+			uint8	*data;	//	[NID(16)|name size(8)|name(name size*8)|control ID|data ID|stream ID|discovery ID]
 			NetworkID();
 			NetworkID(uint16	NID,uint8	nameSize,char	*name);
 			~NetworkID();
@@ -93,9 +96,6 @@ namespace	mBrane{
 			uint8	*at(NetworkInterfaceType	t)	const;
 		};
 		NetworkID	*networkID;
-
-		bool	startInterfaces();
-		void	stopInterfaces();
 
 		class	DataCommChannel{
 		public:

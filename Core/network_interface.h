@@ -61,9 +61,9 @@ namespace	mBrane{
 			virtual	bool	canBroadcast()=0;	//	as opposed to connected mode
 			virtual	uint16	start()=0;	//	initialize the network interface; loads parameters from XML file; returns 0 if successful
 			virtual	uint16	stop()=0;	//	the network interface; returns 0 if successful
-			virtual	uint16	getIDSize()=0;	//	node ID to be broadcast
+			virtual	uint16	getIDSize()=0;	//	node net ID to be broadcast
 			virtual	void	fillID(uint8	*ID)=0;	//	with relevant parameters (different from Node::_ID; ex: IP addr and port)
-			virtual	uint16	newChannel(uint8	*ID,CommChannel	**channel)=0;	//	create a new channel (bcast or connected); returns 0 if successful
+			virtual	uint16	newChannel(uint8	*ID,CommChannel	**channel)=0;	//	create a new channel (bcast ID=local node net ID, or connected ID=remote node net ID); returns 0 if successful
 			virtual	uint16	acceptConnection(ConnectedCommChannel	**channel,int32	timeout,bool	&timedout)=0;	//	listen to connect attempts and creates a new channel accordingly; returns 0 if successful
 		};
 
