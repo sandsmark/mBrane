@@ -59,9 +59,8 @@ public:
 	uint16	stop();
 	uint16	getIDSize();
 	void	fillID(uint8	*ID);
-	uint16	bind(uint8	*,BroadcastCommChannel	*&);
-	uint16	connect(uint8	*ID,ConnectedCommChannel	*&channel);
-	uint16	acceptConnection(ConnectedCommChannel	*&channel,int32	timeout,bool	&timedout);
+	uint16	newChannel(uint8	*ID,CommChannel	**channel);
+	uint16	acceptConnection(ConnectedCommChannel	**channel,int32	timeout,bool	&timedout);
 };
 
 

@@ -39,7 +39,7 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		class	BroadcastCommChannel;
+		class	CommChannel;
 		class	ConnectedCommChannel;
 		class	dll	NetworkInterface{
 		public:
@@ -63,9 +63,8 @@ namespace	mBrane{
 			virtual	uint16	stop()=0;	//	the network interface; returns 0 if successful
 			virtual	uint16	getIDSize()=0;	//	node ID to be broadcast
 			virtual	void	fillID(uint8	*ID)=0;	//	with relevant parameters (different from Node::_ID; ex: IP addr and port)
-			virtual	uint16	bind(uint8	*,BroadcastCommChannel	*&)=0;	//	create a new broadcast channel
-			virtual	uint16	connect(uint8	*ID,ConnectedCommChannel	*&channel)=0;	//	create a new channel from the received remote IDs (ScanID); returns 0 if successful
-			virtual	uint16	acceptConnection(ConnectedCommChannel	*&channel,int32	timeout,bool	&timedout)=0;	//	listen to connect attempts and creates a new channel accordingly; returns 0 if successful
+			virtual	uint16	newChannel(uint8	*ID,CommChannel	**channel)=0;	//	create a new channel (bcast or connected); returns 0 if successful
+			virtual	uint16	acceptConnection(ConnectedCommChannel	**channel,int32	timeout,bool	&timedout)=0;	//	listen to connect attempts and creates a new channel accordingly; returns 0 if successful
 		};
 
 		class	_Payload;

@@ -142,17 +142,12 @@ void	UDPInterface::fillID(uint8	*ID){	//	TODO
 	
 }
 
-uint16	UDPInterface::bind(uint8	*,BroadcastCommChannel	*&){	//	TODO
+uint16	UDPInterface::newChannel(uint8	*ID,CommChannel	**channel){	//	TODO
 
 	return	0;
 }
 
-uint16	UDPInterface::connect(uint8	*ID,ConnectedCommChannel	*&channel){
-
-	return	1;
-}
-
-uint16	UDPInterface::acceptConnection(ConnectedCommChannel	*&channel,int32	timeout,bool	&timedout){
+uint16	UDPInterface::acceptConnection(ConnectedCommChannel	**channel,int32	timeout,bool	&timedout){
 
 	return	1;
 }

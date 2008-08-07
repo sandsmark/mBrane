@@ -214,12 +214,12 @@ namespace	mBrane{
 		networkInterfaces[STREAM]->fillID(networkID->at(STREAM));
 		networkInterfaces[DISCOVERY]->fillID(networkID->at(DISCOVERY));
 
-		if(networkInterfaces[DISCOVERY]->bind(networkID->at(DISCOVERY),discoveryChannel))
+		if(networkInterfaces[DISCOVERY]->newChannel(networkID->at(DISCOVERY),&discoveryChannel))
 			return	false;
 
 		if(networkInterfaces[CONTROL]->canBroadcast()){
 		
-			if(networkInterfaces[CONTROL]->bind(networkID->at(CONTROL),(BroadcastCommChannel	*&)controlChannels[0]))
+			if(networkInterfaces[CONTROL]->newChannel(networkID->at(CONTROL),&(controlChannels[0])))
 				return	false;
 		}
 
@@ -297,7 +297,7 @@ namespace	mBrane{
 		return	0;
 	}
 
-	uint16	Networking::recvMap(ConnectedCommChannel	*c){
+	uint16	Networking::recvMap(CommChannel	*c){
 
 		uint16	r;
 		uint16	mapElementCount;
@@ -314,7 +314,7 @@ namespace	mBrane{
 		return	0;
 	}
 
-	uint16	Networking::sendMap(ConnectedCommChannel	*c){
+	uint16	Networking::sendMap(CommChannel	*c){
 
 		uint16	r;
 		uint16	mapElementCount;
@@ -335,9 +335,9 @@ namespace	mBrane{
 	uint16	Networking::connect(NetworkID	*networkID){
 
 		uint16	r;
-		ConnectedCommChannel	*ctrl_c=NULL;
-		ConnectedCommChannel	*data_c;
-		ConnectedCommChannel	*stream_c;
+		CommChannel	*ctrl_c=NULL;
+		CommChannel	*data_c;
+		CommChannel	*stream_c;
 		uint16	assignedNID;
 
 		if(isTimeReference)
@@ -347,7 +347,7 @@ namespace	mBrane{
 
 		if(!networkInterfaces[CONTROL]->canBroadcast()){
 
-			if(r=networkInterfaces[CONTROL]->connect(networkID->at(CONTROL),ctrl_c))
+			if(r=networkInterfaces[CONTROL]->newChannel(networkID->at(CONTROL),&ctrl_c))
 				goto	err2;
 			if(r=sendID(ctrl_c,this->networkID))
 				goto	err1;
@@ -360,7 +360,7 @@ namespace	mBrane{
 			
 		if(*networkInterfaces[DATA]!=*networkInterfaces[CONTROL]){
 
-			if(r=networkInterfaces[DATA]->connect(networkID->at(DATA),data_c))
+			if(r=networkInterfaces[DATA]->newChannel(networkID->at(DATA),&data_c))
 				goto	err1;
 			if(networkInterfaces[CONTROL]->canBroadcast()){
 
@@ -377,7 +377,7 @@ namespace	mBrane{
 
 		if(*networkInterfaces[STREAM]!=*networkInterfaces[DATA]){
 
-			if(r=networkInterfaces[STREAM]->connect(networkID->at(STREAM),stream_c))
+			if(r=networkInterfaces[STREAM]->newChannel(networkID->at(STREAM),&stream_c))
 				goto	err0;
 		}else
 			stream_c=data_c;
@@ -424,6 +424,7 @@ err2:	delete[]	networkID;
 			if(dataChannels[i]->data	&&	i==_ID){
 
 				isTimeReference=true;
+				commThreads[commThreads.count()]=Thread::New(ScanIDs,this);
 				commThreads[commThreads.count()]=Thread::New(Sync,this);
 				return;
 			}
@@ -477,7 +478,7 @@ err2:	delete[]	networkID;
 		while(!node->_shutdown){
 
 			bool	timedout;
-			if(r=networkInterface->acceptConnection(c,timeout,timedout))
+			if(r=networkInterface->acceptConnection(&c,timeout,timedout))
 				goto	err1;
 			if(timedout){	//	reference node
 
@@ -550,7 +551,6 @@ err1:	node->shutdown();
 				node->shutdown();
 				return	r;
 			}
-
 			node->connect(networkID);
 		}
 		return	0;

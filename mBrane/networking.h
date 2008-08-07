@@ -44,13 +44,13 @@ namespace	mBrane{
 		//	boot one single node with a timeout (if it times out, it's the ref node)
 		//	when ready (callback), boot all the other nodes
 		//	algorithm:
-		//		bcast its net ID
+		//		bcast its net ID on discovery channel
 		//		accept connections:
-		//			if timedout this is ref node, scan IDs
+		//			if timedout this is ref node, scan IDs on discovery channel
 		//			else
-		//				the ref node sends: an assigned NID and the net map (i.e. the list of ready nodes NID and net ID, including the sender's)
+		//				the ref node sends (on data channel if control channel is bcast, on control channel otherwise): its net ID, an assigned NID and the net map (i.e. the list of ready nodes net ID)
 		//				connect to each node in the list excepted the sender
-		//		if(ref node) send time sync periodically
+		//		if(ref node) send time sync periodically on control channle
 		//		start messages sending and receiving threads
 		//	when at least one connection to a remote node dies, the node in question is considred dead and the other connections to it are terminated
 		//	if the ref node dies, the node with the lowest NID is the new ref node
@@ -101,11 +101,11 @@ namespace	mBrane{
 		public:
 			DataCommChannel();
 			~DataCommChannel();
-			ConnectedCommChannel	*data;
-			ConnectedCommChannel	*stream;
-			NetworkID				*networkID;
+			CommChannel	*data;
+			CommChannel	*stream;
+			NetworkID	*networkID;
 		};
-		BroadcastCommChannel		*discoveryChannel;
+		CommChannel					*discoveryChannel;	//	bcast
 		Array<CommChannel	*>		controlChannels;	//	1 (bcast capable) or many (connected)
 		Array<DataCommChannel	*>	dataChannels;
 		CriticalSection				channelsCS;	//	protects controlChannels and dataChannels
@@ -135,8 +135,8 @@ namespace	mBrane{
 
 		uint16	sendID(CommChannel	*c,NetworkID	*networkID);
 		uint16	recvID(CommChannel	*c,NetworkID	*&networkID);
-		uint16	sendMap(ConnectedCommChannel	*c);
-		uint16	recvMap(ConnectedCommChannel	*c);
+		uint16	sendMap(CommChannel	*c);
+		uint16	recvMap(CommChannel	*c);
 		uint16	connect(NetworkID	*networkID);
 		void	processError(NetworkInterfaceType	type,uint16	entry);
 		uint16	addNodeEntry();

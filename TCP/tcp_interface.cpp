@@ -140,17 +140,12 @@ void	TCPInterface::fillID(uint8	*ID){	//	TODO
 	
 }
 
-uint16	TCPInterface::bind(uint8	*,BroadcastCommChannel	*&){
-
-	return	1;
-}
-
-uint16	TCPInterface::connect(uint8	*ID,ConnectedCommChannel	*&channel){	//	TODO
+uint16	TCPInterface::newChannel(uint8	*ID,CommChannel	**channel){	//	TODO
 
 	return	0;
 }
 
-uint16	TCPInterface::acceptConnection(ConnectedCommChannel	*&channel,int32	timeout,bool	&timedout){	//	TODO
+uint16	TCPInterface::acceptConnection(ConnectedCommChannel	**channel,int32	timeout,bool	&timedout){	//	TODO
 
 	return	0;
 }
