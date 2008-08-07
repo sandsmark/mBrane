@@ -1,6 +1,6 @@
-// network_interface.cpp
+//	network_interface.cpp
 //
-// Author: Eric Nivel
+//	Author: Eric Nivel
 //
 //	BSD license:
 //	Copyright (c) 2008, Eric Nivel, Thor List

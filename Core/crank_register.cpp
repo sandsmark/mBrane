@@ -1,6 +1,6 @@
-// crank_register.cpp
+//	crank_register.cpp
 //
-// Author: Eric Nivel
+//	Author: Eric Nivel
 //
 //	BSD license:
 //	Copyright (c) 2008, Eric Nivel, Thor List

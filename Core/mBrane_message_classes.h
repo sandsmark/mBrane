@@ -1,4 +1,4 @@
-//	control_message_classes.h
+//	mBrane_message_classes.h
 //
 //	Author: Eric Nivel
 //

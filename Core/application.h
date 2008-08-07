@@ -31,11 +31,11 @@
 #ifndef	_application_h_
 #define	_application_h_
 
-#define	CONTROL_MESSAGE_CLASSES	"control_message_classes.h"
+#define	MBRANE_MESSAGE_CLASSES	"°mBrane_message_classes.h"
 
 #define	CONTROL_MESSAGE_CLASS(C)	static	const	uint16	C##_class=__COUNTER__;
 #define	APPLICATION_CLASS(C)	CONTROL_MESSAGE_CLASS(C)
-#include	CONTROL_MESSAGE_CLASSES
+#include	MBRANE_MESSAGE_CLASSES
 #include	APPLICATION_CLASSES
 
 //	for use in switches (instead of user_class::CID())
@@ -53,7 +53,7 @@ public:
 	void	notify(_Payload	*p){
 		switch(p->cid()){
 		#define	CONTROL_MESSAGE_CLASS(C)	case	CLASS_ID(C):	((U	*)this)->process((C	*)p);	return;
-		#include	CONTROL_MESSAGE_CLASSES
+		#include	MBRANE_MESSAGE_CLASSES
 		#include	APPLICATION_CLASSES
 		default:	return;
 		}
@@ -61,7 +61,7 @@ public:
 	bool	preview(_Payload	*p){
 		switch(p->cid()){
 		#define	CONTROL_MESSAGE_CLASS(C)	case	CLASS_ID(C):	return	((U	*)this)->preview((C	*)p);
-		#include	CONTROL_MESSAGE_CLASSES
+		#include	MBRANE_MESSAGE_CLASSES
 		#include	APPLICATION_CLASSES
 		default:	return	false;
 		}

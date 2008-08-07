@@ -1,6 +1,6 @@
-// dynamic_class_loader.tpl.cpp
+//	dynamic_class_loader.tpl.cpp
 //
-// Author: Eric Nivel
+//	Author: Eric Nivel
 //
 //	BSD license:
 //	Copyright (c) 2008, Eric Nivel, Thor List

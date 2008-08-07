@@ -1,4 +1,4 @@
-//	array.tpl.cpp
+//	list.tpl.cpp
 //
 //	Author: Eric Nivel
 //
