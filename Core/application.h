@@ -34,14 +34,13 @@
 #define	MBRANE_MESSAGE_CLASSES	"mBrane_message_classes.h"
 
 #define	MBRANE_MESSAGE_CLASS(C)	static	const	uint16	C##_class=__COUNTER__;
-#define	APPLICATION_CLASS(C)	MBRANE_MESSAGE_CLASS(C)
 #include	MBRANE_MESSAGE_CLASSES
 #include	APPLICATION_CLASSES
 
 //	for use in switches (instead of user_class::CID())
 #define	CLASS_ID(C)	C##_class
 
-template<class	U>	class	Crank:	//	TODO:	in notify and preview switches: insert control message class processing
+template<class	U>	class	Crank:
 public	crank::_Crank{
 protected:
 	static	const	uint16	_CID;
@@ -53,7 +52,6 @@ public:
 	void	notify(_Payload	*p){
 		switch(p->cid()){
 		#define	MBRANE_MESSAGE_CLASS(C)	case	CLASS_ID(C):	((U	*)this)->process((C	*)p);	return;
-		#define	APPLICATION_CLASS(C)	MBRANE_MESSAGE_CLASS(C)
 		#include	MBRANE_MESSAGE_CLASSES
 		#include	APPLICATION_CLASSES
 		default:	return;
@@ -62,7 +60,6 @@ public:
 	bool	preview(_Payload	*p){
 		switch(p->cid()){
 		#define	MBRANE_MESSAGE_CLASS(C)	case	CLASS_ID(C):	return	((U	*)this)->preview((C	*)p);
-		#define	APPLICATION_CLASS(C)	MBRANE_MESSAGE_CLASS(C)
 		#include	MBRANE_MESSAGE_CLASSES
 		#include	APPLICATION_CLASSES
 		default:	return	false;
