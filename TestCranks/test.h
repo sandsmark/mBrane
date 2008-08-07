@@ -3,6 +3,8 @@
 
 //	LIMITATION: DO NOT USE __COUNTER__
 
+#include	"3rd_party_library.h"
+
 #include	"c.h"	//	user classes declarations
 
 #define	APPLICATION_CLASSES	"application_classes.h"

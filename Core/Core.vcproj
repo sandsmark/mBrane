@@ -453,6 +453,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\library.h"
+				>
+			</File>
+			<File
 				RelativePath=".\list.h"
 				>
 			</File>
