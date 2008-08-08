@@ -33,6 +33,8 @@
 #include	"..\Core\control_messages.h"
 
 
+using	namespace	mBrane::sdk::payloads;
+
 namespace	mBrane{
 
 	Networking::Networking():Node(),isTimeReference(false),timeDrift(0),networkID(NULL),callbackLibrary(NULL),discoveryChannel(NULL),connectedNodeCount(0){

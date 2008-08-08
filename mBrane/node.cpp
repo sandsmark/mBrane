@@ -36,6 +36,8 @@
 #include	<iostream>
 
 
+using	namespace	mBrane::sdk::payloads;
+
 namespace	mBrane{
 
 	Node	*Node::New(const	char	*configFileName){

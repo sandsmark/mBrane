@@ -58,6 +58,7 @@ namespace	mBrane{
 			virtual	bool	isControlMessage()	const;
 			virtual	bool	isMessage()	const;
 			virtual	bool	isStreamData()	const;
+			virtual	bool	isDynamicData()	const;
 			virtual	bool	isCompressedPayload()	const;
 			int64	&node_send_ts();	//	send timestamp: time of emission from a node
 			int64	&node_recv_ts();	//	recv timestamp: time of reception by a node
@@ -107,6 +108,8 @@ namespace	mBrane{
 			virtual	uint8			ptrCount()	const;
 			virtual	P<_RPayload>	*ptr(uint8	i);
 			virtual	void	init();	//	invocation triggered by reception
+			virtual	bool	isDynamicData()	const;
+			virtual	bool	isCompressedPayload()	const;
 		};
 
 		template<class	M,class	U>	class	RPayload:

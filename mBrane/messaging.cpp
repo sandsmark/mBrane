@@ -35,6 +35,8 @@
 #define	INITIAL_MESSAGE_INPUT_QUEUE_DEPTH	32
 #define	INITIAL_MESSAGE_OUTPUT_QUEUE_DEPTH	32
 
+using	namespace	mBrane::sdk::payloads;
+
 namespace	mBrane{
 
 	Messaging::Messaging(){

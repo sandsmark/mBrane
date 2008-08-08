@@ -33,45 +33,47 @@
 
 namespace	mBrane{
 	namespace	sdk{
+		namespace	payloads{
 
-		SystemReady::SystemReady():ControlMessage<SystemReady>(){
-		}
+			SystemReady::SystemReady():ControlMessage<SystemReady>(){
+			}
 
-		SystemReady::~SystemReady(){
-		}
+			SystemReady::~SystemReady(){
+			}
 
-		////////////////////////////////////////////////////////////////////////////////////////////////
+			////////////////////////////////////////////////////////////////////////////////////////////////
 
-		TimeSync::TimeSync():ControlMessage<TimeSync>(){
-		}
+			TimeSync::TimeSync():ControlMessage<TimeSync>(){
+			}
 
-		TimeSync::~TimeSync(){
-		}
+			TimeSync::~TimeSync(){
+			}
 
-		////////////////////////////////////////////////////////////////////////////////////////////////
+			////////////////////////////////////////////////////////////////////////////////////////////////
 
-		NodeJoined::NodeJoined():ControlMessage<NodeJoined>(){
-		}
+			NodeJoined::NodeJoined():ControlMessage<NodeJoined>(){
+			}
 
-		NodeJoined::~NodeJoined(){
-		}
+			NodeJoined::~NodeJoined(){
+			}
 
-		uint16	&NodeJoined::nid(){
+			uint16	&NodeJoined::nid(){
 
-			return	NID;
-		}
+				return	NID;
+			}
 
-		////////////////////////////////////////////////////////////////////////////////////////////////
+			////////////////////////////////////////////////////////////////////////////////////////////////
 
-		NodeLeft::NodeLeft():ControlMessage<NodeLeft>(){
-		}
+			NodeLeft::NodeLeft():ControlMessage<NodeLeft>(){
+			}
 
-		NodeLeft::~NodeLeft(){
-		}
+			NodeLeft::~NodeLeft(){
+			}
 
-		uint16	&NodeLeft::nid(){
+			uint16	&NodeLeft::nid(){
 
-			return	NID;
+				return	NID;
+			}
 		}
 	}
 }

@@ -30,66 +30,68 @@
 
 namespace	mBrane{
 	namespace	sdk{
+		namespace	payloads{
 
-		template<class	Data>	inline	CrankData<Data>::CrankData():Payload<Memory,CrankData<Data> >(),Data(){
-		}
-		
-		template<class	Data>	inline	CrankData<Data>::~CrankData(){
-		}
+			template<class	Data>	inline	CrankData<Data>::CrankData():Payload<Memory,CrankData<Data> >(),Data(){
+			}
+			
+			template<class	Data>	inline	CrankData<Data>::~CrankData(){
+			}
 
-		template<class	Data>	inline	bool	CrankData<Data>::isCrankData()	const{
+			template<class	Data>	inline	bool	CrankData<Data>::isCrankData()	const{
 
-			return	true;
-		}
+				return	true;
+			}
 
-		////////////////////////////////////////////////////////////////////////////////////////////////
+			////////////////////////////////////////////////////////////////////////////////////////////////
 
-		template<class	U>	inline	ControlMessage<U>::ControlMessage(uint32	mid,uint8	priority):Payload<Memory,U>(),_ControlMessage(mid,priority){
-		}
+			template<class	U>	inline	ControlMessage<U>::ControlMessage(uint32	mid,uint8	priority):Payload<Memory,U>(),_ControlMessage(mid,priority){
+			}
 
-		template<class	U>	inline	bool	ControlMessage<U>::isControlMessage(){
+			template<class	U>	inline	bool	ControlMessage<U>::isControlMessage(){
 
-			return	true;
-		}
+				return	true;
+			}
 
-		////////////////////////////////////////////////////////////////////////////////////////////////
+			////////////////////////////////////////////////////////////////////////////////////////////////
 
-		template<class	U>	inline	Message<U>::Message(uint32	mid,uint8	priority):ControlMessage<U>(mid,priority){
-		}
+			template<class	U>	inline	Message<U>::Message(uint32	mid,uint8	priority):ControlMessage<U>(mid,priority){
+			}
 
-		template<class	U>	inline	bool	Message<U>::isControlMessage(){
+			template<class	U>	inline	bool	Message<U>::isControlMessage(){
 
-			return	false;
-		}
+				return	false;
+			}
 
-		template<class	U>	inline	bool	Message<U>::isMessage(){
+			template<class	U>	inline	bool	Message<U>::isMessage(){
 
-			return	true;
-		}
+				return	true;
+			}
 
-		////////////////////////////////////////////////////////////////////////////////////////////////
+			////////////////////////////////////////////////////////////////////////////////////////////////
 
-		template<class	U>	inline	StreamData<U>::StreamData(uint32	mid,uint8	priority):ControlMessage<U>(mid,priority){
-		}
+			template<class	U>	inline	StreamData<U>::StreamData(uint32	mid,uint8	priority):ControlMessage<U>(mid,priority){
+			}
 
-		template<class	U>	inline	bool	StreamData<U>::isControlMessage(){
+			template<class	U>	inline	bool	StreamData<U>::isControlMessage(){
 
-			return	false;
-		}
+				return	false;
+			}
 
-		template<class	U>	inline	bool	StreamData<U>::isStreamData(){
+			template<class	U>	inline	bool	StreamData<U>::isStreamData(){
 
-			return	true;
-		}
+				return	true;
+			}
 
-		////////////////////////////////////////////////////////////////////////////////////////////////
+			////////////////////////////////////////////////////////////////////////////////////////////////
 
-		template<class	S,class	D,class	F>	inline	const	size_t	CompressedPayload<S,D,F>::CoreSize(){
+			template<class	S,class	D,class	F>	inline	const	size_t	CompressedPayload<S,D,F>::CoreSize(){
 
-			return	Size()-2*sizeof(F);
-		}
+				return	Size()-2*sizeof(F);
+			}
 
-		template<class	S,class	D,class	F>	CompressedPayload<S,D,F>::CompressedPayload():S(),_CompressedPayload(),D(){
+			template<class	S,class	D,class	F>	CompressedPayload<S,D,F>::CompressedPayload():S(),_CompressedPayload(),D(){
+			}
 		}
 	}
 }

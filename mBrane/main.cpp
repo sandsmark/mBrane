@@ -18,6 +18,7 @@ public:
 	uint32	b;
 };
 */
+//#include	"..\Core\payload_utils.h"
 
 
 int	main(int	argc,char	**argv){
@@ -41,6 +42,11 @@ int	main(int	argc,char	**argv){
 		}
 		delete	n;
 	}
+/*
+	payloads::Array<uint32,16,Memory>	a;
+	payloads::CircularBuffer<uint32,16,Memory>	c;
+	payloads::List<uint32,16,Memory>	l;
+	*/
 /*
 	CM	*cm=new	CM();
 //	P<CM>	cmp=cm;

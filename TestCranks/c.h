@@ -8,6 +8,7 @@
 
 using	namespace	mBrane;
 using	namespace	mBrane::sdk;
+using	namespace	mBrane::sdk::payloads;
 
 //	one could also define (or include) custom memory managers here
 

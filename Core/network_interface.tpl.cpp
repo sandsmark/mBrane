@@ -35,16 +35,21 @@ namespace	mBrane{
 
 			ClassRegister	*CR=ClassRegister::Get(c->cid());
 			int16	r;
-			if(c->isCompressedPayload()	&&	((_CompressedPayload	*)c)->isCompressed){
+			if(c->isDynamicData()){
+				
+				if(c->isCompressedData()	&&	!((_CompressedPayload	*)c)->isCompressed){
 
-				((_CompressedPayload	*)c)->compress();
-				((_CompressedPayload	*)c)->isCompressed=true;
-				if(r=send(((uint8	*)c)+CR->offset(),CR->coreSize()+((_CompressedPayload	*)c)->compressedSize))
+					((_CompressedPayload	*)c)->compress();
+					((_CompressedPayload	*)c)->isCompressed=true;
+				}
+				if(r=send(((uint8	*)c)+CR->offset(),CR->coreSize()+((_CompressedPayload	*)c)->dynamicSize()))
 					return	r;
 			}else	if(r=send(((uint8	*)c)+CR->offset(),CR->size()))
 				return	r;
 			for(uint8	i=0;i<c->ptrCount();i++){
 
+				if(!*c->ptr(i))
+					continue;
 				if(r=send(*c->ptr(i)))
 					return	r;
 			}
@@ -59,18 +64,22 @@ namespace	mBrane{
 				return	r;
 			ClassRegister	*CR=ClassRegister::Get(cid);
 			*c=(C	*)CR->allocator();
-			if((*c)->isCompressedPayload()){
+			if((*c)->isDynamicData()){
 
 				if(r=recv((uint8	*)*c,CR->coreSize()))
 					return	r;
-				if(r=recv(((uint8	*)*c)+CR->coreSize(),((_CompressedPayload	*)c)->compressedSize))
+				if(r=recv(((uint8	*)*c)+CR->coreSize(),((_DynamicData	*)c)->dynamicSize()))
 					return	r;
-				((_CompressedPayload	*)*c)->decompress();
+				if(c->isCompressedPayload())
+					((_CompressedPayload	*)*c)->decompress();
 			}else	if(r=recv((uint8	*)*c,CR->size()))
 				return	r;
 			_Payload	*ptr;
 			P<_Payload>	*_ptr;
 			for(uint8	i=0;i<(*c)->ptrCount();i++){
+
+				if(!*c->ptr(i))
+					continue;
 
 				if(r=recv(&ptr)){
 

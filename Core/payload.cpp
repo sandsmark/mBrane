@@ -84,6 +84,11 @@ namespace	mBrane{
 			return	false;
 		}
 
+		inline	bool	_Payload::isDynamicData()	const{
+
+			return	false;
+		}
+
 		inline	bool	_Payload::isCompressedPayload()	const{
 
 			return	false;
@@ -138,6 +143,16 @@ namespace	mBrane{
 		}
 
 		inline	void	_RPayload::init(){
+		}
+
+		inline	bool	_RPayload::isDynamicData()	const{
+
+			return	false;
+		}
+
+		inline	bool	_RPayload::isCompressedPayload()	const{
+
+			return	false;
 		}
 	}
 }

@@ -80,9 +80,9 @@ namespace	mBrane{
 				first=get(i)->next;
 			if(last==i)
 				last=get(i)->prev;
-			lastFree->next=i;
-			i->prev=lastFree;
-			i->next=NullIndex;
+			get(lastFree)->next=i;
+			get(i)->prev=lastFree;
+			get(i)->next=NullIndex;
 			lastFree=i;
 			_elementCount--;
 		}

@@ -36,40 +36,42 @@
 
 namespace	mBrane{
 	namespace	sdk{
+		namespace	payloads{
 
-		class	dll	SystemReady:	//	sent when all the nodes specified in the node cfg file are up and running
-		public	ControlMessage<SystemReady>{
-		public:
-			SystemReady();
-			~SystemReady();
-		};
+			class	dll	SystemReady:	//	sent when all the nodes specified in the node cfg file are up and running
+			public	ControlMessage<SystemReady>{
+			public:
+				SystemReady();
+				~SystemReady();
+			};
 
-		class	dll	TimeSync:
-		public	ControlMessage<TimeSync>{
-		public:
-			TimeSync();
-			~TimeSync();
-		};
+			class	dll	TimeSync:
+			public	ControlMessage<TimeSync>{
+			public:
+				TimeSync();
+				~TimeSync();
+			};
 
-		class	dll	NodeJoined:
-		public	ControlMessage<NodeJoined>{
-		private:
-			uint16	NID;
-		public:
-			NodeJoined();
-			~NodeJoined();
-			uint16	&nid();
-		};
+			class	dll	NodeJoined:
+			public	ControlMessage<NodeJoined>{
+			private:
+				uint16	NID;
+			public:
+				NodeJoined();
+				~NodeJoined();
+				uint16	&nid();
+			};
 
-		class	dll	NodeLeft:
-		public	ControlMessage<NodeLeft>{
-		private:
-			uint16	NID;
-		public:
-			NodeLeft();
-			~NodeLeft();
-			uint16	&nid();
-		};
+			class	dll	NodeLeft:
+			public	ControlMessage<NodeLeft>{
+			private:
+				uint16	NID;
+			public:
+				NodeLeft();
+				~NodeLeft();
+				uint16	&nid();
+			};
+		}
 	}
 }
 

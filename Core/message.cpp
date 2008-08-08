@@ -33,106 +33,121 @@
 
 namespace	mBrane{
 	namespace	sdk{
+		namespace	payloads{
 
-		inline	_ControlMessage::_ControlMessage(uint32	mid,uint8	priority):_mid(mid),_priority(_priority),_senderNodeID(0){
-		}
+			inline	_ControlMessage::_ControlMessage(uint32	mid,uint8	priority):_mid(mid),_priority(_priority),_senderNodeID(0){
+			}
 
-		inline	_ControlMessage::~_ControlMessage(){
-		}
+			inline	_ControlMessage::~_ControlMessage(){
+			}
 
-		inline	_ControlMessage::operator	_Payload	*()	const{
+			inline	_ControlMessage::operator	_Payload	*()	const{
 
-			return	(_Payload	*)(((uint8	*)this)-sizeof(_Payload));
-		}
+				return	(_Payload	*)(((uint8	*)this)-sizeof(_Payload));
+			}
 
-		inline	uint32	&_ControlMessage::mid(){
+			inline	uint32	&_ControlMessage::mid(){
 
-			return	_mid;
-		}
+				return	_mid;
+			}
 
-		inline	uint8	&_ControlMessage::priority(){
+			inline	uint8	&_ControlMessage::priority(){
 
-			return	_priority;
-		}
+				return	_priority;
+			}
 
-		inline	uint16	&_ControlMessage::senderNode_id(){
+			inline	uint16	&_ControlMessage::senderNode_id(){
 
-			return	_senderNodeID;
-		}
+				return	_senderNodeID;
+			}
 
-		////////////////////////////////////////////////////////////////////////////////////////////////
+			////////////////////////////////////////////////////////////////////////////////////////////////
 
-		inline	_StreamData::_StreamData(){
-		}
+			inline	_StreamData::_StreamData(){
+			}
 
-		inline	_StreamData::~_StreamData(){
-		}
+			inline	_StreamData::~_StreamData(){
+			}
 
-		inline	_StreamData::operator	_ControlMessage	*()	const{
+			inline	_StreamData::operator	_ControlMessage	*()	const{
 
-			return	(_ControlMessage	*)(((uint8	*)this)-sizeof(_ControlMessage));
-		}
+				return	(_ControlMessage	*)(((uint8	*)this)-sizeof(_ControlMessage));
+			}
 
-		inline	_StreamData::operator	_Payload	*()	const{
+			inline	_StreamData::operator	_Payload	*()	const{
 
-			return	(_Payload	*)(((uint8	*)this)-sizeof(_ControlMessage)-sizeof(_Payload));
-		}
+				return	(_Payload	*)(((uint8	*)this)-sizeof(_ControlMessage)-sizeof(_Payload));
+			}
 
-		////////////////////////////////////////////////////////////////////////////////////////////////
+			////////////////////////////////////////////////////////////////////////////////////////////////
 
-		inline	_CompressedPayload::_CompressedPayload():isCompressed(false),compressedSize(0){
-		}
+			inline	_DynamicData::_DynamicData(){
+			}
 
-		inline	_CompressedPayload::~_CompressedPayload(){
-		}
+			inline	_DynamicData::~_DynamicData(){
+			}
 
-		inline	bool	_CompressedPayload::isCompressedPayload()	const{
+			inline	bool	_DynamicData::isDynamicData()	const{
 
-			return	true;
-		}
+				return	true;
+			}
 
-		inline	void	_CompressedPayload::compress(){
-		}
+			////////////////////////////////////////////////////////////////////////////////////////////////
 
-		inline	void	_CompressedPayload::decompress(){
-		}
+			inline	_CompressedPayload::_CompressedPayload():_DynamicData(),isCompressed(false){
+			}
 
-		////////////////////////////////////////////////////////////////////////////////////////////////
+			inline	_CompressedPayload::~_CompressedPayload(){
+			}
 
-		inline	_Message::_Message():_senderModuleCID(0),_senderModuleIID(0),_senderCrankCID(0),_senderCrankIID(0){
-		}
+			inline	bool	_CompressedPayload::isCompressedPayload()	const{
 
-		inline	_Message::~_Message(){
-		}
+				return	true;
+			}
 
-		inline	_Message::operator	_ControlMessage	*()	const{
+			inline	void	_CompressedPayload::compress(){
+			}
 
-			return	(_ControlMessage	*)(((uint8	*)this)-sizeof(_ControlMessage));
-		}
+			inline	void	_CompressedPayload::decompress(){
+			}
 
-		inline	_Message::operator	_Payload	*()	const{
+			////////////////////////////////////////////////////////////////////////////////////////////////
 
-			return	(_Payload	*)(((uint8	*)this)-sizeof(_ControlMessage)-sizeof(_Payload));
-		}
+			inline	_Message::_Message():_senderModuleCID(0),_senderModuleIID(0),_senderCrankCID(0),_senderCrankIID(0){
+			}
 
-		inline	uint16	&_Message::senderModule_cid(){
+			inline	_Message::~_Message(){
+			}
 
-			return	_senderModuleCID;
-		}
+			inline	_Message::operator	_ControlMessage	*()	const{
 
-		inline	uint16	&_Message::senderModule_iid(){
+				return	(_ControlMessage	*)(((uint8	*)this)-sizeof(_ControlMessage));
+			}
 
-			return	_senderModuleIID;
-		}
+			inline	_Message::operator	_Payload	*()	const{
 
-		inline	uint16	&_Message::senderCrank_cid(){
+				return	(_Payload	*)(((uint8	*)this)-sizeof(_ControlMessage)-sizeof(_Payload));
+			}
 
-			return	_senderCrankCID;
-		}
+			inline	uint16	&_Message::senderModule_cid(){
 
-		inline	uint16	&_Message::senderCrank_iid(){
+				return	_senderModuleCID;
+			}
 
-			return	_senderCrankIID;
+			inline	uint16	&_Message::senderModule_iid(){
+
+				return	_senderModuleIID;
+			}
+
+			inline	uint16	&_Message::senderCrank_cid(){
+
+				return	_senderCrankCID;
+			}
+
+			inline	uint16	&_Message::senderCrank_iid(){
+
+				return	_senderCrankIID;
+			}
 		}
 	}
 }
