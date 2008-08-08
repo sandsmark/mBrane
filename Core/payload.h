@@ -37,6 +37,7 @@
 namespace	mBrane{
 	namespace	sdk{
 
+		class	_RPayload;
 		class	dll	_Payload:
 		public	_Object{
 		protected:
@@ -50,8 +51,8 @@ namespace	mBrane{
 			static	const	size_t	Offset();
 			virtual	~_Payload();
 			uint16	cid()	const;
-			virtual	uint8		ptrCount()	const;
-			virtual	P<_Payload>	*ptr(uint8	i);
+			virtual	uint8			ptrCount()	const;
+			virtual	P<_RPayload>	*ptr(uint8	i);
 			virtual	void	init();	//	invocation triggered by reception
 			virtual	bool	isCrankData()	const;
 			virtual	bool	isControlMessage()	const;
@@ -93,6 +94,42 @@ namespace	mBrane{
 		//	Usage:	class	Some3rdPartyClass{ ... };
 		//			class Some3rdPartyClassAdapted:public PayloadAdapter<Some3rdPartyClass,Memory,Some3rdPartyClassAdapted>{ ... };
 		//			NB: Memory can be any Allocator class
+
+		class	dll	_RPayload:	//	raw payload (i.e. without send/recv time stamps) to embed (P<>)in payloads
+		public	_Object{
+		protected:
+			uint16	_cid;
+			_RPayload();
+		public:
+			static	const	size_t	Offset();
+			virtual	~_RPayload();
+			uint16	cid()	const;
+			virtual	uint8			ptrCount()	const;
+			virtual	P<_RPayload>	*ptr(uint8	i);
+			virtual	void	init();	//	invocation triggered by reception
+		};
+
+		template<class	M,class	U>	class	RPayload:
+		public	Object<M,_RPayload,U>{
+		private:
+			static	const	uint16	_CID;
+		protected:
+			RPayload();
+		public:
+			static	void	*New();
+			void	*operator	new(size_t	s);
+			void	operator	delete(void	*o);
+			static	const	uint16	CID();
+			static	const	size_t	Size();
+			static	const	size_t	CoreSize();
+		};
+
+		template<class	C,class	M,class	U>	class	RPayloadAdapter:
+		public	C,
+		public	RPayload<M,U>{
+		protected:
+			RPayloadAdapter();
+		};
 	}
 }
 

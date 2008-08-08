@@ -56,7 +56,7 @@ namespace	mBrane{
 			return	0;
 		}
 
-		inline	P<_Payload>	*_Payload::ptr(uint8	i){
+		inline	P<_RPayload>	*_Payload::ptr(uint8	i){
 
 			return	NULL;
 		}
@@ -107,6 +107,37 @@ namespace	mBrane{
 		inline	int64	&_Payload::recv_ts(){
 
 			return	_recv_ts;
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////////////////
+
+		const	size_t	_RPayload::Offset(){
+
+			return	sizeof(_Object);
+		}
+
+		inline	_RPayload::_RPayload():_Object(){
+		}
+
+		inline	_RPayload::~_RPayload(){
+		}
+
+		inline	uint16	_RPayload::cid()	const{
+			
+			return	_cid;
+		}
+
+		inline	uint8	_RPayload::ptrCount()	const{
+
+			return	0;
+		}
+
+		inline	P<_RPayload>	*_RPayload::ptr(uint8	i){
+
+			return	NULL;
+		}
+
+		inline	void	_RPayload::init(){
 		}
 	}
 }

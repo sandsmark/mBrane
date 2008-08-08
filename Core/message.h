@@ -61,7 +61,7 @@ namespace	mBrane{
 			uint16	&senderNode_id();
 		};
 
-		template<class	U>	class	ControlMessage:	//	subclasses shall have no embedded pointers
+		template<class	U>	class	ControlMessage:
 		public	Payload<Memory,U>,
 		public	_ControlMessage{
 		protected:
@@ -103,7 +103,7 @@ namespace	mBrane{
 			virtual	void	decompress();
 		};
 
-		template<class	S,class	D,class	F>	class	CompressedPayload:	//	S: superclass, either Message<U> or StreamData<U>; subclass U shall not define any data at all (already defined by class D); F: frame data
+		template<class	S,class	D,class	F>	class	CompressedPayload:	//	S: superclass, either Message<U>, StreamData<U> or Payload<U>; subclass U shall not define any data at all (already defined by class D); F: frame data
 		public	S,
 		public	_CompressedPayload,
 		public	D{

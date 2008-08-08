@@ -75,5 +75,49 @@ namespace	mBrane{
 
 		template<class	C,class	M,class	U>	inline	PayloadAdapter<C,M,U>::PayloadAdapter():Payload<M,U>(),C(){
 		}
+
+		////////////////////////////////////////////////////////////////////////////////////
+
+		template<class	M,class	U>	const	uint16	RPayload<M,U>::_CID=ClassRegister::Load<U,M>();
+
+		template<class	M,class	U>	inline	void	*RPayload<M,U>::New(){	//	to initialize the _vftable
+
+			return	new	U();
+		}
+
+		template<class	M,class	U>	inline	const	uint16	RPayload<M,U>::CID(){
+
+			return	_CID;
+		}
+
+		template<class	M,class	U>	inline	const	size_t	RPayload<M,U>::Size(){
+
+			return	sizeof(U);
+		}
+
+		template<class	M,class	U>	inline	const	size_t	RPayload<M,U>::CoreSize(){
+
+			return	sizeof(U);
+		}
+
+		template<class	M,class	U>	inline	RPayload<M,U>::RPayload():Object<M,_RPayload,U>(){
+		}
+
+		template<class	M,class	U>	inline	void	*RPayload<M,U>::operator	new(size_t	s){
+
+			U	*p=(U	*)Object<M,_RPayload,U>::operator	new(s);
+			p->_cid=_CID;
+			return	p;
+		}
+		
+		template<class	M,class	U>	inline	void	RPayload<M,U>::operator	delete(void	*o){
+
+			Object<M,_RPayload,U>::operator	delete(o);
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////
+
+		template<class	C,class	M,class	U>	inline	RPayloadAdapter<C,M,U>::RPayloadAdapter():RPayload<M,U>(),C(){
+		}
 	}
 }

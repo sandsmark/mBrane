@@ -446,6 +446,9 @@ err2:	delete[]	networkID;
 		if(dataChannels[entry]->stream)
 			delete	dataChannels[entry]->stream;
 		dataChannels[entry]->stream=NULL;
+		if(dataChannels[entry]->networkID)
+			delete	dataChannels[entry]->networkID;
+		dataChannels[entry]->networkID=NULL;
 
 		connectedNodeCount--;
 
@@ -572,7 +575,7 @@ err1:	node->shutdown();
 				sync.send_ts()=Time::Get();
 				for(uint16	i=0;i<node->controlChannels.count();i++){
 
-					if(node->controlChannels[i]	&&	node->controlChannels[i]->send(&sync))
+					if(node->controlChannels[i]	&&	node->controlChannels[i]->send((&sync)->operator	_Payload	*()))
 						node->processError(CONTROL,i);
 				}
 				node->lastSyncTime=t;

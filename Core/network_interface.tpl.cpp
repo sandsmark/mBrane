@@ -1,4 +1,4 @@
-//	network_interface.cpp
+//	network_interface.tpl.cpp
 //
 //	Author: Eric Nivel
 //
@@ -28,63 +28,60 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include	"network_interface.h"
-#include	"message.h"
-
-#include	<iostream>
-
-
 namespace	mBrane{
 	namespace	sdk{
 
-		NetworkInterface::NetworkInterface(Protocol	_protocol):_protocol(_protocol){
-		}
+		template<class	C>	int16	CommChannel::send(C	*c){
 
-		NetworkInterface::~NetworkInterface(){
-		}
-
-		NetworkInterface::Protocol	NetworkInterface::protocol()	const{
-
-			return	_protocol;
-		}
-
-		////////////////////////////////////////////////////////////////////////////////////////////////
-
-		CommChannel::CommChannel(){
-		}
-
-		CommChannel::~CommChannel(){
-		}
-
-		int16	CommChannel::send(_Payload	*p){
-
-			p->node_send_ts()=Time::Get();
-			return	send(p);
-		}
-
-		int16	CommChannel::recv(_Payload	**p){
-
+			ClassRegister	*CR=ClassRegister::Get(c->cid());
 			int16	r;
-			if(r=recv(p))
+			if(c->isCompressedPayload()	&&	((_CompressedPayload	*)c)->isCompressed){
+
+				((_CompressedPayload	*)c)->compress();
+				((_CompressedPayload	*)c)->isCompressed=true;
+				if(r=send(((uint8	*)c)+CR->offset(),CR->coreSize()+((_CompressedPayload	*)c)->compressedSize))
+					return	r;
+			}else	if(r=send(((uint8	*)c)+CR->offset(),CR->size()))
 				return	r;
-			(*p)->node_recv_ts()=Time::Get();
+			for(uint8	i=0;i<c->ptrCount();i++){
+
+				if(r=send(*c->ptr(i)))
+					return	r;
+			}
 			return	0;
 		}
 
-		////////////////////////////////////////////////////////////////////////////////////////////////
+		template<class	C>	int16	CommChannel::recv(C	**c){
 
-		ConnectedCommChannel::ConnectedCommChannel():CommChannel(){
-		}
+			uint16	cid;
+			int16	r;
+			if(r=recv((uint8	*)&cid,sizeof(uint16),true))
+				return	r;
+			ClassRegister	*CR=ClassRegister::Get(cid);
+			*c=(C	*)CR->allocator();
+			if((*c)->isCompressedPayload()){
 
-		ConnectedCommChannel::~ConnectedCommChannel(){
-		}
+				if(r=recv((uint8	*)*c,CR->coreSize()))
+					return	r;
+				if(r=recv(((uint8	*)*c)+CR->coreSize(),((_CompressedPayload	*)c)->compressedSize))
+					return	r;
+				((_CompressedPayload	*)*c)->decompress();
+			}else	if(r=recv((uint8	*)*c,CR->size()))
+				return	r;
+			_Payload	*ptr;
+			P<_Payload>	*_ptr;
+			for(uint8	i=0;i<(*c)->ptrCount();i++){
 
-		////////////////////////////////////////////////////////////////////////////////////////////////
+				if(r=recv(&ptr)){
 
-		BroadcastCommChannel::BroadcastCommChannel():CommChannel(){
-		}
-
-		BroadcastCommChannel::~BroadcastCommChannel(){
+					delete	*c;
+					return	r;
+				}
+				_ptr=(*c)->ptr(i);
+				*_ptr=ptr;
+			}
+			(*c)->init();
+			return	0;
 		}
 	}
 }
