@@ -34,7 +34,7 @@ namespace	mBrane{
 
 			template<typename	T,uint32	_S,class	M>	const	size_t	Array<T,_S,M>::CoreSize(){
 
-				return	Size()-S*sizeof(T);
+				return	Size()-_S*sizeof(T);
 			}
 
 			template<typename	T,uint32	_S,class	M>	Array<T,_S,M>::Array():RPayload<M,Array<T,_S,M> >(),_DynamicData(),next(NULL),_count(0){
@@ -66,7 +66,7 @@ namespace	mBrane{
 
 			template<typename	T,uint32	_S,class	M>	T	&Array<T,_S,M>::operator	[](uint32	i){
 
-				if(i<S){
+				if(i<_S){
 
 					if(i>=_count){
 
@@ -86,6 +86,13 @@ namespace	mBrane{
 				if(next)
 					next->clear();
 				next=NULL;
+			}
+
+			template<typename	T,uint32	_S,class	M>	Array<T,_S,M>	*Array<T,_S,M>::add(){
+
+				if(!next)
+					return	next=new	Array<T,_S,M>();
+				return	next->add();
 			}
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
@@ -167,31 +174,31 @@ namespace	mBrane{
 
 			template<typename	T,uint32	_S,class	M>	uint32	List<T,_S,M>::count()	const{
 
-				return	_count();
+				return	_count;
 			}
 
-			template<typename	T,uint32	_S,class	M>	void	List<T,_S,M>::initFreeZone(uint32	start){
+			template<typename	T,uint32	_S,class	M>	void	List<T,_S,M>::initArray(Array<ListElement<T>,_S,M>	*_array){
 
-				for(uint32	i=start;i<_count;i++){
+				for(uint32	i=0;i<_S;i++){
 
-					if(i>start)
+					if(i>0)
 						_array[i].prev=i-1;
 					else
 						_array[i].prev=NullIndex;
-					if(i<_count-1)
+					if(i<_S-1)
 						_array[i].next=i+1;
 					else
 						_array[i].next=NullIndex;
 				}
-				firstFree=start;
-				lastFree=_count-1;
+				firstFree=0;
+				lastFree=_S-1;
 			}
 
 			template<typename	T,uint32	_S,class	M>	inline	void	List<T,_S,M>::clear(){
 
 				first=last=NullIndex;
-				_elementCount=0;
-				initFreeZone(0);
+				_count=0;
+				initArray(_array);
 			}
 
 			template<typename	T,uint32	_S,class	M>	inline	void	List<T,_S,M>::remove(uint32	i){
@@ -208,7 +215,11 @@ namespace	mBrane{
 				_array[i].prev=lastFree;
 				_array[i].next=NullIndex;
 				lastFree=i;
-				_elementCount--;
+				if(--_count==0){
+
+					first=NullIndex;
+					last=NullIndex;
+				}
 			}
 
 			template<typename	T,uint32	_S,class	M>	inline	uint32	List<T,_S,M>::removeReturnNext(uint32	i){
@@ -225,7 +236,7 @@ namespace	mBrane{
 
 			template<typename	T,uint32	_S,class	M>	inline	void	List<T,_S,M>::insertAfter(uint32	i,T	&t){
 
-				uint32	target=getFreeSlot(i);
+				uint32	target=getFreeSlot();
 				_array[target].next=_array[i].next;
 				_array[target].prev=i;
 				_array[target].data=t;
@@ -237,7 +248,7 @@ namespace	mBrane{
 
 			template<typename	T,uint32	_S,class	M>	inline	void	List<T,_S,M>::insertBefore(uint32	i,T	&t){
 
-				uint32	target=getFreeSlot(i);
+				uint32	target=getFreeSlot();
 				_array[target].prev=_array[i].prev;
 				_array[target].next=i;
 				_array[target].data=t;
@@ -247,23 +258,25 @@ namespace	mBrane{
 					first==target;
 			}
 
-			template<typename	T,uint32	_S,class	M>	inline	uint32	List<T,_S,M>::getFreeSlot(uint32	i){
+			template<typename	T,uint32	_S,class	M>	inline	uint32	List<T,_S,M>::getFreeSlot(){
 
-				if(_elementCount==_count){
-
-					uint32	oldCount=_count;
-					alloc(_count);
-					initFreeZone(oldCount);
-				}
+				if(_count==_S)
+					initArray(_array.add());
 
 				uint32	freeSlot=firstFree;
-				firstFree=firstFree->next;
-				_elementCount++;
+				firstFree=_array[firstFree].next;
+				_count++;
 
-				if(_array[i].prev!=NullIndex)
-					_array[_array[i].prev].next=_array[i].next;
-				if(_array[i].next!=NullIndex)
-					_array[_array[i].next].prev=_array[i].prev;
+				if(first==NullIndex){
+
+					first=freeSlot;
+					last=freeSlot;
+				}
+
+				if(_array[freeSlot].prev!=NullIndex)
+					_array[_array[freeSlot].prev].next=_array[freeSlot].next;
+				if(_array[freeSlot].next!=NullIndex)
+					_array[_array[freeSlot].next].prev=_array[freeSlot].prev;
 				
 				return	freeSlot;
 			}

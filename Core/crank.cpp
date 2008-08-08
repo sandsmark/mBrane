@@ -72,11 +72,6 @@ namespace	mBrane{
 				return	_canBeSwapped;
 			}
 
-			inline	bool	_Crank::run(){
-
-				return	true;
-			}
-
 			uint32	_Crank::dumpSize(){
 
 				return	0;

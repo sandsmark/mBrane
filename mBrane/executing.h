@@ -31,8 +31,10 @@
 #ifndef	mBrane_executing_h
 #define	mBrane_executing_h
 
+#include	"..\Core\utils.h"
 #include	"..\Core\crank.h"
 #include	"..\Core\xml_parser.h"
+#include	"..\Core\list.h"
 
 
 using	namespace	mBrane::sdk;
@@ -40,21 +42,27 @@ using	namespace	mBrane::sdk::crank;
 
 namespace	mBrane{
 
-	class	Executing{
+	class	Executing{	//	thread pool
 	protected:
 		typedef	struct{
-			Executing	*n;
-			_Crank		*c;
-		}CrankThreadArgs;
+			Executing	*node;
+			uint32		threadID;
+		}CrankExecutionUnitArgs;
 		static	uint32	thread_function_call	CrankExecutionUnit(void	*args);
 		Array<Thread	*>	crankThreads;
 		//	TODO:	define crank list, scheduling function
 		bool	__shutdown;
+		uint32	threadCount;	//	0 if dynamic
+		List<_Crank	*>	cranks;
+		CriticalSection	crankCS;
 		Executing();
 		~Executing();
 		bool	loadConfig(XMLNode	&n);
 		void	start();
 		void	shutdown();
+		void	addCrank(_Crank	*c);
+		void	removeCrank(_Crank	*c);
+		_Crank	*getCrank(uint32	threadID);
 	};
 }
 

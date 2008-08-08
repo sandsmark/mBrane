@@ -40,13 +40,16 @@ namespace	mBrane{
 
 			//	Classes the instances of which are to be embedded in messages instances
 
+			template<typename	T,uint32	_S,class	M>	class	List;
 			template<typename	T,uint32	_S,class	M>	class	Array:
 			public	RPayload<M,Array<T,_S,M> >,
 			public	_DynamicData{
+			template<typename	T,uint32	_S,class	M>	friend	class	List;
 			protected:
 				P<Array<T,_S,M> >	next;
 				uint32	_count;
 				T	block[_S];
+				Array<T,_S,M>	*add();
 			public:
 				static	const	size_t	CoreSize();
 				Array();
@@ -115,8 +118,8 @@ namespace	mBrane{
 				uint32	_count;
 				uint32	firstFree;
 				uint32	lastFree;
-				void	initFreeZone(uint32	start);
-				uint32	getFreeSlot(uint32	i);
+				void	initArray(Array<ListElement<T>,_S,M>	*_array);
+				uint32	getFreeSlot();
 				void	remove(uint32	i);
 				uint32	removeReturnNext(uint32	i);
 				uint32	removeReturnPrevious(uint32	i);

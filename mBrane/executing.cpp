@@ -37,6 +37,9 @@ namespace	mBrane{
 	}
 
 	Executing::~Executing(){
+
+		for(uint32	i=0;i<crankThreads.count();i++)
+			delete	crankThreads[i];
 	}
 
 	bool	Executing::loadConfig(XMLNode	&n){
@@ -50,14 +53,14 @@ namespace	mBrane{
 				std::cout<<"Error: "<<n.getName()<<"::Threads::thread_count is missing\n";
 				return	false;
 			}
-			crankThreads.alloc(atoi(tc));
+			threadCount=atoi(tc);
+			if(threadCount>0)
+				crankThreads.alloc(threadCount);
 		}
 		return	true;
 	}
 
 	void	Executing::start(){
-
-		//	TODO:	start thread (CEU) pool;
 	}
 
 	void	Executing::shutdown(){
@@ -68,45 +71,73 @@ namespace	mBrane{
 		Thread::Wait(crankThreads.data(),crankThreads.count());
 	}
 
+	void	Executing::addCrank(_Crank	*c){
+
+		crankCS.enter();
+		cranks.addElementTail(c);
+		crankCS.leave();
+
+		c->start();
+
+		if(threadCount==0){
+
+			if(crankThreads.count()<cranks.elementCount())
+				goto	addThread;
+		}else	if(crankThreads.count()<cranks.elementCount()	&&	crankThreads.count()<threadCount)
+			goto	addThread;
+		return;
+addThread:
+		CrankExecutionUnitArgs	args;
+		args.node=this;
+		args.threadID=crankThreads.count();
+		crankThreads[crankThreads.count()]=Thread::New(CrankExecutionUnit,&args);
+	}
+
+	void	Executing::removeCrank(_Crank	*c){
+
+		crankCS.enter();
+		cranks.removeElement(c);
+		crankCS.leave();
+
+		c->stop();
+	}
+
+	_Crank	*Executing::getCrank(uint32	threadID){
+
+		uint32	crankCount;
+		crankCS.enter();
+		crankCount=cranks.elementCount();
+		
+		if(threadID>=crankCount){	//	more threads than cranks
+
+			crankCS.leave();
+			return	NULL;
+		}
+
+		//	TODO:	add scheduling data in _Crank (msg count and next msg's priority, or next msg itself), implement the crank election here
+		crankCS.leave();
+	}
+
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
 	uint32	thread_function_call	Executing::CrankExecutionUnit(void	*args){
 
-		Executing	*node=((CrankThreadArgs	*)args)->n;
-		_Crank		*crank=((CrankThreadArgs	*)args)->c;
+		Executing	*node=((CrankExecutionUnitArgs	*)args)->node;
+		uint32		ID=((CrankExecutionUnitArgs	*)args)->threadID;
 
-		crank->start();
-
+		_Crank		*crank;
+		P<_Payload>	*p;
 		while(!node->__shutdown){
 
-			if(!crank->alive())
-				break;
-
-			P<_Payload>	*p;
-			if(crank->run()){
-
-				do
-					p=crank->pop();
-				while(!*p);	//	*p can be NULL (when preview returns true)
-				(*p)->recv_ts()=Time::Get();
-				crank->notify(*p);
-				*p=NULL;
-			}else{
-
-loop:			p=crank->pop(false);
-				if(p){
-
-					if(!*p)	//	*p can be NULL (when preview returns true)
-						goto	loop;
-					(*p)->recv_ts()=Time::Get();
-					crank->notify(*p);
-					*p=NULL;
-				}
-			}
+			if(!(crank=node->getCrank(ID)))
+				return	0;
+			do
+				p=crank->pop(false);
+			while(!*p);	//	*p can be NULL (when preview returns true)
+			(*p)->recv_ts()=Time::Get();
+			crank->notify(*p);
+			*p=NULL;
 		}
-
-		crank->stop();
-		delete	crank;
 
 		return	0;
 	}

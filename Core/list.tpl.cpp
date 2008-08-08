@@ -84,7 +84,11 @@ namespace	mBrane{
 			get(i)->prev=lastFree;
 			get(i)->next=NullIndex;
 			lastFree=i;
-			_elementCount--;
+			if(--_elementCount==0){
+
+				first=NullIndex;
+				last=NullIndex;
+			}
 		}
 
 		template<typename	T>	inline	uint32	List<T>::removeReturnNext(uint32	i){
@@ -101,7 +105,7 @@ namespace	mBrane{
 
 		template<typename	T>	inline	void	List<T>::insertAfter(uint32	i,T	&t){
 
-			uint32	target=getFreeSlot(i);
+			uint32	target=getFreeSlot();
 			get(target)->next=get(i)->next;
 			get(target)->prev=i;
 			get(target)->data=t;
@@ -113,7 +117,7 @@ namespace	mBrane{
 
 		template<typename	T>	inline	void	List<T>::insertBefore(uint32	i,T	&t){
 
-			uint32	target=getFreeSlot(i);
+			uint32	target=getFreeSlot();
 			get(target)->prev=get(i)->prev;
 			get(target)->next=i;
 			get(target)->data=t;
@@ -123,7 +127,7 @@ namespace	mBrane{
 				first==target;
 		}
 
-		template<typename	T>	inline	uint32	List<T>::getFreeSlot(uint32	i){
+		template<typename	T>	inline	uint32	List<T>::getFreeSlot(){
 
 			if(_elementCount==_count){
 
@@ -133,15 +137,43 @@ namespace	mBrane{
 			}
 
 			uint32	freeSlot=firstFree;
-			firstFree=firstFree->next;
+			firstFree=get(firstFree)->next;
 			_elementCount++;
 
-			if(get(i)->prev!=NullIndex)
-				get(get(i)->prev)->next=get(i)->next;
-			if(get(i)->next!=NullIndex)
-				get(get(i)->next)->prev=get(i)->prev;
+			if(first==NullIndex){
+
+				first=freeSlot;
+				last=freeSlot;
+			}
+
+			if(get(freeSlot)->prev!=NullIndex)
+				get(get(freeSlot)->prev)->next=get(freeSlot)->next;
+			if(get(freeSlot)->next!=NullIndex)
+				get(get(freeSlot)->next)->prev=get(freeSlot)->prev;
 			
 			return	freeSlot;
+		}
+
+		template<typename	T>	inline	void	List<T>::addElementHead(T	&t){
+
+			insertBefore(first,t);
+		}
+		
+		template<typename	T>	inline	void	List<T>::addElementTail(T	&t){
+
+			insertAfter(last,t);
+		}
+		
+		template<typename	T>	inline	void	List<T>::removeElement(T	&t){
+
+			for(uint32	i=first;i!=NullIndex;i=get(i)->next){
+
+				if(get(i)->data==t){
+
+					remove(i);
+					return;
+				}
+			}
 		}
 	}
 }

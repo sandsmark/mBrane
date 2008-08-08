@@ -77,7 +77,7 @@ namespace	mBrane{
 			uint32	firstFree;
 			uint32	lastFree;
 			void	initFreeZone(uint32	start);
-			uint32	getFreeSlot(uint32	i);
+			uint32	getFreeSlot();
 			void	remove(uint32	i);
 			uint32	removeReturnNext(uint32	i);
 			uint32	removeReturnPrevious(uint32	i);
@@ -88,6 +88,9 @@ namespace	mBrane{
 			~List();
 			uint32	elementCount()	const;
 			void	clear();
+			void	addElementHead(T	&t);
+			void	addElementTail(T	&t);
+			void	removeElement(T	&t);
 			Iterator	&begin()	const{	return	Iterator(this,first);	}
 			Iterator	&end()	const{	return	Iterator(this,last);	}
 		};

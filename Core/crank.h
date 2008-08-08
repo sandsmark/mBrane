@@ -39,7 +39,7 @@ namespace	mBrane{
 	namespace	sdk{
 		namespace	crank{
 
-			class	dll	_Crank:	//	migration: migrateOut->dump->payload->send-/ /-receive->load->migrateIn
+			class	dll	_Crank:	//	migration: migrateOut->dump->payload->send-/ /-receive->load->migrateIn; cranks can launch their own internal threads
 			public	CircularBuffer<P<_Payload> >{
 			private:
 				uint16	_ID;
@@ -65,7 +65,6 @@ namespace	mBrane{
 				bool	alive()	const;
 				bool	canMigrate();	//	on another node; dynamic
 				bool	canBeSwapped();	//	on another thread within the same node; dynamic
-				virtual	bool		run();	//	return true: notification is blocking (run called first, then only if there are msg pending); false: non blocking (run called all the time even if there is no msg)
 				virtual	uint32		dumpSize();	//	dynamic
 				virtual	_Payload	*dump();	//	dumps the current state; can be called anytime
 				virtual	void		load(_Payload	*chunk);	//	initializes itself from a previously saved state

@@ -20,5 +20,5 @@
 	<Nodes><!--SystemReady will be sent when all the nodes listed here are up and running; no need to list the local node (implicit)-->
 		<!--ex: <Node hostname=""/> or <Node address=""/>-->
 	</Nodes>
-	<Threads thread_count="16"/>
+	<Threads thread_count="16"/><!--0 means dynamic, i.e. a new thread for each new crank-->
 </NodeConfiguration>
