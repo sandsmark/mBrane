@@ -58,7 +58,7 @@ namespace	mBrane{
 		~Thread();
 	};
 
-	class	dll	Time{
+	class	dll	Time{	//	TODO:	make sure time stamps are consistent when computed by different cores
 	private:
 		static	float64	Period;
 		static	int64	InitTime;

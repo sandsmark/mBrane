@@ -137,10 +137,10 @@ namespace	mBrane{
 #if defined	WINDOWS
 	LARGE_INTEGER	f;
 	QueryPerformanceFrequency(&f);
-	Period=1/f.QuadPart;
+	Period=1000000/f.QuadPart;	//	in us
 	struct	_timeb	local_time;
 	_ftime(&local_time);
-	InitTime=(int64)local_time.time*1000+local_time.millitm;
+	InitTime=(int64)(local_time.time*1000+local_time.millitm)*1000;	//	in us
 #elif defined LINUX
 #elif defined OSX
 #endif
