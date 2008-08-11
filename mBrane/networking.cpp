@@ -389,8 +389,8 @@ namespace	mBrane{
 		dataChannels[assignedNID]->stream=stream_c;
 		dataChannels[assignedNID]->networkID=networkID;
 		connectedNodeCount++;
-		notifyNodeJoined(assignedNID,networkID);
 		startReceivingThreads(assignedNID);
+		notifyNodeJoined(assignedNID,networkID);
 
 		return	0;
 err0:	if(data_c!=ctrl_c)
@@ -533,8 +533,8 @@ err2:	delete[]	networkID;
 			if(start){
 
 				node->connectedNodeCount++;
-				node->notifyNodeJoined(remoteNID,node->dataChannels[remoteNID]->networkID);
 				node->startReceivingThreads(remoteNID);
+				node->notifyNodeJoined(remoteNID,node->dataChannels[remoteNID]->networkID);
 			}
 		}
 		return	0;

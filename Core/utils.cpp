@@ -129,11 +129,28 @@ namespace	mBrane{
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
+	float64	Time::Period;
+	
+	int64	Time::InitTime;
+
+	inline	void	Time::Init(){
+#if defined	WINDOWS
+	LARGE_INTEGER	f;
+	QueryPerformanceFrequency(&f);
+	Period=1/f.QuadPart;
+	struct	_timeb	local_time;
+	_ftime(&local_time);
+	InitTime=(int64)local_time.time*1000+local_time.millitm;
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
+
 	inline	int64	Time::Get(){
 #if defined	WINDOWS
-		struct	_timeb	local_time;
-		_ftime(&local_time);
-		return	(int64)local_time.time*1000+local_time.millitm;
+		LARGE_INTEGER	counter;
+		QueryPerformanceCounter(&counter);
+		return	(int64)(InitTime+counter.QuadPart*Period);
 #elif defined LINUX
 #elif defined OSX
 #endif

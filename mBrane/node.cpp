@@ -49,10 +49,14 @@ namespace	mBrane{
 		return	NULL;
 	}
 
-	Node::Node():Networking(),Messaging(),PublishingSubscribing(),Executing(){
+	Node::Node():Networking(),Messaging(),PublishingSubscribing(),Executing(),nodeCount(0){
 	}
 
 	Node::~Node(){
+
+		for(uint16	i=0;i<nodeNames.count();i++)
+			if(nodeNames[i])
+				free((void	*)nodeNames[i]);
 	}
 
 	Node	*Node::loadConfig(const	char	*configFileName){
@@ -74,6 +78,27 @@ namespace	mBrane{
 
 		if(!daemon::Node::loadConfig(mainNode))
 			return	NULL;
+
+		XMLNode	nodeList=mainNode.getChildNode("Nodes");
+		if(!nodeList)
+			nodeCount=0;
+		else{
+
+			nodeCount=nodeList.nChildNode("Node");
+			nodeNames.alloc(nodeCount);
+			for(uint16	i=0;i<nodeCount;i++){
+
+				XMLNode	n=nodeList.getChildNode(i);
+				const	char	*_n=n.getAttribute("hostname");
+				if(!_n){
+
+					std::cout<<"Error: NodeConfiguration::Nodes::node_"<<i<<"::hostname is missing\n";
+					nodeNames[i]=NULL;
+					return	NULL;
+				}
+				nodeNames[i]=_n;
+			}
+		}
 
 		application_configuration_file=mainNode.getAttribute("application_configuration_file");
 		if(!application_configuration_file){
@@ -155,9 +180,6 @@ namespace	mBrane{
 		
 		commThreads[commThreads.count()]=Thread::New(NotifyMessages,this);
 
-		//	TODO:	if(isTimeReference) wait for nodes (listed in the config file) and send SystemReady to (local) cranks
-		//			else send NID to reference node
-		
 		daemon::Node::start();
 		//	TODO:	build cranks
 		Executing::start();
@@ -172,6 +194,26 @@ namespace	mBrane{
 		Messaging::send(_ID,&m,true);
 
 		std::cout<<"Node joined: "<<networkID->name()<<":"<<NID<<std::endl;
+
+		if(isTimeReference	&&	nodeCount){
+
+			for(uint16	i=0;i<nodeNames.count();i++){
+
+				if(strcmp(nodeNames[i],networkID->name())==0){
+
+					free((void	*)nodeNames[i]);
+					nodeNames[i]=NULL;
+					nodeCount--;
+					break;
+				}
+			}
+			if(!nodeCount){
+
+				SystemReady	m;
+				m.send_ts()=Time::Get();
+				Messaging::send(_ID,&m,false);
+			}
+		}
 	}
 
 	void	Node::notifyNodeLeft(uint16	NID){

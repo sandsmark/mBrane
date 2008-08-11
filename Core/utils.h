@@ -59,8 +59,12 @@ namespace	mBrane{
 	};
 
 	class	dll	Time{
+	private:
+		static	float64	Period;
+		static	int64	InitTime;
 	public:
-		static	int64	Get();	//	in ms since 01/01/1970
+		static	void	Init();
+		static	int64	Get();	//	in us since 01/01/1970
 	};
 
 	class	dll	Host{

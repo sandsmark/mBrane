@@ -73,6 +73,8 @@ namespace	mBrane{
 		void	notifyNodeLeft(uint16	NID);
 
 		//	NODE
+		uint16	nodeCount;
+		Array<const	char	*>	nodeNames;
 		Node();
 	public:
 		static	Node	*New(const	char	*configFileName);

@@ -50,7 +50,7 @@ namespace	mBrane{
 		//			else
 		//				the ref node sends (on data channel if control channel is bcast, on control channel otherwise): its own net ID, an assigned NID and the net map (i.e. the list of ready nodes net ID)
 		//				connect to each node in the list excepted the sender
-		//		if(ref node) send time sync periodically on control channle
+		//		if(ref node) send time sync periodically on control channel
 		//		start messages sending and receiving threads
 		//	when at least one connection to a remote node dies, the node in question is considred dead and the other connections to it are terminated
 		//	if the ref node dies, the node with the lowest NID is the new ref node

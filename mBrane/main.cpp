@@ -23,6 +23,8 @@ public:
 
 int	main(int	argc,char	**argv){
 
+	Time::Init();
+
 	if(argc!=3){
 	
 		std::cout<<"usage: mBrane <boot delay in ms> <config file name>\n";
