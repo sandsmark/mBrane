@@ -35,7 +35,7 @@
 #include	"xml_parser.h"
 #include	"dynamic_class_loader.h"
 
-
+//	Node API, as seen from the daemons
 namespace	mBrane{
 	namespace	sdk{
 		namespace	daemon{
@@ -56,7 +56,7 @@ namespace	mBrane{
 			public:
 				bool	isRunning();
 				//	TODO:	define API as pure virtual functions
-				//			-> node map
+				//			-> node map (an array of mBrane::Networking::NetworkID)
 				//			-> stats
 				//			-> ...
 			};

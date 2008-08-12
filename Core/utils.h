@@ -33,7 +33,7 @@
 
 #include	"types.h"
 
-
+//	Wrapping of OS-dependent functions
 namespace	mBrane{
 
 	class	dll	SharedLibrary{
@@ -56,9 +56,22 @@ namespace	mBrane{
 		static	void	Wait(Thread	**threads,uint32	threadCount);
 		static	void	Sleep(int64	d);
 		~Thread();
+		void	suspend();
+		void	resume();
+	};
+
+	class	dll	TimeProbe{	//	requires Time::Init()
+	private:
+		int64	cpu_counts;
+		int64	getCounts();
+	public:
+		void	set();	//	initialize
+		void	check();	//	gets the cpu count elapsed between set() and check()
+		int64	us();	//	converts cpu counts in us
 	};
 
 	class	dll	Time{	//	TODO:	make sure time stamps are consistent when computed by different cores
+	friend	class	TimeProbe;
 	private:
 		static	float64	Period;
 		static	int64	InitTime;

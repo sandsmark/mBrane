@@ -127,6 +127,49 @@ namespace	mBrane{
 #endif
 	}
 
+	void	Thread::suspend(){
+#if defined	WINDOWS
+		SuspendThread(_thread);
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
+
+	void	Thread::resume(){
+#if defined	WINDOWS
+		ResumeThread(_thread);
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+
+	inline	void	TimeProbe::set(){
+		
+		cpu_counts=getCounts();
+	}
+
+	inline	int64	TimeProbe::getCounts(){
+#if defined	WINDOWS
+		LARGE_INTEGER	counter;
+		QueryPerformanceCounter(&counter);
+		return	counter.QuadPart;
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
+
+	inline	void	TimeProbe::check(){
+
+		cpu_counts=getCounts()-cpu_counts;
+	}
+
+	inline	int64	TimeProbe::us(){
+
+		return	cpu_counts*Time::Period;
+	}
+
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
 	float64	Time::Period;

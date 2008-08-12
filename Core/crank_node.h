@@ -33,7 +33,7 @@
 
 #include	"payload.h"
 
-
+//	Node API, as seen from the crank
 namespace	mBrane{
 	namespace	sdk{
 		namespace	crank{

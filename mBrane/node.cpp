@@ -449,6 +449,8 @@ namespace	mBrane{
 					}
 				}
 			}
+
+			*_p=NULL;
 		}
 
 		return	0;

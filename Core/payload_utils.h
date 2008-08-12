@@ -33,12 +33,10 @@
 
 #include	"payload.h"
 
-
+//	Classes the instances of which are to be embedded in messages instances
 namespace	mBrane{
 	namespace	sdk{
 		namespace	payloads{
-
-			//	Classes the instances of which are to be embedded in messages instances
 
 			template<typename	T,uint32	_S,class	M>	class	List;
 			template<typename	T,uint32	_S,class	M>	class	Array:

@@ -34,7 +34,7 @@
 #include	"payload.h"
 #include	"memory.h"
 
-
+//	Root classes for defining applicative message classes
 namespace	mBrane{
 	namespace	sdk{
 
@@ -42,7 +42,7 @@ namespace	mBrane{
 
 		namespace	payloads{
 
-			template<class	Data>	class	CrankData:
+			template<class	Data>	class	CrankData:	//	binary data to be migrated
 			public	Payload<Memory,CrankData<Data> >,
 			public	Data{
 			public:
