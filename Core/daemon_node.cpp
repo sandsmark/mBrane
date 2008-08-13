@@ -78,7 +78,7 @@ namespace	mBrane{
 			void	Node::start(){
 
 				for(uint32	i=0;i<daemons.count();i++)
-					daemonThreads[i]=Thread::New(Daemon::Run,daemons[i]);
+					daemonThreads[i]=Thread::New<Thread>(Daemon::Run,daemons[i]);
 			}
 
 			void	Node::shutdown(){

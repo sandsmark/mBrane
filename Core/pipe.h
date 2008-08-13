@@ -1,4 +1,4 @@
-//	application.h
+//	pipe.h
 //
 //	Author: Eric Nivel
 //
@@ -28,44 +28,46 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef	_application_h_
-#define	_application_h_
+#ifndef mBrane_sdk_pipe_h
+#define mBrane_sdk_pipe_h
 
-#define	MBRANE_MESSAGE_CLASSES	"mBrane_message_classes.h"
+#include	"utils.h"
 
-#define	MBRANE_MESSAGE_CLASS(C)	static	const	uint16	C##_class=__COUNTER__;
-#ifndef	LIBRARY_CLASSES
-	#include	MBRANE_MESSAGE_CLASSES
-#endif
-#include	APPLICATION_CLASSES
 
-//	for use in switches (instead of user_class::CID())
-#define	CLASS_ID(C)	C##_class
+namespace	mBrane{
+	namespace	sdk{
 
-template<class	U>	class	Crank:
-public	crank::_Crank{
-protected:
-	static	const	uint16	_CID;
-	Crank(uint16	ID):crank::_Crank(ID){}
-public:
-	static	crank::_Crank	*New(uint16	ID){	return	new	U(ID);	}
-	virtual	~Crank(){}
-	const	uint16	cid(){	return	_CID;	}
-	void	notify(_Payload	*p){
-		switch(p->cid()){
-		#define	MBRANE_MESSAGE_CLASS(C)	case	CLASS_ID(C):	((U	*)this)->process((C	*)p);	return;
-		#if defined	LIBRARY_CLASSES
-			#include	LIBRARY_CLASSES	
-		#else
-			#include	MBRANE_MESSAGE_CLASSES
-		#endif
-		#include	APPLICATION_CLASSES
-		default:	return;
-		}
+		template<typename	T,uint32	_S>	class	Pipe:	//	Thread safe
+		public	Semaphore{
+		private:
+			class	Block{
+			public:
+				T	buffer[_S*sizeof(T)];
+				Block	*next;
+				Block	*prev;
+				Block(Block	*next,Block	*prev):next(next),prev(prev){}
+				~Block(){	if(next)	delete	next;	}
+			};
+			static	const	uint32	NullIndex;
+			uint32	head;
+			uint32	tail;
+			Block	*first;
+			Block	*last;
+			Block	*spare;
+		protected:
+			void	_clear();
+		public:
+			Pipe();
+			~Pipe();
+			void	clear();
+			void	push(T	&t);	//	increases the total size if necessary
+			T	*pop(bool	blocking=true);
+		};
 	}
-};
+}
 
-template<class	U>	uint16	Crank<U>::_CID=CrankRegister::Load(New);
+
+#include	"pipe.tpl.cpp"
 
 
 #endif

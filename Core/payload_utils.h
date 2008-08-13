@@ -60,8 +60,8 @@ namespace	mBrane{
 				void	clear();
 			};
 
-			template<typename	T,uint32	S,class	M>	class	CircularBuffer:
-			public	RPayload<M,CircularBuffer<T,S,M> >{
+			template<typename	T,uint32	S,class	M>	class	Pipe:
+			public	RPayload<M,Pipe<T,S,M> >{
 			protected:
 				uint32	_count;
 				uint32	head;
@@ -69,8 +69,8 @@ namespace	mBrane{
 				uint32	freeSlots;
 				T	buffer[S];
 			public:
-				CircularBuffer();
-				~CircularBuffer();
+				Pipe();
+				~Pipe();
 				T	*push();	//	returns a pointer to the newly pushed slot in the buffer
 				T	*pop();		//	returns a pointer to the popped slot, still in the buffer (warning: might be overwritten by subsequent pushes)
 				uint32	count()	const;

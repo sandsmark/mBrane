@@ -112,7 +112,7 @@ namespace	mBrane{
 			if(get(i)->next!=NullIndex)
 				get(get(i)->next)->prev=target;
 			if(last==i)
-				last==target;
+				last=target;
 		}
 
 		template<typename	T>	inline	void	List<T>::insertBefore(uint32	i,T	&t){
@@ -124,7 +124,7 @@ namespace	mBrane{
 			if(get(i)->prev!=NullIndex)
 				get(get(i)->prev)->next=target;
 			if(first==i)
-				first==target;
+				first=target;
 		}
 
 		template<typename	T>	inline	uint32	List<T>::getFreeSlot(){

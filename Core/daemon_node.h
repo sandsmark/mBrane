@@ -37,12 +37,14 @@
 
 //	Node API, as seen from the daemons
 namespace	mBrane{
+	class	Messaging;
 	namespace	sdk{
 		namespace	daemon{
 
 			class	Daemon;
 			class	dll	Node:
 			public	crank::Node{
+			friend	class	Messaging;
 			protected:
 				bool	_shutdown;
 				Array<DynamicClassLoader<Daemon>	*>	daemonLoaders;

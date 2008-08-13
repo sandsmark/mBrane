@@ -83,19 +83,6 @@ namespace	mBrane{
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	Thread	*Thread::New(thread_function	f,void	*args){
-
-		Thread	*t=new	Thread();
-#if defined	WINDOWS
-		if(t->_thread=CreateThread(NULL,0,f,args,0,NULL))
-#elif defined LINUX
-#elif defined OSX
-#endif
-			return	t;
-		delete	t;
-		return	NULL;
-	}
-
 	inline	void	Thread::Wait(Thread	**threads,uint32	threadCount){
 
 		if(!threads)
@@ -122,6 +109,14 @@ namespace	mBrane{
 	Thread::~Thread(){
 #if defined	WINDOWS
 		ExitThread(0);
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
+
+	void	Thread::start(thread_function	f){
+#if defined	WINDOWS
+		_thread=CreateThread(NULL,0,f,this,0,NULL);
 #elif defined LINUX
 #elif defined OSX
 #endif

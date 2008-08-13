@@ -90,7 +90,7 @@ addThread:
 		CrankExecutionUnitArgs	args;
 		args.node=this;
 		args.threadID=crankThreads.count();
-		crankThreads[crankThreads.count()]=Thread::New(CrankExecutionUnit,&args);
+		crankThreads[crankThreads.count()]=Thread::New<Thread>(CrankExecutionUnit,&args);
 	}
 
 	void	Executing::removeCrank(_Crank	*c){
@@ -129,14 +129,6 @@ addThread:
 		P<_Payload>	*p;
 		while(!node->__shutdown){
 
-			if(!(crank=node->getCrank(ID)))
-				return	0;
-			do
-				p=crank->pop(false);
-			while(!*p);	//	*p can be NULL (when preview returns true)
-			(*p)->recv_ts()=Time::Get();
-			crank->notify(*p);
-			*p=NULL;
 		}
 
 		return	0;

@@ -191,26 +191,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\circular_buffer.tpl.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath=".\class_register.cpp"
 				>
 			</File>
@@ -415,6 +395,26 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\pipe.tpl.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\utils.cpp"
 				>
 			</File>
@@ -454,10 +454,6 @@
 			</File>
 			<File
 				RelativePath=".\array.h"
-				>
-			</File>
-			<File
-				RelativePath=".\circular_buffer.h"
 				>
 			</File>
 			<File
@@ -530,6 +526,10 @@
 			</File>
 			<File
 				RelativePath=".\payload_utils.h"
+				>
+			</File>
+			<File
+				RelativePath=".\pipe.h"
 				>
 			</File>
 			<File

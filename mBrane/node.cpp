@@ -165,20 +165,14 @@ namespace	mBrane{
 	void	Node::start(uint16	assignedNID,NetworkID	*networkID,bool	isTimeReference){
 
 		Networking::start(assignedNID,networkID,isTimeReference);
-
-		commThreads[commThreads.count()]=Thread::New(SendMessages,this);
+		Messaging::start();
 		
 		if(networkInterfaces[CONTROL]->canBroadcast()){
 
-			ReceiveThreadArgs	args;
-			args.n=this;
-			args.c=controlChannels[0];
-			args.e=0;
-			args.t=CONTROL;
-			commThreads[commThreads.count()]=Thread::New(ReceiveMessages,&args);
+			RecvThread	*t=new	RecvThread(this,controlChannels[0],0,CONTROL);
+			recvThreads[recvThreads.count()]=t;
+			t->start(RecvThread::ReceiveMessages);
 		}
-		
-		commThreads[commThreads.count()]=Thread::New(NotifyMessages,this);
 
 		daemon::Node::start();
 		//	TODO:	build cranks
@@ -232,31 +226,25 @@ namespace	mBrane{
 
 	void	Node::startReceivingThreads(uint16	NID){
 
-		ReceiveThreadArgs	args;
-		args.n=this;
-
 		if(!networkInterfaces[CONTROL]->canBroadcast()){
 
-			args.c=controlChannels[NID];
-			args.e=NID;
-			args.t=CONTROL;
-			commThreads[commThreads.count()]=Thread::New(ReceiveMessages,&args);
+			RecvThread	*t=new	RecvThread(this,controlChannels[NID],NID,CONTROL);
+			recvThreads[recvThreads.count()]=t;
+			t->start(RecvThread::ReceiveMessages);
 		}
 
 		if(networkInterfaces[DATA]!=networkInterfaces[CONTROL]){
 
-			args.c=dataChannels[NID]->data;
-			args.e=NID;
-			args.t=DATA;
-			commThreads[commThreads.count()]=Thread::New(ReceiveMessages,&args);
+			RecvThread	*t=new	RecvThread(this,dataChannels[NID]->data,NID,DATA);
+			recvThreads[recvThreads.count()]=t;
+			t->start(RecvThread::ReceiveMessages);
 		}
 
 		if(networkInterfaces[STREAM]!=networkInterfaces[DATA]){
 
-			args.c=dataChannels[NID]->stream;
-			args.e=NID;
-			args.t=STREAM;
-			commThreads[commThreads.count()]=Thread::New(ReceiveMessages,&args);
+			RecvThread	*t=new	RecvThread(this,dataChannels[NID]->stream,NID,STREAM);
+			recvThreads[recvThreads.count()]=t;
+			t->start(RecvThread::ReceiveMessages);
 		}
 	}
 
@@ -265,6 +253,7 @@ namespace	mBrane{
 		if(_shutdown)
 			return;
 		_shutdown=true;
+		Messaging::shutdown();
 		Executing::shutdown();
 		daemon::Node::shutdown();
 		Networking::shutdown();
@@ -304,155 +293,5 @@ namespace	mBrane{
 	void	Node::send(const	_Crank	*sender,_Payload	*message){
 
 		Messaging::send(_ID,sender,message,false);
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////
-
-	uint32	thread_function_call	Node::ReceiveMessages(void	*args){
-
-		Node					*node=((ReceiveThreadArgs	*)args)->n;
-		CommChannel				*channel=((ReceiveThreadArgs	*)args)->c;
-		uint16					entry=((ReceiveThreadArgs	*)args)->e;
-		NetworkInterfaceType	type=((ReceiveThreadArgs	*)args)->t;
-
-		_Payload	*p;
-		while(!node->_shutdown){
-
-			if(channel	&&	channel->recv(&p)){
-
-				node->processError(type,entry);
-				continue;
-			}
-
-			if(!node->isTimeReference)
-				node->timeDrift=p->node_recv_ts()-p->node_send_ts()-channel->rtt();	//	TODO:	make sure rtt() is quick to return
-			
-			P<_Payload>	_p=p;
-			if(p->cid()!=TimeSync::CID())
-				node->messageInputQueue.push(_p);
-		}
-
-		return	0;
-	}
-
-	uint32	thread_function_call	Node::SendMessages(void	*args){
-
-		Node	*node=(Node	*)args;
-
-		uint16	r;
-
-		OutputSlot	*o;
-		_Payload	*p;
-		while(!node->_shutdown){
-
-			o=node->messageOutputQueue.pop();
-			p=o->p;
-			if(o->local){
-
-				Array<NodeEntry>	*nodeEntries=node->getNodeEntries(p->cid(),((_ControlMessage	*)p)->mid());
-				if(nodeEntries){	//	else: mid has never been subscribed for before
-
-					P<_Payload>	_p=p;
-					node->routesCS.enter();
-					uint32	act=nodeEntries->get(node->_ID)->activationCount;
-					node->routesCS.leave();
-					if(act)
-						node->messageInputQueue.push(_p);
-				}
-			}else	if(p->isControlMessage()){
-
-				for(uint16	i=0;i<node->controlChannels.count();i++){
-
-					if(node->controlChannels[i]	&&	node->controlChannels[i]->send(p))
-						node->processError(CONTROL,i);
-				}
-			}else{
-
-				//	find target remote nodes; send on data/stream channels; push in messageInputQueue if the local node is a target
-				Array<NodeEntry>	*nodeEntries=node->getNodeEntries(p->cid(),((_ControlMessage	*)p)->mid());
-				if(nodeEntries){	//	else: mid has never been subscribed for before
-
-					P<_Payload>	_p=p;
-					node->routesCS.enter();
-					if(p->isMessage()){
-
-						for(uint32	i=0;i<nodeEntries->count();i++){
-
-							if(nodeEntries->get(i)->activationCount){
-
-								if(i==node->_ID)
-									node->messageInputQueue.push(_p);
-								else	if(r=node->dataChannels[i]->data->send(p))
-									node->processError(DATA,i);
-							}
-						}
-					}else{
-
-						for(uint32	i=0;i<nodeEntries->count();i++){
-
-							if(nodeEntries->get(i)->activationCount){
-
-								if(i==node->_ID)
-									node->messageInputQueue.push(_p);
-								else	if(r=node->dataChannels[i]->stream->send(p))
-									node->processError(STREAM,i);
-							}
-						}
-					}
-					node->routesCS.leave();
-				}
-			}
-
-			if(node->isTimeReference)
-				node->lastSyncTime=p->node_send_ts();
-
-			o->p=NULL;
-		}
-
-		return	0;
-	}
-
-	uint32	thread_function_call	Node::NotifyMessages(void	*args){
-
-		Node	*node=(Node	*)args;
-
-		P<_Payload>	*_p;
-		_Payload	*p;
-		while(!node->_shutdown){
-
-			_p=node->messageInputQueue.pop();
-			p=*_p;
-			if(p->isControlMessage()){
-
-				switch(p->cid()){
-				//	TODO:	process p; subscriptions/activations: routesCS.enter()/leave()
-				default:	break;
-				}
-			}
-
-			//	find local receiving cranks (from pub-sub structure); push p in crank input queues
-			Array<NodeEntry>	*nodeEntries=node->getNodeEntries(p->cid(),((_ControlMessage	*)p)->mid());
-			if(nodeEntries){	//	else: mid has never been subscribed for before
-
-				if(nodeEntries->operator[](node->_ID).activationCount){
-
-					P<_Payload>	_p=p;
-					List<CrankEntry>	*l=nodeEntries->get(node->_ID)->cranks;
-					if(l){
-
-						List<CrankEntry>::Iterator	i;
-						for(i=l->begin();i!=l->end();i++){
-
-							if(((CrankEntry)i).activationCount)
-								((CrankEntry)i).inputQueue->push(_p);
-						}
-					}
-				}
-			}
-
-			*_p=NULL;
-		}
-
-		return	0;
 	}
 }

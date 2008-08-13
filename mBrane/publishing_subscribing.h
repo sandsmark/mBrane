@@ -31,25 +31,23 @@
 #ifndef	mBrane_publishing_subscribing_h
 #define	mBrane_publishing_subscribing_h
 
-#include	"..\Core\payload.h"
 #include	"..\Core\list.h"
-#include	"..\Core\circular_buffer.h"
+#include	"..\Core\pipe.h"
+#include	"..\Core\crank.h"
 
 
 using	namespace	mBrane::sdk;
+using	namespace	mBrane::sdk::crank;
 
 namespace	mBrane{
 
+	class	Messaging;
 	class	PublishingSubscribing{
+	friend	class	Messaging;
 	protected:
 		typedef	struct{
 			uint32	activationCount;
-			CircularBuffer<P<_Payload> >	*inputQueue;
-		}CrankEntry;
-
-		typedef	struct{
-			uint32	activationCount;
-			List<CrankEntry>	*cranks;
+			List<_Crank	*>	*cranks;
 		}NodeEntry;
 		
 		Array<Array<Array<NodeEntry>	*>	*>	routes;

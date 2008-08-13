@@ -50,4 +50,19 @@ namespace	mBrane{
 #endif
 		return	function;
 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+
+	template<class	T>	T	*Thread::New(thread_function	f,void	*args){
+
+		T	*t=new	T();
+#if defined	WINDOWS
+		if(t->_thread=CreateThread(NULL,0,f,args,0,NULL))
+#elif defined LINUX
+#elif defined OSX
+#endif
+			return	t;
+		delete	t;
+		return	NULL;
+	}
 }

@@ -58,19 +58,12 @@ namespace	mBrane{
 		Node	*loadConfig(const	char	*configFileName);
 
 		//	NETWORKING
-		typedef	struct{
-			Node					*n;
-			CommChannel				*c;
-			uint16					e;
-			NetworkInterfaceType	t;
-		}ReceiveThreadArgs;
-		static	uint32	thread_function_call	ReceiveMessages(void	*args);
-		static	uint32	thread_function_call	SendMessages(void	*args);
-		static	uint32	thread_function_call	NotifyMessages(void	*args);
 		void	start(uint16	assignedNID,NetworkID	*networkID,bool	isTimeReference);
-		void	startReceivingThreads(uint16	NID);
 		void	notifyNodeJoined(uint16	NID,NetworkID	*networkID);
 		void	notifyNodeLeft(uint16	NID);
+
+		//	MESSAGING
+		void	startReceivingThreads(uint16	NID);
 
 		//	NODE
 		uint16	nodeCount;

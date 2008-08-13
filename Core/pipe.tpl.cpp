@@ -1,4 +1,4 @@
-//	circular_buffer.h
+//	Pipe.tpl.cpp
 //
 //	Author: Eric Nivel
 //
@@ -28,60 +28,95 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef mBrane_sdk_circular_buffer_h
-#define mBrane_sdk_circular_buffer_h
-
-#include	"utils.h"
+#include	<memory.h>
 
 
 namespace	mBrane{
 	namespace	sdk{
 
-		template<typename	T>	class	CircularBuffer:	//	Thread safe
-		public	Semaphore,
-		public	CriticalSection{
-		private:
-			uint32	_size;
-			T	*buffer;
-			uint32	head;
-			uint32	tail;
-			uint32	freeSlots;
-			uint32	_count;
-		protected:
-			class	Iterator{	//	usage:	protect loops by Mutex
-			friend	class	CircularBuffer;
-			private:
-				const	CircularBuffer	*buffer;
-				uint32	index;
-				Iterator(const	CircularBuffer	*b,uint32	index):buffer(b),index(index){}
-			public:
-				Iterator():buffer(NULL),index(0){}
-				Iterator(Iterator	&i):buffer(i.buffer),index(i.index){}
-				~Iterator(){}
-				Iterator	&operator	=(Iterator	&i){	buffer=i.buffer;	index=i.index;	return	*this;	}
-				Iterator	&operator	++(){	if(++index>=buffer->size())	index=0;	return	*this;	}
-				bool	operator	==(Iterator	&i)	const{	return	index==i.index;	}
-				bool	operator	!=(Iterator	&i)	const{	return	index!=i.index;	}
-				operator	T&()	const{	return	buffer->buffer[index];	}
-			};
-			Iterator	&begin()	const{	return	Iterator(this,head);	}
-			Iterator	&end()	const{	return	Iterator(this,tail);	}
-			virtual	void	_clear();
-		public:
-			CircularBuffer();
-			virtual	~CircularBuffer();
-			void	init(uint32	size);
-			void	clear();
-			uint32	size()	const;
-			uint32	count()	const;
-			virtual	void	push(T	&t);	//	increases the total size if necessary
-			virtual	T	*pop(bool	blocking=true);
-		};
+		template<typename	T,uint32	_S>	const	uint32	Pipe<T,_S>::NullIndex=0xFFFFFFFF;
+
+		template<typename	T,uint32	_S>	Pipe<T,_S>::Pipe():Semaphore(0,65535){
+
+			_clear();
+			first=last=new	Block(NULL,NULL);
+			spare=NULL;
+		}
+
+		template<typename	T,uint32	_S>	Pipe<T,_S>::~Pipe(){
+
+			delete	first;
+			if(spare)
+				delete	spare;
+		}
+
+		template<typename	T,uint32	_S>	inline	void	Pipe<T,_S>::_clear(){
+
+			head=tail=NullIndex;
+		}
+
+		template<typename	T,uint32	_S>	inline	void	Pipe<T,_S>::push(T	&t){
+	
+			if(tail==NullIndex)
+				tail=head=_S-1;
+			first->buffer[tail]=t;
+			if(--tail<0){
+
+				if(spare){
+
+					spare->next=first;
+					first->prev=spare;
+					first=spare;
+					spare=NULL;
+				}else{
+
+					Block	*b=new	Block(NULL,first);
+					first->prev=b;
+					first=b;
+				}
+			}
+
+			Semaphore::release();
+		}
+
+		template<typename	T,uint32	_S>	inline	T	*Pipe<T,_S>::pop(bool	blocking){
+
+			if(blocking)
+				Semaphore::acquire();
+			else	if(Semaphore::acquire(0))
+				return	NULL;
+
+			T	*t=last->buffer+head;
+			if(--head<0){
+
+				if(last->prev){
+
+					if(!spare){
+
+						spare=last;
+						spare->prev=NULL;
+						last=last->prev;
+					}else{
+
+						Block	*b=last->prev;
+						delete	last;
+						last=b;
+					}
+					last->next=NULL;
+					head=_S-1;
+				}else
+					head=NullIndex;
+			}
+
+			return	t;
+		}
+
+		template<typename	T,uint32	_S>	inline	void	Pipe<T,_S>::clear(){
+
+			Semaphore::reset();
+			if(first->next)
+				delete	first->next;
+			_clear();
+		}
 	}
 }
-
-
-#include	"circular_buffer.tpl.cpp"
-
-
-#endif

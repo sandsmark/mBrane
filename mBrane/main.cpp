@@ -46,7 +46,7 @@ int	main(int	argc,char	**argv){
 	}
 /*
 	payloads::Array<uint32,16,Memory>	a;
-	payloads::CircularBuffer<uint32,16,Memory>	c;
+	payloads::Pipe<uint32,16,Memory>	c;
 	payloads::List<uint32,16,Memory>	l;
 	*/
 /*

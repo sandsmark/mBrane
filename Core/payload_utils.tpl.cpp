@@ -97,20 +97,20 @@ namespace	mBrane{
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
 
-			template<typename	T,uint32	_S,class	M>	CircularBuffer<T,_S,M>::CircularBuffer():RPayload<M,CircularBuffer<T,_S,M> >(){
+			template<typename	T,uint32	_S,class	M>	Pipe<T,_S,M>::Pipe():RPayload<M,Pipe<T,_S,M> >(){
 
 				clear();
 			}
 
-			template<typename	T,uint32	_S,class	M>	CircularBuffer<T,_S,M>::~CircularBuffer(){
+			template<typename	T,uint32	_S,class	M>	Pipe<T,_S,M>::~Pipe(){
 			}
 
-			template<typename	T,uint32	_S,class	M>	uint32	CircularBuffer<T,_S,M>::count()	const{
+			template<typename	T,uint32	_S,class	M>	uint32	Pipe<T,_S,M>::count()	const{
 
 				return	_count;
 			}
 
-			template<typename	T,uint32	_S,class	M>	T	*CircularBuffer<T,_S,M>::push(){
+			template<typename	T,uint32	_S,class	M>	T	*Pipe<T,_S,M>::push(){
 
 				if(!freeSlots)
 					return	NULL;
@@ -125,7 +125,7 @@ namespace	mBrane{
 				return	buffer+tail;
 			}
 			
-			template<typename	T,uint32	_S,class	M>	T	*CircularBuffer<T,_S,M>::pop(){
+			template<typename	T,uint32	_S,class	M>	T	*Pipe<T,_S,M>::pop(){
 
 				T	*t=buffer+head;
 				if(++head>=_size)
@@ -135,7 +135,7 @@ namespace	mBrane{
 				return	t;
 			}
 
-			template<typename	T,uint32	_S,class	M>	void	CircularBuffer<T,_S,M>::clear(){
+			template<typename	T,uint32	_S,class	M>	void	Pipe<T,_S,M>::clear(){
 
 				head=tail=0;
 				_count=0;
@@ -243,7 +243,7 @@ namespace	mBrane{
 				if(_array[i].next!=NullIndex)
 					_array[_array[i].next].prev=target;
 				if(last==i)
-					last==target;
+					last=target;
 			}
 
 			template<typename	T,uint32	_S,class	M>	inline	void	List<T,_S,M>::insertBefore(uint32	i,T	&t){
@@ -255,7 +255,7 @@ namespace	mBrane{
 				if(_array[i].prev!=NullIndex)
 					_array[_array[i].prev].next=target;
 				if(first==i)
-					first==target;
+					first=target;
 			}
 
 			template<typename	T,uint32	_S,class	M>	inline	uint32	List<T,_S,M>::getFreeSlot(){

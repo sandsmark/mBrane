@@ -39,8 +39,10 @@ using	namespace	mBrane::sdk::daemon;
 
 namespace	mBrane{
 
+	class	Messaging;
 	class	Networking:
 	public	Node{
+	friend	class	Messaging;
 		//	boot one single node with a timeout (if it times out, it's the ref node)
 		//	when ready (callback), boot all the other nodes
 		//	algorithm:
@@ -67,7 +69,7 @@ namespace	mBrane{
 			DATA=1,
 			STREAM=2,
 			DISCOVERY=3
-		}NetworkInterfaceType;
+		}InterfaceType;
 
 		DynamicClassLoader<NetworkInterface>	*networkInterfaceLoaders[4];
 		NetworkInterface						*networkInterfaces[4];
@@ -93,7 +95,7 @@ namespace	mBrane{
 			~NetworkID();
 			uint16	NID()	const;
 			char	*name()	const;
-			uint8	*at(NetworkInterfaceType	t)	const;
+			uint8	*at(InterfaceType	t)	const;
 		};
 		NetworkID	*networkID;
 
@@ -123,9 +125,9 @@ namespace	mBrane{
 
 		static	uint32	thread_function_call	ScanIDs(void	*args);
 		typedef	struct{
-			Networking				*node;
-			int32					timeout;
-			NetworkInterfaceType	type;
+			Networking		*node;
+			int32			timeout;
+			InterfaceType	type;
 		}AcceptConnectionArgs;
 		static	uint32	thread_function_call	AcceptConnections(void	*args);
 		static	uint32	thread_function_call	Sync(void	*args);
@@ -138,7 +140,7 @@ namespace	mBrane{
 		uint16	sendMap(CommChannel	*c);
 		uint16	recvMap(CommChannel	*c);
 		uint16	connect(NetworkID	*networkID);
-		void	processError(NetworkInterfaceType	type,uint16	entry);
+		void	processError(InterfaceType	type,uint16	entry);
 		uint16	addNodeEntry();
 
 		bool	init();
@@ -146,7 +148,7 @@ namespace	mBrane{
 
 		Networking();
 		~Networking();
-		bool	loadInterface(XMLNode	&n,const	char	*name,NetworkInterfaceType	type);
+		bool	loadInterface(XMLNode	&n,const	char	*name,InterfaceType	type);
 		bool	loadConfig(XMLNode	&n);
 	};
 }

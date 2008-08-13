@@ -32,8 +32,6 @@
 #include	"crank_node.h"
 #include	"utils.h"
 
-#define	CRANK_INPUT_QUEUE_SIZE	512
-
 
 namespace	mBrane{
 	namespace	sdk{
@@ -44,9 +42,7 @@ namespace	mBrane{
 				Node::Get()->buildCrank(CID);
 			}
 
-			_Crank::_Crank(uint16	_ID,bool	canMigrate,bool	canBeSwapped):CircularBuffer<P<_Payload> >(),_ID(_ID),_canMigrate(canMigrate),_canBeSwapped(canBeSwapped),_alive(true){
-
-				init(CRANK_INPUT_QUEUE_SIZE);
+			_Crank::_Crank(uint16	_ID,bool	canMigrate,bool	canBeSwapped):_ID(_ID),_canMigrate(canMigrate),_canBeSwapped(canBeSwapped),_activationCount(0),_priority(0){
 			}
 
 			_Crank::~_Crank(){
@@ -57,9 +53,24 @@ namespace	mBrane{
 				return	_ID;
 			}
 
-			inline	bool	_Crank::alive()	const{
+			inline	bool	_Crank::active()	const{
 
-				return	_alive;
+				return	_activationCount;
+			}
+
+			inline	void	_Crank::activate(){
+
+				_activationCount++;
+			}
+
+			inline	void	_Crank::deactivate(){
+
+				_activationCount--;
+			}
+
+			inline	uint8	&_Crank::priority(){
+
+				return	_priority;
 			}
 
 			inline	bool	_Crank::canMigrate(){
@@ -113,59 +124,14 @@ namespace	mBrane{
 				Thread::Sleep(d);
 			}
 
-			void	_Crank::quit(){
-
-				_alive=false;
-			}
-
-			inline	void	_Crank::peek(int32	depth){
-
-				CriticalSection::enter();
-
-				Iterator	i;
-				uint32	d=0;
-				for(i=begin();i!=end()	&&	d<depth;i++,d++){
-
-					_Payload	*p=(_Payload	*)(P<_Payload>)i;
-					if(!p)
-						continue;
-					if(preview(p)){
-
-						((P<_Payload>)i)=NULL;
-						_messageCount--;
-					}
-				}
-
-				CriticalSection::leave();
-			}
-
 			inline	void	_Crank::send(_Payload	*p)	const{
 
 				Node::Get()->send(this,p);
 			}
 
-			inline	uint32	_Crank::messageCount(){
+			uint16		_Crank::schedulingValue(_ControlMessage	*m){
 
-				return	_messageCount;
-			}
-
-			inline	void	_Crank::push(P<_Payload>	&p){
-
-				CircularBuffer<P<_Payload> >::push(p);
-				_messageCount++;
-			}
-
-			inline	P<_Payload>	*_Crank::pop(bool	blocking){
-
-				P<_Payload>	*p=CircularBuffer<P<_Payload> >::pop(blocking);
-				_messageCount--;
-				return	p;
-			}
-
-			inline	void	_Crank::_clear(){
-
-				CircularBuffer<P<_Payload> >::_clear();
-				_messageCount=0;
+				return	_priority+m->priority();
 			}
 		}
 	}

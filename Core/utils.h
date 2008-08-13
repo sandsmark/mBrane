@@ -50,12 +50,14 @@ namespace	mBrane{
 	class	dll	Thread{
 	private:
 		thread		_thread;
+	protected:
 		Thread();
 	public:
-		static	Thread	*New(thread_function	f,void	*args);
+		template<class	T>	static	T	*New(thread_function	f,void	*args);
 		static	void	Wait(Thread	**threads,uint32	threadCount);
 		static	void	Sleep(int64	d);
-		~Thread();
+		virtual	~Thread();
+		void	start(thread_function	f);
 		void	suspend();
 		void	resume();
 	};

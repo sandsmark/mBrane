@@ -91,8 +91,8 @@ namespace	mBrane{
 			void	addElementHead(T	&t);
 			void	addElementTail(T	&t);
 			void	removeElement(T	&t);
-			Iterator	&begin()	const{	return	Iterator(this,first);	}
-			Iterator	&end()	const{	return	Iterator(this,last);	}
+			Iterator	begin()	const{	return	Iterator(this,first);	}
+			Iterator	end()	const{	return	Iterator(this,last);	}
 		};
 	}
 }

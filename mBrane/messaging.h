@@ -32,25 +32,70 @@
 #define	mBrane_messaging_h
 
 #include	"..\Core\crank.h"
+#include	"..\Core\pipe.h"
+
+#include	"networking.h"
 
 
 using	namespace	mBrane::sdk;
 using	namespace	mBrane::sdk::crank;
 
+#define	MESSAGE_INPUT_QUEUE_BLOCK_SIZE	32
+#define	MESSAGE_OUTPUT_QUEUE_BLOCK_SIZE	32
+
 namespace	mBrane{
 
+	class	Node;
 	class	Messaging{
 	protected:
 		typedef	struct{
 			bool		local;
 			P<_Payload>	p;
 		}OutputSlot;
-		CircularBuffer<P<_Payload> >	messageInputQueue;
-		CircularBuffer<OutputSlot>		messageOutputQueue;
+		Pipe<P<_Payload>,MESSAGE_INPUT_QUEUE_BLOCK_SIZE>	messageInputQueue;
+		Pipe<OutputSlot,MESSAGE_OUTPUT_QUEUE_BLOCK_SIZE>	messageOutputQueue;
+
+		typedef	struct	_Work{
+			P<_Payload>	*p;
+			_Crank		*c;
+			uint16		priority;
+			bool	operator	<	(_Work	&w);
+		}Work;
+		class	Pipeline{
+		public:
+			Pipeline();
+			~Pipeline();
+			void	setTimeWindow(int64	window);	//	in us
+			void	insert(_Payload	*p,_Crank	*c,uint16	priority);
+		};
+		Pipeline	pipeline;
+
+		class	RecvThread:
+		public	Thread{
+		public:
+			static	uint32	thread_function_call	ReceiveMessages(void	*args);
+			Pipe<P<_Payload>,MESSAGE_INPUT_QUEUE_BLOCK_SIZE>	buffer;
+			Node						*node;
+			CommChannel					*channel;
+			uint16						entry;
+			Networking::InterfaceType	type;
+			RecvThread(Node	*node,CommChannel	*channel,uint16	entry,Networking::InterfaceType	type);
+			~RecvThread();
+		};
+		Array<RecvThread	*>	recvThreads;
+		Thread					*sendThread;
+		static	uint32	thread_function_call	SendMessages(void	*args);
+		Semaphore	*inputSync;	//	sync on the input message count
+
+		static	uint32	thread_function_call	OrderMessages(void	*args);
+		Thread	*orderThread;
+
 		Messaging();
 		~Messaging();
 		void	send(uint16	NID,_Payload	*message,bool	local);
 		void	send(uint16	NID,const	_Crank	*sender,_Payload	*message,bool	local);
+		void	start();
+		void	shutdown();
 	};
 }
 

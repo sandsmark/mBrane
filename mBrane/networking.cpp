@@ -78,9 +78,15 @@ namespace	mBrane{
 
 		if(discoveryChannel)
 			delete	discoveryChannel;
+
+		for(uint32	i=0;i<commThreads.count();i++){
+
+			if(commThreads[i])
+				delete	commThreads[i];
+		}
 	}
 
-	bool	Networking::loadInterface(XMLNode	&n,const	char	*name,NetworkInterfaceType	type){
+	bool	Networking::loadInterface(XMLNode	&n,const	char	*name,InterfaceType	type){
 
 		XMLNode	node=n.getChildNode(name);
 		if(!node){
@@ -231,19 +237,19 @@ namespace	mBrane{
 		if(!networkInterfaces[CONTROL]->canBroadcast()){
 
 			args.type=CONTROL;
-			commThreads[commThreads.count()]=Thread::New(AcceptConnections,&args);
+			commThreads[commThreads.count()]=Thread::New<Thread>(AcceptConnections,&args);
 			args.timeout=-1;
 		}
 		if(*networkInterfaces[DATA]!=*networkInterfaces[CONTROL]){
 		
 			args.type=DATA;
-			commThreads[commThreads.count()]=Thread::New(AcceptConnections,&args);
+			commThreads[commThreads.count()]=Thread::New<Thread>(AcceptConnections,&args);
 			args.timeout=-1;
 		}
 		if(*networkInterfaces[STREAM]!=*networkInterfaces[DATA]){
 		
 			args.type=STREAM;
-			commThreads[commThreads.count()]=Thread::New(AcceptConnections,&args);
+			commThreads[commThreads.count()]=Thread::New<Thread>(AcceptConnections,&args);
 		}
 
 		if(discoveryChannel->send(networkID->data,NetworkID::Size+networkID->headerSize))
@@ -261,8 +267,8 @@ namespace	mBrane{
 
 		if(isTimeReference){
 
-			commThreads[commThreads.count()]=Thread::New(ScanIDs,this);
-			commThreads[commThreads.count()]=Thread::New(Sync,this);
+			commThreads[commThreads.count()]=Thread::New<Thread>(ScanIDs,this);
+			commThreads[commThreads.count()]=Thread::New<Thread>(Sync,this);
 		}
 	}
 
@@ -426,14 +432,14 @@ err2:	delete[]	networkID;
 			if(dataChannels[i]->data	&&	i==_ID){
 
 				isTimeReference=true;
-				commThreads[commThreads.count()]=Thread::New(ScanIDs,this);
-				commThreads[commThreads.count()]=Thread::New(Sync,this);
+				commThreads[commThreads.count()]=Thread::New<Thread>(ScanIDs,this);
+				commThreads[commThreads.count()]=Thread::New<Thread>(Sync,this);
 				return;
 			}
 		}
 	}
 
-	void	Networking::processError(NetworkInterfaceType	type,uint16	entry){
+	void	Networking::processError(InterfaceType	type,uint16	entry){
 
 		channelsCS.enter();
 
@@ -470,10 +476,10 @@ err2:	delete[]	networkID;
 
 	uint32	thread_function_call	Networking::AcceptConnections(void	*args){
 
-		Networking				*node=((AcceptConnectionArgs	*)args)->node;
-		NetworkInterfaceType	type=((AcceptConnectionArgs	*)args)->type;
-		int32					timeout=((AcceptConnectionArgs	*)args)->timeout;
-		NetworkInterface		*networkInterface=node->networkInterfaces[type];
+		Networking			*node=((AcceptConnectionArgs	*)args)->node;
+		InterfaceType		type=((AcceptConnectionArgs	*)args)->type;
+		int32				timeout=((AcceptConnectionArgs	*)args)->timeout;
+		NetworkInterface	*networkInterface=node->networkInterfaces[type];
 
 		uint16	r;
 
@@ -641,7 +647,7 @@ err1:	node->shutdown();
 		return	(char	*)(data+sizeof(uint16)+sizeof(uint8));
 	}
 
-	uint8	*Networking::NetworkID::at(NetworkInterfaceType	t)	const{
+	uint8	*Networking::NetworkID::at(InterfaceType	t)	const{
 
 		switch(t){
 		case	CONTROL:	return	data+headerSize;
