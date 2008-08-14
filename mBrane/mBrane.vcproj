@@ -63,7 +63,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Core.lib"
+				AdditionalDependencies="Core.lib Winmm.lib"
 				OutputFile="$(OutDir)\mBrane.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="$(OutDir)"

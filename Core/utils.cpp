@@ -97,7 +97,7 @@ namespace	mBrane{
 
 	inline	void	Thread::Sleep(int64	d){
 #if defined	WINDOWS
-		Sleep(d);
+		::Sleep(d);
 #elif defined LINUX
 #elif defined OSX
 #endif
@@ -167,15 +167,40 @@ namespace	mBrane{
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
+#if defined	WINDOWS
+	typedef LONG NTSTATUS;
+	typedef NTSTATUS (__stdcall *NSTR)(ULONG, BOOLEAN, PULONG);
+	#define STATUS_SUCCESS ((NTSTATUS)0x00000000L)
+	bool	NtSetTimerResolution(IN	ULONG	RequestedResolution,IN	BOOLEAN	Set,OUT	PULONG	ActualResolution);
+#elif defined LINUX
+#elif defined OSX
+#endif
+
 	float64	Time::Period;
 	
 	int64	Time::InitTime;
+
+	void	Time::SetTimeResolution(uint32	r){
+#if defined	WINDOWS
+	NTSTATUS	nts;
+	HMODULE	NTDll=::LoadLibrary("NTDLL");
+	ULONG	actualResolution=0;
+	if(NTDll){
+
+		NSTR	pNSTR=(NSTR)::GetProcAddress(NTDll,"NtSetTimerResolution");	//	undocumented win xp sys internals
+		if(pNSTR)
+			nts=(*pNSTR)(10*r,true,&actualResolution);	//	in 100 ns units
+	}
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
 
 	inline	void	Time::Init(){
 #if defined	WINDOWS
 	LARGE_INTEGER	f;
 	QueryPerformanceFrequency(&f);
-	Period=1000000/f.QuadPart;	//	in us
+	Period=1000000.0/f.QuadPart;	//	in us
 	struct	_timeb	local_time;
 	_ftime(&local_time);
 	InitTime=(int64)(local_time.time*1000+local_time.millitm)*1000;	//	in us
@@ -357,11 +382,11 @@ namespace	mBrane{
 #endif
 	}
 
-	inline	void	Timer::start(uint32	deadline){
+	inline	void	Timer::start(uint32	deadline,uint32	period){
 #if defined	WINDOWS
 	LARGE_INTEGER	_deadline;	//	in 100 ns intervals
-    _deadline.QuadPart=-10*deadline;	//	negative means relative
-    SetWaitableTimer(t,&_deadline,0,NULL,NULL,0);
+    _deadline.QuadPart=-10LL*deadline;	//	negative means relative
+    bool	r=SetWaitableTimer(t,&_deadline,period,NULL,NULL,0);
 #elif defined LINUX
 #elif defined OSX
 #endif

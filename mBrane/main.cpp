@@ -20,7 +20,6 @@ public:
 */
 //#include	"..\Core\payload_utils.h"
 
-
 int	main(int	argc,char	**argv){
 
 	Time::Init();
@@ -30,7 +29,7 @@ int	main(int	argc,char	**argv){
 		std::cout<<"usage: mBrane <boot delay in ms> <config file name>\n";
 		return	0;
 	}
-
+/*
 	Thread::Sleep(atoi(argv[1]));
 
 	mBrane::Node	*n=mBrane::Node::New(argv[2]);
@@ -43,7 +42,19 @@ int	main(int	argc,char	**argv){
 			n->unloadApplication();
 		}
 		delete	n;
-	}
+	}*/
+/*
+	TimeProbe	probe;
+	Timer	_timer;
+
+	probe.set();
+
+	_timer.start(1000,0);
+	_timer.wait();
+
+	probe.check();
+	std::cout<<"probe1: "<<probe.us()<<std::endl;
+*/
 /*
 	payloads::Array<uint32,16,Memory>	a;
 	payloads::Pipe<uint32,16,Memory>	c;
@@ -64,6 +75,6 @@ int	main(int	argc,char	**argv){
 	_ControlMessage	*pm=_m->operator	_ControlMessage	*();
 
 	P<M>	mp=m;
-*/	
+	*/
 	return	0;
 }

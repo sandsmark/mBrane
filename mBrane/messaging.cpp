@@ -194,7 +194,15 @@ namespace	mBrane{
 			_p=buffer->pop(false);
 			if(!_p)
 				continue;
-			//	find local receiving cranks (from pub-sub structure); insert {p,crank} paris in pipeline
+			//	process control messages
+			if((*_p)->isControlMessage()){
+
+				switch((*_p)->cid()){
+				//	TODO:	case	XXX_CID:
+				default:	break;
+				}
+			}
+			//	find local receiving cranks (from pub-sub structure); insert {p,crank} pairs in pipeline
 			Array<PublishingSubscribing::NodeEntry>	*nodeEntries=node->getNodeEntries((*_p)->cid(),((_ControlMessage	*)*_p)->mid());
 			if(nodeEntries){	//	else: mid has never been subscribed for before
 

@@ -78,6 +78,7 @@ namespace	mBrane{
 		static	float64	Period;
 		static	int64	InitTime;
 	public:
+		static	void	SetTimeResolution(uint32	r);	//	us (on windows xp: max ~1000; use 1000, 2000, 5000 or 10000)
 		static	void	Init();
 		static	int64	Get();	//	in us since 01/01/1970
 	};
@@ -127,7 +128,7 @@ namespace	mBrane{
 	public:
 		Timer();
 		~Timer();
-		void	start(uint32	deadline);
+		void	start(uint32	deadline,uint32	period);
 		bool	wait(uint32	timeout=Infinite);	//	returns true if timedout
 	};
 }
