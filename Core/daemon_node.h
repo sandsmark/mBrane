@@ -38,6 +38,7 @@
 //	Node API, as seen from the daemons
 namespace	mBrane{
 	class	Messaging;
+	class	Executing;
 	namespace	sdk{
 		namespace	daemon{
 
@@ -45,6 +46,7 @@ namespace	mBrane{
 			class	dll	Node:
 			public	crank::Node{
 			friend	class	Messaging;
+			friend	class	Executing;
 			protected:
 				bool	_shutdown;
 				Array<DynamicClassLoader<Daemon>	*>	daemonLoaders;

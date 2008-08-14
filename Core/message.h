@@ -54,7 +54,7 @@ namespace	mBrane{
 			class	dll	_ControlMessage{
 			protected:
 				uint32	_mid;	//	content identifer (for streams: stream identifier, as ooposed to frame identifier: to be defined in U classes)
-				uint8	_priority;
+				uint8	_priority;	//	the lower the number the higher the priority
 				uint16	_senderNodeID;
 				_ControlMessage(uint32	mid,uint8	priority);
 			public:

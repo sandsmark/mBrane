@@ -55,20 +55,20 @@ namespace	mBrane{
 		Pipe<P<_Payload>,MESSAGE_INPUT_QUEUE_BLOCK_SIZE>	messageInputQueue;
 		Pipe<OutputSlot,MESSAGE_OUTPUT_QUEUE_BLOCK_SIZE>	messageOutputQueue;
 
-		typedef	struct	_Work{
+		typedef	struct	_Job{
 			P<_Payload>	*p;
 			_Crank		*c;
-			uint16		priority;
-			bool	operator	<	(_Work	&w);
-		}Work;
-		class	Pipeline{
-		public:
-			Pipeline();
-			~Pipeline();
-			void	setTimeWindow(int64	window);	//	in us
-			void	insert(_Payload	*p,_Crank	*c,uint16	priority);
-		};
-		Pipeline	pipeline;
+		}Job;
+
+		List<P<_Payload> >	orderedMessages;
+		List<P<_Payload> >::Iterator	ref;	//	last message m, for which insertion_time-m->send_ts < latency
+		uint32							refCount;	//	number of messages before ref (ref included)
+		int64	latency;	//	in us
+		Semaphore	*orderedMessageSync;
+		Timer		orderedMessageUpdateTimer;
+		Thread		*orderedMessageUpdateThread;
+		static	uint32	thread_function_call	UpdateMessageOrdering(void	*args);
+		void	insertMessage(P<_Payload>	&p);
 
 		class	RecvThread:
 		public	Thread{

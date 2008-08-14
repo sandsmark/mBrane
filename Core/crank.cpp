@@ -128,11 +128,6 @@ namespace	mBrane{
 
 				Node::Get()->send(this,p);
 			}
-
-			uint16		_Crank::schedulingValue(_ControlMessage	*m){
-
-				return	_priority+m->priority();
-			}
 		}
 	}
 }

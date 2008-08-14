@@ -44,17 +44,9 @@ namespace	mBrane{
 
 	class	Executing{	//	thread pool
 	protected:
-		typedef	struct{
-			Executing	*node;
-			uint32		threadID;
-		}CrankExecutionUnitArgs;
-		static	uint32	thread_function_call	CrankExecutionUnit(void	*args);
-		Array<Thread	*>	crankThreads;
-		//	TODO:	define crank list, scheduling function
-		bool	__shutdown;
-		uint32	threadCount;	//	0 if dynamic
-		List<_Crank	*>	cranks;
-		CriticalSection	crankCS;
+		static	uint32	thread_function_call	Xec(void	*args);
+		Array<Thread	*>	xThreads;	//	execution
+		Array<Thread	*>	sThreads;	//	support
 		Executing();
 		~Executing();
 		bool	loadConfig(XMLNode	&n);

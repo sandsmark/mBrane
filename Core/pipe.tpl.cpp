@@ -105,7 +105,7 @@ namespace	mBrane{
 					last->next=NULL;
 					head=_S-1;
 				}else
-					head=NullIndex;
+					head=tail=NullIndex;	//	stay in the same block; next push will reset head and tail to _S-1
 			}
 
 			return	t;

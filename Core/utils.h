@@ -55,6 +55,7 @@ namespace	mBrane{
 	public:
 		template<class	T>	static	T	*New(thread_function	f,void	*args);
 		static	void	Wait(Thread	**threads,uint32	threadCount);
+		static	void	Wait(Thread	*_thread);
 		static	void	Sleep(int64	d);
 		virtual	~Thread();
 		void	start(thread_function	f);
@@ -79,7 +80,7 @@ namespace	mBrane{
 		static	int64	InitTime;
 	public:
 		static	void	SetTimeResolution(uint32	r);	//	us (on windows xp: max ~1000; use 1000, 2000, 5000 or 10000)
-		static	void	Init();
+		static	void	Init();	//	detects the hardware timing capabilities
 		static	int64	Get();	//	in us since 01/01/1970
 	};
 
@@ -96,7 +97,7 @@ namespace	mBrane{
 		Semaphore(uint32	initialCount,uint32	maxCount);
 		~Semaphore();
 		bool	acquire(uint32	timeout=Infinite);	//	returns true if timedout
-		void	release();
+		void	release(uint32	count=1);
 		void	reset();
 	};
 
@@ -128,8 +129,15 @@ namespace	mBrane{
 	public:
 		Timer();
 		~Timer();
-		void	start(uint32	deadline,uint32	period);
+		void	start(uint32	deadline,uint32	period=0);	//	in ms
 		bool	wait(uint32	timeout=Infinite);	//	returns true if timedout
+		bool	wait(uint64	&us,uint32	timeout=Infinite);	//	idem; updates the us actually spent
+	};
+
+	class	dll	SignalHandler{
+	public:
+		static	void	Add(signal_handler	h);
+		static	void	Remove(signal_handler	h);
 	};
 }
 

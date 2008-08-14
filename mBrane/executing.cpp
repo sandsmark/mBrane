@@ -28,18 +28,20 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include	"executing.h"
+#include	"node.h"
 
 
 namespace	mBrane{
 
-	Executing::Executing():__shutdown(false){
+	Executing::Executing(){
 	}
 
 	Executing::~Executing(){
 
-		for(uint32	i=0;i<crankThreads.count();i++)
-			delete	crankThreads[i];
+		for(uint32	i=0;i<xThreads.count();i++)
+			delete	xThreads[i];
+		for(uint32	i=0;i<sThreads.count();i++)
+			delete	sThreads[i];
 	}
 
 	bool	Executing::loadConfig(XMLNode	&n){
@@ -53,9 +55,14 @@ namespace	mBrane{
 				std::cout<<"Error: "<<n.getName()<<"::Threads::thread_count is missing\n";
 				return	false;
 			}
-			threadCount=atoi(tc);
-			if(threadCount>0)
-				crankThreads.alloc(threadCount);
+			uint16	threadCount=atoi(tc);
+			if(threadCount>0	&&	threadCount<=512)
+				xThreads.alloc(threadCount);
+			else{
+				
+				std::cout<<"Error: thread count must be in [1,512]\n";
+				return	false;
+			}
 		}
 		return	true;
 	}
@@ -65,72 +72,42 @@ namespace	mBrane{
 
 	void	Executing::shutdown(){
 
-		if(__shutdown)
-			return;	
-		__shutdown=true;
-		Thread::Wait(crankThreads.data(),crankThreads.count());
-	}
-
-	void	Executing::addCrank(_Crank	*c){
-
-		crankCS.enter();
-		cranks.addElementTail(c);
-		crankCS.leave();
-
-		c->start();
-
-		if(threadCount==0){
-
-			if(crankThreads.count()<cranks.elementCount())
-				goto	addThread;
-		}else	if(crankThreads.count()<cranks.elementCount()	&&	crankThreads.count()<threadCount)
-			goto	addThread;
-		return;
-addThread:
-		CrankExecutionUnitArgs	args;
-		args.node=this;
-		args.threadID=crankThreads.count();
-		crankThreads[crankThreads.count()]=Thread::New<Thread>(CrankExecutionUnit,&args);
-	}
-
-	void	Executing::removeCrank(_Crank	*c){
-
-		crankCS.enter();
-		cranks.removeElement(c);
-		crankCS.leave();
-
-		c->stop();
-	}
-
-	_Crank	*Executing::getCrank(uint32	threadID){
-
-		uint32	crankCount;
-		crankCS.enter();
-		crankCount=cranks.elementCount();
-		
-		if(threadID>=crankCount){	//	more threads than cranks
-
-			crankCS.leave();
-			return	NULL;
-		}
-
-		//	TODO:	add scheduling data in _Crank (msg count and next msg's priority, or next msg itself), implement the crank election here
-		crankCS.leave();
+		Thread::Wait(xThreads.data(),xThreads.count());
+		Thread::Wait(sThreads.data(),sThreads.count());
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	uint32	thread_function_call	Executing::CrankExecutionUnit(void	*args){
+	uint32	thread_function_call	Executing::Xec(void	*args){
 
-		Executing	*node=((CrankExecutionUnitArgs	*)args)->node;
-		uint32		ID=((CrankExecutionUnitArgs	*)args)->threadID;
+		Node	*node=((Node	*)args);
 
-		_Crank		*crank;
-		P<_Payload>	*p;
-		while(!node->__shutdown){
+		while(!node->_shutdown){
 
 		}
 
 		return	0;
 	}
+
+/*
+
+			//	find local receiving cranks (from pub-sub structure); insert {p,crank} pairs in pipeline
+			Array<PublishingSubscribing::NodeEntry>	*nodeEntries=node->getNodeEntries((*_p)->cid(),((_ControlMessage	*)*_p)->mid());
+			if(nodeEntries){	//	else: mid has never been subscribed for before
+
+				if(nodeEntries->operator[](node->_ID).activationCount){
+
+					List<_Crank	*>	*l=nodeEntries->get(node->_ID)->cranks;
+					if(l){
+
+						List<_Crank	*>::Iterator	i;
+						for(i=l->begin();i!=l->end();i++){
+
+							if(((_Crank	*)i)->active())
+								node->insertMessage(*_p);
+						}
+					}
+				}
+			}
+*/
 }

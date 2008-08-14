@@ -20,9 +20,37 @@ public:
 */
 //#include	"..\Core\payload_utils.h"
 
+mBrane::Node	*node=NULL;
+
+bool	signal_handler_function_call	Handler(uint32	event){
+
+	if(!node)
+		return	false;
+
+	switch(event){
+	case	CTRL_C_EVENT:
+    case	CTRL_CLOSE_EVENT:
+      	node->shutdown();
+		node->unloadApplication();
+		delete	node;
+		return	true;
+    case	CTRL_BREAK_EVENT:
+    case	CTRL_LOGOFF_EVENT:
+    case	CTRL_SHUTDOWN_EVENT:
+		node->shutdown();
+		node->unloadApplication();
+		delete	node;
+		return	false;
+    default:
+		return false; 
+	}
+}
+
 int	main(int	argc,char	**argv){
 
 	Time::Init();
+
+	mBrane::SignalHandler::Add((signal_handler)Handler);
 
 	if(argc!=3){
 	
@@ -32,29 +60,27 @@ int	main(int	argc,char	**argv){
 /*
 	Thread::Sleep(atoi(argv[1]));
 
-	mBrane::Node	*n=mBrane::Node::New(argv[2]);
-	if(n){
+	node=mBrane::Node::New(argv[2]);
+	if(node){
 
-		if(!n->loadApplication()){
+		if(!node->loadApplication()){
 
-			n->run();
-			n->shutdown();
-			n->unloadApplication();
+			node->run();
+			node->shutdown();
+			node->unloadApplication();
 		}
-		delete	n;
+		delete	node;
 	}*/
-/*
+
 	TimeProbe	probe;
 	Timer	_timer;
-
+	while(1){
 	probe.set();
-
 	_timer.start(1000,0);
 	_timer.wait();
-
 	probe.check();
 	std::cout<<"probe1: "<<probe.us()<<std::endl;
-*/
+	}
 /*
 	payloads::Array<uint32,16,Memory>	a;
 	payloads::Pipe<uint32,16,Memory>	c;

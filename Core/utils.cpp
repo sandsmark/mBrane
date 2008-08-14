@@ -95,6 +95,17 @@ namespace	mBrane{
 #endif
 	}
 
+	inline	void	Thread::Wait(Thread	*_thread){
+
+		if(!_thread)
+			return;
+#if defined	WINDOWS
+		WaitForSingleObject(_thread->_thread,INFINITE);
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
+
 	inline	void	Thread::Sleep(int64	d){
 #if defined	WINDOWS
 		::Sleep(d);
@@ -264,9 +275,9 @@ namespace	mBrane{
 #endif
 	}
 
-	inline	void	Semaphore::release(){
+	inline	void	Semaphore::release(uint32	count){
 #if defined	WINDOWS
-		ReleaseSemaphore(s,1,NULL);
+		ReleaseSemaphore(s,count,NULL);
 #elif defined LINUX
 #elif defined OSX
 #endif
@@ -396,6 +407,34 @@ namespace	mBrane{
 #if defined	WINDOWS
 		uint32	r=WaitForSingleObject(t,timeout);
 		return	r==WAIT_TIMEOUT;
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
+
+	inline	bool	Timer::wait(uint64	&us,uint32	timeout){
+
+		TimeProbe	probe;
+		probe.set();
+		bool	r=wait(timeout);
+		probe.check();
+		us=probe.us();
+		return	r;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+
+	void	SignalHandler::Add(signal_handler	h){
+#if defined	WINDOWS
+		SetConsoleCtrlHandler(h,true);
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
+
+	void	SignalHandler::Remove(signal_handler	h){
+#if defined	WINDOWS
+		SetConsoleCtrlHandler(h,false);
 #elif defined LINUX
 #elif defined OSX
 #endif

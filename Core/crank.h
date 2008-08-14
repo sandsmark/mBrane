@@ -71,7 +71,6 @@ namespace	mBrane{
 				virtual	void		swapIn();	//	called when the crank is loaded in a new thread after having been swapped out
 				virtual	void		migrateOut();	//	called when the crank is unloaded from its current thread for migration
 				virtual	void		migrateIn();	//	called when the crank is loaded in a new thread after having migrated
-				virtual	uint16		schedulingValue(_ControlMessage	*m);	//	default: return _priority+msgpriority
 				virtual	void		notify(_Payload	*p)=0;	//	called when the crank receives a message
 			};
 		}

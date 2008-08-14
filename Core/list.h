@@ -44,28 +44,28 @@ namespace	mBrane{
 			uint32	prev;
 		};
 
-		template<typename	T>	class	List:
+		template<typename	T,bool	(*B)(T	&,T	&)=NULL>	class	List:
 		protected	Array<ListElement<T> >{
 		public:
 			class	Iterator{
 			friend	class	List;
 			private:
-				const	List	*list;
+				List	*list;
 				uint32	index;
-				Iterator(const	List	*l,uint32	index):list(l),index(index){}
+				Iterator(List	*l,uint32	index):list(l),index(index){}
 			public:
 				Iterator():list(NULL),index(NullIndex){}
 				Iterator(Iterator	&i):list(i.list),index(i.index){}
 				~Iterator(){}
 				Iterator	&operator	=(Iterator	&i){	list=i.list;	index=i.index;	return	*this;	}
-				Iterator	&operator	++(){	if(index!=NullIndex)	index=list->_array[index].next;	return	*this;	}
-				Iterator	&operator	--(){	if(index!=NullIndex)	index=list->_array[index].prev;	return	*this;	}
+				Iterator	&operator	++(){	index=list->_array[index].next;	return	*this;	}
+				Iterator	&operator	--(){	index=list->_array[index].prev;	return	*this;	}
 				bool	operator	==(Iterator	&i)	const{	return	index==i.index;	}
 				bool	operator	!=(Iterator	&i)	const{	return	index!=i.index;	}
 				bool	operator	!()	const{	return	index==NullIndex;	}
 				operator	T&()	const{	return	list->_array[index].data;	}
-				void	insertAfter(T	&t)	const{	list->insertAfter(index,t);	}
-				void	insertBefore(T	&t)	const{	list->insertBefore(index,t);	}
+				Iterator	insertAfter(T	&t)	const{	list->insertAfter(index,t);		return	Iterator(list,list->_array[index].next);	}
+				Iterator	insertBefore(T	&t)	const{	list->insertBefore(index,t);	return	Iterator(list,list->_array[index].prev);	}
 				void	removeJumpNext()	const{	index=list->removeReturnNext(index);	}
 				void	removeJumpPrevious()	const{	index=list->removeReturnPrevious(index);	}
 			};
@@ -90,9 +90,10 @@ namespace	mBrane{
 			void	clear();
 			void	addElementHead(T	&t);
 			void	addElementTail(T	&t);
+			void	addElement(T	&t);	//	inserts in order with respect to the B function (i.e. new element "before" current element)
 			void	removeElement(T	&t);
-			Iterator	begin()	const{	return	Iterator(this,first);	}
-			Iterator	end()	const{	return	Iterator(this,last);	}
+			Iterator	begin(){	return	Iterator(this,first);	}
+			Iterator	end(){	return	Iterator(this,last);	}
 		};
 	}
 }

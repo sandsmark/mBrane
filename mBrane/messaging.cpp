@@ -32,13 +32,16 @@
 #include	"..\Core\control_messages.h"
 
 
+#define	INITIAL_MESSAGING_LATENCY	1000
+
 using	namespace	mBrane::sdk::payloads;
 
 namespace	mBrane{
 
-	Messaging::Messaging(){
+	Messaging::Messaging():sendThread(NULL),orderThread(NULL),latency(INITIAL_MESSAGING_LATENCY),orderedMessageUpdateThread(NULL),refCount(0){
 
 		inputSync=new	Semaphore(0,65535);
+		orderedMessageSync=new	Semaphore(0,65535);
 	}
 
 	Messaging::~Messaging(){
@@ -49,10 +52,15 @@ namespace	mBrane{
 				delete	recvThreads[i];
 		}
 
-		delete	sendThread;
-		delete	orderThread;
+		if(sendThread)
+			delete	sendThread;
+		if(orderThread)
+			delete	orderThread;
+		if(orderedMessageUpdateThread)
+			delete	orderedMessageUpdateThread;
 
 		delete	inputSync;
+		delete	orderedMessageSync;
 	}
 	
 	void	Messaging::send(uint16	NID,const	_Crank	*sender,_Payload	*message,bool	local){
@@ -80,14 +88,91 @@ namespace	mBrane{
 
 		sendThread=Thread::New<Thread>(SendMessages,this);
 		orderThread=Thread::New<Thread>(OrderMessages,this);
+		orderedMessageUpdateThread=Thread::New<Thread>(UpdateMessageOrdering,this);
 	}
 
 	void	Messaging::shutdown(){
 
 		Thread::Wait((Thread	**)recvThreads.data(),recvThreads.count());
+		Thread::Wait(sendThread);
+		Thread::Wait(orderThread);
+	}
+
+	inline	void	Messaging::insertMessage(P<_Payload>	&p){
+
+		int64	now=Time::Get();
+
+		if(!orderedMessages.elementCount()){
+
+			orderedMessages.addElementHead(p);
+			if(now-p->send_ts()<latency){
+
+				ref=orderedMessages.begin();
+				orderedMessageSync->release();
+				refCount=1;
+			}
+			orderedMessageUpdateTimer.start(latency);
+			return;
+		}
+
+		uint32	count=0;
+		List<P<_Payload> >::Iterator	i;
+		for(i=orderedMessages.begin();i!=ref;i++){
+
+			if(now-((P<_Payload>)i)->send_ts()<latency){
+
+				if(p->send_ts()<((P<_Payload>)i)->send_ts()){	//	p older than i
+
+					count++;
+					continue;
+				}else{
+
+					i.insertBefore(p);
+					for(;now-((P<_Payload>)i)->send_ts()<latency;i++,count++);	//	find the new ref
+					ref=--i;
+					orderedMessageSync->release(refCount-count+1);
+					refCount=count+1;
+					orderedMessageUpdateTimer.start(latency);
+					return;
+				}
+			}else{	//	i is the first message over the latency: ref or before
+
+				if(p->send_ts()>((P<_Payload>)i)->send_ts()){	//	p is younger than i. p is the last message under the latency (i.e. the new ref), 
+
+					i.insertBefore(p);
+					ref=--i;
+					refCount=count+1;
+					orderedMessageSync->release(refCount-count+1);
+				}
+				//	p is older than i
+				//	TODO:	late message: flag and insert
+				orderedMessageUpdateTimer.start(latency);
+				return;
+			}
+		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
+
+	uint32	thread_function_call	Messaging::UpdateMessageOrdering(void	*args){
+
+		Node	*node=(Node	*)args;
+
+		List<P<_Payload> >::Iterator	i;
+		while(!node->_shutdown){
+
+			node->orderedMessageUpdateTimer.wait();
+			int64	now=Time::Get();
+			uint32	count=0;
+			for(i=node->orderedMessages.begin();now-((P<_Payload>)i)->send_ts()<node->latency;i++,count++);
+			node->orderedMessageSync->release(node->refCount-count);
+			node->ref=--i;
+			node->refCount=count;
+			node->orderedMessageUpdateTimer.start(node->latency);
+		}
+
+		return	0;
+	}
 
 	uint32	thread_function_call	Messaging::SendMessages(void	*args){
 
@@ -194,32 +279,12 @@ namespace	mBrane{
 			_p=buffer->pop(false);
 			if(!_p)
 				continue;
-			//	process control messages
-			if((*_p)->isControlMessage()){
 
-				switch((*_p)->cid()){
-				//	TODO:	case	XXX_CID:
-				default:	break;
-				}
-			}
-			//	find local receiving cranks (from pub-sub structure); insert {p,crank} pairs in pipeline
-			Array<PublishingSubscribing::NodeEntry>	*nodeEntries=node->getNodeEntries((*_p)->cid(),((_ControlMessage	*)*_p)->mid());
-			if(nodeEntries){	//	else: mid has never been subscribed for before
+			node->insertMessage(*_p);
 
-				if(nodeEntries->operator[](node->_ID).activationCount){
+			//	TODO:	update sem wrt latency
 
-					List<_Crank	*>	*l=nodeEntries->get(node->_ID)->cranks;
-					if(l){
-
-						List<_Crank	*>::Iterator	i;
-						for(i=l->begin();i!=l->end();i++){
-
-							if(((_Crank	*)i)->active())
-								node->pipeline.insert(*_p,(_Crank	*)i,((_Crank	*)i)->schedulingValue(*_p));
-						}
-					}
-				}
-			}
+			*_p=NULL;
 		}
 
 		return	0;
@@ -258,18 +323,5 @@ namespace	mBrane{
 	}
 
 	Messaging::RecvThread::~RecvThread(){
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////
-
-	Messaging::Pipeline::Pipeline(){
-	}
-
-	Messaging::Pipeline::~Pipeline(){
-	}
-
-	void	Messaging::Pipeline::insert(_Payload	*p,_Crank	*c,uint16	priority){
-
-		//	TODO
 	}
 }

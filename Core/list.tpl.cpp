@@ -31,22 +31,22 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		template<typename	T>	const	uint32	List<T>::NullIndex=0xFFFFFFFF;
+		template<typename	T,bool	(*B)(T	&,T	&)>	const	uint32	List<T,B>::NullIndex=0xFFFFFFFF;
 
-		template<typename	T>	List<T>::List(uint32	count):Array<ListElement<T> >(count){
+		template<typename	T,bool	(*B)(T	&,T	&)>	List<T,B>::List(uint32	count):Array<ListElement<T> >(count){
 
 			clear();
 		}
 
-		template<typename	T>	List<T>::~List(){
+		template<typename	T,bool	(*B)(T	&,T	&)>	List<T,B>::~List(){
 		}
 
-		template<typename	T>	inline	uint32	List<T>::elementCount()	const{
+		template<typename	T,bool	(*B)(T	&,T	&)>	inline	uint32	List<T,B>::elementCount()	const{
 
 			return	_elementCount;
 		}
 
-		template<typename	T>	inline	void	List<T>::initFreeZone(uint32	start){
+		template<typename	T,bool	(*B)(T	&,T	&)>	inline	void	List<T,B>::initFreeZone(uint32	start){
 
 			for(uint32	i=start;i<_count;i++){
 
@@ -63,14 +63,14 @@ namespace	mBrane{
 			lastFree=_count-1;
 		}
 
-		template<typename	T>	inline	void	List<T>::clear(){
+		template<typename	T,bool	(*B)(T	&,T	&)>	inline	void	List<T,B>::clear(){
 
 			first=last=NullIndex;
 			_elementCount=0;
 			initFreeZone(0);
 		}
 
-		template<typename	T>	inline	void	List<T>::remove(uint32	i){
+		template<typename	T,bool	(*B)(T	&,T	&)>	inline	void	List<T,B>::remove(uint32	i){
 
 			if(get(i)->prev!=NullIndex)
 				get(get(i)->prev)->next=get(i)->next;
@@ -91,19 +91,19 @@ namespace	mBrane{
 			}
 		}
 
-		template<typename	T>	inline	uint32	List<T>::removeReturnNext(uint32	i){
+		template<typename	T,bool	(*B)(T	&,T	&)>	inline	uint32	List<T,B>::removeReturnNext(uint32	i){
 
 			remove(i);
 			return	get(i)->next;
 		}
 
-		template<typename	T>	inline	uint32	List<T>::removeReturnPrevious(uint32	i){
+		template<typename	T,bool	(*B)(T	&,T	&)>	inline	uint32	List<T,B>::removeReturnPrevious(uint32	i){
 
 			remove(i);
 			return	get(i)->prev;
 		}
 
-		template<typename	T>	inline	void	List<T>::insertAfter(uint32	i,T	&t){
+		template<typename	T,bool	(*B)(T	&,T	&)>	inline	void	List<T,B>::insertAfter(uint32	i,T	&t){
 
 			uint32	target=getFreeSlot();
 			get(target)->next=get(i)->next;
@@ -115,7 +115,7 @@ namespace	mBrane{
 				last=target;
 		}
 
-		template<typename	T>	inline	void	List<T>::insertBefore(uint32	i,T	&t){
+		template<typename	T,bool	(*B)(T	&,T	&)>	inline	void	List<T,B>::insertBefore(uint32	i,T	&t){
 
 			uint32	target=getFreeSlot();
 			get(target)->prev=get(i)->prev;
@@ -127,7 +127,7 @@ namespace	mBrane{
 				first=target;
 		}
 
-		template<typename	T>	inline	uint32	List<T>::getFreeSlot(){
+		template<typename	T,bool	(*B)(T	&,T	&)>	inline	uint32	List<T,B>::getFreeSlot(){
 
 			if(_elementCount==_count){
 
@@ -154,17 +154,31 @@ namespace	mBrane{
 			return	freeSlot;
 		}
 
-		template<typename	T>	inline	void	List<T>::addElementHead(T	&t){
+		template<typename	T,bool	(*B)(T	&,T	&)>	inline	void	List<T,B>::addElementHead(T	&t){
 
 			insertBefore(first,t);
 		}
 		
-		template<typename	T>	inline	void	List<T>::addElementTail(T	&t){
+		template<typename	T,bool	(*B)(T	&,T	&)>	inline	void	List<T,B>::addElementTail(T	&t){
+
+			insertAfter(last,t);
+		}
+
+		template<typename	T,bool	(*B)(T	&,T	&)>	inline	void	List<T,B>::addElement(T	&t){
+
+			for(uint32	i=first;i!=NullIndex;i=get(i)->next){
+
+				if(B(t,get(i)->data)){
+
+					insertBefore(i,t);
+					return;
+				}
+			}
 
 			insertAfter(last,t);
 		}
 		
-		template<typename	T>	inline	void	List<T>::removeElement(T	&t){
+		template<typename	T,bool	(*B)(T	&,T	&)>	inline	void	List<T,B>::removeElement(T	&t){
 
 			for(uint32	i=first;i!=NullIndex;i=get(i)->next){
 

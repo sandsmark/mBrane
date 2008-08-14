@@ -105,15 +105,17 @@ namespace	mBrane{
 #endif
 
 #if defined	WINDOWS
-	typedef	HINSTANCE				shared_object;
-	typedef	HANDLE					thread;
-	typedef	LPTHREAD_START_ROUTINE	thread_function;
-	#define	thread_function_call	WINAPI
-	typedef	SOCKET					socket;
-	typedef	HANDLE					semaphore;
-	typedef	HANDLE					mutex;
-	typedef	CRITICAL_SECTION		critical_section;
-	typedef	HANDLE					timer;
+	typedef	HINSTANCE						shared_object;
+	typedef	HANDLE							thread;
+	typedef	LPTHREAD_START_ROUTINE			thread_function;
+	#define	thread_function_call			WINAPI
+	typedef	SOCKET							socket;
+	typedef	HANDLE							semaphore;
+	typedef	HANDLE							mutex;
+	typedef	CRITICAL_SECTION				critical_section;
+	typedef	HANDLE							timer;
+	#define	signal_handler_function_call	WINAPI
+	typedef	PHANDLER_ROUTINE				signal_handler;
 #elif defined	LINUX
 #elif defined	OSX
 #endif
