@@ -33,7 +33,7 @@
 
 namespace	mBrane{
 
-	Executing::Executing(){
+	Executing::Executing():jobFeeder(NULL){
 	}
 
 	Executing::~Executing(){
@@ -42,6 +42,9 @@ namespace	mBrane{
 			delete	xThreads[i];
 		for(uint32	i=0;i<sThreads.count();i++)
 			delete	sThreads[i];
+
+		if(jobFeeder)
+			delete	jobFeeder;
 	}
 
 	bool	Executing::loadConfig(XMLNode	&n){
@@ -55,7 +58,7 @@ namespace	mBrane{
 				std::cout<<"Error: "<<n.getName()<<"::Threads::thread_count is missing\n";
 				return	false;
 			}
-			uint16	threadCount=atoi(tc);
+			threadCount=atoi(tc);
 			if(threadCount>0	&&	threadCount<=512)
 				xThreads.alloc(threadCount);
 			else{
@@ -68,12 +71,22 @@ namespace	mBrane{
 	}
 
 	void	Executing::start(){
+
+		xThreads.alloc(threadCount);
+		for(uint32	i=0;i<xThreads.count();i++)
+			xThreads[i]=Thread::New<Thread>(Xec,this);
+		sThreads.alloc(threadCount);
+		for(uint32	i=0;i<sThreads.count();i++)
+			sThreads[i]=Thread::New<Thread>(Xec,this);
+
+		jobFeeder=Thread::New<Thread>(FeedJobs,this);
 	}
 
 	void	Executing::shutdown(){
 
 		Thread::Wait(xThreads.data(),xThreads.count());
 		Thread::Wait(sThreads.data(),sThreads.count());
+		Thread::Wait(jobFeeder);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
@@ -84,6 +97,37 @@ namespace	mBrane{
 
 		while(!node->_shutdown){
 
+			//	TODO:	block on CS, pop job, peek at next, get priority, assign to next waiting xThread
+			//			if last unlock a support and when return block on support sem (i.e. become  a sThread)
+			//			push job in another xThread if already processing for the same crank and no preemption: in that case, pop next job
+			//			preempt as required
+		}
+
+		return	0;
+	}
+
+	uint32	thread_function_call	Executing::Support(void	*args){
+
+		Node	*node=((Node	*)args);
+
+		while(!node->_shutdown){
+
+			//	TODO: block on sem
+		}
+
+		return	0;
+	}
+
+	uint32	thread_function_call	Executing::FeedJobs(void	*args){
+
+		Node	*node=((Node	*)args);
+
+		while(!node->_shutdown){
+
+			//	TODO:	then block Messaging::orderedMessageSync, pop msg from Messaging::orderedMessage,
+			//			if ctrl msg, process it
+			//			read pub-sub and push new job
+			//			set the priority of the first blocked xThread to the first job's crank's
 		}
 
 		return	0;

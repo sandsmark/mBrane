@@ -45,16 +45,17 @@ namespace	mBrane{
 	class	Executing{	//	thread pool
 	protected:
 		static	uint32	thread_function_call	Xec(void	*args);
+		static	uint32	thread_function_call	Support(void	*args);
 		Array<Thread	*>	xThreads;	//	execution
 		Array<Thread	*>	sThreads;	//	support
+		uint16	threadCount;
+		static	uint32	thread_function_call	FeedJobs(void	*args);
+		Thread	*jobFeeder;
 		Executing();
 		~Executing();
 		bool	loadConfig(XMLNode	&n);
 		void	start();
 		void	shutdown();
-		void	addCrank(_Crank	*c);
-		void	removeCrank(_Crank	*c);
-		_Crank	*getCrank(uint32	threadID);
 	};
 }
 

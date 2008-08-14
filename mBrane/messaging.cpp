@@ -101,6 +101,8 @@ namespace	mBrane{
 	inline	void	Messaging::insertMessage(P<_Payload>	&p){
 
 		int64	now=Time::Get();
+		uint32	count=0;
+		List<P<_Payload> >::Iterator	i;
 
 		if(!orderedMessages.elementCount()){
 
@@ -108,15 +110,12 @@ namespace	mBrane{
 			if(now-p->send_ts()<latency){
 
 				ref=orderedMessages.begin();
-				orderedMessageSync->release();
 				refCount=1;
-			}
-			orderedMessageUpdateTimer.start(latency);
-			return;
+			}else
+				orderedMessageSync->release();
+			goto	resetTimer;
 		}
 
-		uint32	count=0;
-		List<P<_Payload> >::Iterator	i;
 		for(i=orderedMessages.begin();i!=ref;i++){
 
 			if(now-((P<_Payload>)i)->send_ts()<latency){
@@ -129,27 +128,27 @@ namespace	mBrane{
 
 					i.insertBefore(p);
 					for(;now-((P<_Payload>)i)->send_ts()<latency;i++,count++);	//	find the new ref
-					ref=--i;
-					orderedMessageSync->release(refCount-count+1);
-					refCount=count+1;
-					orderedMessageUpdateTimer.start(latency);
-					return;
+					goto	updateRef;
 				}
 			}else{	//	i is the first message over the latency: ref or before
 
 				if(p->send_ts()>((P<_Payload>)i)->send_ts()){	//	p is younger than i. p is the last message under the latency (i.e. the new ref), 
 
 					i.insertBefore(p);
-					ref=--i;
-					refCount=count+1;
-					orderedMessageSync->release(refCount-count+1);
+					goto	updateRef;
 				}
 				//	p is older than i
 				//	TODO:	late message: flag and insert
-				orderedMessageUpdateTimer.start(latency);
-				return;
+				goto	resetTimer;
 			}
 		}
+updateRef:
+		ref=--i;
+		orderedMessageSync->release(refCount-count+1);
+		refCount=count+1;
+resetTimer:
+		orderedMessageUpdateTimer.start(latency);
+		return;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
@@ -230,7 +229,7 @@ namespace	mBrane{
 									node->processError(Networking::DATA,i);
 							}
 						}
-					}else{
+					}else{	//	must be stream
 
 						for(uint32	i=0;i<nodeEntries->count();i++){
 
@@ -281,8 +280,6 @@ namespace	mBrane{
 				continue;
 
 			node->insertMessage(*_p);
-
-			//	TODO:	update sem wrt latency
 
 			*_p=NULL;
 		}
