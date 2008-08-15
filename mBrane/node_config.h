@@ -1,4 +1,4 @@
-//	network_interface.tpl.cpp
+//	node_config.h
 //
 //	Author: Eric Nivel
 //
@@ -28,66 +28,12 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-namespace	mBrane{
-	namespace	sdk{
+#ifndef	mBrane_node_config_h
+#define	mBrane_node_config_h
 
-		template<class	C>	int16	CommChannel::send(C	*c){
 
-			ClassRegister	*CR=ClassRegister::Get(c->cid());
-			int16	r;
-			if(c->isDynamicData()){
-				
-				if(c->isCompressedData()	&&	!c->operator	_CompressedData()->isCompressed)
-					c->operator	_CompressedData()->compress();
-				if(r=send(((uint8	*)c)+CR->offset(),CR->coreSize()+c->operator	_DynamicData()->dynamicSize()))
-					return	r;
-			}else	if(r=send(((uint8	*)c)+CR->offset(),CR->size()))
-				return	r;
-			for(uint8	i=0;i<c->ptrCount();i++){
+#define	UNORDERED_MESSAGING_ENGINE
+//#define	ORDERED_MESSAGING_ENGINE
 
-				if(!*c->ptr(i))
-					continue;
-				if(r=send(*c->ptr(i)))
-					return	r;
-			}
-			return	0;
-		}
 
-		template<class	C>	int16	CommChannel::recv(C	**c){
-
-			uint16	cid;
-			int16	r;
-			if(r=recv((uint8	*)&cid,sizeof(uint16),true))
-				return	r;
-			ClassRegister	*CR=ClassRegister::Get(cid);
-			*c=(C	*)CR->allocator();
-			if((*c)->isDynamicData()){
-
-				if(r=recv((uint8	*)*c,CR->coreSize()))
-					return	r;
-				if(r=recv(((uint8	*)*c)+CR->coreSize(),c->operator	_DynamicData()->dynamicSize()))
-					return	r;
-				if(c->isCompressedData())
-					c->operator	_CompressedData()->decompress();
-			}else	if(r=recv((uint8	*)*c,CR->size()))
-				return	r;
-			_Payload	*ptr;
-			P<_Payload>	*_ptr;
-			for(uint8	i=0;i<(*c)->ptrCount();i++){
-
-				if(!*c->ptr(i))
-					continue;
-
-				if(r=recv(&ptr)){
-
-					delete	*c;
-					return	r;
-				}
-				_ptr=(*c)->ptr(i);
-				*_ptr=ptr;
-			}
-			(*c)->init();
-			return	0;
-		}
-	}
-}
+#endif

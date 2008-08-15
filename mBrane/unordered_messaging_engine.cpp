@@ -1,4 +1,4 @@
-//	daemon_node.h
+//	unordered_messaging_engine.cpp
 //
 //	Author: Eric Nivel
 //
@@ -28,62 +28,69 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef	mBrane_sdk_daemon_node_h
-#define	mBrane_sdk_daemon_node_h
+#include	"node_config.h"
 
-#include	"crank_node.h"
-#include	"xml_parser.h"
-#include	"dynamic_class_loader.h"
+#if	defined	UNORDERED_MESSAGING_ENGINE
 
-//	Node API, as seen from the daemons
+
+#include	"unordered_messaging_engine.h"
+#include	"node.h"
+#include	"..\Core\control_messages.h"
+
+
+using	namespace	mBrane::sdk::payloads;
+
 namespace	mBrane{
-	class	RecvThread;
-	class	XThread;
-	class	OrderedMessagingEngine;
-	class	UnorderedMessagingEngine;
-	class	Executing;
-	namespace	sdk{
-		namespace	daemon{
 
-			class	Daemon;
-			class	dll	Node:
-			public	crank::Node{
-			friend	class	RecvThread;
-			friend	class	XThread;
-			friend	class	UnorderedMessagingEngine;
-			friend	class	OrderedMessagingEngine;
-			friend	class	Executing;
-			protected:
-				bool	_shutdown;
-				Array<DynamicClassLoader<Daemon>	*>	daemonLoaders;
-				Array<Daemon	*>						daemons;
-				Array<Thread	*>						daemonThreads;
-				Node(uint16	ID=NO_ID);
-				bool	loadConfig(XMLNode	&n);
-				void	start();
-				virtual	void	shutdown();
-				~Node();
-			public:
-				bool	isRunning();
-				//	TODO:	define API as pure virtual functions
-				//			-> node map (an array of mBrane::Networking::NetworkID)
-				//			-> stats
-				//			-> ...
-			};
+	UnorderedMessagingEngine::UnorderedMessagingEngine():jobFeeder(NULL){
+	}
 
-			class	dll	Daemon{
-			protected:
-				Node	*node;
-				Daemon(Node	*node);
-			public:
-				typedef	Daemon	*(*Load)(XMLNode	&,Node	*);	//	function exported by the shared library
-				static	uint32	thread_function_call	Run(void	*args);	//	args=this daemon
-				virtual	~Daemon();
-				virtual	void	init()=0;	//	called once, before looping
-				virtual	uint32	run()=0;	//	called in a loop: while(!node->_shutdown); returns error code (or 0 if none)
-				virtual	void	shutdown()=0;	//	called when run returns an error, and when the node shutsdown
-			};
+	UnorderedMessagingEngine::~UnorderedMessagingEngine(){
+
+		if(jobFeeder)
+			delete	jobFeeder;
+	}
+	
+	void	UnorderedMessagingEngine::start(){
+
+		jobFeeder=Thread::New<Thread>(FeedJobs,this);
+	}
+
+	void	UnorderedMessagingEngine::shutdown(){
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+
+	uint32	thread_function_call	UnorderedMessagingEngine::FeedJobs(void	*args){
+
+		Node	*node=(Node	*)args;
+
+		uint32	recvThread=0;
+		Pipe<P<_Payload>,MESSAGE_INPUT_QUEUE_BLOCK_SIZE>	*buffer=NULL;
+		P<_Payload>	*_p;
+		while(!node->_shutdown){
+
+			node->inputSync->acquire();
+
+			if(buffer==&node->messageInputQueue)
+				buffer=&node->recvThreads[recvThread=0]->buffer;
+			else	if(recvThread>=node->recvThreads.count())
+				buffer=&node->messageInputQueue;
+			else
+				buffer=&node->recvThreads[recvThread++]->buffer;
+
+			_p=buffer->pop(false);
+			if(!_p)
+				continue;
+
+			if((*_p)->isControlMessage())
+				node->processControlMessage(*_p);
+
+			node->pushJobs(*_p);
+			*_p=NULL;
 		}
+
+		return	0;
 	}
 }
 

@@ -66,8 +66,8 @@ namespace	mBrane{
 				operator	T&()	const{	return	list->_array[index].data;	}
 				Iterator	insertAfter(T	&t)	const{	list->insertAfter(index,t);		return	Iterator(list,list->_array[index].next);	}
 				Iterator	insertBefore(T	&t)	const{	list->insertBefore(index,t);	return	Iterator(list,list->_array[index].prev);	}
-				void	removeJumpNext()	const{	index=list->removeReturnNext(index);	}
-				void	removeJumpPrevious()	const{	index=list->removeReturnPrevious(index);	}
+				void	removeJumpNext(){	index=list->removeReturnNext(index);	}
+				void	removeJumpPrevious(){	index=list->removeReturnPrevious(index);	}
 			};
 		protected:
 			static	const	uint32	NullIndex;

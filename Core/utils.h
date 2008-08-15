@@ -79,8 +79,7 @@ namespace	mBrane{
 		static	float64	Period;
 		static	int64	InitTime;
 	public:
-		static	void	SetTimeResolution(uint32	r);	//	us (on windows xp: max ~1000; use 1000, 2000, 5000 or 10000)
-		static	void	Init();	//	detects the hardware timing capabilities
+		static	void	Init(uint32	r);	//	detects the hardware timing capabilities; r: time resolution in us (on windows xp: max ~1000; use 1000, 2000, 5000 or 10000)
 		static	int64	Get();	//	in us since 01/01/1970
 	};
 
@@ -92,6 +91,7 @@ namespace	mBrane{
 	class	dll	Semaphore{
 	private:
 		semaphore	s;
+	protected:
 		static	const	uint32	Infinite;
 	public:
 		Semaphore(uint32	initialCount,uint32	maxCount);
@@ -104,6 +104,7 @@ namespace	mBrane{
 	class	dll	Mutex{
 	private:
 		mutex	m;
+	protected:
 		static	const	uint32	Infinite;
 	public:
 		Mutex();
@@ -125,6 +126,7 @@ namespace	mBrane{
 	class	dll	Timer{
 	private:
 		timer	t;
+	protected:
 		static	const	uint32	Infinite;
 	public:
 		Timer();

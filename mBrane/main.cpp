@@ -5,20 +5,20 @@
 
 using	namespace	mBrane;
 using	namespace	mBrane::sdk;
-/*
-class	M:public	Message<M>{
+
+class	M:
+public	__DynamicData<Message<M> >{
 public:
 	uint32	a;
 	uint32	b;
+	size_t	dynamicSize()	const{	return	0;	}
 };
-
+/*
 class	CM:public	ControlMessage<CM>{
 public:
 	uint32	a;
 	uint32	b;
-};
-*/
-//#include	"..\Core\payload_utils.h"
+};*/
 
 mBrane::Node	*node=NULL;
 
@@ -48,7 +48,7 @@ bool	signal_handler_function_call	Handler(uint32	event){
 
 int	main(int	argc,char	**argv){
 
-	Time::Init();
+	Time::Init(1000);
 
 	mBrane::SignalHandler::Add((signal_handler)Handler);
 
@@ -71,7 +71,7 @@ int	main(int	argc,char	**argv){
 		}
 		delete	node;
 	}*/
-
+/*
 	TimeProbe	probe;
 	Timer	_timer;
 	while(1){
@@ -81,26 +81,17 @@ int	main(int	argc,char	**argv){
 	probe.check();
 	std::cout<<"probe1: "<<probe.us()<<std::endl;
 	}
-/*
-	payloads::Array<uint32,16,Memory>	a;
-	payloads::Pipe<uint32,16,Memory>	c;
-	payloads::List<uint32,16,Memory>	l;
-	*/
-/*
-	CM	*cm=new	CM();
-//	P<CM>	cmp=cm;
-	_ControlMessage	*_cm=cm;
+*/
+	/*
+	_Payload		*m=new	M();
+	_ControlMessage	*_cm=(_ControlMessage	*)m;
+	_Message		*_m=(_Message	*)m;
+	_m->senderCrank_cid();
+	m->isDynamicData();
+	_DynamicData	*_dd=m->operator	_DynamicData	*();
+	//	_DynamicData	*_dd=(_DynamicData	*)m;	//	compiler bug: doesn't call the cast operator
 
-	_Payload	*pp=_cm->operator	_Payload	*();
-	_Payload	*p=(_Payload	*)_cm;	//	compiler does not call the cast operator
-	*/
-/*
-	M	*m=new	M();
-	_Message	*_m=m;
-
-	_ControlMessage	*pm=_m->operator	_ControlMessage	*();
-
-	P<M>	mp=m;
-	*/
+	size_t	s=_dd->dynamicSize();
+*/
 	return	0;
 }

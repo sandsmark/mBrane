@@ -49,7 +49,7 @@ namespace	mBrane{
 		return	NULL;
 	}
 
-	Node::Node():Networking(),Messaging(),PublishingSubscribing(),Executing(),nodeCount(0){
+	Node::Node():Networking(),MESSAGING_CLASS(),PublishingSubscribing(),Executing(),nodeCount(0){
 	}
 
 	Node::~Node(){
@@ -293,5 +293,10 @@ namespace	mBrane{
 	void	Node::send(const	_Crank	*sender,_Payload	*message){
 
 		Messaging::send(_ID,sender,message,false);
+	}
+
+	inline	Array<PublishingSubscribing::NodeEntry>	*Node::getNodeEntries(uint16	messageClassID,uint32	messageContentID){
+
+		return	*(routes[messageClassID]->get(messageContentID));
 	}
 }

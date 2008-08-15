@@ -61,9 +61,4 @@ namespace	mBrane{
 			delete	routes[i];
 		}
 	}
-
-	Array<PublishingSubscribing::NodeEntry>	*PublishingSubscribing::getNodeEntries(uint16	messageClassID,uint32	messageContentID){
-
-		return	*(routes[messageClassID]->get(messageContentID));
-	}
 }

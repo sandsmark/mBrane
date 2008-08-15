@@ -35,12 +35,47 @@
 namespace	mBrane{
 	namespace	sdk{
 
+		inline	uint8	__Payload::ptrCount()	const{
+
+			return	0;
+		}
+
+		inline	P<_RPayload>	*__Payload::ptr(uint8	i){
+
+			return	NULL;
+		}
+
+		inline	void	__Payload::init(){
+		}
+
+		inline	bool	__Payload::isDynamicData()	const{
+
+			return	false;
+		}
+
+		inline	bool	__Payload::isCompressedData()	const{
+
+			return	false;
+		}
+
+		inline	__Payload::operator	payloads::_DynamicData	*()	const{
+
+			return	NULL;
+		}
+
+		inline	__Payload::operator	payloads::_CompressedData	*()	const{
+
+			return	NULL;
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////////////////
+
 		const	size_t	_Payload::Offset(){
 
 			return	sizeof(_Object)+sizeof(int64)*2;
 		}
 
-		inline	_Payload::_Payload():_Object(){
+		inline	_Payload::_Payload():__Payload(){
 		}
 
 		inline	_Payload::~_Payload(){
@@ -49,19 +84,6 @@ namespace	mBrane{
 		inline	uint16	_Payload::cid()	const{
 			
 			return	_cid;
-		}
-
-		inline	uint8	_Payload::ptrCount()	const{
-
-			return	0;
-		}
-
-		inline	P<_RPayload>	*_Payload::ptr(uint8	i){
-
-			return	NULL;
-		}
-
-		inline	void	_Payload::init(){
 		}
 
 		inline	bool	_Payload::isCrankData()	const{
@@ -84,14 +106,24 @@ namespace	mBrane{
 			return	false;
 		}
 
-		inline	bool	_Payload::isDynamicData()	const{
+		inline	_Payload::operator	payloads::_CrankData	*()	const{
 
-			return	false;
+			return	NULL;
 		}
 
-		inline	bool	_Payload::isCompressedPayload()	const{
+		inline	_Payload::operator	payloads::_ControlMessage	*()	const{
 
-			return	false;
+			return	NULL;
+		}
+
+		inline	_Payload::operator	payloads::_Message	*()	const{
+
+			return	NULL;
+		}
+
+		inline	_Payload::operator	payloads::_StreamData	*()	const{
+
+			return	NULL;
 		}
 
 		inline	int64	&_Payload::node_send_ts(){
@@ -121,7 +153,7 @@ namespace	mBrane{
 			return	sizeof(_Object);
 		}
 
-		inline	_RPayload::_RPayload():_Object(){
+		inline	_RPayload::_RPayload():__Payload(){
 		}
 
 		inline	_RPayload::~_RPayload(){
@@ -130,29 +162,6 @@ namespace	mBrane{
 		inline	uint16	_RPayload::cid()	const{
 			
 			return	_cid;
-		}
-
-		inline	uint8	_RPayload::ptrCount()	const{
-
-			return	0;
-		}
-
-		inline	P<_RPayload>	*_RPayload::ptr(uint8	i){
-
-			return	NULL;
-		}
-
-		inline	void	_RPayload::init(){
-		}
-
-		inline	bool	_RPayload::isDynamicData()	const{
-
-			return	false;
-		}
-
-		inline	bool	_RPayload::isCompressedPayload()	const{
-
-			return	false;
 		}
 	}
 }

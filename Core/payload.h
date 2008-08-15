@@ -37,13 +37,34 @@
 namespace	mBrane{
 	namespace	sdk{
 
+		namespace	payloads{
+			class	_DynamicData;
+			class	_CompressedData;
+			class	_CrankData;
+			class	_ControlMessage;
+			class	_Message;
+			class	_StreamData;
+		}
+
 		class	_RPayload;
-		class	dll	_Payload:
+		class	dll	__Payload:
 		public	_Object{
+		public:
+			virtual	uint8			ptrCount()	const;
+			virtual	P<_RPayload>	*ptr(uint8	i);
+			virtual	void	init();	//	invocation triggered by reception
+			virtual	bool	isDynamicData()		const;
+			virtual	bool	isCompressedData()	const;
+			virtual	operator	payloads::_DynamicData		*()	const;
+			virtual	operator	payloads::_CompressedData	*()	const;
+		};
+
+		class	dll	_Payload:
+		public	__Payload{
 		protected:
-			int64	_node_recv_ts;
-			int64	_recv_ts;
-			uint16	_cid;
+			int64	_node_recv_ts;	//	non transmitted
+			int64	_recv_ts;		//	non transmitted
+			uint16	_cid;			//	offset points here
 			int64	_node_send_ts;
 			int64	_send_ts;
 			_Payload();
@@ -51,15 +72,14 @@ namespace	mBrane{
 			static	const	size_t	Offset();
 			virtual	~_Payload();
 			uint16	cid()	const;
-			virtual	uint8			ptrCount()	const;
-			virtual	P<_RPayload>	*ptr(uint8	i);
-			virtual	void	init();	//	invocation triggered by reception
-			virtual	bool	isCrankData()	const;
+			virtual	bool	isCrankData()		const;
 			virtual	bool	isControlMessage()	const;
-			virtual	bool	isMessage()	const;
-			virtual	bool	isStreamData()	const;
-			virtual	bool	isDynamicData()	const;
-			virtual	bool	isCompressedPayload()	const;
+			virtual	bool	isMessage()			const;
+			virtual	bool	isStreamData()		const;
+			virtual	operator	payloads::_CrankData		*()	const;
+			virtual	operator	payloads::_ControlMessage	*()	const;
+			virtual	operator	payloads::_Message			*()	const;
+			virtual	operator	payloads::_StreamData		*()	const;
 			int64	&node_send_ts();	//	send timestamp: time of emission from a node
 			int64	&node_recv_ts();	//	recv timestamp: time of reception by a node
 			int64	&send_ts();	//	send timestamp: time of emission from a crank (<= than node_send_ts)
@@ -97,7 +117,7 @@ namespace	mBrane{
 		//			NB: Memory can be any Allocator class
 
 		class	dll	_RPayload:	//	raw payload (i.e. without send/recv time stamps) to embed (P<>)in payloads
-		public	_Object{
+		public	__Payload{
 		protected:
 			uint16	_cid;
 			_RPayload();
@@ -105,11 +125,6 @@ namespace	mBrane{
 			static	const	size_t	Offset();
 			virtual	~_RPayload();
 			uint16	cid()	const;
-			virtual	uint8			ptrCount()	const;
-			virtual	P<_RPayload>	*ptr(uint8	i);
-			virtual	void	init();	//	invocation triggered by reception
-			virtual	bool	isDynamicData()	const;
-			virtual	bool	isCompressedPayload()	const;
 		};
 
 		template<class	M,class	U>	class	RPayload:

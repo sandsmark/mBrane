@@ -42,62 +42,68 @@ using	namespace	mBrane::sdk::crank;
 
 #define	MESSAGE_INPUT_QUEUE_BLOCK_SIZE	32
 #define	MESSAGE_OUTPUT_QUEUE_BLOCK_SIZE	32
+#define	JOB_QUEUE_BLOCK_SIZE			64
 
 namespace	mBrane{
 
+	typedef	struct	_Job{
+		P<_Payload>	p;
+		_Crank		*c;
+	}Job;
+
 	class	Node;
-	class	Messaging{
+	class	RecvThread:
+	public	Thread{
+	public:
+		static	uint32	thread_function_call	ReceiveMessages(void	*args);
+		Pipe<P<_Payload>,MESSAGE_INPUT_QUEUE_BLOCK_SIZE>	buffer;	//	incoming messages from remote nodes
+		Node						*node;
+		CommChannel					*channel;
+		uint16						entry;
+		Networking::InterfaceType	type;
+		RecvThread(Node	*node,CommChannel	*channel,uint16	entry,Networking::InterfaceType	type);
+		~RecvThread();
+	};
+
+	class	UnorderedMessagingEngine;
+	class	OrderedMessagingEngine;
+	class	Executing;
+	class	XThread;
+	template<class	Engine>	class	Messaging:
+	public	Engine{
+	friend	class	RecvThread;
+	friend	class	XThread;
+	friend	class	UnorderedMessagingEngine;
+	friend	class	OrderedMessagingEngine;
+	friend	class	Executing;
 	protected:
 		typedef	struct{
 			bool		local;
 			P<_Payload>	p;
 		}OutputSlot;
-		Pipe<P<_Payload>,MESSAGE_INPUT_QUEUE_BLOCK_SIZE>	messageInputQueue;
+		Pipe<P<_Payload>,MESSAGE_INPUT_QUEUE_BLOCK_SIZE>	messageInputQueue;	//	incoming local messages
 		Pipe<OutputSlot,MESSAGE_OUTPUT_QUEUE_BLOCK_SIZE>	messageOutputQueue;
 
-		typedef	struct	_Job{
-			P<_Payload>	*p;
-			_Crank		*c;
-		}Job;
+		Pipe<Job,JOB_QUEUE_BLOCK_SIZE>	jobs;
 
-		List<P<_Payload> >	orderedMessages;
-		List<P<_Payload> >::Iterator	ref;	//	last message m, for which insertion_time-m->send_ts < latency
-		uint32							refCount;	//	number of messages before ref (ref included)
-		int64	latency;	//	in us
-		Semaphore	*orderedMessageSync;
-		Timer		orderedMessageUpdateTimer;
-		Thread		*orderedMessageUpdateThread;
-		static	uint32	thread_function_call	UpdateMessageOrdering(void	*args);
-		void	insertMessage(P<_Payload>	&p);
-
-		class	RecvThread:
-		public	Thread{
-		public:
-			static	uint32	thread_function_call	ReceiveMessages(void	*args);
-			Pipe<P<_Payload>,MESSAGE_INPUT_QUEUE_BLOCK_SIZE>	buffer;
-			Node						*node;
-			CommChannel					*channel;
-			uint16						entry;
-			Networking::InterfaceType	type;
-			RecvThread(Node	*node,CommChannel	*channel,uint16	entry,Networking::InterfaceType	type);
-			~RecvThread();
-		};
 		Array<RecvThread	*>	recvThreads;
 		Thread					*sendThread;
 		static	uint32	thread_function_call	SendMessages(void	*args);
 		Semaphore	*inputSync;	//	sync on the input message count
 
-		static	uint32	thread_function_call	OrderMessages(void	*args);
-		Thread	*orderThread;
-
 		Messaging();
 		~Messaging();
 		void	send(uint16	NID,_Payload	*message,bool	local);
 		void	send(uint16	NID,const	_Crank	*sender,_Payload	*message,bool	local);
+		void	processControlMessage(_Payload	*p);
+		void	pushJobs(_Payload	*p);
 		void	start();
 		void	shutdown();
 	};
 }
+
+
+#include	"messaging.tpl.cpp"
 
 
 #endif

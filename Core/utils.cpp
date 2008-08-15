@@ -191,7 +191,7 @@ namespace	mBrane{
 	
 	int64	Time::InitTime;
 
-	void	Time::SetTimeResolution(uint32	r){
+	inline	void	Time::Init(uint32	r){
 #if defined	WINDOWS
 	NTSTATUS	nts;
 	HMODULE	NTDll=::LoadLibrary("NTDLL");
@@ -202,13 +202,6 @@ namespace	mBrane{
 		if(pNSTR)
 			nts=(*pNSTR)(10*r,true,&actualResolution);	//	in 100 ns units
 	}
-#elif defined LINUX
-#elif defined OSX
-#endif
-	}
-
-	inline	void	Time::Init(){
-#if defined	WINDOWS
 	LARGE_INTEGER	f;
 	QueryPerformanceFrequency(&f);
 	Period=1000000.0/f.QuadPart;	//	in us

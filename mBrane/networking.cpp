@@ -439,7 +439,7 @@ err2:	delete[]	networkID;
 		}
 	}
 
-	void	Networking::processError(InterfaceType	type,uint16	entry){
+	inline	void	Networking::processError(InterfaceType	type,uint16	entry){
 
 		channelsCS.enter();
 

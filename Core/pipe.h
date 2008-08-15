@@ -61,7 +61,7 @@ namespace	mBrane{
 			~Pipe();
 			void	clear();
 			void	push(T	&t);	//	increases the total size if necessary
-			T	*pop(bool	blocking=true);
+			T		*pop(bool	blocking=true);	//	return NULL if empty (in non blocking mode)
 		};
 	}
 }

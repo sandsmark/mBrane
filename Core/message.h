@@ -42,6 +42,50 @@ namespace	mBrane{
 
 		namespace	payloads{
 
+			class	dll	_DynamicData{
+			protected:
+				_DynamicData();
+			public:
+				virtual	~_DynamicData();
+				virtual	size_t	dynamicSize()	const=0;	//	size of the dynamic data (not of the whole class)
+			};
+
+			template<class	S>	class	__DynamicData:
+			public	S,
+			public	_DynamicData{
+			public:
+				bool	isDynamicData()	const;
+				operator	_DynamicData	*()	const;
+			};
+
+			class	dll	_CompressedData:
+			public	_DynamicData{
+			friend	class	CommChannel;
+			protected:
+				bool	isCompressed;	//	must be updated by compress() and any method changing the content of the frame, defined in U classes
+				_CompressedData();
+			public:
+				virtual	~_CompressedData();
+				virtual	void	compress();
+				virtual	void	decompress();
+			};
+
+			template<class	S,class	D,class	F>	class	CompressedData:	//	S: superclass, either Message<U>, StreamData<U> or Payload<U>; subclass U shall not define any data at all (already defined by class D); F: frame data
+			public	S,
+			public	_CompressedData,
+			public	D{
+			protected:
+				F	compressedFrame;	//	the last data to be transmitted, i.e. anything declared afterwards will not be transmitted
+				F	uncompressedFrame;
+				CompressedData();
+			public:
+				static	const	size_t	CoreSize();
+				bool	isCompressedData()	const;
+				operator	_CompressedData	*()	const;
+			};
+
+			////////////////////////////////////////////////////////////////////////////////////////////////
+
 			template<class	Data>	class	CrankData:	//	binary data to be migrated
 			public	Payload<Memory,CrankData<Data> >,
 			public	Data{
@@ -49,6 +93,7 @@ namespace	mBrane{
 				CrankData();
 				virtual	~CrankData();
 				bool	isCrankData()	const;
+				operator	_CrankData	*()	const;
 			};
 
 			class	dll	_ControlMessage{
@@ -72,6 +117,7 @@ namespace	mBrane{
 				ControlMessage(uint32	mid=0,uint8	priority=0);
 			public:
 				virtual	bool	isControlMessage();
+				operator	_ControlMessage	*()	const;
 			};
 
 			class	dll	_StreamData{
@@ -91,40 +137,7 @@ namespace	mBrane{
 			public:
 				bool	isControlMessage();
 				bool	isStreamData();
-			};
-
-			class	dll	_DynamicData{
-			protected:
-				_DynamicData();
-			public:
-				virtual	~_DynamicData();
-				bool	isDynamicData()	const;
-				virtual	size_t	dynamicSize()	const=0;	//	size of the dynamic data (not of the whole class)
-			};
-
-			class	dll	_CompressedPayload:
-			public	_DynamicData{
-			friend	class	CommChannel;
-			protected:
-				bool	isCompressed;	//	must be updated by compress() and any method changing the content of the frame, defined in U classes
-				_CompressedPayload();
-			public:
-				virtual	~_CompressedPayload();
-				bool	isCompressedPayload()	const;
-				virtual	void	compress();
-				virtual	void	decompress();
-			};
-
-			template<class	S,class	D,class	F>	class	CompressedPayload:	//	S: superclass, either Message<U>, StreamData<U> or Payload<U>; subclass U shall not define any data at all (already defined by class D); F: frame data
-			public	S,
-			public	_CompressedPayload,
-			public	D{
-			protected:
-				F	compressedFrame;	//	the last data to be transmitted, i.e. anything declared afterwards will not be transmitted
-				F	uncompressedFrame;
-				CompressedPayload();
-			public:
-				static	const	size_t	CoreSize();
+				operator	_StreamData		*()	const;
 			};
 
 			class	dll	_Message{
@@ -152,6 +165,7 @@ namespace	mBrane{
 			public:
 				bool	isControlMessage();
 				bool	isMessage();
+				operator	_Message	*()	const;
 			};
 		}
 	}

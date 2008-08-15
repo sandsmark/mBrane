@@ -35,6 +35,28 @@ namespace	mBrane{
 	namespace	sdk{
 		namespace	payloads{
 
+			inline	_DynamicData::_DynamicData(){
+			}
+
+			inline	_DynamicData::~_DynamicData(){
+			}
+
+			////////////////////////////////////////////////////////////////////////////////////////////////
+
+			inline	_CompressedData::_CompressedData():_DynamicData(),isCompressed(false){
+			}
+
+			inline	_CompressedData::~_CompressedData(){
+			}
+
+			inline	void	_CompressedData::compress(){
+			}
+
+			inline	void	_CompressedData::decompress(){
+			}
+
+			////////////////////////////////////////////////////////////////////////////////////////////////
+
 			inline	_ControlMessage::_ControlMessage(uint32	mid,uint8	priority):_mid(mid),_priority(_priority),_senderNodeID(0){
 			}
 
@@ -77,38 +99,6 @@ namespace	mBrane{
 			inline	_StreamData::operator	_Payload	*()	const{
 
 				return	(_Payload	*)(((uint8	*)this)-sizeof(_ControlMessage)-sizeof(_Payload));
-			}
-
-			////////////////////////////////////////////////////////////////////////////////////////////////
-
-			inline	_DynamicData::_DynamicData(){
-			}
-
-			inline	_DynamicData::~_DynamicData(){
-			}
-
-			inline	bool	_DynamicData::isDynamicData()	const{
-
-				return	true;
-			}
-
-			////////////////////////////////////////////////////////////////////////////////////////////////
-
-			inline	_CompressedPayload::_CompressedPayload():_DynamicData(),isCompressed(false){
-			}
-
-			inline	_CompressedPayload::~_CompressedPayload(){
-			}
-
-			inline	bool	_CompressedPayload::isCompressedPayload()	const{
-
-				return	true;
-			}
-
-			inline	void	_CompressedPayload::compress(){
-			}
-
-			inline	void	_CompressedPayload::decompress(){
 			}
 
 			////////////////////////////////////////////////////////////////////////////////////////////////

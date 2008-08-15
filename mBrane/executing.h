@@ -34,7 +34,6 @@
 #include	"..\Core\utils.h"
 #include	"..\Core\crank.h"
 #include	"..\Core\xml_parser.h"
-#include	"..\Core\list.h"
 
 
 using	namespace	mBrane::sdk;
@@ -42,15 +41,33 @@ using	namespace	mBrane::sdk::crank;
 
 namespace	mBrane{
 
-	class	Executing{	//	thread pool
-	protected:
+	class	Node;
+	class	XThread:
+	public	Thread,
+	public	crank::XThread{
+	public:
 		static	uint32	thread_function_call	Xec(void	*args);
-		static	uint32	thread_function_call	Support(void	*args);
+		Node	*node;
+		_Crank	*crank;
+		bool	wasBlocked;
+		bool	done;
+		Semaphore	*sync;
+
+		XThread(Node	*n);
+		~XThread();
+		void	block();
+		bool	work(_Payload	*p,_Crank	*c);
+	};
+
+	class	Executing{	//	thread pool
+	friend	class	XThread;
+	protected:
+		
 		Array<Thread	*>	xThreads;	//	execution
 		Array<Thread	*>	sThreads;	//	support
 		uint16	threadCount;
-		static	uint32	thread_function_call	FeedJobs(void	*args);
-		Thread	*jobFeeder;
+		Semaphore	*supportSync;
+
 		Executing();
 		~Executing();
 		bool	loadConfig(XMLNode	&n);

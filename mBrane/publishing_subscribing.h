@@ -41,9 +41,11 @@ using	namespace	mBrane::sdk::crank;
 
 namespace	mBrane{
 
-	class	Messaging;
+	class	OrderedMessagingEngine;
+	template<class	Engine>	class	Messaging;
 	class	PublishingSubscribing{
-	friend	class	Messaging;
+	friend	class	OrderedMessagingEngine;
+	template<class	Engine>	friend	class	Messaging;
 	protected:
 		typedef	struct{
 			uint32	activationCount;
@@ -56,7 +58,6 @@ namespace	mBrane{
 		//	TODO:	groups,crank descriptors
 		PublishingSubscribing();
 		~PublishingSubscribing();
-		Array<NodeEntry>	*getNodeEntries(uint16	messageClassID,uint32	messageContentID);
 	};
 }
 

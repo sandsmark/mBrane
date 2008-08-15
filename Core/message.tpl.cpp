@@ -32,6 +32,38 @@ namespace	mBrane{
 	namespace	sdk{
 		namespace	payloads{
 
+			template<class	S>	inline	bool	__DynamicData<S>::isDynamicData()	const{
+				
+				return	true;	
+			}
+
+			template<class	S>	inline	__DynamicData<S>::operator	_DynamicData	*()	const{
+				
+				return	(_DynamicData	*)this;	
+			}
+
+			////////////////////////////////////////////////////////////////////////////////////////////////
+
+			template<class	S,class	D,class	F>	inline	const	size_t	CompressedData<S,D,F>::CoreSize(){
+
+				return	Size()-2*sizeof(F);
+			}
+
+			template<class	S,class	D,class	F>	CompressedData<S,D,F>::CompressedData():S(),_CompressedData(),D(){
+			}
+
+			template<class	S,class	D,class	F>	inline	bool	CompressedData<S,D,F>::isCompressedData()	const{
+				
+				return	true;	
+			}
+			
+			template<class	S,class	D,class	F>	inline	CompressedData<S,D,F>::operator	_CompressedData	*()	const{
+				
+				return	(_CompressedData	*)this;
+			}
+
+			////////////////////////////////////////////////////////////////////////////////////////////////
+
 			template<class	Data>	inline	CrankData<Data>::CrankData():Payload<Memory,CrankData<Data> >(),Data(){
 			}
 			
@@ -43,6 +75,11 @@ namespace	mBrane{
 				return	true;
 			}
 
+			template<class	Data>	inline	CrankData<Data>::operator	_CrankData	*()	const{
+
+				return	(_CrankData	*)this;
+			}
+
 			////////////////////////////////////////////////////////////////////////////////////////////////
 
 			template<class	U>	inline	ControlMessage<U>::ControlMessage(uint32	mid,uint8	priority):Payload<Memory,U>(),_ControlMessage(mid,priority){
@@ -51,6 +88,11 @@ namespace	mBrane{
 			template<class	U>	inline	bool	ControlMessage<U>::isControlMessage(){
 
 				return	true;
+			}
+
+			template<class	U>	inline	ControlMessage<U>::operator	_ControlMessage	*()	const{
+
+				return	(_ControlMessage	*)this;
 			}
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
@@ -68,6 +110,11 @@ namespace	mBrane{
 				return	true;
 			}
 
+			template<class	U>	inline	Message<U>::operator	_Message	*()	const{
+
+				return	(_Message	*)this;
+			}
+
 			////////////////////////////////////////////////////////////////////////////////////////////////
 
 			template<class	U>	inline	StreamData<U>::StreamData(uint32	mid,uint8	priority):ControlMessage<U>(mid,priority){
@@ -83,14 +130,9 @@ namespace	mBrane{
 				return	true;
 			}
 
-			////////////////////////////////////////////////////////////////////////////////////////////////
+			template<class	U>	inline	StreamData<U>::operator	_StreamData	*()	const{
 
-			template<class	S,class	D,class	F>	inline	const	size_t	CompressedPayload<S,D,F>::CoreSize(){
-
-				return	Size()-2*sizeof(F);
-			}
-
-			template<class	S,class	D,class	F>	CompressedPayload<S,D,F>::CompressedPayload():S(),_CompressedPayload(),D(){
+				return	(_StreamData	*)this;
 			}
 		}
 	}

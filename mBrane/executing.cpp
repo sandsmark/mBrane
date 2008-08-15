@@ -33,7 +33,9 @@
 
 namespace	mBrane{
 
-	Executing::Executing():jobFeeder(NULL){
+	Executing::Executing(){
+
+		supportSync=new	Semaphore(0,65535);
 	}
 
 	Executing::~Executing(){
@@ -42,9 +44,8 @@ namespace	mBrane{
 			delete	xThreads[i];
 		for(uint32	i=0;i<sThreads.count();i++)
 			delete	sThreads[i];
-
-		if(jobFeeder)
-			delete	jobFeeder;
+		if(supportSync)
+			delete	supportSync;
 	}
 
 	bool	Executing::loadConfig(XMLNode	&n){
@@ -73,85 +74,117 @@ namespace	mBrane{
 	void	Executing::start(){
 
 		xThreads.alloc(threadCount);
-		for(uint32	i=0;i<xThreads.count();i++)
-			xThreads[i]=Thread::New<Thread>(Xec,this);
-		sThreads.alloc(threadCount);
-		for(uint32	i=0;i<sThreads.count();i++)
-			sThreads[i]=Thread::New<Thread>(Xec,this);
+		for(uint32	i=0;i<xThreads.count();i++){
 
-		jobFeeder=Thread::New<Thread>(FeedJobs,this);
+			XThread	*t=new	XThread((Node	*)this);
+			xThreads[i]=t;
+			t->start(XThread::Xec);
+		}
+		sThreads.alloc(threadCount);
+		for(uint32	i=0;i<sThreads.count();i++){
+
+			XThread	*t=new	XThread((Node	*)this);
+			sThreads[i]=t;
+			t->start(XThread::Xec);
+		}
 	}
 
 	void	Executing::shutdown(){
 
 		Thread::Wait(xThreads.data(),xThreads.count());
 		Thread::Wait(sThreads.data(),sThreads.count());
-		Thread::Wait(jobFeeder);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	uint32	thread_function_call	Executing::Xec(void	*args){
+	uint32	thread_function_call	XThread::Xec(void	*args){
 
-		Node	*node=((Node	*)args);
+		XThread	*_this=((XThread	*)args);
 
-		while(!node->_shutdown){
+		static	uint32	xCount=0;
+		if(++xCount<=_this->node->xThreads.count())
+			goto	xec;
+support:
+		_this->node->supportSync->acquire();
+xec:
+		P<_Payload>	*_p;
+		while(!_this->node->_shutdown){
 
-			//	TODO:	block on CS, pop job, peek at next, get priority, assign to next waiting xThread
-			//			if last unlock a support and when return block on support sem (i.e. become  a sThread)
-			//			push job in another xThread if already processing for the same crank and no preemption: in that case, pop next job
-			//			preempt as required
+			Job	*j=_this->node->jobs.pop();
+			P<_Payload>	p=j->p;
+			j->p=NULL;
+			_Crank	*crank=j->c;
+
+			if(_this->work(p,crank))
+				goto	support;
 		}
 
 		return	0;
 	}
 
-	uint32	thread_function_call	Executing::Support(void	*args){
+	XThread::XThread(Node	*n):Thread(),node(n),crank(NULL),wasBlocked(false){
 
-		Node	*node=((Node	*)args);
-
-		while(!node->_shutdown){
-
-			//	TODO: block on sem
-		}
-
-		return	0;
+		sync=new	Semaphore(0,1);
 	}
 
-	uint32	thread_function_call	Executing::FeedJobs(void	*args){
+	XThread::~XThread(){
 
-		Node	*node=((Node	*)args);
-
-		while(!node->_shutdown){
-
-			//	TODO:	then block Messaging::orderedMessageSync, pop msg from Messaging::orderedMessage,
-			//			if ctrl msg, process it
-			//			read pub-sub and push new job
-			//			set the priority of the first blocked xThread to the first job's crank's
-		}
-
-		return	0;
+		delete	sync;
 	}
 
-/*
+	inline	void	XThread::block(){
 
-			//	find local receiving cranks (from pub-sub structure); insert {p,crank} pairs in pipeline
-			Array<PublishingSubscribing::NodeEntry>	*nodeEntries=node->getNodeEntries((*_p)->cid(),((_ControlMessage	*)*_p)->mid());
-			if(nodeEntries){	//	else: mid has never been subscribed for before
+		if(!wasBlocked){
 
-				if(nodeEntries->operator[](node->_ID).activationCount){
+			wasBlocked=true;
+			node->supportSync->release();
+		}
+	}
 
-					List<_Crank	*>	*l=nodeEntries->get(node->_ID)->cranks;
-					if(l){
+	inline	bool	XThread::work(_Payload	*p,_Crank	*c){
 
-						List<_Crank	*>::Iterator	i;
-						for(i=l->begin();i!=l->end();i++){
+		if(c->processor){
 
-							if(((_Crank	*)i)->active())
-								node->insertMessage(*_p);
-						}
-					}
-				}
+			if(c->priorityLevel<((_ControlMessage	*)p)->priority()){	//	wait for an exiting xThread to finish; recurse (in case that thread was preempting yet another one)
+
+				block();
+				((XThread	*)c->processor)->sync->acquire();
+				return	work(p,c);
 			}
-*/
+			//	preempt
+			sync->acquire();
+			XThread	*preempted=(XThread	*)crank->processor;
+			uint8	priorityLevel=crank->priorityLevel;
+
+			preempted->suspend();
+			preempted->block();
+			c->processor=this;
+			crank=c;
+			c->priorityLevel=((_ControlMessage	*)p)->priority();
+			c->notify(p);
+			c->priorityLevel=priorityLevel;
+			crank=NULL;
+			c->processor=preempted;
+			preempted->crank=c;
+			preempted->resume();
+			sync->release();
+
+			goto	exit;
+		}
+		
+		sync->acquire();
+		(crank=c)->processor=this;
+		crank->priorityLevel=((_ControlMessage	*)p)->priority();
+		crank->notify(p);
+		crank->processor=NULL;
+		crank=NULL;
+		sync->release();
+exit:
+		if(wasBlocked){
+
+			wasBlocked=false;	
+			return	true;
+		}
+		return	false;
+	}
 }

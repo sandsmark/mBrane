@@ -39,10 +39,12 @@ using	namespace	mBrane::sdk::daemon;
 
 namespace	mBrane{
 
-	class	Messaging;
+	class	RecvThread;
+	template<class	Engine>	class	Messaging;
 	class	Networking:
 	public	Node{
-	friend	class	Messaging;
+	friend	class	RecvThread;
+	template<class	Engine>	friend	class	Messaging;
 		//	boot one single node with a timeout (if it times out, it's the ref node)
 		//	when ready (callback), boot all the other nodes
 		//	algorithm:

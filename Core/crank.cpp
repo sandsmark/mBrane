@@ -37,12 +37,12 @@ namespace	mBrane{
 	namespace	sdk{
 		namespace	crank{
 
-			void	_Crank::Build(uint16	CID){
+			void	_Crank::New(uint16	CID){
 
 				Node::Get()->buildCrank(CID);
 			}
 
-			_Crank::_Crank(uint16	_ID,bool	canMigrate,bool	canBeSwapped):_ID(_ID),_canMigrate(canMigrate),_canBeSwapped(canBeSwapped),_activationCount(0),_priority(0){
+			_Crank::_Crank(uint16	_ID,bool	canMigrate,bool	canBeSwapped):_ID(_ID),_canMigrate(canMigrate),_canBeSwapped(canBeSwapped),_activationCount(0),_priority(0),processor(NULL){
 			}
 
 			_Crank::~_Crank(){
@@ -119,14 +119,127 @@ namespace	mBrane{
 				return	Node::Get()->time();
 			}
 
-			void	_Crank::sleep(int64	d)	const{
+			void	_Crank::sleep(int64	d){
 
+				if(processor	&&	d)
+					processor->block();
 				Thread::Sleep(d);
 			}
 
+			void	_Crank::wait(Thread	**threads,uint32	threadCount){
+
+				if(processor)
+					processor->block();
+				Thread::Wait(threads,threadCount);
+			}
+			
+			void	_Crank::wait(Thread	*_thread){
+
+				if(processor)
+					processor->block();
+				Thread::Wait(_thread);
+			}
+			
 			inline	void	_Crank::send(_Payload	*p)	const{
 
 				Node::Get()->send(this,p);
+			}
+
+			////////////////////////////////////////////////////////////////////////////////////////////////
+
+			CrankUtils::CrankUtils(_Crank	*c):crank(c){
+			}
+
+			////////////////////////////////////////////////////////////////////////////////////////////////
+
+			Semaphore::Semaphore(_Crank	*c,uint32	initialCount,uint32	maxCount):mBrane::Semaphore(initialCount,maxCount),CrankUtils(c){
+			}
+
+			Semaphore::~Semaphore(){
+			}
+
+			bool	Semaphore::acquire(uint32	timeout){
+
+				if(crank->processor	&&	timeout)
+					crank->processor->block();
+				return	mBrane::Semaphore::acquire(timeout);
+			}
+
+			void	Semaphore::release(uint32	count){
+
+				mBrane::Semaphore::release();
+			}
+
+			void	Semaphore::reset(){
+
+				mBrane::Semaphore::reset();
+			}
+
+			////////////////////////////////////////////////////////////////////////////////////////////////
+
+			Mutex::Mutex(_Crank	*c):mBrane::Mutex(),CrankUtils(c){
+			}
+
+			Mutex::~Mutex(){
+			}
+
+			bool	Mutex::acquire(uint32	timeout){
+
+				if(crank->processor	&&	timeout)
+					crank->processor->block();
+				return	mBrane::Mutex::acquire(timeout);
+			}
+
+			void	Mutex::release(){
+
+				mBrane::Mutex::release();
+			}
+
+			////////////////////////////////////////////////////////////////////////////////////////////////
+
+			CriticalSection::CriticalSection(_Crank	*c):mBrane::CriticalSection(),CrankUtils(c){
+			}
+
+			CriticalSection::~CriticalSection(){
+			}
+			
+			void	CriticalSection::enter(){
+
+				if(crank->processor)
+					crank->processor->block();
+				mBrane::CriticalSection::enter();
+			}
+
+			void	CriticalSection::leave(){
+
+				mBrane::CriticalSection::leave();
+			}
+
+			////////////////////////////////////////////////////////////////////////////////////////////////
+
+			Timer::Timer(_Crank	*c):mBrane::Timer(),CrankUtils(c){
+			}
+
+			Timer::~Timer(){
+			}
+
+			void	Timer::start(uint32	deadline,uint32	period){
+
+				mBrane::Timer::start(deadline,period);
+			}
+
+			bool	Timer::wait(uint32	timeout){
+
+				if(crank->processor	&&	timeout)
+					crank->processor->block();
+				return	mBrane::Timer::wait(timeout);
+			}
+
+			bool	Timer::wait(uint64	&us,uint32	timeout){
+
+				if(crank->processor)
+					crank->processor->block();
+				return	mBrane::Timer::wait(us,timeout);
 			}
 		}
 	}

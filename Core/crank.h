@@ -31,29 +31,49 @@
 #ifndef mBrane_sdk_crank_h
 #define mBrane_sdk_crank_h
 
+#include	"utils.h"
 #include	"message.h"
 
 
 using	namespace	mBrane::sdk::payloads;
 
 namespace	mBrane{
+	class	XThread;
 	namespace	sdk{
 		namespace	crank{
 
+			class	XThread{
+			public:
+				virtual	void	block()=0;
+			};
+
+			class	Semaphore;
+			class	Mutex;
+			class	CriticalSection;
+			class	Timer;
 			class	dll	_Crank{	//	migration: migrateOut->dump->payload->send-/ /-receive->load->migrateIn; cranks can launch their own internal threads
+			friend	class	mBrane::XThread;
+			friend	class	Semaphore;
+			friend	class	Mutex;
+			friend	class	CriticalSection;
+			friend	class	Timer;
 			private:
 				uint16	_ID;
 				bool	_canMigrate;
 				bool	_canBeSwapped;
 				uint32	_activationCount;
 				uint8	_priority;
+				XThread	*processor;
+				uint8	priorityLevel;	//	priority of the message currently processed
 			protected:
 				_Crank(uint16	_ID,bool	canMigrate=true,bool	canBeSwapped=true);
 				int64	time()	const;
-				void	sleep(int64	d)	const;
+				void	sleep(int64	d);
+				void	wait(Thread	**threads,uint32	threadCount);
+				void	wait(Thread	*_thread);
 				void	send(_Payload	*p)	const;
 			public:
-				static	void	Build(uint16	CID);
+				static	void	New(uint16	CID);
 				virtual	~_Crank();
 				uint16	id()	const;
 				bool	active()	const;
@@ -72,6 +92,54 @@ namespace	mBrane{
 				virtual	void		migrateOut();	//	called when the crank is unloaded from its current thread for migration
 				virtual	void		migrateIn();	//	called when the crank is loaded in a new thread after having migrated
 				virtual	void		notify(_Payload	*p)=0;	//	called when the crank receives a message
+			};
+
+			class	dll	CrankUtils{
+			protected:
+				_Crank	*crank;
+				CrankUtils(_Crank	*c);
+			};
+
+			class	dll	Semaphore:
+			public	CrankUtils,
+			protected	mBrane::Semaphore{
+			public:
+				Semaphore(_Crank	*c,uint32	initialCount,uint32	maxCount);
+				~Semaphore();
+				bool	acquire(uint32	timeout=Infinite);	//	returns true if timedout
+				void	release(uint32	count=1);
+				void	reset();
+			};
+
+			class	dll	Mutex:
+			public	CrankUtils,
+			protected	mBrane::Mutex{
+			public:
+				Mutex(_Crank	*c);
+				~Mutex();
+				bool	acquire(uint32	timeout=Infinite);	//	returns true if timedout
+				void	release();
+			};
+
+			class	dll	CriticalSection:
+			public	CrankUtils,
+			protected	mBrane::CriticalSection{
+			public:
+				CriticalSection(_Crank	*c);
+				~CriticalSection();
+				void	enter();
+				void	leave();
+			};
+
+			class	dll	Timer:
+			public	CrankUtils,
+			protected	mBrane::Timer{
+			public:
+				Timer(_Crank	*c);
+				~Timer();
+				void	start(uint32	deadline,uint32	period=0);	//	in ms
+				bool	wait(uint32	timeout=Infinite);	//	returns true if timedout
+				bool	wait(uint64	&us,uint32	timeout=Infinite);	//	idem; updates the us actually spent
 			};
 		}
 	}

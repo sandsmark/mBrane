@@ -1,4 +1,4 @@
-//	daemon_node.h
+//	ordered_messaging_engine.h
 //
 //	Author: Eric Nivel
 //
@@ -28,64 +28,48 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef	mBrane_sdk_daemon_node_h
-#define	mBrane_sdk_daemon_node_h
+#include	"node_config.h"
 
-#include	"crank_node.h"
-#include	"xml_parser.h"
-#include	"dynamic_class_loader.h"
+#if	defined	ORDERED_MESSAGING_ENGINE
 
-//	Node API, as seen from the daemons
+#ifndef	mBrane_ordered_messaging_engine_h
+#define	mBrane_ordered_messaging_engine_h
+
+#include	"..\Core\utils.h"
+#include	"..\Core\list.h"
+#include	"..\Core\payload.h"
+
+
+using	namespace	mBrane::sdk;
+
 namespace	mBrane{
-	class	RecvThread;
-	class	XThread;
-	class	OrderedMessagingEngine;
-	class	UnorderedMessagingEngine;
-	class	Executing;
-	namespace	sdk{
-		namespace	daemon{
 
-			class	Daemon;
-			class	dll	Node:
-			public	crank::Node{
-			friend	class	RecvThread;
-			friend	class	XThread;
-			friend	class	UnorderedMessagingEngine;
-			friend	class	OrderedMessagingEngine;
-			friend	class	Executing;
-			protected:
-				bool	_shutdown;
-				Array<DynamicClassLoader<Daemon>	*>	daemonLoaders;
-				Array<Daemon	*>						daemons;
-				Array<Thread	*>						daemonThreads;
-				Node(uint16	ID=NO_ID);
-				bool	loadConfig(XMLNode	&n);
-				void	start();
-				virtual	void	shutdown();
-				~Node();
-			public:
-				bool	isRunning();
-				//	TODO:	define API as pure virtual functions
-				//			-> node map (an array of mBrane::Networking::NetworkID)
-				//			-> stats
-				//			-> ...
-			};
+	class	OrderedMessagingEngine{
+	protected:
+		static	uint32	thread_function_call	FeedJobs(void	*args);
+		Thread	*jobFeeder;
 
-			class	dll	Daemon{
-			protected:
-				Node	*node;
-				Daemon(Node	*node);
-			public:
-				typedef	Daemon	*(*Load)(XMLNode	&,Node	*);	//	function exported by the shared library
-				static	uint32	thread_function_call	Run(void	*args);	//	args=this daemon
-				virtual	~Daemon();
-				virtual	void	init()=0;	//	called once, before looping
-				virtual	uint32	run()=0;	//	called in a loop: while(!node->_shutdown); returns error code (or 0 if none)
-				virtual	void	shutdown()=0;	//	called when run returns an error, and when the node shutsdown
-			};
-		}
-	}
+		List<P<_Payload> >	orderedMessages;
+		List<P<_Payload> >::Iterator	ref;	//	last message m, for which insertion_time-m->send_ts < latency
+		uint32							refCount;	//	number of messages before ref (ref included)
+		int64	latency;	//	in us
+		void	insertMessage(P<_Payload>	&p);
+		Semaphore	*orderedMessageSync;
+		Timer		orderedMessageUpdateTimer;
+		static	uint32	thread_function_call	UpdateMessageOrdering(void	*args);
+		Thread		*orderedMessageUpdateThread;
+
+		static	uint32	thread_function_call	OrderMessages(void	*args);
+		Thread	*orderThread;
+
+		OrderedMessagingEngine();
+		~OrderedMessagingEngine();
+		void	start();
+		void	shutdown();
+	};
 }
 
+
+#endif
 
 #endif

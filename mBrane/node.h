@@ -36,6 +36,8 @@
 
 #include	"networking.h"
 #include	"messaging.h"
+#include	"unordered_messaging_engine.h"
+#include	"ordered_messaging_engine.h"
 #include	"publishing_subscribing.h"
 #include	"executing.h"
 
@@ -44,13 +46,20 @@ using	namespace	mBrane::sdk;
 using	namespace	mBrane::sdk::crank;
 using	namespace	mBrane::sdk::daemon;
 
+#if	defined	ORDERED_MESSAGING_ENGINE
+	#define	MESSAGING_CLASS	Messaging<OrderedMessagingEngine>
+#elif	defined	UNORDERED_MESSAGING_ENGINE
+	#define	MESSAGING_CLASS	Messaging<UnorderedMessagingEngine>
+#endif
+
 namespace	mBrane{
 
 	class	Node:
 	public	Networking,
-	public	Messaging,
+	public	MESSAGING_CLASS,
 	public	PublishingSubscribing,
 	public	Executing{
+	template<class	Engine>	friend	class	Messaging;
 	private:
 		//	CONFIG
 		const	char	*application_configuration_file;
@@ -64,6 +73,9 @@ namespace	mBrane{
 
 		//	MESSAGING
 		void	startReceivingThreads(uint16	NID);
+
+		//	PUBLISHING SUBSCRIBING
+		Array<NodeEntry>	*getNodeEntries(uint16	messageClassID,uint32	messageContentID);
 
 		//	NODE
 		uint16	nodeCount;
