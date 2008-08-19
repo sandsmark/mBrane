@@ -1,4 +1,4 @@
-//	group.h
+//	network_id.h
 //
 //	Author: Eric Nivel
 //
@@ -28,13 +28,46 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef	mBrane_group_h
-#define	mBrane_group_h
+#ifndef	mBrane_network_id_h
+#define	mBrane_network_id_h
+
+#include	"..\Core\types.h"
 
 
 namespace	mBrane{
 
-	class	Group{	//	TODO
+	typedef	enum{
+		CONTROL_PRIMARY=0,
+		DATA_PRIMARY=1,
+		STREAM_PRIMARY=2,
+		CONTROL_SECONDARY=3,
+		DATA_SECONDARY=4,
+		STREAM_SECONDARY=5,
+		DISCOVERY=6
+	}InterfaceType;
+
+	typedef	enum{
+		PRIMARY=0,
+		SECONDARY=1,
+		BOTH=2
+	}Network;
+
+	class	NetworkID{	//	total size depends on network: headerSize+Size[PRIMARY]+Size[SECONDARY] or headerSize+Size[PRIMARY] or headerSize+Size[SECONDARY]
+	public:
+		static	uint16	DiscoveryIDSize;
+		static	uint16	Size;
+		static	uint16	CtrlIDSize[2];	//	1 for each network
+		static	uint16	DataIDSize[2];
+		static	uint16	StreamIDSize[2];
+		uint8	headerSize;	//	sizeof(NID)+sizeof(name size)+name size+sizeof(network)
+		uint8	*data;	//	[NID(16)|network(8)|name size(8)|name(name size*8)|discovery ID|control ID|data ID|stream ID|(control ID|data ID|stream ID) optional]
+		NetworkID();
+		NetworkID(uint16	NID,Network	description,uint8	nameSize,char	*name);
+		~NetworkID();
+		uint16	NID()	const;
+		Network	network()	const;
+		char	*name()	const;
+		uint8	*at(InterfaceType	t)	const;
 	};
 }
 

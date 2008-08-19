@@ -42,8 +42,6 @@ namespace	mBrane{
 
 		for(uint32	i=0;i<xThreads.count();i++)
 			delete	xThreads[i];
-		for(uint32	i=0;i<sThreads.count();i++)
-			delete	sThreads[i];
 		if(supportSync)
 			delete	supportSync;
 	}
@@ -60,9 +58,7 @@ namespace	mBrane{
 				return	false;
 			}
 			threadCount=atoi(tc);
-			if(threadCount>0	&&	threadCount<=512)
-				xThreads.alloc(threadCount);
-			else{
+			if(threadCount==0	||	threadCount>512){
 				
 				std::cout<<"Error: thread count must be in [1,512]\n";
 				return	false;
@@ -80,19 +76,11 @@ namespace	mBrane{
 			xThreads[i]=t;
 			t->start(XThread::Xec);
 		}
-		sThreads.alloc(threadCount);
-		for(uint32	i=0;i<sThreads.count();i++){
-
-			XThread	*t=new	XThread((Node	*)this);
-			sThreads[i]=t;
-			t->start(XThread::Xec);
-		}
 	}
 
 	void	Executing::shutdown(){
 
 		Thread::Wait(xThreads.data(),xThreads.count());
-		Thread::Wait(sThreads.data(),sThreads.count());
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
@@ -104,25 +92,31 @@ namespace	mBrane{
 		static	uint32	xCount=0;
 		if(++xCount<=_this->node->xThreads.count())
 			goto	xec;
-support:
+sleep:
 		_this->node->supportSync->acquire();
 xec:
 		P<_Payload>	*_p;
 		while(!_this->node->_shutdown){
 
+			_this->node->jobCS.enter();
 			Job	*j=_this->node->jobs.pop();
+			_this->node->jobCS.leave();
+
 			P<_Payload>	p=j->p;
 			j->p=NULL;
-			_Crank	*crank=j->c;
+			_Module	*module=j->c;
 
-			if(_this->work(p,crank))
-				goto	support;
+			switch(_this->work(p,module)){
+			case	DONE:
+			case	CONTINUE:	continue;
+			case	BLOCKED:	goto	sleep;
+			}
 		}
 
 		return	0;
 	}
 
-	XThread::XThread(Node	*n):Thread(),node(n),crank(NULL),wasBlocked(false){
+	XThread::XThread(Node	*n):Thread(),node(n),module(NULL),wasBlocked(false){
 
 		sync=new	Semaphore(0,1);
 	}
@@ -141,50 +135,47 @@ xec:
 		}
 	}
 
-	inline	bool	XThread::work(_Payload	*p,_Crank	*c){
+	inline	XThread::Status	XThread::work(_Payload	*p,_Module	*m){
 
-		if(c->processor){
+		if(m->processor){
 
-			if(c->priorityLevel<((_ControlMessage	*)p)->priority()){	//	wait for an exiting xThread to finish; recurse (in case that thread was preempting yet another one)
-
+			_Module::Decision	d=m->decide(p);
+			switch(d){
+			case	_Module::WAIT:	//	wait for an exiting xThread to finish; recurse (in case that thread was preempting yet another one)
 				block();
-				((XThread	*)c->processor)->sync->acquire();
-				return	work(p,c);
+				((XThread	*)m->processor)->sync->acquire();
+				return	work(p,m);
+			case	_Module::PREEMPT:{
+				sync->acquire();
+				XThread	*preempted=(XThread	*)module->processor;
+				preempted->suspend();
+				preempted->block();
+				m->processor=this;
+				module=m;
+				m->notify(p);
+				module=NULL;
+				m->processor=preempted;
+				preempted->module=m;
+				preempted->resume();
+				sync->release();
+				goto	exit;
+			}case	_Module::DISCARD:
+				return	CONTINUE;
 			}
-			//	preempt
-			sync->acquire();
-			XThread	*preempted=(XThread	*)crank->processor;
-			uint8	priorityLevel=crank->priorityLevel;
-
-			preempted->suspend();
-			preempted->block();
-			c->processor=this;
-			crank=c;
-			c->priorityLevel=((_ControlMessage	*)p)->priority();
-			c->notify(p);
-			c->priorityLevel=priorityLevel;
-			crank=NULL;
-			c->processor=preempted;
-			preempted->crank=c;
-			preempted->resume();
-			sync->release();
-
-			goto	exit;
 		}
 		
 		sync->acquire();
-		(crank=c)->processor=this;
-		crank->priorityLevel=((_ControlMessage	*)p)->priority();
-		crank->notify(p);
-		crank->processor=NULL;
-		crank=NULL;
+		(module=m)->processor=this;
+		module->notify(p);
+		module->processor=NULL;
+		module=NULL;
 		sync->release();
 exit:
 		if(wasBlocked){
 
 			wasBlocked=false;	
-			return	true;
+			return	BLOCKED;
 		}
-		return	false;
+		return	DONE;
 	}
 }

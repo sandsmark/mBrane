@@ -45,7 +45,7 @@ namespace	mBrane{
 
 			if(_this->channel	&&	_this->channel->recv(&p)){
 
-				_this->node->processError(_this->type,_this->entry);
+				_this->node->processError(_this->entry);
 				continue;
 			}
 
@@ -63,7 +63,7 @@ namespace	mBrane{
 		return	0;
 	}
 
-	RecvThread::RecvThread(Node	*node,CommChannel	*channel,uint16	entry,Networking::InterfaceType	type):Thread(),node(node),channel(channel),entry(entry),type(type){
+	RecvThread::RecvThread(Node	*node,CommChannel	*channel,uint16	entry):Thread(),node(node),channel(channel),entry(entry){
 	}
 
 	RecvThread::~RecvThread(){

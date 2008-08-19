@@ -1,4 +1,4 @@
-//	crank_register.cpp
+//	cluster.h
 //
 //	Author: Eric Nivel
 //
@@ -28,41 +28,15 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include	<memory>
-#include	"crank_register.h"
+#ifndef	mBrane_module_h
+#define	mBrane_module_h
 
 
 namespace	mBrane{
-	namespace	sdk{
 
-		Array<CrankRegister>	CrankRegister::Cranks;
-
-		inline	CrankRegister	*CrankRegister::Get(uint16	CID){
-
-			return	Cranks.get(CID);
-		}
-
-		inline	uint16	CrankRegister::Count(){
-
-			return	Cranks.count();
-		}
-
-		uint16	CrankRegister::Load(CrankBuilder	b){
-
-			CrankRegister	*r=Cranks.alloc();
-			r->_builder=b;
-			return	Cranks.count()-1;
-		}
-
-		CrankRegister::CrankRegister():_builder(NULL){
-		}
-
-		CrankRegister::~CrankRegister(){
-		}
-
-		inline	CrankRegister::CrankBuilder	CrankRegister::builder()	const{
-
-			return	_builder;
-		}
-	}
+	class	Cluster{	//	aka Entity, i.e. blueprint to instantiate groups and modules; TODO
+	};
 }
+
+
+#endif

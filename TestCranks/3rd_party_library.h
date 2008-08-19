@@ -10,13 +10,13 @@
 //	#define	LIBRARY_CLASSES	"3rd_party_library_classes.h"	//	Cf test.h
 //	#include	"..\Core\library.h"
 //
-//	#include	"3rd_party_cranks.h"	//	crank class declarations; their definition, i.e. 3rd_party_cranks.cpp, shall include 3rd_party_library.h
+//	#include	"3rd_party_modules.h"	//	module class declarations; their definition, i.e. 3rd_party_modules.cpp, shall include 3rd_party_library.h
 //
-//	export crank building functions here:
+//	export module building functions here:
 //
 //	extern	"C"{
 //	...
-//	mBrane::sdk::crank::_Crank *	__cdecl	NewXXX(uint16);	//	where XXX is a crank class
+//	mBrane::sdk::module::_Module *	__cdecl	NewXXX(uint16);	//	where XXX is a module class
 //	...
 //	}
 //

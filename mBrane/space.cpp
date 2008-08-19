@@ -1,4 +1,4 @@
-//	module.h
+//	space.cpp
 //
 //	Author: Eric Nivel
 //
@@ -28,15 +28,8 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef	mBrane_module_h
-#define	mBrane_module_h
+#include	"space.h"
 
 
 namespace	mBrane{
-
-	class	Module{	//	aka Entity, i.e. blueprint to instantiate groups and cranks; TODO
-	};
 }
-
-
-#endif

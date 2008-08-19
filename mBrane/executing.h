@@ -32,41 +32,47 @@
 #define	mBrane_executing_h
 
 #include	"..\Core\utils.h"
-#include	"..\Core\crank.h"
+#include	"..\Core\module.h"
 #include	"..\Core\xml_parser.h"
 
 
 using	namespace	mBrane::sdk;
-using	namespace	mBrane::sdk::crank;
+using	namespace	mBrane::sdk::module;
 
 namespace	mBrane{
 
 	class	Node;
 	class	XThread:
 	public	Thread,
-	public	crank::XThread{
+	public	module::XThread{
 	public:
 		static	uint32	thread_function_call	Xec(void	*args);
 		Node	*node;
-		_Crank	*crank;
+		_Module	*module;
 		bool	wasBlocked;
 		bool	done;
 		Semaphore	*sync;
 
+		typedef	enum{
+			DONE=0,
+			CONTINUE=1,
+			BLOCKED=2
+		}Status;
+
 		XThread(Node	*n);
 		~XThread();
 		void	block();
-		bool	work(_Payload	*p,_Crank	*c);
+		Status	work(_Payload	*p,_Module	*c);
 	};
 
 	class	Executing{	//	thread pool
 	friend	class	XThread;
 	protected:
 		
-		Array<Thread	*>	xThreads;	//	execution
-		Array<Thread	*>	sThreads;	//	support
+		Array<Thread	*>	xThreads;
 		uint16	threadCount;
 		Semaphore	*supportSync;
+		CriticalSection	jobCS;
 
 		Executing();
 		~Executing();

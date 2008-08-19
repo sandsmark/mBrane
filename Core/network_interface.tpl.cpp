@@ -35,19 +35,23 @@ namespace	mBrane{
 
 			ClassRegister	*CR=ClassRegister::Get(c->cid());
 			int16	r;
-			if(c->isDynamicData()){
+			AllocationScheme	a=c->allocationScheme();
+			if(a>=DYNAMIC){
 				
-				if(c->isCompressedData()	&&	!c->operator	_CompressedData()->isCompressed)
-					c->operator	_CompressedData()->compress();
-				if(r=send(((uint8	*)c)+CR->offset(),CR->coreSize()+c->operator	_DynamicData()->dynamicSize()))
+				if(a==COMPRESSED	&&	!c->operator	_CompressedData()->isCompressed)
+					c->operator	_CompressedData	*()->compress();
+				if(r=send(((uint8	*)c)+CR->offset(),CR->coreSize()+c->operator	_DynamicData	*()->dynamicSize()))
 					return	r;
 			}else	if(r=send(((uint8	*)c)+CR->offset(),CR->size()))
 				return	r;
-			for(uint8	i=0;i<c->ptrCount();i++){
+			uint8	ptrCount=CR->ptrCount();
+			P<_RPayload>	*p;
+			for(uint8	i=0;i<ptrCount;i++){
 
-				if(!*c->ptr(i))
+				p=CR->ptr(i);
+				if(!p)
 					continue;
-				if(r=send(*c->ptr(i)))
+				if(r=send(*p))
 					return	r;
 			}
 			return	0;
@@ -61,30 +65,31 @@ namespace	mBrane{
 				return	r;
 			ClassRegister	*CR=ClassRegister::Get(cid);
 			*c=(C	*)CR->allocator();
-			if((*c)->isDynamicData()){
+			AllocationScheme	a=(*c)->allocationScheme();
+			if(a>=DYNAMIC){
 
 				if(r=recv((uint8	*)*c,CR->coreSize()))
 					return	r;
-				if(r=recv(((uint8	*)*c)+CR->coreSize(),c->operator	_DynamicData()->dynamicSize()))
+				if(r=recv(((uint8	*)*c)+CR->coreSize(),(*c)->operator	_DynamicData	*()->dynamicSize()))
 					return	r;
-				if(c->isCompressedData())
-					c->operator	_CompressedData()->decompress();
+				if(a==COMPRESSED)
+					(*c)->operator	_CompressedData	*()->decompress();
 			}else	if(r=recv((uint8	*)*c,CR->size()))
 				return	r;
-			_Payload	*ptr;
-			P<_Payload>	*_ptr;
-			for(uint8	i=0;i<(*c)->ptrCount();i++){
+			uint8	ptrCount=CR->ptrCount();
+			P<_RPayload>	*p;
+			_Payload		*ptr;
+			for(uint8	i=0;i<ptrCount;i++){
 
-				if(!*c->ptr(i))
+				p=CR->ptr(i);
+				if(!p)
 					continue;
-
 				if(r=recv(&ptr)){
 
 					delete	*c;
 					return	r;
 				}
-				_ptr=(*c)->ptr(i);
-				*_ptr=ptr;
+				*p=ptr;
 			}
 			(*c)->init();
 			return	0;

@@ -34,7 +34,7 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		template<class	M,class	U>	const	uint16	Payload<M,U>::_CID=ClassRegister::Load<U,M>();
+		template<class	M,class	U>	const	uint32	Payload<M,U>::_MetaData=ClassRegister::Load<U,M>();
 
 		template<class	M,class	U>	inline	void	*Payload<M,U>::New(){	//	to initialize the _vftable
 
@@ -43,7 +43,22 @@ namespace	mBrane{
 
 		template<class	M,class	U>	inline	const	uint16	Payload<M,U>::CID(){
 
-			return	_CID;
+			return	_MetaData>>16;
+		}
+
+		template<class	M,class	U>	const	AllocationScheme	Payload<M,U>::_AllocationScheme(){
+
+			return	STATIC;
+		}
+
+		template<class	M,class	U>	const	uint8	Payload<M,U>::PtrCount(){
+
+			return	0;
+		}
+
+		template<class	M,class	U>	const	P<_RPayload>	*Payload<M,U>::Ptr(uint8	i){
+
+			return	NULL;
 		}
 
 		template<class	M,class	U>	inline	const	size_t	Payload<M,U>::Size(){
@@ -62,7 +77,7 @@ namespace	mBrane{
 		template<class	M,class	U>	inline	void	*Payload<M,U>::operator	new(size_t	s){
 
 			U	*p=(U	*)Object<M,_Payload,U>::operator	new(s);
-			p->_cid=_CID;
+			p->_metaData=_MetaData;
 			return	p;
 		}
 		
@@ -90,6 +105,21 @@ namespace	mBrane{
 			return	_CID;
 		}
 
+		template<class	M,class	U>	const	AllocationScheme	RPayload<M,U>::_AllocationScheme(){
+
+			return	STATIC;
+		}
+
+		template<class	M,class	U>	const	uint8	RPayload<M,U>::PtrCount(){
+
+			return	0;
+		}
+
+		template<class	M,class	U>	const	P<_RPayload>	*RPayload<M,U>::Ptr(uint8	i){
+
+			return	NULL;
+		}
+		
 		template<class	M,class	U>	inline	const	size_t	RPayload<M,U>::Size(){
 
 			return	sizeof(U);

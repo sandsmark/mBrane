@@ -40,65 +40,66 @@ namespace	mBrane{
 		namespace	payloads{
 			class	_DynamicData;
 			class	_CompressedData;
-			class	_CrankData;
-			class	_ControlMessage;
+			class	_ModuleData;
 			class	_Message;
 			class	_StreamData;
 		}
 
-		class	_RPayload;
-		class	dll	__Payload:
-		public	_Object{
-		public:
-			virtual	uint8			ptrCount()	const;
-			virtual	P<_RPayload>	*ptr(uint8	i);
-			virtual	void	init();	//	invocation triggered by reception
-			virtual	bool	isDynamicData()		const;
-			virtual	bool	isCompressedData()	const;
-			virtual	operator	payloads::_DynamicData		*()	const;
-			virtual	operator	payloads::_CompressedData	*()	const;
-		};
+		typedef	enum{
+			STATIC=0,
+			DYNAMIC=1,
+			COMPRESSED=2
+		}AllocationScheme;
 
 		class	dll	_Payload:
-		public	__Payload{
+		public	_Object{
+		public:
+			typedef	enum{
+				CONTROL=0,
+				DATA=1,
+				STREAM=2
+			}Category;
 		protected:
 			int64	_node_recv_ts;	//	non transmitted
 			int64	_recv_ts;		//	non transmitted
-			uint16	_cid;			//	offset points here
+			uint32	_metaData;		//	offset points here; metadata: [cid(16)|reserved(12)|category(2)|allocation scheme(2)]
 			int64	_node_send_ts;
 			int64	_send_ts;
 			_Payload();
 		public:
 			static	const	size_t	Offset();
 			virtual	~_Payload();
-			uint16	cid()	const;
-			virtual	bool	isCrankData()		const;
-			virtual	bool	isControlMessage()	const;
-			virtual	bool	isMessage()			const;
-			virtual	bool	isStreamData()		const;
-			virtual	operator	payloads::_CrankData		*()	const;
-			virtual	operator	payloads::_ControlMessage	*()	const;
-			virtual	operator	payloads::_Message			*()	const;
-			virtual	operator	payloads::_StreamData		*()	const;
+			uint16				cid()				const;
+			Category			category()			const;
+			AllocationScheme	allocationSceme()	const;
+			virtual	void	init();	//	called upon reception
 			int64	&node_send_ts();	//	send timestamp: time of emission from a node
 			int64	&node_recv_ts();	//	recv timestamp: time of reception by a node
-			int64	&send_ts();	//	send timestamp: time of emission from a crank (<= than node_send_ts)
-			int64	&recv_ts();	//	recv timestamp: time of reception by a crank (> than node_recv_ts)
+			int64	&send_ts();	//	send timestamp: time of emission from a module (< than node_send_ts)
+			int64	&recv_ts();	//	recv timestamp: time of reception by a module (> than node_recv_ts)
+			virtual	operator	payloads::_DynamicData		*()	const;
+			virtual	operator	payloads::_CompressedData	*()	const;
+			virtual	operator	payloads::_Message			*()	const;
+			virtual	operator	payloads::_StreamData		*()	const;
 		};
 
+		class	_RPayload;
 		template<class	M,class	U>	class	Payload:
 		public	Object<M,_Payload,U>{
 		private:
-			static	const	uint16	_CID;
+			static	const	uint32	_MetaData;
 		protected:
 			Payload();
 		public:
 			static	void	*New();
 			void	*operator	new(size_t	s);
 			void	operator	delete(void	*o);
-			static	const	uint16	CID();
-			static	const	size_t	Size();
-			static	const	size_t	CoreSize();
+			static	const	uint16				CID();
+			static	const	AllocationScheme	_AllocationScheme();
+			static	const	uint8				PtrCount();
+			static	const	P<_RPayload>		*Ptr(uint8	i);
+			static	const	size_t				Size();
+			static	const	size_t				CoreSize();
 		};
 
 		//	Usage:	template<class	C>	class	DaughterClass: public Payload<Memory,C>{ ... };
@@ -117,14 +118,18 @@ namespace	mBrane{
 		//			NB: Memory can be any Allocator class
 
 		class	dll	_RPayload:	//	raw payload (i.e. without send/recv time stamps) to embed (P<>)in payloads
-		public	__Payload{
+		public	_Object{
 		protected:
-			uint16	_cid;
-			_RPayload();
+			uint32	_metaData;	//	offset points here; metadata: [cid(16)|reserved(14)|allocation scheme(2)]
+			_RPayload(AllocationScheme	a);
 		public:
 			static	const	size_t	Offset();
 			virtual	~_RPayload();
-			uint16	cid()	const;
+			uint16				cid()				const;
+			AllocationScheme	allocationSceme()	const;
+			virtual	operator	payloads::_DynamicData		*()	const;
+			virtual	operator	payloads::_CompressedData	*()	const;
+			virtual	void	init();	//	called upon reception
 		};
 
 		template<class	M,class	U>	class	RPayload:
@@ -137,9 +142,12 @@ namespace	mBrane{
 			static	void	*New();
 			void	*operator	new(size_t	s);
 			void	operator	delete(void	*o);
-			static	const	uint16	CID();
-			static	const	size_t	Size();
-			static	const	size_t	CoreSize();
+			static	const	uint16				CID();
+			static	const	AllocationScheme	_AllocationScheme();
+			static	const	uint8				PtrCount();
+			static	const	P<_RPayload>		*Ptr(uint8	i);
+			static	const	size_t				Size();
+			static	const	size_t				CoreSize();
 		};
 
 		template<class	C,class	M,class	U>	class	RPayloadAdapter:

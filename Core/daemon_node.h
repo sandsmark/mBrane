@@ -31,7 +31,7 @@
 #ifndef	mBrane_sdk_daemon_node_h
 #define	mBrane_sdk_daemon_node_h
 
-#include	"crank_node.h"
+#include	"module_node.h"
 #include	"xml_parser.h"
 #include	"dynamic_class_loader.h"
 
@@ -47,7 +47,7 @@ namespace	mBrane{
 
 			class	Daemon;
 			class	dll	Node:
-			public	crank::Node{
+			public	module::Node{
 			friend	class	RecvThread;
 			friend	class	XThread;
 			friend	class	UnorderedMessagingEngine;

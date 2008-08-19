@@ -10,9 +10,14 @@
 			<Infiniband shared_object="mBrane_ib"/><!--MPI over IB, Linux only-->
 		</Interfaces>
 		<Discovery interface="UDP" nic="eth0" port="10000"/>
-		<Control interface="TCP" nic="eth0" port="10001"/>
-		<Data interface="TCP" nic="eth0" port="10002"/>
-		<Streams interface="TCP" nic="eth0" port="10003"/>
+		<Primary>
+			<Control interface="TCP" nic="eth0" port="10001"/>
+			<Data interface="TCP" nic="eth0" port="10002"/>
+			<Streams interface="TCP" nic="eth0" port="10003"/>
+		</Primary>
+		<Secondary>
+			<!--same form as primary's-->
+		</Secondary>
 	</Network>
 	<Daemons>
 		<!--ex: <Daemon shared_library="..." parameter0="..." ... parameterN="..."/>-->	   

@@ -72,10 +72,10 @@ namespace	mBrane{
 				uint16	&nid();
 			};
 
-			#define	SystemReady_CID	0
-			#define	TimeSync_CID	1
-			#define	NodeJoined_CID	2
-			#define	NodeLeft_CID	3
+			#define	SystemReady_CID		0
+			#define	TimeSync_CID		1
+			#define	NodeJoined_CID		2
+			#define	NodeLeft_CID		3
 		}
 	}
 }

@@ -1,4 +1,4 @@
-//	crank.h
+//	module.h
 //
 //	Author: Eric Nivel
 //
@@ -28,8 +28,8 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef mBrane_sdk_crank_h
-#define mBrane_sdk_crank_h
+#ifndef mBrane_sdk_module_h
+#define mBrane_sdk_module_h
 
 #include	"utils.h"
 #include	"message.h"
@@ -40,7 +40,7 @@ using	namespace	mBrane::sdk::payloads;
 namespace	mBrane{
 	class	XThread;
 	namespace	sdk{
-		namespace	crank{
+		namespace	module{
 
 			class	XThread{
 			public:
@@ -51,7 +51,7 @@ namespace	mBrane{
 			class	Mutex;
 			class	CriticalSection;
 			class	Timer;
-			class	dll	_Crank{	//	migration: migrateOut->dump->payload->send-/ /-receive->load->migrateIn; cranks can launch their own internal threads
+			class	dll	_Module{	//	migration: migrateOut->dump->payload->send-/ /-receive->load->migrateIn; modules can launch their own internal threads
 			friend	class	mBrane::XThread;
 			friend	class	Semaphore;
 			friend	class	Mutex;
@@ -64,17 +64,21 @@ namespace	mBrane{
 				uint32	_activationCount;
 				uint8	_priority;
 				XThread	*processor;
-				uint8	priorityLevel;	//	priority of the message currently processed
 			protected:
-				_Crank(uint16	_ID,bool	canMigrate=true,bool	canBeSwapped=true);
+				_Module(uint16	_ID,bool	canMigrate=true,bool	canBeSwapped=true);
 				int64	time()	const;
 				void	sleep(int64	d);
 				void	wait(Thread	**threads,uint32	threadCount);
 				void	wait(Thread	*_thread);
 				void	send(_Payload	*p)	const;
 			public:
+				typedef	enum{
+					DISCARD=0,
+					WAIT=1,
+					PREEMPT=2
+				}Decision;
 				static	void	New(uint16	CID);
-				virtual	~_Crank();
+				virtual	~_Module();
 				uint16	id()	const;
 				bool	active()	const;
 				void	activate();
@@ -85,26 +89,27 @@ namespace	mBrane{
 				virtual	uint32		dumpSize();	//	dynamic
 				virtual	_Payload	*dump();	//	dumps the current state; can be called anytime
 				virtual	void		load(_Payload	*chunk);	//	initializes itself from a previously saved state
-				virtual	void		start();	//	called when the crank is loaded in a thread for the first time, i.e. at node starting time
-				virtual	void		stop();	//	called just before the crank is unloaded from the thread for the last time, i.e. at node shutdown time
-				virtual	void		swapOut();	//	called when the crank is unloaded from its current thread for swapping
-				virtual	void		swapIn();	//	called when the crank is loaded in a new thread after having been swapped out
-				virtual	void		migrateOut();	//	called when the crank is unloaded from its current thread for migration
-				virtual	void		migrateIn();	//	called when the crank is loaded in a new thread after having migrated
-				virtual	void		notify(_Payload	*p)=0;	//	called when the crank receives a message
+				virtual	void		start();	//	called when the module is loaded in a thread for the first time, i.e. at node starting time
+				virtual	void		stop();	//	called just before the module is unloaded from the thread for the last time, i.e. at node shutdown time
+				virtual	void		swapOut();	//	called when the module is unloaded from its current thread for swapping
+				virtual	void		swapIn();	//	called when the module is loaded in a new thread after having been swapped out
+				virtual	void		migrateOut();	//	called when the module is unloaded from its current thread for migration
+				virtual	void		migrateIn();	//	called when the module is loaded in a new thread after having migrated
+				virtual	void		notify(_Payload	*p)=0;	//	called when the module receives a message
+				virtual	Decision	decide(_Payload	*p);	//	called when the module code is already processing and a new message comes in; default: WAIT
 			};
 
-			class	dll	CrankUtils{
+			class	dll	ModuleUtils{
 			protected:
-				_Crank	*crank;
-				CrankUtils(_Crank	*c);
+				_Module	*module;
+				ModuleUtils(_Module	*c);
 			};
 
 			class	dll	Semaphore:
-			public	CrankUtils,
+			public	ModuleUtils,
 			protected	mBrane::Semaphore{
 			public:
-				Semaphore(_Crank	*c,uint32	initialCount,uint32	maxCount);
+				Semaphore(_Module	*c,uint32	initialCount,uint32	maxCount);
 				~Semaphore();
 				bool	acquire(uint32	timeout=Infinite);	//	returns true if timedout
 				void	release(uint32	count=1);
@@ -112,30 +117,30 @@ namespace	mBrane{
 			};
 
 			class	dll	Mutex:
-			public	CrankUtils,
+			public	ModuleUtils,
 			protected	mBrane::Mutex{
 			public:
-				Mutex(_Crank	*c);
+				Mutex(_Module	*c);
 				~Mutex();
 				bool	acquire(uint32	timeout=Infinite);	//	returns true if timedout
 				void	release();
 			};
 
 			class	dll	CriticalSection:
-			public	CrankUtils,
+			public	ModuleUtils,
 			protected	mBrane::CriticalSection{
 			public:
-				CriticalSection(_Crank	*c);
+				CriticalSection(_Module	*c);
 				~CriticalSection();
 				void	enter();
 				void	leave();
 			};
 
 			class	dll	Timer:
-			public	CrankUtils,
+			public	ModuleUtils,
 			protected	mBrane::Timer{
 			public:
-				Timer(_Crank	*c);
+				Timer(_Module	*c);
 				~Timer();
 				void	start(uint32	deadline,uint32	period=0);	//	in ms
 				bool	wait(uint32	timeout=Infinite);	//	returns true if timedout

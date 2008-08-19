@@ -35,7 +35,7 @@ namespace	mBrane{
 	namespace	sdk{
 		namespace	daemon{
 
-			Node::Node(uint16	ID):crank::Node(ID),_shutdown(false){
+			Node::Node(uint16	ID):module::Node(ID),_shutdown(false){
 			}
 
 			Node::~Node(){

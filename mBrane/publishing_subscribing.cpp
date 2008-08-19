@@ -28,37 +28,11 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include	"publishing_subscribing.h"
+#include	"node.h"
 
 
-#define	INITIAL_MID_ARRAY_LENGTH	16
 
 namespace	mBrane{
 
-	PublishingSubscribing::PublishingSubscribing(){
-
-		routes.alloc(ClassRegister::Count());
-		for(uint32	i=0;i<ClassRegister::Count();i++)
-			routes[i]=new	Array<Array<NodeEntry>	*>(INITIAL_MID_ARRAY_LENGTH);
-	}
-
-	PublishingSubscribing::~PublishingSubscribing(){
-
-		for(uint32	i=0;i<ClassRegister::Count();i++){
-
-			for(uint32	j=0;j<routes[i]->count();j++){
-
-				if(*(routes[i]->get(j))){
-
-					for(uint32	k=0;k<routes[i]->operator[](j)->count();k++){
-
-						if(routes[i]->operator[](j)->operator[](k).cranks)
-							delete	routes[i]->operator[](j)->operator[](k).cranks;
-					}
-					delete	routes[i]->operator[](j);
-				}
-			}
-			delete	routes[i];
-		}
-	}
+	
 }

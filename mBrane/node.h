@@ -38,12 +38,11 @@
 #include	"messaging.h"
 #include	"unordered_messaging_engine.h"
 #include	"ordered_messaging_engine.h"
-#include	"publishing_subscribing.h"
 #include	"executing.h"
 
 
 using	namespace	mBrane::sdk;
-using	namespace	mBrane::sdk::crank;
+using	namespace	mBrane::sdk::module;
 using	namespace	mBrane::sdk::daemon;
 
 #if	defined	ORDERED_MESSAGING_ENGINE
@@ -57,7 +56,6 @@ namespace	mBrane{
 	class	Node:
 	public	Networking,
 	public	MESSAGING_CLASS,
-	public	PublishingSubscribing,
 	public	Executing{
 	template<class	Engine>	friend	class	Messaging;
 	private:
@@ -75,7 +73,6 @@ namespace	mBrane{
 		void	startReceivingThreads(uint16	NID);
 
 		//	PUBLISHING SUBSCRIBING
-		Array<NodeEntry>	*getNodeEntries(uint16	messageClassID,uint32	messageContentID);
 
 		//	NODE
 		uint16	nodeCount;
@@ -86,16 +83,16 @@ namespace	mBrane{
 		~Node();
 		void	run();
 		void	shutdown();
-		void	dump(const	char	*fileName);	//	dumps the current system state; crank dump fileNames: crank_class_ID.bin: ex: CR1_123.bin
+		void	dump(const	char	*fileName);	//	dumps the current system state; module dump fileNames: module_class_ID.bin: ex: CR1_123.bin
 		void	load(const	char	*fileName);	//	initializes itself from a previously saved system state
 		Node	*loadApplication(const	char	*fileName=NULL);	//	return NULL if unsuccessful; fileName overrides the fileName found in the node config file
 		void	unloadApplication();
 		int64	time()	const;	//	in ms since midnight 01/01/70
-		void	send(const	_Crank	*sender,_Payload	*message);
-		_Crank	*buildCrank(uint16	CID);
-		void	start(_Crank	*c);
-		void	stop(_Crank	*c);
-		void	migrate(_Crank	*c,uint16	NID);
+		void	send(const	_Module	*sender,_Payload	*message);
+		_Module	*buildModule(uint16	CID);
+		void	start(_Module	*c);
+		void	stop(_Module	*c);
+		void	migrate(_Module	*c,uint16	NID);
 	};
 }
 

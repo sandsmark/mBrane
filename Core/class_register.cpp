@@ -72,5 +72,15 @@ namespace	mBrane{
 
 			return	_offset;
 		}
+
+		inline	uint8	ClassRegister::ptrCount()	const{
+
+			return	_ptrCount;
+		}
+
+		inline	const	P<_RPayload>	*ClassRegister::ptr(uint8	i){
+
+			return	_ptr(i);
+		}
 	}
 }

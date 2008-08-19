@@ -1,4 +1,4 @@
-//	crank_register.h
+//	cluster.cpp
 //
 //	Author: Eric Nivel
 //
@@ -28,33 +28,8 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef mBrane_sdk_crank_register_h
-#define mBrane_sdk_crank_register_h
-
-#include	"array.h"
-#include	"crank.h"
+#include	"cluster.h"
 
 
 namespace	mBrane{
-	namespace	sdk{
-
-		class	dll	CrankRegister{
-		template<class	Register>	friend	class	Array;
-		public:
-			typedef	crank::_Crank	*(*CrankBuilder)(uint16);
-		private:
-			static	Array<CrankRegister>	Cranks;
-			CrankBuilder	_builder;
-		public:
-			static	uint16	Load(CrankBuilder	b);
-			static	CrankRegister	*Get(uint16	CID);
-			static	uint16	Count();
-			CrankRegister();
-			~CrankRegister();
-			CrankBuilder	builder()	const;
-		};
-	}
 }
-
-
-#endif

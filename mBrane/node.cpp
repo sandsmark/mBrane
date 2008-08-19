@@ -30,7 +30,7 @@
 
 #include	"node.h"
 #include	"..\Core\class_register.h"
-#include	"..\Core\crank_register.h"
+#include	"..\Core\module_register.h"
 #include	"..\Core\control_messages.h"
 
 #include	<iostream>
@@ -49,7 +49,7 @@ namespace	mBrane{
 		return	NULL;
 	}
 
-	Node::Node():Networking(),MESSAGING_CLASS(),PublishingSubscribing(),Executing(),nodeCount(0){
+	Node::Node():Networking(),MESSAGING_CLASS(),Executing(),nodeCount(0){
 	}
 
 	Node::~Node(){
@@ -110,7 +110,7 @@ namespace	mBrane{
 		return	this;
 	}
 
-	typedef	 _Crank *(__cdecl	*CrankInstantiator)(uint16);	//	test
+	typedef	 _Module *(__cdecl	*ModuleInstantiator)(uint16);	//	test
 
 	Node	*Node::loadApplication(const	char	*fileName){
 
@@ -131,19 +131,19 @@ namespace	mBrane{
 		if(!(userLibrary=SharedLibrary::New(ul)))
 			return	NULL;
 		//	TODO:	load:
-		//		modules, groups, cranks: NB: module==entity
-		//		initial subscriptions (per crank and per group)
+		//		modules, groups, modules: NB: cluster==entity
+		//		initial subscriptions (per module and per space)
 		//		schedulers (per thread): 2nd step
-		//		migrable or not (per crank)
-		//		reception policy: time first or priority first (for all cranks): 2nd step
+		//		migrable or not (per module)
+		//		reception policy: time first or priority first (for all modules): 2nd step
 		//		user thread count: 2nd step
-		//		target thread (per crank): 2nd step
+		//		target thread (per module): 2nd step
 
 		//	begin test
-		CrankInstantiator	instantiator=userLibrary->getFunction<CrankInstantiator>("NewCR1");
+		ModuleInstantiator	instantiator=userLibrary->getFunction<ModuleInstantiator>("NewCR1");
 		if(instantiator){
 
-			_Crank	*c=(instantiator)(0);
+			_Module	*c=(instantiator)(0);
 			delete	c;
 		}
 		//	end test
@@ -152,7 +152,7 @@ namespace	mBrane{
 
 	void	Node::unloadApplication(){
 		
-		//	TODO:	unload entities, modules, groups, cranks
+		//	TODO:	unload entities, modules, groups, modules
 		delete	userLibrary;
 	}
 
@@ -166,16 +166,28 @@ namespace	mBrane{
 
 		Networking::start(assignedNID,networkID,isTimeReference);
 		Messaging::start();
-		
-		if(networkInterfaces[CONTROL]->canBroadcast()){
 
-			RecvThread	*t=new	RecvThread(this,controlChannels[0],0,CONTROL);
-			recvThreads[recvThreads.count()]=t;
-			t->start(RecvThread::ReceiveMessages);
+		if(network==PRIMARY	||	network==BOTH){
+
+			if(networkInterfaces[CONTROL_PRIMARY]->canBroadcast()){
+
+				RecvThread	*t=new	RecvThread(this,controlChannels[PRIMARY][0],0);
+				recvThreads[recvThreads.count()]=t;
+				t->start(RecvThread::ReceiveMessages);
+			}
+		}
+		if(network==SECONDARY	||	network==BOTH){
+
+			if(networkInterfaces[CONTROL_SECONDARY]->canBroadcast()){
+
+				RecvThread	*t=new	RecvThread(this,controlChannels[SECONDARY][0],0);
+				recvThreads[recvThreads.count()]=t;
+				t->start(RecvThread::ReceiveMessages);
+			}
 		}
 
 		daemon::Node::start();
-		//	TODO:	build cranks
+		//	TODO:	build modules
 		Executing::start();
 	}
 
@@ -214,7 +226,12 @@ namespace	mBrane{
 
 		static	NodeLeft	m;
 
-		if(controlChannels[NID]	||	dataChannels[NID]->data	||	dataChannels[NID]->stream){
+		if(	controlChannels[PRIMARY][NID]				||
+			dataChannels[NID]->channels[PRIMARY].data	||	
+			dataChannels[NID]->channels[PRIMARY].stream	||
+			controlChannels[SECONDARY][NID]				||
+			dataChannels[NID]->channels[SECONDARY].data	||	
+			dataChannels[NID]->channels[SECONDARY].stream){
 
 			m.nid()=NID;
 			m.send_ts()=Time::Get();
@@ -226,25 +243,52 @@ namespace	mBrane{
 
 	void	Node::startReceivingThreads(uint16	NID){
 
-		if(!networkInterfaces[CONTROL]->canBroadcast()){
+		if(network==PRIMARY	||	network==BOTH){
 
-			RecvThread	*t=new	RecvThread(this,controlChannels[NID],NID,CONTROL);
-			recvThreads[recvThreads.count()]=t;
-			t->start(RecvThread::ReceiveMessages);
+			if(!networkInterfaces[CONTROL_PRIMARY]->canBroadcast()){
+
+				RecvThread	*t=new	RecvThread(this,controlChannels[PRIMARY][NID],NID);
+				recvThreads[recvThreads.count()]=t;
+				t->start(RecvThread::ReceiveMessages);
+			}
+
+			if(networkInterfaces[DATA_PRIMARY]!=networkInterfaces[CONTROL_PRIMARY]){
+
+				RecvThread	*t=new	RecvThread(this,dataChannels[NID]->channels[PRIMARY].data,NID);
+				recvThreads[recvThreads.count()]=t;
+				t->start(RecvThread::ReceiveMessages);
+			}
+
+			if(networkInterfaces[STREAM_PRIMARY]!=networkInterfaces[DATA_PRIMARY]){
+
+				RecvThread	*t=new	RecvThread(this,dataChannels[NID]->channels[PRIMARY].stream,NID);
+				recvThreads[recvThreads.count()]=t;
+				t->start(RecvThread::ReceiveMessages);
+			}
 		}
 
-		if(networkInterfaces[DATA]!=networkInterfaces[CONTROL]){
+		if(network==SECONDARY	||	network==BOTH){
 
-			RecvThread	*t=new	RecvThread(this,dataChannels[NID]->data,NID,DATA);
-			recvThreads[recvThreads.count()]=t;
-			t->start(RecvThread::ReceiveMessages);
-		}
+			if(!networkInterfaces[CONTROL_SECONDARY]->canBroadcast()){
 
-		if(networkInterfaces[STREAM]!=networkInterfaces[DATA]){
+				RecvThread	*t=new	RecvThread(this,controlChannels[SECONDARY][NID],NID);
+				recvThreads[recvThreads.count()]=t;
+				t->start(RecvThread::ReceiveMessages);
+			}
 
-			RecvThread	*t=new	RecvThread(this,dataChannels[NID]->stream,NID,STREAM);
-			recvThreads[recvThreads.count()]=t;
-			t->start(RecvThread::ReceiveMessages);
+			if(networkInterfaces[DATA_SECONDARY]!=networkInterfaces[CONTROL_SECONDARY]){
+
+				RecvThread	*t=new	RecvThread(this,dataChannels[NID]->channels[SECONDARY].data,NID);
+				recvThreads[recvThreads.count()]=t;
+				t->start(RecvThread::ReceiveMessages);
+			}
+
+			if(networkInterfaces[STREAM_SECONDARY]!=networkInterfaces[DATA_SECONDARY]){
+
+				RecvThread	*t=new	RecvThread(this,dataChannels[NID]->channels[SECONDARY].stream,NID);
+				recvThreads[recvThreads.count()]=t;
+				t->start(RecvThread::ReceiveMessages);
+			}
 		}
 	}
 
@@ -273,30 +317,25 @@ namespace	mBrane{
 			return	Time::Get()-timeDrift;
 	}
 
-	_Crank	*Node::buildCrank(uint16	CID){
+	_Module	*Node::buildModule(uint16	CID){
 
 		uint16	cid=0;	//	TODO: allocate cid (see below)
-		_Crank	*c=(CrankRegister::Get(CID)->builder())(cid);
-		//	TODO: read config for c, load c on a thread, update initial subscriptions, group membership etc
+		_Module	*c=(ModuleRegister::Get(CID)->builder())(cid);
+		//	TODO: read config for c, load c on a thread, update initial subscriptions, space membership etc
 		return	NULL;
 	}
 
-	void	Node::start(_Crank	*c){	//	TODO
+	void	Node::start(_Module	*c){	//	TODO
 	}
 
-	void	Node::stop(_Crank	*c){	//	TODO
+	void	Node::stop(_Module	*c){	//	TODO
 	}
 
-	void	migrate(_Crank	*c,uint16	NID){	//	TODO
+	void	migrate(_Module	*c,uint16	NID){	//	TODO
 	}
 
-	void	Node::send(const	_Crank	*sender,_Payload	*message){
+	void	Node::send(const	_Module	*sender,_Payload	*message){
 
 		Messaging::send(_ID,sender,message,false);
-	}
-
-	inline	Array<PublishingSubscribing::NodeEntry>	*Node::getNodeEntries(uint16	messageClassID,uint32	messageContentID){
-
-		return	*(routes[messageClassID]->get(messageContentID));
 	}
 }

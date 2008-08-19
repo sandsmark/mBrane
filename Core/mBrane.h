@@ -31,7 +31,10 @@
 #ifndef	mBrane_h
 #define	mBrane_h
 
-#include	"crank.h"
+
+#include	"module.h"
 #include	"control_messages.h"
+#include	"payload_utils.h"
+
 
 #endif

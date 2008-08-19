@@ -40,33 +40,25 @@
 //	for use in switches (instead of user_class::CID())
 #define	CLASS_ID(C)	C##_class
 
-template<class	U>	class	LibraryCrank:
-public	crank::_Crank{
+template<class	U>	class	LibraryModule:
+public	module::_Module{
 protected:
 	static	const	uint16	_CID;
-	LibraryCrank(uint16	ID):crank::_Crank(ID){}
+	LibraryModule(uint16	ID):module::_Module(ID){}
 public:
-	static	crank::_Crank	*New(uint16	ID){	return	new	U(ID);	}
-	virtual	~LibraryCrank(){}
+	static	module::_Module	*New(uint16	ID){	return	new	U(ID);	}
+	virtual	~LibraryModule(){}
 	const	uint16	cid(){	return	_CID;	}
 	void	notify(_Payload	*p){
 		switch(p->cid()){
-		#define	MBRANE_MESSAGE_CLASS(C)	case	CLASS_ID(C):	((U	*)this)->process((C	*)p);	return;
+		#define	MBRANE_MESSAGE_CLASS(C)	case	CLASS_ID(C):	((U	*)this)->react((C	*)p);	return;
 		#include	MBRANE_MESSAGE_CLASSES
 		#include	LIBRARY_CLASSES
 		default:	return;
 		}
 	}
-	bool	preview(_Payload	*p){
-		switch(p->cid()){
-		#define	MBRANE_MESSAGE_CLASS(C)	case	CLASS_ID(C):	return	((U	*)this)->preview((C	*)p);
-		#include	MBRANE_MESSAGE_CLASSES
-		#include	LIBRARY_CLASSES
-		default:	return	false;
-		}
-	}
 };
-template<class	U>	uint16	Crank<U>::_CID=CrankRegister::Load(New);
+template<class	U>	uint16	Module<U>::_CID=ModuleRegister::Load(New);
 
 
 #endif

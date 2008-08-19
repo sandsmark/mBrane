@@ -35,6 +35,11 @@ namespace	mBrane{
 	namespace	sdk{
 		namespace	payloads{
 
+			const	AllocationScheme	_DynamicData::_AllocationScheme(){
+
+				return	DYNAMIC;
+			}
+
 			inline	_DynamicData::_DynamicData(){
 			}
 
@@ -42,6 +47,11 @@ namespace	mBrane{
 			}
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
+
+			const	AllocationScheme	_CompressedData::_AllocationScheme(){
+
+				return	COMPRESSED;
+			}
 
 			inline	_CompressedData::_CompressedData():_DynamicData(),isCompressed(false){
 			}
@@ -57,66 +67,33 @@ namespace	mBrane{
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
 
-			inline	_ControlMessage::_ControlMessage(uint32	mid,uint8	priority):_mid(mid),_priority(_priority),_senderNodeID(0){
-			}
-
-			inline	_ControlMessage::~_ControlMessage(){
-			}
-
-			inline	_ControlMessage::operator	_Payload	*()	const{
-
-				return	(_Payload	*)(((uint8	*)this)-sizeof(_Payload));
-			}
-
-			inline	uint32	&_ControlMessage::mid(){
-
-				return	_mid;
-			}
-
-			inline	uint8	&_ControlMessage::priority(){
-
-				return	_priority;
-			}
-
-			inline	uint16	&_ControlMessage::senderNode_id(){
-
-				return	_senderNodeID;
-			}
-
-			////////////////////////////////////////////////////////////////////////////////////////////////
-
-			inline	_StreamData::_StreamData(){
+			inline	_StreamData::_StreamData(uint32	sid):_sid(sid){
 			}
 
 			inline	_StreamData::~_StreamData(){
 			}
 
-			inline	_StreamData::operator	_ControlMessage	*()	const{
+			inline	uint32	&_StreamData::sid(){
 
-				return	(_ControlMessage	*)(((uint8	*)this)-sizeof(_ControlMessage));
+				return	_sid;
 			}
 
 			inline	_StreamData::operator	_Payload	*()	const{
 
-				return	(_Payload	*)(((uint8	*)this)-sizeof(_ControlMessage)-sizeof(_Payload));
+				return	(_Payload	*)(((uint8	*)this)-sizeof(_Payload));
 			}
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
 
-			inline	_Message::_Message():_senderModuleCID(0),_senderModuleIID(0),_senderCrankCID(0),_senderCrankIID(0){
+			inline	_Message::_Message():_senderModuleCID(0),_senderModuleIID(0),_senderClusterCID(0),_senderClusterIID(0){
 			}
 
 			inline	_Message::~_Message(){
 			}
 
-			inline	_Message::operator	_ControlMessage	*()	const{
-
-				return	(_ControlMessage	*)(((uint8	*)this)-sizeof(_ControlMessage));
-			}
-
 			inline	_Message::operator	_Payload	*()	const{
 
-				return	(_Payload	*)(((uint8	*)this)-sizeof(_ControlMessage)-sizeof(_Payload));
+				return	(_Payload	*)(((uint8	*)this)-sizeof(_Payload));
 			}
 
 			inline	uint16	&_Message::senderModule_cid(){
@@ -129,14 +106,14 @@ namespace	mBrane{
 				return	_senderModuleIID;
 			}
 
-			inline	uint16	&_Message::senderCrank_cid(){
+			inline	uint16	&_Message::senderCluster_cid(){
 
-				return	_senderCrankCID;
+				return	_senderClusterCID;
 			}
 
-			inline	uint16	&_Message::senderCrank_iid(){
+			inline	uint16	&_Message::senderCluster_iid(){
 
-				return	_senderCrankIID;
+				return	_senderClusterIID;
 			}
 		}
 	}

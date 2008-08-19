@@ -1,4 +1,4 @@
-//	group.cpp
+//	module_register.cpp
 //
 //	Author: Eric Nivel
 //
@@ -28,8 +28,41 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include	"group.h"
+#include	<memory>
+#include	"module_register.h"
 
 
 namespace	mBrane{
+	namespace	sdk{
+
+		Array<ModuleRegister>	ModuleRegister::Modules;
+
+		inline	ModuleRegister	*ModuleRegister::Get(uint16	CID){
+
+			return	Modules.get(CID);
+		}
+
+		inline	uint16	ModuleRegister::Count(){
+
+			return	Modules.count();
+		}
+
+		uint16	ModuleRegister::Load(ModuleBuilder	b){
+
+			ModuleRegister	*r=Modules.alloc();
+			r->_builder=b;
+			return	Modules.count()-1;
+		}
+
+		ModuleRegister::ModuleRegister():_builder(NULL){
+		}
+
+		ModuleRegister::~ModuleRegister(){
+		}
+
+		inline	ModuleRegister::ModuleBuilder	ModuleRegister::builder()	const{
+
+			return	_builder;
+		}
+	}
 }

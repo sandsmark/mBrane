@@ -32,12 +32,7 @@ namespace	mBrane{
 	namespace	sdk{
 		namespace	payloads{
 
-			template<class	S>	inline	bool	__DynamicData<S>::isDynamicData()	const{
-				
-				return	true;	
-			}
-
-			template<class	S>	inline	__DynamicData<S>::operator	_DynamicData	*()	const{
+			template<class	S>	inline	DynamicData<S>::operator	_DynamicData	*()	const{
 				
 				return	(_DynamicData	*)this;	
 			}
@@ -52,11 +47,11 @@ namespace	mBrane{
 			template<class	S,class	D,class	F>	CompressedData<S,D,F>::CompressedData():S(),_CompressedData(),D(){
 			}
 
-			template<class	S,class	D,class	F>	inline	bool	CompressedData<S,D,F>::isCompressedData()	const{
+			template<class	S,class	D,class	F>	inline	CompressedData<S,D,F>::operator	_DynamicData	*()	const{
 				
-				return	true;	
+				return	(_DynamicData	*)this;
 			}
-			
+
 			template<class	S,class	D,class	F>	inline	CompressedData<S,D,F>::operator	_CompressedData	*()	const{
 				
 				return	(_CompressedData	*)this;
@@ -64,50 +59,27 @@ namespace	mBrane{
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
 
-			template<class	Data>	inline	CrankData<Data>::CrankData():Payload<Memory,CrankData<Data> >(),Data(){
+			template<class	Data>	inline	ModuleData<Data>::ModuleData():Payload<Memory,ModuleData<Data> >(),Data(){
 			}
 			
-			template<class	Data>	inline	CrankData<Data>::~CrankData(){
-			}
-
-			template<class	Data>	inline	bool	CrankData<Data>::isCrankData()	const{
-
-				return	true;
-			}
-
-			template<class	Data>	inline	CrankData<Data>::operator	_CrankData	*()	const{
-
-				return	(_CrankData	*)this;
+			template<class	Data>	inline	ModuleData<Data>::~ModuleData(){
 			}
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
 
-			template<class	U>	inline	ControlMessage<U>::ControlMessage(uint32	mid,uint8	priority):Payload<Memory,U>(),_ControlMessage(mid,priority){
+			template<class	U>	ControlMessage<U>::ControlMessage():Payload<Memory,U>(){
+
+				_metaData|=(CONTROL<<2);
 			}
 
-			template<class	U>	inline	bool	ControlMessage<U>::isControlMessage(){
-
-				return	true;
-			}
-
-			template<class	U>	inline	ControlMessage<U>::operator	_ControlMessage	*()	const{
-
-				return	(_ControlMessage	*)this;
+			template<class	U>	ControlMessage<U>::~ControlMessage(){
 			}
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
 
-			template<class	U>	inline	Message<U>::Message(uint32	mid,uint8	priority):ControlMessage<U>(mid,priority){
-			}
+			template<class	U>	inline	Message<U>::Message():Payload<Memory,U>(),_Message(){
 
-			template<class	U>	inline	bool	Message<U>::isControlMessage(){
-
-				return	false;
-			}
-
-			template<class	U>	inline	bool	Message<U>::isMessage(){
-
-				return	true;
+				_metadata|=(DATA<<2);
 			}
 
 			template<class	U>	inline	Message<U>::operator	_Message	*()	const{
@@ -117,17 +89,9 @@ namespace	mBrane{
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
 
-			template<class	U>	inline	StreamData<U>::StreamData(uint32	mid,uint8	priority):ControlMessage<U>(mid,priority){
-			}
+			template<class	U>	inline	StreamData<U>::StreamData(uint32	sid):Payload<Memory,U>(),_StreamData(sid){
 
-			template<class	U>	inline	bool	StreamData<U>::isControlMessage(){
-
-				return	false;
-			}
-
-			template<class	U>	inline	bool	StreamData<U>::isStreamData(){
-
-				return	true;
+				_metadata|=(STREAM<<2);
 			}
 
 			template<class	U>	inline	StreamData<U>::operator	_StreamData	*()	const{

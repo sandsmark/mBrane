@@ -46,15 +46,15 @@ namespace	mBrane{
 			protected:
 				_DynamicData();
 			public:
+				static	const	AllocationScheme	_AllocationScheme();
 				virtual	~_DynamicData();
 				virtual	size_t	dynamicSize()	const=0;	//	size of the dynamic data (not of the whole class)
 			};
 
-			template<class	S>	class	__DynamicData:
+			template<class	S>	class	DynamicData:
 			public	S,
 			public	_DynamicData{
 			public:
-				bool	isDynamicData()	const;
 				operator	_DynamicData	*()	const;
 			};
 
@@ -65,6 +65,7 @@ namespace	mBrane{
 				bool	isCompressed;	//	must be updated by compress() and any method changing the content of the frame, defined in U classes
 				_CompressedData();
 			public:
+				static	const	AllocationScheme	_AllocationScheme();
 				virtual	~_CompressedData();
 				virtual	void	compress();
 				virtual	void	decompress();
@@ -80,63 +81,44 @@ namespace	mBrane{
 				CompressedData();
 			public:
 				static	const	size_t	CoreSize();
-				bool	isCompressedData()	const;
+				operator	_DynamicData	*()	const;
 				operator	_CompressedData	*()	const;
 			};
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
 
-			template<class	Data>	class	CrankData:	//	binary data to be migrated
-			public	Payload<Memory,CrankData<Data> >,
+			template<class	Data>	class	ModuleData:	//	binary data to be migrated
+			public	Payload<Memory,ModuleData<Data> >,
 			public	Data{
 			public:
-				CrankData();
-				virtual	~CrankData();
-				bool	isCrankData()	const;
-				operator	_CrankData	*()	const;
-			};
-
-			class	dll	_ControlMessage{
-			protected:
-				uint32	_mid;	//	content identifer (for streams: stream identifier, as ooposed to frame identifier: to be defined in U classes)
-				uint8	_priority;	//	the lower the number the higher the priority
-				uint16	_senderNodeID;
-				_ControlMessage(uint32	mid,uint8	priority);
-			public:
-				virtual	~_ControlMessage();
-				operator	_Payload	*()	const;
-				uint32	&mid();
-				uint8	&priority();
-				uint16	&senderNode_id();
+				ModuleData();
+				virtual	~ModuleData();
 			};
 
 			template<class	U>	class	ControlMessage:
-			public	Payload<Memory,U>,
-			public	_ControlMessage{
+			public	Payload<Memory,U>{
 			protected:
-				ControlMessage(uint32	mid=0,uint8	priority=0);
+				ControlMessage();
 			public:
-				virtual	bool	isControlMessage();
-				operator	_ControlMessage	*()	const;
+				virtual	~ControlMessage();
 			};
 
 			class	dll	_StreamData{
 			protected:
-				_StreamData();
+				uint32	_sid;	//	stream identifer
+				_StreamData(uint32	sid);
 			public:
 				virtual	~_StreamData();
-				operator	_ControlMessage	*()	const;
+				uint32	&sid();
 				operator	_Payload	*()	const;
 			};
 
 			template<class	U>	class	StreamData:
-			public	ControlMessage<U>,
+			public	Payload<Memory,U>,
 			public	_StreamData{
 			protected:
-				StreamData(uint32	mid=0,uint8	priority=0);
+				StreamData(uint32	sid);
 			public:
-				bool	isControlMessage();
-				bool	isStreamData();
 				operator	_StreamData		*()	const;
 			};
 
@@ -144,27 +126,24 @@ namespace	mBrane{
 			protected:
 				uint16	_senderModuleCID;
 				uint16	_senderModuleIID;
-				uint16	_senderCrankCID;
-				uint16	_senderCrankIID;
+				uint16	_senderClusterCID;
+				uint16	_senderClusterIID;
 				_Message();
 			public:
 				virtual	~_Message();
-				operator	_ControlMessage	*()	const;
 				operator	_Payload	*()	const;
 				uint16	&senderModule_cid();
 				uint16	&senderModule_iid();
-				uint16	&senderCrank_cid();
-				uint16	&senderCrank_iid();
+				uint16	&senderCluster_cid();
+				uint16	&senderCluster_iid();
 			};
 
 			template<class	U>	class	Message:
-			public	ControlMessage<U>,
+			public	Payload<Memory,U>,
 			public	_Message{
 			protected:
-				Message(uint32	mid=0,uint8	priority=0);
+				Message();
 			public:
-				bool	isControlMessage();
-				bool	isMessage();
 				operator	_Message	*()	const;
 			};
 		}

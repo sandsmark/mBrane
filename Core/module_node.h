@@ -1,4 +1,4 @@
-//	crank_node.cpp
+//	module_node.h
 //
 //	Author: Eric Nivel
 //
@@ -28,34 +28,37 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include	"crank_node.h"
+#ifndef	mBrane_sdk_module_node_h
+#define	mBrane_sdk_module_node_h
 
+#include	"payload.h"
 
+//	Node API, as seen from the module
 namespace	mBrane{
 	namespace	sdk{
-		namespace	crank{
+		namespace	module{
 
-			Node	*Node::Singleton=NULL;
-
-			inline	Node	*Node::Get(){
-
-				return	Singleton;
-			}
-
-			Node::Node(uint16	ID):_ID(ID){
-				
-				Singleton=this;
-			}
-
-			Node::~Node(){
-
-				Singleton=NULL;
-			}
-
-			inline	uint16	Node::ID()	const{
-
-				return	_ID;
-			}
+			class	_Module;
+			class	dll	Node{
+			private:
+				static	Node	*Singleton;
+			protected:
+				static	const	uint16	NO_ID=0xFFFF;
+				uint16	_ID;	//	max: 0xFFFE
+				Node(uint16	ID);
+				~Node();
+			public:
+				static	Node	*Get();
+				uint16	ID()	const;
+				virtual	_Module	*buildModule(uint16	CID)=0;
+				virtual	void	start(_Module	*c)=0;	//	TODO:	add parameters (target thread, migrable, etc)
+				virtual	void	stop(_Module	*c)=0;
+				virtual	void	send(const	_Module	*sender,_Payload	*p)=0;
+				virtual	int64	time()	const=0;	//	in ms since 01/01/70
+			};
 		}
 	}
 }
+
+
+#endif

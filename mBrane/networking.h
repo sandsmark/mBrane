@@ -32,6 +32,7 @@
 #define	mBrane_networking_h
 
 #include	"..\Core\network_interface.h"
+#include	"network_id.h"
 
 
 using	namespace	mBrane::sdk;
@@ -58,6 +59,14 @@ namespace	mBrane{
 		//		start messages sending and receiving threads
 		//	when at least one connection to a remote node dies, the node in question is considred dead and the other connections to it are terminated
 		//	if the ref node dies, the node with the lowest NID is the new ref node
+		//
+		//	handles two isolated networks: primary (ex: core computation) and secondary (ex: I/O, signal processing)
+		//	network IDs carry the primary, secondary or both identifications
+		//	when receiving a bcast id bearing two, connect to the primary only
+		//	when sending to a node, use the primary only if two are available
+		//	receiving is agnostic
+		//
+		//	reference nodes must be on the primary network
 	protected:
 		char	hostName[255];
 		uint8	hostNameSize;
@@ -66,51 +75,32 @@ namespace	mBrane{
 		SharedLibrary	*callbackLibrary;
 		BootCallback	bootCallback;
 
-		typedef	enum{
-			CONTROL=0,
-			DATA=1,
-			STREAM=2,
-			DISCOVERY=3
-		}InterfaceType;
+		DynamicClassLoader<NetworkInterface>	*networkInterfaceLoaders[7];
+		NetworkInterface						*networkInterfaces[7];
 
-		DynamicClassLoader<NetworkInterface>	*networkInterfaceLoaders[4];
-		NetworkInterface						*networkInterfaces[4];
-
+		Network	network;
 		bool	startInterfaces();
 		void	stopInterfaces();
 
-		int32	bcastTimeout;
+		int32	bcastTimeout;	//	in ms
 
 		uint16	connectedNodeCount;
 
-		class	NetworkID{	//	total size: Size+headerSize
-		public:
-			static	uint16	Size;
-			static	uint16	CtrlIDSize;
-			static	uint16	DataIDSize;
-			static	uint16	StreamIDSize;
-			static	uint16	DiscoveryIDSize;
-			uint8	headerSize;	//	sizeof(NID)+sizeof(name size)+name size
-			uint8	*data;	//	[NID(16)|name size(8)|name(name size*8)|control ID|data ID|stream ID|discovery ID]
-			NetworkID();
-			NetworkID(uint16	NID,uint8	nameSize,char	*name);
-			~NetworkID();
-			uint16	NID()	const;
-			char	*name()	const;
-			uint8	*at(InterfaceType	t)	const;
-		};
 		NetworkID	*networkID;
 
 		class	DataCommChannel{
 		public:
 			DataCommChannel();
 			~DataCommChannel();
-			CommChannel	*data;
-			CommChannel	*stream;
-			NetworkID	*networkID;
+			typedef	struct{
+				CommChannel	*data;
+				CommChannel	*stream;
+			}CommChannels;
+			CommChannels	channels[2];	//	1 for each network
+			NetworkID		*networkID;
 		};
 		CommChannel					*discoveryChannel;	//	bcast
-		Array<CommChannel	*>		controlChannels;	//	1 (bcast capable) or many (connected)
+		Array<CommChannel	*>		controlChannels[2];	//	for each network: 1 (bcast capable) or many (connected)
 		Array<DataCommChannel	*>	dataChannels;
 		CriticalSection				channelsCS;	//	protects controlChannels and dataChannels
 
@@ -127,9 +117,10 @@ namespace	mBrane{
 
 		static	uint32	thread_function_call	ScanIDs(void	*args);
 		typedef	struct{
-			Networking		*node;
-			int32			timeout;
-			InterfaceType	type;
+			Networking			*node;
+			int32				timeout;
+			Network				network;
+			_Payload::Category	category;
 		}AcceptConnectionArgs;
 		static	uint32	thread_function_call	AcceptConnections(void	*args);
 		static	uint32	thread_function_call	Sync(void	*args);
@@ -142,7 +133,11 @@ namespace	mBrane{
 		uint16	sendMap(CommChannel	*c);
 		uint16	recvMap(CommChannel	*c);
 		uint16	connect(NetworkID	*networkID);
-		void	processError(InterfaceType	type,uint16	entry);
+		uint16	connect(Network	network,NetworkID	*networkID);
+		void	broadcastControlMessage(Network	network,_Payload	*p);
+		void	sendData(uint16	NID,_Payload	*p);
+		void	sendStreamData(uint16	NID,_Payload	*p);
+		void	processError(uint16	entry);	//	upon send/recv error. Disconnect the node on both networks
 		uint16	addNodeEntry();
 
 		bool	init();

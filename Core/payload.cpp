@@ -35,47 +35,12 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		inline	uint8	__Payload::ptrCount()	const{
-
-			return	0;
-		}
-
-		inline	P<_RPayload>	*__Payload::ptr(uint8	i){
-
-			return	NULL;
-		}
-
-		inline	void	__Payload::init(){
-		}
-
-		inline	bool	__Payload::isDynamicData()	const{
-
-			return	false;
-		}
-
-		inline	bool	__Payload::isCompressedData()	const{
-
-			return	false;
-		}
-
-		inline	__Payload::operator	payloads::_DynamicData	*()	const{
-
-			return	NULL;
-		}
-
-		inline	__Payload::operator	payloads::_CompressedData	*()	const{
-
-			return	NULL;
-		}
-
-		////////////////////////////////////////////////////////////////////////////////////////////////
-
 		const	size_t	_Payload::Offset(){
 
 			return	sizeof(_Object)+sizeof(int64)*2;
 		}
 
-		inline	_Payload::_Payload():__Payload(){
+		inline	_Payload::_Payload():_Object(){
 		}
 
 		inline	_Payload::~_Payload(){
@@ -83,47 +48,20 @@ namespace	mBrane{
 
 		inline	uint16	_Payload::cid()	const{
 			
-			return	_cid;
+			return	_metaData>>16;
 		}
 
-		inline	bool	_Payload::isCrankData()	const{
+		inline	_Payload::Category	_Payload::category()	const{
 
-			return	false;
+			return	(_Payload::Category)((_metaData	&&	0x0000000C)>>2);
 		}
 
-		inline	bool	_Payload::isControlMessage()	const{
+		inline	AllocationScheme	_Payload::allocationSceme()	const{
 
-			return	false;
+			return	(AllocationScheme)(_metaData	&&	0x00000003);
 		}
 
-		inline	bool	_Payload::isMessage()	const{
-
-			return	false;
-		}
-
-		inline	bool	_Payload::isStreamData()	const{
-
-			return	false;
-		}
-
-		inline	_Payload::operator	payloads::_CrankData	*()	const{
-
-			return	NULL;
-		}
-
-		inline	_Payload::operator	payloads::_ControlMessage	*()	const{
-
-			return	NULL;
-		}
-
-		inline	_Payload::operator	payloads::_Message	*()	const{
-
-			return	NULL;
-		}
-
-		inline	_Payload::operator	payloads::_StreamData	*()	const{
-
-			return	NULL;
+		inline	void	_Payload::init(){
 		}
 
 		inline	int64	&_Payload::node_send_ts(){
@@ -146,6 +84,26 @@ namespace	mBrane{
 			return	_recv_ts;
 		}
 
+		inline	_Payload::operator	payloads::_DynamicData	*()	const{
+
+			return	NULL;
+		}
+
+		inline	_Payload::operator	payloads::_CompressedData	*()	const{
+
+			return	NULL;
+		}
+
+		inline	_Payload::operator	payloads::_Message	*()	const{
+
+			return	NULL;
+		}
+
+		inline	_Payload::operator	payloads::_StreamData	*()	const{
+
+			return	NULL;
+		}
+
 		////////////////////////////////////////////////////////////////////////////////////////////////
 
 		const	size_t	_RPayload::Offset(){
@@ -153,7 +111,9 @@ namespace	mBrane{
 			return	sizeof(_Object);
 		}
 
-		inline	_RPayload::_RPayload():__Payload(){
+		inline	_RPayload::_RPayload(AllocationScheme	a):_Object(){
+
+			_metaData|=a;	//	CID set in Payload<M,U>::operator	new
 		}
 
 		inline	_RPayload::~_RPayload(){
@@ -161,7 +121,25 @@ namespace	mBrane{
 
 		inline	uint16	_RPayload::cid()	const{
 			
-			return	_cid;
+			return	_metaData>>16;
+		}
+
+		inline	AllocationScheme	_RPayload::allocationSceme()	const{
+
+			return	(AllocationScheme)(_metaData	&&	0x00000003);
+		}
+
+		inline	void	_RPayload::init(){
+		}
+
+		inline	_RPayload::operator	payloads::_DynamicData	*()	const{
+
+			return	NULL;
+		}
+
+		inline	_RPayload::operator	payloads::_CompressedData	*()	const{
+
+			return	NULL;
 		}
 	}
 }

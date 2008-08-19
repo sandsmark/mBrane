@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="TestCranks"
+	Name="TestModules"
 	ProjectGUID="{27598EAB-A3DA-486D-BFBB-3D59E87850F6}"
 	RootNamespace="TestCranks"
 	Keyword="Win32Proj"
@@ -181,7 +181,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\cranks.cpp"
+				RelativePath=".\modules.cpp"
 				>
 			</File>
 			<File
@@ -207,7 +207,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\cranks.h"
+				RelativePath=".\modules.h"
 				>
 			</File>
 			<File

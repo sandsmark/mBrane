@@ -7,7 +7,7 @@ using	namespace	mBrane;
 using	namespace	mBrane::sdk;
 
 class	M:
-public	__DynamicData<Message<M> >{
+public	DynamicData<Message<M> >{
 public:
 	uint32	a;
 	uint32	b;
@@ -86,7 +86,7 @@ int	main(int	argc,char	**argv){
 	_Payload		*m=new	M();
 	_ControlMessage	*_cm=(_ControlMessage	*)m;
 	_Message		*_m=(_Message	*)m;
-	_m->senderCrank_cid();
+	_m->senderModule_cid();
 	m->isDynamicData();
 	_DynamicData	*_dd=m->operator	_DynamicData	*();
 	//	_DynamicData	*_dd=(_DynamicData	*)m;	//	compiler bug: doesn't call the cast operator

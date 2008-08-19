@@ -1,4 +1,4 @@
-//	publishing_subscribing.h
+//	space.h
 //
 //	Author: Eric Nivel
 //
@@ -28,26 +28,13 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef	mBrane_publishing_subscribing_h
-#define	mBrane_publishing_subscribing_h
+#ifndef	mBrane_group_h
+#define	mBrane_group_h
 
-#include	"..\Core\list.h"
-#include	"..\Core\pipe.h"
-#include	"..\Core\module.h"
-
-
-using	namespace	mBrane::sdk;
-using	namespace	mBrane::sdk::module;
 
 namespace	mBrane{
 
-	class	OrderedMessagingEngine;
-	template<class	Engine>	class	Messaging;
-	class	PublishingSubscribing{
-	friend	class	OrderedMessagingEngine;
-	template<class	Engine>	friend	class	Messaging;
-	protected:
-		
+	class	Space{	//	TODO
 	};
 }
 

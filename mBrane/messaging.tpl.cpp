@@ -28,7 +28,11 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#define	INITIAL_MESSAGING_LATENCY	1000
+#define	INITIAL_NID_ARRAY_LENGTH	16
+#define	INITIAL_SID_ARRAY_LENGTH	16
+
+#define	DC	0	//	Data and Control
+#define	ST	1	//	Streams
 
 using	namespace	mBrane::sdk::payloads;
 
@@ -37,6 +41,14 @@ namespace	mBrane{
 	template<class	Engine>	Messaging<Engine>::Messaging():Engine(),sendThread(NULL){
 
 		inputSync=new	Semaphore(0,65535);
+
+		routes[DC].alloc(ClassRegister::Count());
+		for(uint32	i=0;i<routes[DC].count();i++)
+			routes[DC][i].alloc(INITIAL_NID_ARRAY_LENGTH);
+
+		routes[ST].alloc(INITIAL_SID_ARRAY_LENGTH);
+		for(uint32	i=0;i<routes[ST].count();i++)
+			routes[ST][i].alloc(INITIAL_NID_ARRAY_LENGTH);
 	}
 
 	template<class	Engine>	Messaging<Engine>::~Messaging(){
@@ -49,12 +61,19 @@ namespace	mBrane{
 		if(sendThread)
 			delete	sendThread;
 		delete	inputSync;
+
+		for(uint32	i=0;i<routes[DC].count();i++)
+			for(uint32	j=0;j<routes[DC][i].count();j++)
+				delete	routes[DC][i][j].modules;
+
+		for(uint32	i=0;i<routes[ST].count();i++)
+			for(uint32	j=0;j<routes[ST][i].count();j++)
+				delete	routes[ST][i][j].modules;
 	}
 	
-	template<class	Engine>	inline	void	Messaging<Engine>::send(uint16	NID,const	_Crank	*sender,_Payload	*message,bool	local){
+	template<class	Engine>	inline	void	Messaging<Engine>::send(uint16	NID,const	_Module	*sender,_Payload	*message,bool	local){
 
 		message->send_ts()=Time::Get();
-		((_ControlMessage	*)message)->senderNode_id()=NID;
 		//	TODO:	if message, fill in sender info
 		OutputSlot	o;
 		o.p=message;
@@ -65,7 +84,6 @@ namespace	mBrane{
 	template<class	Engine>	inline	void	Messaging<Engine>::send(uint16	NID,_Payload	*message,bool	local){
 
 		message->send_ts()=Time::Get();
-		((_ControlMessage	*)message)->senderNode_id()=NID;
 		OutputSlot	o;
 		o.p=message;
 		o.local=local;
@@ -95,32 +113,38 @@ namespace	mBrane{
 		}
 	}
 
-	template<class	Engine>	void	Messaging<Engine>::pushJobs(_Payload	*p){
+	template<class	Engine>	void	Messaging<Engine>::pushJobs(_Payload	*p,NodeEntry	&e){
 
-		//	find local receiving cranks (from pub-sub structure); insert {p,crank} pairs in pipeline
-		Array<PublishingSubscribing::NodeEntry>	*nodeEntries=((Node	*)this)->getNodeEntries(p->cid(),((_ControlMessage	*)p)->mid());
-		if(nodeEntries){	//	else: mid has never been subscribed for before
+		if(e.activationCount){
 
-			((Node	*)this)->routesCS.enter();
-			if(nodeEntries->operator[](((Node	*)this)->_ID).activationCount){
+			Job	j;
+			List<_Module	*>				*modules=e.modules;
+			List<_Module	*>::Iterator	i;
+			for(i=modules->begin();i!=modules->end();i++){
 
-				List<_Crank	*>	*l=nodeEntries->get(((Node	*)this)->_ID)->cranks;
-				if(l){
+				if(((_Module	*)i)->active()){
 
-					Job	j;
-					List<_Crank	*>::Iterator	i;
-					for(i=l->begin();i!=l->end();i++){
-
-						if(((_Crank	*)i)->active()){
-
-							j.p=p;
-							j.c=(_Crank	*)i;
-							jobs.push(j);
-						}
-					}
+					j.p=p;
+					j.c=(_Module	*)i;
+					jobs.push(j);
 				}
 			}
-			((Node	*)this)->routesCS.leave();
+		}
+	}
+
+	template<class	Engine>	void	Messaging<Engine>::pushJobs(_Payload	*p){
+
+		//	find local receiving modules; insert {p,module} pairs in pipeline
+		switch(p->category()){
+		case	_Payload::CONTROL:
+		case	_Payload::DATA:
+			routesCS[DC].enter();
+			pushJobs(p,routes[ST][p->cid()][((Node	*)this)->_ID]);
+			routesCS[DC].leave();
+		case	_Payload::STREAM:
+			routesCS[ST].enter();
+			pushJobs(p,routes[ST][p->operator	_StreamData	*()->sid()][((Node	*)this)->_ID]);
+			routesCS[ST].leave();
 		}
 	}
 
@@ -134,70 +158,72 @@ namespace	mBrane{
 
 		OutputSlot	*o;
 		_Payload	*p;
+		P<_Payload>	_p;
 		while(!node->_shutdown){
 
 			o=node->messageOutputQueue.pop();
 			p=o->p;
+			_p=p;
+			_Payload::Category	cat=p->category();
 			if(o->local){
+				
+				uint32	act;
+				if(cat==_Payload::STREAM){
 
-				Array<PublishingSubscribing::NodeEntry>	*nodeEntries=node->getNodeEntries(p->cid(),((_ControlMessage	*)p)->mid());
-				if(nodeEntries){	//	else: mid has never been subscribed for before
+					node->routesCS[ST].enter();
+					act=node->routes[ST][p->operator	_StreamData	*()->sid()][node->_ID].activationCount;
+					node->routesCS[ST].leave();
+				}else{
 
-					P<_Payload>	_p=p;
-					node->routesCS.enter();
-					uint32	act=nodeEntries->get(node->_ID)->activationCount;
-					node->routesCS.leave();
-					if(act){
-
-						node->messageInputQueue.push(_p);
-						node->inputSync->release();
-					}
+					node->routesCS[DC].enter();
+					act=node->routes[DC][p->cid()][node->_ID].activationCount;
+					node->routesCS[DC].leave();
 				}
-			}else	if(p->isControlMessage()){
+				if(act){
 
-				for(uint16	i=0;i<node->controlChannels.count();i++){
-
-					if(node->controlChannels[i]	&&	node->controlChannels[i]->send(p))
-						node->processError(Networking::CONTROL,i);
+					node->messageInputQueue.push(_p);
+					node->inputSync->release();
 				}
+			}else	if(cat==_Payload::CONTROL){
+
+				if(node->network==PRIMARY	||	node->network==BOTH)
+					node->broadcastControlMessage(PRIMARY,p);
+				if(node->network==SECONDARY	||	node->network==BOTH)
+					node->broadcastControlMessage(SECONDARY,p);
 			}else{
-
 				//	find target remote nodes; send on data/stream channels; push in messageInputQueue if the local node is a target
-				Array<PublishingSubscribing::NodeEntry>	*nodeEntries=node->getNodeEntries(p->cid(),((_ControlMessage	*)p)->mid());
-				if(nodeEntries){	//	else: mid has never been subscribed for before
+				if(cat==_Payload::DATA){
 
-					P<_Payload>	_p=p;
-					node->routesCS.enter();
-					if(p->isMessage()){
+					uint16	cid=p->cid();
+					node->routesCS[DC].enter();
+					for(uint32	i=0;i<node->routes[DC][cid].count();i++){
 
-						for(uint32	i=0;i<nodeEntries->count();i++){
+						if(node->routes[DC][cid][i].activationCount){
 
-							if(nodeEntries->get(i)->activationCount){
+							if(i==node->_ID){
 
-								if(i==node->_ID){
-
-									node->messageInputQueue.push(_p);
-									node->inputSync->release();
-								}else	if(r=node->dataChannels[i]->data->send(p))
-									node->processError(Networking::DATA,i);
-							}
-						}
-					}else{	//	must be stream
-
-						for(uint32	i=0;i<nodeEntries->count();i++){
-
-							if(nodeEntries->get(i)->activationCount){
-
-								if(i==node->_ID){
-
-									node->messageInputQueue.push(_p);
-									node->inputSync->release();
-								}else	if(r=node->dataChannels[i]->stream->send(p))
-									node->processError(Networking::STREAM,i);
-							}
+								node->messageInputQueue.push(_p);
+								node->inputSync->release();
+							}else	node->sendData(i,p);
 						}
 					}
-					node->routesCS.leave();
+					node->routesCS[DC].leave();
+				}else{	//	must be stream
+
+					uint16	sid=p->operator	_StreamData	*()->sid();
+					node->routesCS[ST].enter();
+					for(uint32	i=0;i<node->routes[ST][sid].count();i++){
+
+						if(node->routes[DC][sid][i].activationCount){
+
+							if(i==node->_ID){
+
+								node->messageInputQueue.push(_p);
+								node->inputSync->release();
+							}else	node->sendStreamData(i,p);
+						}
+					}
+					node->routesCS[ST].leave();
 				}
 			}
 

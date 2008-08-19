@@ -1,4 +1,4 @@
-//	crank.cpp
+//	module.cpp
 //
 //	Author: Eric Nivel
 //
@@ -28,131 +28,136 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include	"crank.h"
-#include	"crank_node.h"
+#include	"module.h"
+#include	"module_node.h"
 #include	"utils.h"
 
 
 namespace	mBrane{
 	namespace	sdk{
-		namespace	crank{
+		namespace	module{
 
-			void	_Crank::New(uint16	CID){
+			void	_Module::New(uint16	CID){
 
-				Node::Get()->buildCrank(CID);
+				Node::Get()->buildModule(CID);
 			}
 
-			_Crank::_Crank(uint16	_ID,bool	canMigrate,bool	canBeSwapped):_ID(_ID),_canMigrate(canMigrate),_canBeSwapped(canBeSwapped),_activationCount(0),_priority(0),processor(NULL){
+			_Module::_Module(uint16	_ID,bool	canMigrate,bool	canBeSwapped):_ID(_ID),_canMigrate(canMigrate),_canBeSwapped(canBeSwapped),_activationCount(0),_priority(0),processor(NULL){
 			}
 
-			_Crank::~_Crank(){
+			_Module::~_Module(){
 			}
 
-			inline	uint16	_Crank::id()	const{
+			inline	uint16	_Module::id()	const{
 
 				return	_ID;
 			}
 
-			inline	bool	_Crank::active()	const{
+			inline	bool	_Module::active()	const{
 
 				return	_activationCount;
 			}
 
-			inline	void	_Crank::activate(){
+			inline	void	_Module::activate(){
 
 				_activationCount++;
 			}
 
-			inline	void	_Crank::deactivate(){
+			inline	void	_Module::deactivate(){
 
 				_activationCount--;
 			}
 
-			inline	uint8	&_Crank::priority(){
+			inline	uint8	&_Module::priority(){
 
 				return	_priority;
 			}
 
-			inline	bool	_Crank::canMigrate(){
+			inline	bool	_Module::canMigrate(){
 
 				return	_canMigrate;
 			}
 
-			inline	bool	_Crank::canBeSwapped(){
+			inline	bool	_Module::canBeSwapped(){
 
 				return	_canBeSwapped;
 			}
 
-			uint32	_Crank::dumpSize(){
+			uint32	_Module::dumpSize(){
 
 				return	0;
 			}
 
-			_Payload	*_Crank::dump(){
+			_Payload	*_Module::dump(){
 
 				return	NULL;
 			}
 
-			void	_Crank::load(_Payload	*chunk){
+			void	_Module::load(_Payload	*chunk){
 			}
 
-			void	_Crank::start(){
+			void	_Module::start(){
 			}
 
-			void	_Crank::stop(){
+			void	_Module::stop(){
 			}
 
-			inline	void	_Crank::swapOut(){
+			inline	void	_Module::swapOut(){
 			}
 
-			inline	void	_Crank::swapIn(){
+			inline	void	_Module::swapIn(){
 			}
 
-			inline	void	_Crank::migrateOut(){
+			inline	void	_Module::migrateOut(){
 			}
 
-			inline	void	_Crank::migrateIn(){
+			inline	void	_Module::migrateIn(){
 			}
 
-			inline	int64	_Crank::time()	const{
+			inline	int64	_Module::time()	const{
 
 				return	Node::Get()->time();
 			}
 
-			void	_Crank::sleep(int64	d){
+			void	_Module::sleep(int64	d){
 
 				if(processor	&&	d)
 					processor->block();
 				Thread::Sleep(d);
 			}
 
-			void	_Crank::wait(Thread	**threads,uint32	threadCount){
+			void	_Module::wait(Thread	**threads,uint32	threadCount){
 
 				if(processor)
 					processor->block();
 				Thread::Wait(threads,threadCount);
 			}
 			
-			void	_Crank::wait(Thread	*_thread){
+			void	_Module::wait(Thread	*_thread){
 
 				if(processor)
 					processor->block();
 				Thread::Wait(_thread);
 			}
 			
-			inline	void	_Crank::send(_Payload	*p)	const{
+			inline	void	_Module::send(_Payload	*p)	const{
 
 				Node::Get()->send(this,p);
 			}
 
-			////////////////////////////////////////////////////////////////////////////////////////////////
+			inline	_Module::Decision	_Module::decide(_Payload	*p){
 
-			CrankUtils::CrankUtils(_Crank	*c):crank(c){
+				return	WAIT;
 			}
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
 
-			Semaphore::Semaphore(_Crank	*c,uint32	initialCount,uint32	maxCount):mBrane::Semaphore(initialCount,maxCount),CrankUtils(c){
+			ModuleUtils::ModuleUtils(_Module	*c):module(c){
+			}
+
+			////////////////////////////////////////////////////////////////////////////////////////////////
+
+			Semaphore::Semaphore(_Module	*c,uint32	initialCount,uint32	maxCount):mBrane::Semaphore(initialCount,maxCount),ModuleUtils(c){
 			}
 
 			Semaphore::~Semaphore(){
@@ -160,8 +165,8 @@ namespace	mBrane{
 
 			bool	Semaphore::acquire(uint32	timeout){
 
-				if(crank->processor	&&	timeout)
-					crank->processor->block();
+				if(module->processor	&&	timeout)
+					module->processor->block();
 				return	mBrane::Semaphore::acquire(timeout);
 			}
 
@@ -177,7 +182,7 @@ namespace	mBrane{
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
 
-			Mutex::Mutex(_Crank	*c):mBrane::Mutex(),CrankUtils(c){
+			Mutex::Mutex(_Module	*c):mBrane::Mutex(),ModuleUtils(c){
 			}
 
 			Mutex::~Mutex(){
@@ -185,8 +190,8 @@ namespace	mBrane{
 
 			bool	Mutex::acquire(uint32	timeout){
 
-				if(crank->processor	&&	timeout)
-					crank->processor->block();
+				if(module->processor	&&	timeout)
+					module->processor->block();
 				return	mBrane::Mutex::acquire(timeout);
 			}
 
@@ -197,7 +202,7 @@ namespace	mBrane{
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
 
-			CriticalSection::CriticalSection(_Crank	*c):mBrane::CriticalSection(),CrankUtils(c){
+			CriticalSection::CriticalSection(_Module	*c):mBrane::CriticalSection(),ModuleUtils(c){
 			}
 
 			CriticalSection::~CriticalSection(){
@@ -205,8 +210,8 @@ namespace	mBrane{
 			
 			void	CriticalSection::enter(){
 
-				if(crank->processor)
-					crank->processor->block();
+				if(module->processor)
+					module->processor->block();
 				mBrane::CriticalSection::enter();
 			}
 
@@ -217,7 +222,7 @@ namespace	mBrane{
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
 
-			Timer::Timer(_Crank	*c):mBrane::Timer(),CrankUtils(c){
+			Timer::Timer(_Module	*c):mBrane::Timer(),ModuleUtils(c){
 			}
 
 			Timer::~Timer(){
@@ -230,15 +235,15 @@ namespace	mBrane{
 
 			bool	Timer::wait(uint32	timeout){
 
-				if(crank->processor	&&	timeout)
-					crank->processor->block();
+				if(module->processor	&&	timeout)
+					module->processor->block();
 				return	mBrane::Timer::wait(timeout);
 			}
 
 			bool	Timer::wait(uint64	&us,uint32	timeout){
 
-				if(crank->processor)
-					crank->processor->block();
+				if(module->processor)
+					module->processor->block();
 				return	mBrane::Timer::wait(us,timeout);
 			}
 		}

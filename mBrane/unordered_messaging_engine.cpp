@@ -72,18 +72,18 @@ namespace	mBrane{
 
 			node->inputSync->acquire();
 
-			if(buffer==&node->messageInputQueue)
-				buffer=&node->recvThreads[recvThread=0]->buffer;
-			else	if(recvThread>=node->recvThreads.count())
+			if(recvThread++>=node->recvThreads.count()){
+
+				recvThread=0;
 				buffer=&node->messageInputQueue;
-			else
-				buffer=&node->recvThreads[recvThread++]->buffer;
+			}else
+				buffer=&node->recvThreads[recvThread]->buffer;
 
 			_p=buffer->pop(false);
 			if(!_p)
 				continue;
 
-			if((*_p)->isControlMessage())
+			if((*_p)->category()==_Payload::CONTROL)
 				node->processControlMessage(*_p);
 
 			node->pushJobs(*_p);

@@ -31,14 +31,14 @@
 #ifndef	mBrane_messaging_h
 #define	mBrane_messaging_h
 
-#include	"..\Core\crank.h"
+#include	"..\Core\module.h"
 #include	"..\Core\pipe.h"
 
 #include	"networking.h"
 
 
 using	namespace	mBrane::sdk;
-using	namespace	mBrane::sdk::crank;
+using	namespace	mBrane::sdk::module;
 
 #define	MESSAGE_INPUT_QUEUE_BLOCK_SIZE	32
 #define	MESSAGE_OUTPUT_QUEUE_BLOCK_SIZE	32
@@ -48,7 +48,7 @@ namespace	mBrane{
 
 	typedef	struct	_Job{
 		P<_Payload>	p;
-		_Crank		*c;
+		_Module		*c;
 	}Job;
 
 	class	Node;
@@ -57,11 +57,10 @@ namespace	mBrane{
 	public:
 		static	uint32	thread_function_call	ReceiveMessages(void	*args);
 		Pipe<P<_Payload>,MESSAGE_INPUT_QUEUE_BLOCK_SIZE>	buffer;	//	incoming messages from remote nodes
-		Node						*node;
-		CommChannel					*channel;
-		uint16						entry;
-		Networking::InterfaceType	type;
-		RecvThread(Node	*node,CommChannel	*channel,uint16	entry,Networking::InterfaceType	type);
+		Node			*node;
+		CommChannel		*channel;
+		uint16			entry;
+		RecvThread(Node	*node,CommChannel	*channel,uint16	entry);
 		~RecvThread();
 	};
 
@@ -91,11 +90,20 @@ namespace	mBrane{
 		static	uint32	thread_function_call	SendMessages(void	*args);
 		Semaphore	*inputSync;	//	sync on the input message count
 
+		typedef	struct{
+			uint32				activationCount;
+			List<_Module	*>	*modules;
+		}NodeEntry;
+		
+		Array<Array<NodeEntry> >	routes[2];	//	0: Data and Control: message class -> nodes -> modules, 2: Streams: strem id -> nodes -> modules
+		CriticalSection				routesCS[2];
+		
 		Messaging();
 		~Messaging();
 		void	send(uint16	NID,_Payload	*message,bool	local);
-		void	send(uint16	NID,const	_Crank	*sender,_Payload	*message,bool	local);
+		void	send(uint16	NID,const	_Module	*sender,_Payload	*message,bool	local);
 		void	processControlMessage(_Payload	*p);
+		void	pushJobs(_Payload	*p,NodeEntry	&e);
 		void	pushJobs(_Payload	*p);
 		void	start();
 		void	shutdown();

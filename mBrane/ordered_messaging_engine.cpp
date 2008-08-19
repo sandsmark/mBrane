@@ -169,12 +169,12 @@ resetTimer:
 
 			node->inputSync->acquire();
 
-			if(buffer==&node->messageInputQueue)
-				buffer=&node->recvThreads[recvThread=0]->buffer;
-			else	if(recvThread>=node->recvThreads.count())
+			if(recvThread++>=node->recvThreads.count()){
+
+				recvThread=0;
 				buffer=&node->messageInputQueue;
-			else
-				buffer=&node->recvThreads[recvThread++]->buffer;
+			}else
+				buffer=&node->recvThreads[recvThread]->buffer;
 
 			_p=buffer->pop(false);
 			if(!_p)
