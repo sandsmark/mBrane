@@ -59,13 +59,16 @@ namespace	mBrane{
 			friend	class	Timer;
 			private:
 				uint16	_ID;
+				uint16	_CID;
+				uint16	_clusterID;
+				uint16	_clusterCID;
 				bool	_canMigrate;
 				bool	_canBeSwapped;
 				uint32	_activationCount;
 				uint8	_priority;
 				XThread	*processor;
 			protected:
-				_Module(uint16	_ID,bool	canMigrate=true,bool	canBeSwapped=true);
+				_Module(uint16	CID,uint16	ID,uint16	clusterCID,uint16	clusterID,bool	canMigrate=true,bool	canBeSwapped=true);
 				int64	time()	const;
 				void	sleep(int64	d);
 				void	wait(Thread	**threads,uint32	threadCount);
@@ -77,9 +80,12 @@ namespace	mBrane{
 					WAIT=1,
 					PREEMPT=2
 				}Decision;
-				static	void	New(uint16	CID);
+				static	void	New(uint16	CID,uint16	ID,uint16	clusterCID,uint16	clusterID);
 				virtual	~_Module();
+				uint16	cid()	const;
 				uint16	id()	const;
+				uint16	cluster_cid()	const;
+				uint16	cluster_id()	const;
 				bool	active()	const;
 				void	activate();
 				void	deactivate();
@@ -96,7 +102,7 @@ namespace	mBrane{
 				virtual	void		migrateOut();	//	called when the module is unloaded from its current thread for migration
 				virtual	void		migrateIn();	//	called when the module is loaded in a new thread after having migrated
 				virtual	void		notify(_Payload	*p)=0;	//	called when the module receives a message
-				virtual	Decision	decide(_Payload	*p);	//	called when the module code is already processing and a new message comes in; default: WAIT
+				virtual	Decision	dispatch(_Payload	*p)=0;	//	called when the module code is already processing and a new message comes in; default: WAIT
 			};
 
 			class	dll	ModuleUtils{

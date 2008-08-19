@@ -41,7 +41,7 @@ namespace	mBrane{
 		class	dll	ModuleRegister{
 		template<class	Register>	friend	class	Array;
 		public:
-			typedef	module::_Module	*(*ModuleBuilder)(uint16);
+			typedef	module::_Module	*(*ModuleBuilder)(uint16,uint16,uint16);
 		private:
 			static	Array<ModuleRegister>	Modules;
 			ModuleBuilder	_builder;

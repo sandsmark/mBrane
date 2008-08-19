@@ -37,20 +37,43 @@ namespace	mBrane{
 	namespace	sdk{
 		namespace	module{
 
-			void	_Module::New(uint16	CID){
+			void	_Module::New(uint16	CID,uint16	ID,uint16	clusterCID,uint16	clusterID){
 
-				Node::Get()->buildModule(CID);
+				Node::Get()->buildModule(CID,ID,clusterCID,clusterID);
 			}
 
-			_Module::_Module(uint16	_ID,bool	canMigrate,bool	canBeSwapped):_ID(_ID),_canMigrate(canMigrate),_canBeSwapped(canBeSwapped),_activationCount(0),_priority(0),processor(NULL){
+			_Module::_Module(uint16	CID,uint16	ID,uint16	clusterCID,uint16	clusterID,bool	canMigrate,bool	canBeSwapped):	_CID(CID),
+																																_ID(ID),
+																																_clusterCID(clusterCID),
+																																_clusterID(clusterID),
+																																_canMigrate(canMigrate),
+																																_canBeSwapped(canBeSwapped),
+																																_activationCount(0),
+																																_priority(0),
+																																processor(NULL){
 			}
 
 			_Module::~_Module(){
 			}
 
+			inline	uint16	_Module::cid()	const{
+
+				return	_CID;
+			}
+
 			inline	uint16	_Module::id()	const{
 
 				return	_ID;
+			}
+
+			inline	uint16	_Module::cluster_cid()	const{
+
+				return	_clusterCID;
+			}
+
+			inline	uint16	_Module::cluster_id()	const{
+
+				return	_clusterID;
 			}
 
 			inline	bool	_Module::active()	const{
@@ -143,11 +166,6 @@ namespace	mBrane{
 			inline	void	_Module::send(_Payload	*p)	const{
 
 				Node::Get()->send(this,p);
-			}
-
-			inline	_Module::Decision	_Module::decide(_Payload	*p){
-
-				return	WAIT;
 			}
 
 			////////////////////////////////////////////////////////////////////////////////////////////////

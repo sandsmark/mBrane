@@ -31,6 +31,8 @@
 #ifndef	_library_h_
 #define	_library_h_
 
+#include	"module_register.h"
+
 #define	MBRANE_MESSAGE_CLASSES	"mBrane_message_classes.h"
 
 #define	MBRANE_MESSAGE_CLASS(C)	static	const	uint16	C##_class=__COUNTER__;
@@ -44,17 +46,24 @@ template<class	U>	class	LibraryModule:
 public	module::_Module{
 protected:
 	static	const	uint16	_CID;
-	LibraryModule(uint16	ID):module::_Module(ID){}
+	LibraryModule(uint16	CID,uint16	ID,uint16	clusterCID,uint16	clusterID):module::_Module(CID,ID,clusterCID,clusterID){}
 public:
-	static	module::_Module	*New(uint16	ID){	return	new	U(ID);	}
+	static	module::_Module	*New(uint16	CID,uint16	ID,uint16	clusterCID,uint16	clusterID){	return	new	U(CID,ID,clusterCID,clusterID);	}
 	virtual	~LibraryModule(){}
-	const	uint16	cid(){	return	_CID;	}
 	void	notify(_Payload	*p){
 		switch(p->cid()){
 		#define	MBRANE_MESSAGE_CLASS(C)	case	CLASS_ID(C):	((U	*)this)->react((C	*)p);	return;
 		#include	MBRANE_MESSAGE_CLASSES
 		#include	LIBRARY_CLASSES
 		default:	return;
+		}
+	}
+	Decision	dispatch(_Payload	*p){
+		switch(p->cid()){
+		#define	MBRANE_MESSAGE_CLASS(C)	case	CLASS_ID(C):	return	((U	*)this)->decide((C	*)p);
+		#include	MBRANE_MESSAGE_CLASSES
+		#include	LIBRARY_CLASSES
+		default:	return	DISCARD;
 		}
 	}
 };
