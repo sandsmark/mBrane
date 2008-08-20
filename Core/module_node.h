@@ -51,8 +51,8 @@ namespace	mBrane{
 				static	Node	*Get();
 				uint16	ID()	const;
 				virtual	_Module	*buildModule(uint16	CID,uint16	ID,uint16	clusterCID,uint16	clusterID)=0;
-				virtual	void	start(_Module	*c)=0;	//	TODO:	add parameters (target thread, migrable, etc)
-				virtual	void	stop(_Module	*c)=0;
+				virtual	void	start(_Module	*m)=0;	//	TODO:	add parameters (target thread, migrable, etc)
+				virtual	void	stop(_Module	*m)=0;
 				virtual	void	send(const	_Module	*sender,_Payload	*p)=0;
 				virtual	int64	time()	const=0;	//	in ms since 01/01/70
 			};

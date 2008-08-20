@@ -28,8 +28,8 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef	mBrane_group_h
-#define	mBrane_group_h
+#ifndef	mBrane_space_h
+#define	mBrane_space_h
 
 
 namespace	mBrane{

@@ -50,7 +50,7 @@ namespace	mBrane{
 			}
 
 			if(!_this->node->isTimeReference)
-				_this->node->timeDrift=p->node_recv_ts()-p->node_send_ts()-_this->channel->rtt()/2;	//	TODO:	make sure rtt() is quick to return
+				_this->node->timeDrift=p->node_recv_ts()-p->node_send_ts()-_this->channel->rtt()/2;
 			
 			P<_Payload>	_p=p;
 			if(p->cid()!=TimeSync::CID()){

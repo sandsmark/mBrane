@@ -325,10 +325,14 @@ namespace	mBrane{
 		return	NULL;
 	}
 
-	void	Node::start(_Module	*c){	//	TODO
+	void	Node::start(_Module	*m){
+
+		m->start();
 	}
 
-	void	Node::stop(_Module	*c){	//	TODO
+	void	Node::stop(_Module	*m){
+
+		m->stop();
 	}
 
 	void	migrate(_Module	*c,uint16	NID){	//	TODO
