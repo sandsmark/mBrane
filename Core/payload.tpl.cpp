@@ -56,7 +56,7 @@ namespace	mBrane{
 			return	0;
 		}
 
-		template<class	M,class	U>	const	P<_RPayload>	*Payload<M,U>::Ptr(uint8	i){
+		template<class	M,class	U>	const	P<_RPayload>	*Payload<M,U>::Ptr(_RPayload	*p,uint8	i){
 
 			return	NULL;
 		}
@@ -115,7 +115,7 @@ namespace	mBrane{
 			return	0;
 		}
 
-		template<class	M,class	U>	const	P<_RPayload>	*RPayload<M,U>::Ptr(uint8	i){
+		template<class	M,class	U>	const	P<_RPayload>	*RPayload<M,U>::Ptr(_RPayload	*p,uint8	i){
 
 			return	NULL;
 		}

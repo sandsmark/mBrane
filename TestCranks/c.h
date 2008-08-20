@@ -29,16 +29,16 @@ public:
 	uint32	d2;
 	P<RP1>	p1;
 	P<RP1>	p2;
-	virtual	uint8		ptrCount()	const{	
+	static	uint8		PtrCount(){	
 		
 		return	2;
 	}
-	virtual	P<_RPayload>	*ptr(uint8	i){
+	static	P<_RPayload>	*Ptr(_RPayload	*p,uint8	i){
 
 		switch(i){
 
-			case	0:	return	(P<_RPayload>	*)&p1;
-			case	1:	return	(P<_RPayload>	*)&p2;
+			case	0:	return	PTR(U,p,p1);
+			case	1:	return	PTR(U,p,p2);
 			default:	return	NULL;
 		}
 	}
@@ -60,19 +60,19 @@ public:
 	uint32	d4;
 	P<RP1>	p3;
 	P<RP1>	p4;
-	virtual	uint8		ptrCount()	const{	
+	static	uint8		PtrCount(){	
 		
 		return	C2<U>::ptrCount()+2;
 	}
-	virtual	P<_RPayload>	*ptr(uint8	i){
+	static	P<_RPayload>	*Ptr(_RPayload	*p,uint8	i){
 
-		uint8	upCount=C2<U>::ptrCount();
+		uint8	upCount=C2<U>::PtrCount();
 		if(i<upCount)
-			return	C2<U>::ptr(i);
+			return	C2<U>::Ptr(i);
 		switch(i-upCount){
 
-			case	0:	return	(P<_RPayload>	*)&p3;
-			case	1:	return	(P<_RPayload>	*)&p4;
+			case	0:	return	PTR(U,p,p3);
+			case	1:	return	PTR(U,p,p4);
 			default:	return	NULL;
 		}
 	}

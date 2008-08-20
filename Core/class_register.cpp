@@ -78,9 +78,9 @@ namespace	mBrane{
 			return	_ptrCount;
 		}
 
-		inline	const	P<_RPayload>	*ClassRegister::ptr(uint8	i){
+		inline	const	P<_RPayload>	*ClassRegister::ptr(_RPayload	*p,uint8	i){
 
-			return	_ptr(i);
+			return	_ptr(p,i);
 		}
 	}
 }

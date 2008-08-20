@@ -44,7 +44,7 @@ namespace	mBrane{
 		template<class	Register>	friend	class	Array;
 		public:
 			typedef	void	*(*Allocator)();
-			typedef	const	P<_RPayload>	*(*Ptr)(uint8);
+			typedef	const	P<_RPayload>	*(*Ptr)(_RPayload	*,uint8);
 		private:
 			static	Array<ClassRegister>	Classes;
 			Allocator	_allocator;
@@ -64,7 +64,7 @@ namespace	mBrane{
 			size_t			coreSize()		const;
 			size_t			offset()		const;
 			uint8			ptrCount()		const;
-			const	P<_RPayload>	*ptr(uint8	i);
+			const	P<_RPayload>	*ptr(_RPayload	*,uint8	i);
 		};
 	}
 }

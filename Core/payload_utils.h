@@ -52,8 +52,8 @@ namespace	mBrane{
 				static	const	size_t	CoreSize();
 				Array();
 				~Array();
-				uint8			ptrCount()	const;
-				P<_RPayload>	*ptr(uint8	i);
+				static	uint8			PtrCount();
+				static	P<_RPayload>	*Ptr(_RPayload	*p,uint8	i);
 				size_t	dynamicSize()	const;
 				uint32	count()	const;
 				T	&operator	[](uint32	i);	//	allocs a new block if i>=_count
@@ -128,8 +128,8 @@ namespace	mBrane{
 				static	const	size_t	CoreSize();
 				List();
 				~List();
-				uint8			ptrCount()	const;
-				P<_RPayload>	*ptr(uint8	i);
+				static	uint8			PtrCount();
+				static	P<_RPayload>	*Ptr(_RPayload	*p,uint8	i);
 				size_t	dynamicSize()	const;
 				uint32	count()	const;
 				void	clear();

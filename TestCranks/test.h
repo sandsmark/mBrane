@@ -12,7 +12,7 @@
 
 
 extern	"C"{
-mBrane::sdk::module::_Module *	__cdecl	NewCR1(uint16);
+mBrane::sdk::module::_Module *	__cdecl	NewCR1(uint16,uint16,uint16);
 }
 
 

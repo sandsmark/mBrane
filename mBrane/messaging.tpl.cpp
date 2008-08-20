@@ -74,7 +74,14 @@ namespace	mBrane{
 	template<class	Engine>	inline	void	Messaging<Engine>::send(uint16	NID,const	_Module	*sender,_Payload	*message,bool	local){
 
 		message->send_ts()=Time::Get();
-		//	TODO:	if message, fill in sender info
+		if(message->category()==_Payload::DATA){
+
+			_Message	*_m=message->operator	_Message	*();
+			_m->senderModule_cid()=sender->cid();
+			_m->senderModule_iid()=sender->id();
+			_m->senderCluster_cid()=sender->cluster_cid();
+			_m->senderCluster_iid()=sender->cluster_id();
+		}
 		OutputSlot	o;
 		o.p=message;
 		o.local=local;

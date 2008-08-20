@@ -51,7 +51,7 @@ namespace	mBrane{
 			static	uint16	Count();
 			ModuleRegister();
 			~ModuleRegister();
-			ModuleBuilder	builder()	const;
+			module::_Module	*buildModule(uint16	ID,uint16	clusterCID,uint16	clusterID)	const;
 		};
 	}
 }

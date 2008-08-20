@@ -72,8 +72,6 @@ namespace	mBrane{
 		//	MESSAGING
 		void	startReceivingThreads(uint16	NID);
 
-		//	PUBLISHING SUBSCRIBING
-
 		//	NODE
 		uint16	nodeCount;
 		Array<const	char	*>	nodeNames;
@@ -89,7 +87,7 @@ namespace	mBrane{
 		void	unloadApplication();
 		int64	time()	const;	//	in ms since midnight 01/01/70
 		void	send(const	_Module	*sender,_Payload	*message);
-		_Module	*buildModule(uint16	CID);
+		_Module	*buildModule(uint16	CID,uint16	ID,uint16	clusterCID,uint16	clusterID);
 		void	start(_Module	*c);
 		void	stop(_Module	*c);
 		void	migrate(_Module	*c,uint16	NID);

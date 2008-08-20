@@ -1,7 +1,7 @@
 #include	"modules.h"
 
 
-CR1::CR1(uint16	_ID):Module<CR1>(_ID){
+CR1::CR1(uint16	ID,uint16	clusterCID,uint16	clusterID):Module<CR1>(_CID,ID,clusterCID,clusterID){
 }
 
 CR1::~CR1(){

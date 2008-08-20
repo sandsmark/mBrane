@@ -48,7 +48,7 @@ namespace	mBrane{
 			P<_RPayload>	*p;
 			for(uint8	i=0;i<ptrCount;i++){
 
-				p=CR->ptr(i);
+				p=CR->ptr(c,i);
 				if(!p)
 					continue;
 				if(r=send(*p))
@@ -81,7 +81,7 @@ namespace	mBrane{
 			_Payload		*ptr;
 			for(uint8	i=0;i<ptrCount;i++){
 
-				p=CR->ptr(i);
+				p=CR->ptr(*c,i);
 				if(!p)
 					continue;
 				if(r=recv(&ptr)){

@@ -97,7 +97,7 @@ namespace	mBrane{
 			static	const	uint16				CID();
 			static	const	AllocationScheme	_AllocationScheme();
 			static	const	uint8				PtrCount();
-			static	const	P<_RPayload>		*Ptr(uint8	i);
+			static	const	P<_RPayload>		*Ptr(_RPayload	*p,uint8	i);
 			static	const	size_t				Size();
 			static	const	size_t				CoreSize();
 		};
@@ -112,6 +112,9 @@ namespace	mBrane{
 		protected:
 			PayloadAdapter();
 		};
+
+		//	Convenience for writing Ptr(_RPayload	*p,uint8	i)
+#define	PTR(Class,Instance,Member)	(P<_RPayload>	*)(((uint8	*)Instance)+offsetof(Class,Member));
 
 		//	Usage:	class	Some3rdPartyClass{ ... };
 		//			class Some3rdPartyClassAdapted:public PayloadAdapter<Some3rdPartyClass,Memory,Some3rdPartyClassAdapted>{ ... };
@@ -145,7 +148,7 @@ namespace	mBrane{
 			static	const	uint16				CID();
 			static	const	AllocationScheme	_AllocationScheme();
 			static	const	uint8				PtrCount();
-			static	const	P<_RPayload>		*Ptr(uint8	i);
+			static	const	P<_RPayload>		*Ptr(_RPayload	*p,uint8	i);
 			static	const	size_t				Size();
 			static	const	size_t				CoreSize();
 		};

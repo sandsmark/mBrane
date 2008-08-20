@@ -37,6 +37,17 @@ namespace	mBrane{
 				return	Size()-_S*sizeof(T);
 			}
 
+			template<typename	T,uint32	_S,class	M>	uint8	Array<T,_S,M>::PtrCount(){
+
+				return	1;
+			}
+
+			template<typename	T,uint32	_S,class	M>	P<_RPayload>	*Array<T,_S,M>::Ptr(_RPayload	*p,uint8	i){
+
+				if(i==0)
+					return	(P<_RPayload>	*)&(((Array<T,_S,M>	*)p)->next);
+			}
+
 			template<typename	T,uint32	_S,class	M>	Array<T,_S,M>::Array():RPayload<M,Array<T,_S,M> >(),_DynamicData(),next(NULL),_count(0){
 			}
 
@@ -46,17 +57,6 @@ namespace	mBrane{
 			template<typename	T,uint32	_S,class	M>	size_t	Array<T,_S,M>::dynamicSize()	const{
 
 				return	_count;
-			}
-
-			template<typename	T,uint32	_S,class	M>	uint8	Array<T,_S,M>::ptrCount()	const{
-
-				return	1;
-			}
-
-			template<typename	T,uint32	_S,class	M>	P<_RPayload>	*Array<T,_S,M>::ptr(uint8	i){
-
-				if(i==0)
-					return	(P<_RPayload>	*)&next;
 			}
 
 			template<typename	T,uint32	_S,class	M>	uint32	Array<T,_S,M>::count()	const{
@@ -151,20 +151,20 @@ namespace	mBrane{
 				return	Size()-Array<T,Size,M>::Size()+Array<T,Size,M>::CoreSize();
 			}
 
-			template<typename	T,uint32	_S,class	M>	List<T,_S,M>::List():RPayload<M,List<T,_S,M> >(),_DynamicData(){
-			}
-
-			template<typename	T,uint32	_S,class	M>	List<T,_S,M>::~List(){
-			}
-
-			template<typename	T,uint32	_S,class	M>	uint8	List<T,_S,M>::ptrCount()	const{
+			template<typename	T,uint32	_S,class	M>	uint8	List<T,_S,M>::PtrCount(){
 
 				return	1;
 			}
 
-			template<typename	T,uint32	_S,class	M>	P<_RPayload>	*List<T,_S,M>::ptr(uint8	i){
+			template<typename	T,uint32	_S,class	M>	P<_RPayload>	*List<T,_S,M>::Ptr(_RPayload	*p,uint8	i){
 
-				return	_array.ptr(i);
+				return	((List<T,_S,M>	*)p)->_array.ptr(i);
+			}
+
+			template<typename	T,uint32	_S,class	M>	List<T,_S,M>::List():RPayload<M,List<T,_S,M> >(),_DynamicData(){
+			}
+
+			template<typename	T,uint32	_S,class	M>	List<T,_S,M>::~List(){
 			}
 
 			template<typename	T,uint32	_S,class	M>	size_t	List<T,_S,M>::dynamicSize()	const{

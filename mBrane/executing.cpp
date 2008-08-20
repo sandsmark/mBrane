@@ -139,7 +139,7 @@ xec:
 
 		if(m->processor){
 
-			_Module::Decision	d=m->decide(p);
+			_Module::Decision	d=m->dispatch(p);
 			switch(d){
 			case	_Module::WAIT:	//	wait for an exiting xThread to finish; recurse (in case that thread was preempting yet another one)
 				block();
