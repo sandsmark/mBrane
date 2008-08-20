@@ -34,7 +34,12 @@
 
 namespace	mBrane{
 
-	class	Cluster{	//	aka Entity, i.e. blueprint to instantiate groups and modules; TODO
+	class	ClusterClass{	//	aka Entity, i.e. blueprint to instantiate spaces and modules
+		//	TODO
+	};
+
+	class	Cluster{
+		//	TODO
 	};
 }
 
