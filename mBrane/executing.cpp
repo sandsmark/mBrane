@@ -104,7 +104,7 @@ xec:
 
 			P<_Payload>	p=j->p;
 			j->p=NULL;
-			_Module	*module=j->c;
+			_Module	*module=j->m->module;
 
 			switch(_this->work(p,module)){
 			case	DONE:

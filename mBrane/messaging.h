@@ -31,10 +31,10 @@
 #ifndef	mBrane_messaging_h
 #define	mBrane_messaging_h
 
-#include	"..\Core\module.h"
 #include	"..\Core\pipe.h"
 
 #include	"networking.h"
+#include	"module_descriptor.h"
 
 
 using	namespace	mBrane::sdk;
@@ -47,8 +47,8 @@ using	namespace	mBrane::sdk::module;
 namespace	mBrane{
 
 	typedef	struct	_Job{
-		P<_Payload>	p;
-		_Module		*c;
+		P<_Payload>			p;
+		ModuleDescriptor	*m;
 	}Job;
 
 	class	Node;
@@ -91,8 +91,8 @@ namespace	mBrane{
 		Semaphore	*inputSync;	//	sync on the input message count
 
 		typedef	struct{
-			uint32				activationCount;
-			List<_Module	*>	*modules;
+			uint32						activationCount;
+			List<ModuleDescriptor	*>	*modules;
 		}NodeEntry;
 		
 		Array<Array<NodeEntry> >	routes[2];	//	0: Data and Control: message class -> nodes -> modules, 2: Streams: strem id -> nodes -> modules

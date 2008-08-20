@@ -48,7 +48,6 @@ namespace	mBrane{
 																																_clusterID(clusterID),
 																																_canMigrate(canMigrate),
 																																_canBeSwapped(canBeSwapped),
-																																_activationCount(0),
 																																_priority(0),
 																																processor(NULL){
 			}
@@ -74,21 +73,6 @@ namespace	mBrane{
 			inline	uint16	_Module::cluster_id()	const{
 
 				return	_clusterID;
-			}
-
-			inline	bool	_Module::active()	const{
-
-				return	_activationCount;
-			}
-
-			inline	void	_Module::activate(){
-
-				_activationCount++;
-			}
-
-			inline	void	_Module::deactivate(){
-
-				_activationCount--;
 			}
 
 			inline	uint8	&_Module::priority(){
@@ -166,103 +150,6 @@ namespace	mBrane{
 			inline	void	_Module::send(_Payload	*p)	const{
 
 				Node::Get()->send(this,p);
-			}
-
-			////////////////////////////////////////////////////////////////////////////////////////////////
-
-			ModuleUtils::ModuleUtils(_Module	*c):module(c){
-			}
-
-			////////////////////////////////////////////////////////////////////////////////////////////////
-
-			Semaphore::Semaphore(_Module	*c,uint32	initialCount,uint32	maxCount):mBrane::Semaphore(initialCount,maxCount),ModuleUtils(c){
-			}
-
-			Semaphore::~Semaphore(){
-			}
-
-			bool	Semaphore::acquire(uint32	timeout){
-
-				if(module->processor	&&	timeout)
-					module->processor->block();
-				return	mBrane::Semaphore::acquire(timeout);
-			}
-
-			void	Semaphore::release(uint32	count){
-
-				mBrane::Semaphore::release();
-			}
-
-			void	Semaphore::reset(){
-
-				mBrane::Semaphore::reset();
-			}
-
-			////////////////////////////////////////////////////////////////////////////////////////////////
-
-			Mutex::Mutex(_Module	*c):mBrane::Mutex(),ModuleUtils(c){
-			}
-
-			Mutex::~Mutex(){
-			}
-
-			bool	Mutex::acquire(uint32	timeout){
-
-				if(module->processor	&&	timeout)
-					module->processor->block();
-				return	mBrane::Mutex::acquire(timeout);
-			}
-
-			void	Mutex::release(){
-
-				mBrane::Mutex::release();
-			}
-
-			////////////////////////////////////////////////////////////////////////////////////////////////
-
-			CriticalSection::CriticalSection(_Module	*c):mBrane::CriticalSection(),ModuleUtils(c){
-			}
-
-			CriticalSection::~CriticalSection(){
-			}
-			
-			void	CriticalSection::enter(){
-
-				if(module->processor)
-					module->processor->block();
-				mBrane::CriticalSection::enter();
-			}
-
-			void	CriticalSection::leave(){
-
-				mBrane::CriticalSection::leave();
-			}
-
-			////////////////////////////////////////////////////////////////////////////////////////////////
-
-			Timer::Timer(_Module	*c):mBrane::Timer(),ModuleUtils(c){
-			}
-
-			Timer::~Timer(){
-			}
-
-			void	Timer::start(uint32	deadline,uint32	period){
-
-				mBrane::Timer::start(deadline,period);
-			}
-
-			bool	Timer::wait(uint32	timeout){
-
-				if(module->processor	&&	timeout)
-					module->processor->block();
-				return	mBrane::Timer::wait(timeout);
-			}
-
-			bool	Timer::wait(uint64	&us,uint32	timeout){
-
-				if(module->processor)
-					module->processor->block();
-				return	mBrane::Timer::wait(us,timeout);
 			}
 		}
 	}

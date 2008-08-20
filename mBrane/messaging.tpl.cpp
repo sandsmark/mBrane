@@ -125,14 +125,14 @@ namespace	mBrane{
 		if(e.activationCount){
 
 			Job	j;
-			List<_Module	*>				*modules=e.modules;
-			List<_Module	*>::Iterator	i;
+			List<ModuleDescriptor	*>				*modules=e.modules;
+			List<ModuleDescriptor	*>::Iterator	i;
 			for(i=modules->begin();i!=modules->end();i++){
 
-				if(((_Module	*)i)->active()){
+				if(((ModuleDescriptor	*)i)->activationCount){
 
 					j.p=p;
-					j.c=(_Module	*)i;
+					j.m=(ModuleDescriptor	*)i;
 					jobs.push(j);
 				}
 			}

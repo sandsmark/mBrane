@@ -1,4 +1,4 @@
-//	space.cpp
+//	projection.tpl.cpp
 //
 //	Author: Eric Nivel
 //
@@ -33,54 +33,46 @@
 
 namespace	mBrane{
 
-	Space::Space(uint16	ID):ID(ID),activationCount(0){
+	template<class	C>	const	size_t	Projection<C>::Size(){
+
+		return	sizeof(Projection<C>);
 	}
 
-	Space::~Space(){
+	template<class	C>	Projection<C>::Projection(C	*projected,Space	*space,float32	activationLevel):Object<Memory,_Object,Projection<C> >(),projected(projected),space(space),activationLevel(activationLevel){
 	}
 
-	inline	uint16	Space::id(){
+	template<class	C>	Projection<C>::~Projection(){
 
-		return	ID;
+		if(activationLevel>=space->getActivationThreshold())
+			projected->activationCount--;
 	}
 
-	void	Space::setActivationThreshold(float32	thr){
+	template<class	C>	void	Projection<C>::setActivationlevel(float32	a){
 
-		_activationThreshold=thr;
-
-		List<P<Projection<ModuleDescriptor> >	>::Iterator	p_module;
-		for(p_module=moduleDescriptors.begin();p_module!=moduleDescriptors.end();p_module++)
-			((P<Projection<ModuleDescriptor>	>)p_module)->updateActivationCount();
-
-		List<P<Projection<Space> >	>::Iterator	p_space;
-		for(p_space=spaces.begin();p_space!=spaces.end();p_space++)
-			((P<Projection<Space>	>)p_space)->updateActivationCount();
+		activationLevel=a;
+		updateActivationCount();
 	}
 
-	inline	float32	Space::getActivationThreshold(){
+	template<class	C>	void	Projection<C>::updateActivationCount(){
 
-		return	_activationThreshold;
+		if(activationLevel<space->getActivationThreshold())
+			projected->activationCount--;
+		else
+			projected->activationCount++;
 	}
 
-	uint32	Space::project(ModuleDescriptor	*m,float32	activationLevel){
+	////////////////////////////////////////////////////////////////////////////////////////////////
 
-		P<Projection<ModuleDescriptor> >	p=new	ModuleDescriptorProjection(m,this,activationLevel);
-		return	moduleDescriptors.addElementTail(p);
+	template<class	C>	void	Projectable<C>::project(Space	*s,float	activationLevel){
+
+		projections[s->id()]=s->project(this,activationLevel);
 	}
 
-	uint32	Space::project(Space	*s,float32	activationLevel){
+	template<class	C>	void	Projectable<C>::unproject(Space	*s){
 
-		P<Projection<Space> >	p=new	Projection<Space>(s,this,activationLevel);
-		return	spaces.addElementTail(p);
-	}
-
-	void	Space::removeProjection(ModuleDescriptor	*dummy,uint32	p){
-
-		moduleDescriptors.removeElementAt(p);
-	}
-
-	void	Space::removeProjection(Space	*dummy,uint32	p){
-
-		spaces.removeElementAt(p);
+		if(projections[s->id()]==Array<uint32>::NullIndex)
+			return;
+		s->removeProjection((C	*)this,projections[s->id()]);
+		projections[s->id()]=Array<uint32>::NullIndex;
 	}
 }

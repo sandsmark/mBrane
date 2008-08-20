@@ -42,6 +42,7 @@ namespace	mBrane{
 			T		*_array;
 			uint32	_count;
 		public:
+			static	const	uint32	NullIndex;
 			Array(uint32	count=0);
 			~Array();
 			T	*alloc(uint32	count=1);

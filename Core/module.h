@@ -64,7 +64,6 @@ namespace	mBrane{
 				uint16	_clusterCID;
 				bool	_canMigrate;
 				bool	_canBeSwapped;
-				uint32	_activationCount;
 				uint8	_priority;
 				XThread	*processor;
 			protected:
@@ -86,9 +85,6 @@ namespace	mBrane{
 				uint16	id()	const;
 				uint16	cluster_cid()	const;
 				uint16	cluster_id()	const;
-				bool	active()	const;
-				void	activate();
-				void	deactivate();
 				uint8	&priority();
 				bool	canMigrate();	//	on another node; dynamic
 				bool	canBeSwapped();	//	on another thread within the same node; dynamic
@@ -103,54 +99,6 @@ namespace	mBrane{
 				virtual	void		migrateIn();	//	called when the module is loaded in a new thread after having migrated
 				virtual	void		notify(_Payload	*p)=0;	//	called when the module receives a message
 				virtual	Decision	dispatch(_Payload	*p)=0;	//	called when the module code is already processing and a new message comes in; default: WAIT
-			};
-
-			class	dll	ModuleUtils{
-			protected:
-				_Module	*module;
-				ModuleUtils(_Module	*c);
-			};
-
-			class	dll	Semaphore:
-			public	ModuleUtils,
-			protected	mBrane::Semaphore{
-			public:
-				Semaphore(_Module	*c,uint32	initialCount,uint32	maxCount);
-				~Semaphore();
-				bool	acquire(uint32	timeout=Infinite);	//	returns true if timedout
-				void	release(uint32	count=1);
-				void	reset();
-			};
-
-			class	dll	Mutex:
-			public	ModuleUtils,
-			protected	mBrane::Mutex{
-			public:
-				Mutex(_Module	*c);
-				~Mutex();
-				bool	acquire(uint32	timeout=Infinite);	//	returns true if timedout
-				void	release();
-			};
-
-			class	dll	CriticalSection:
-			public	ModuleUtils,
-			protected	mBrane::CriticalSection{
-			public:
-				CriticalSection(_Module	*c);
-				~CriticalSection();
-				void	enter();
-				void	leave();
-			};
-
-			class	dll	Timer:
-			public	ModuleUtils,
-			protected	mBrane::Timer{
-			public:
-				Timer(_Module	*c);
-				~Timer();
-				void	start(uint32	deadline,uint32	period=0);	//	in ms
-				bool	wait(uint32	timeout=Infinite);	//	returns true if timedout
-				bool	wait(uint64	&us,uint32	timeout=Infinite);	//	idem; updates the us actually spent
 			};
 		}
 	}

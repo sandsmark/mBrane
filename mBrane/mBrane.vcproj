@@ -201,6 +201,26 @@
 				>
 			</File>
 			<File
+				RelativePath=".\projection.tpl.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\space.cpp"
 				>
 			</File>
@@ -280,6 +300,10 @@
 			</File>
 			<File
 				RelativePath=".\module_descriptor.h"
+				>
+			</File>
+			<File
+				RelativePath=".\projection.h"
 				>
 			</File>
 			<File

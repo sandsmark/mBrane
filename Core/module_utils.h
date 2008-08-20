@@ -1,4 +1,4 @@
-//	space.cpp
+//	module_utils.h
 //
 //	Author: Eric Nivel
 //
@@ -28,59 +28,67 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include	"space.h"
+#ifndef mBrane_sdk_module_utils_h
+#define mBrane_sdk_module_utils_h
+
+#include	"module.h"
 
 
 namespace	mBrane{
+	class	XThread;
+	namespace	sdk{
+		namespace	module{
 
-	Space::Space(uint16	ID):ID(ID),activationCount(0){
-	}
+			class	dll	ModuleUtils{
+			protected:
+				_Module	*module;
+				ModuleUtils(_Module	*c);
+			};
 
-	Space::~Space(){
-	}
+			class	dll	Semaphore:
+			public	ModuleUtils,
+			protected	mBrane::Semaphore{
+			public:
+				Semaphore(_Module	*c,uint32	initialCount,uint32	maxCount);
+				~Semaphore();
+				bool	acquire(uint32	timeout=Infinite);	//	returns true if timedout
+				void	release(uint32	count=1);
+				void	reset();
+			};
 
-	inline	uint16	Space::id(){
+			class	dll	Mutex:
+			public	ModuleUtils,
+			protected	mBrane::Mutex{
+			public:
+				Mutex(_Module	*c);
+				~Mutex();
+				bool	acquire(uint32	timeout=Infinite);	//	returns true if timedout
+				void	release();
+			};
 
-		return	ID;
-	}
+			class	dll	CriticalSection:
+			public	ModuleUtils,
+			protected	mBrane::CriticalSection{
+			public:
+				CriticalSection(_Module	*c);
+				~CriticalSection();
+				void	enter();
+				void	leave();
+			};
 
-	void	Space::setActivationThreshold(float32	thr){
-
-		_activationThreshold=thr;
-
-		List<P<Projection<ModuleDescriptor> >	>::Iterator	p_module;
-		for(p_module=moduleDescriptors.begin();p_module!=moduleDescriptors.end();p_module++)
-			((P<Projection<ModuleDescriptor>	>)p_module)->updateActivationCount();
-
-		List<P<Projection<Space> >	>::Iterator	p_space;
-		for(p_space=spaces.begin();p_space!=spaces.end();p_space++)
-			((P<Projection<Space>	>)p_space)->updateActivationCount();
-	}
-
-	inline	float32	Space::getActivationThreshold(){
-
-		return	_activationThreshold;
-	}
-
-	uint32	Space::project(ModuleDescriptor	*m,float32	activationLevel){
-
-		P<Projection<ModuleDescriptor> >	p=new	ModuleDescriptorProjection(m,this,activationLevel);
-		return	moduleDescriptors.addElementTail(p);
-	}
-
-	uint32	Space::project(Space	*s,float32	activationLevel){
-
-		P<Projection<Space> >	p=new	Projection<Space>(s,this,activationLevel);
-		return	spaces.addElementTail(p);
-	}
-
-	void	Space::removeProjection(ModuleDescriptor	*dummy,uint32	p){
-
-		moduleDescriptors.removeElementAt(p);
-	}
-
-	void	Space::removeProjection(Space	*dummy,uint32	p){
-
-		spaces.removeElementAt(p);
+			class	dll	Timer:
+			public	ModuleUtils,
+			protected	mBrane::Timer{
+			public:
+				Timer(_Module	*c);
+				~Timer();
+				void	start(uint32	deadline,uint32	period=0);	//	in ms
+				bool	wait(uint32	timeout=Infinite);	//	returns true if timedout
+				bool	wait(uint64	&us,uint32	timeout=Infinite);	//	idem; updates the us actually spent
+			};
+		}
 	}
 }
+
+
+#endif

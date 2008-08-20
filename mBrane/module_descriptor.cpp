@@ -1,4 +1,4 @@
-//	space.cpp
+//	module_descriptor.cpp
 //
 //	Author: Eric Nivel
 //
@@ -28,59 +28,22 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include	"space.h"
+#include	"module_descriptor.h"
 
 
 namespace	mBrane{
 
-	Space::Space(uint16	ID):ID(ID),activationCount(0){
+	ModuleDescriptor::ModuleDescriptor():activationCount(0){
 	}
 
-	Space::~Space(){
+	ModuleDescriptor::~ModuleDescriptor(){
 	}
 
-	inline	uint16	Space::id(){
+	////////////////////////////////////////////////////////////////////////////////////////////////
 
-		return	ID;
+	ModuleDescriptorProjection::ModuleDescriptorProjection(ModuleDescriptor	*projected,Space	*space,float32	activationLevel):Projection<ModuleDescriptor>(projected,space,activationLevel){
 	}
-
-	void	Space::setActivationThreshold(float32	thr){
-
-		_activationThreshold=thr;
-
-		List<P<Projection<ModuleDescriptor> >	>::Iterator	p_module;
-		for(p_module=moduleDescriptors.begin();p_module!=moduleDescriptors.end();p_module++)
-			((P<Projection<ModuleDescriptor>	>)p_module)->updateActivationCount();
-
-		List<P<Projection<Space> >	>::Iterator	p_space;
-		for(p_space=spaces.begin();p_space!=spaces.end();p_space++)
-			((P<Projection<Space>	>)p_space)->updateActivationCount();
-	}
-
-	inline	float32	Space::getActivationThreshold(){
-
-		return	_activationThreshold;
-	}
-
-	uint32	Space::project(ModuleDescriptor	*m,float32	activationLevel){
-
-		P<Projection<ModuleDescriptor> >	p=new	ModuleDescriptorProjection(m,this,activationLevel);
-		return	moduleDescriptors.addElementTail(p);
-	}
-
-	uint32	Space::project(Space	*s,float32	activationLevel){
-
-		P<Projection<Space> >	p=new	Projection<Space>(s,this,activationLevel);
-		return	spaces.addElementTail(p);
-	}
-
-	void	Space::removeProjection(ModuleDescriptor	*dummy,uint32	p){
-
-		moduleDescriptors.removeElementAt(p);
-	}
-
-	void	Space::removeProjection(Space	*dummy,uint32	p){
-
-		spaces.removeElementAt(p);
+	
+	ModuleDescriptorProjection::~ModuleDescriptorProjection(){
 	}
 }

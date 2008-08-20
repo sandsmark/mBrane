@@ -170,10 +170,6 @@
 			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
-			<File
-				RelativePath=".\module.cpp"
-				>
-			</File>
 			<Filter
 				Name="Payloads"
 				>
@@ -462,6 +458,18 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="Module"
+				>
+				<File
+					RelativePath=".\module.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\module_utils.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -470,10 +478,6 @@
 			>
 			<File
 				RelativePath=".\config.h"
-				>
-			</File>
-			<File
-				RelativePath=".\module.h"
 				>
 			</File>
 			<File
@@ -585,6 +589,18 @@
 				</File>
 				<File
 					RelativePath=".\xml_parser.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Module"
+				>
+				<File
+					RelativePath=".\module.h"
+					>
+				</File>
+				<File
+					RelativePath=".\module_utils.h"
 					>
 				</File>
 			</Filter>

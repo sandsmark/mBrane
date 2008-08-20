@@ -31,10 +31,32 @@
 #ifndef	mBrane_space_h
 #define	mBrane_space_h
 
+#include	"module_descriptor.h"
+
+
+using	namespace	mBrane::sdk;
 
 namespace	mBrane{
 
-	class	Space{	//	TODO
+	class	Space:
+	public	Projectable<Space>{
+	private:
+		uint16	ID;
+		float32	_activationThreshold;	//	in [0,1]
+	public:
+		static	Array<Space>	Spaces;	//	0 is the root space
+		uint32	activationCount;
+		List<P<Projection<ModuleDescriptor> > >	moduleDescriptors;
+		List<P<Projection<Space> > >			spaces;
+		Space(uint16	ID);
+		~Space();
+		uint16	id();
+		void	setActivationThreshold(float32	thr);
+		float32	getActivationThreshold();
+		uint32	project(ModuleDescriptor	*m,float32	activationLevel);
+		uint32	project(Space	*s,float32	activationLevel);
+		void	removeProjection(ModuleDescriptor	*dummy,uint32	p);
+		void	removeProjection(Space	*dummy,uint32	p);
 	};
 }
 

@@ -31,6 +31,8 @@
 namespace	mBrane{
 	namespace	sdk{
 
+		template<typename	T>	const	uint32	Array<T>::NullIndex=0xFFFFFFFF;
+
 		template<typename	T>	Array<T>::Array(uint32	count):_array(NULL),_count(0){
 
 			if(count)

@@ -81,17 +81,19 @@ namespace	mBrane{
 			void	remove(uint32	i);
 			uint32	removeReturnNext(uint32	i);
 			uint32	removeReturnPrevious(uint32	i);
-			void	insertAfter(uint32	i,T	&t);
-			void	insertBefore(uint32	i,T	&t);
+			uint32	insertAfter(uint32	i,T	&t);	//	returns the index of the new element
+			uint32	insertBefore(uint32	i,T	&t);
 		public:
 			List(uint32	count=0);
 			~List();
 			uint32	elementCount()	const;
 			void	clear();
-			void	addElementHead(T	&t);
-			void	addElementTail(T	&t);
-			void	addElement(T	&t);	//	inserts in order with respect to the B function (i.e. new element "before" current element)
+			uint32	addElementHead(T	&t);	//	returns the index of the new element
+			uint32	addElementTail(T	&t);
+			uint32	addElement(T	&t);	//	inserts in order with respect to the B function (i.e. new element "before" current element)
 			void	removeElement(T	&t);
+			void	removeElement(T	*t);
+			void	removeElementAt(uint32	i);
 			Iterator	begin(){	return	Iterator(this,first);	}
 			Iterator	end(){	return	Iterator(this,last);	}
 		};
