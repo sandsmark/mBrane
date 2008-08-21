@@ -35,44 +35,63 @@ namespace	mBrane{
 	namespace	sdk{
 		namespace	payloads{
 
-			SystemReady::SystemReady():ControlMessage<SystemReady>(){
-			}
+			uint16	&NodeID::node_id(){
 
-			SystemReady::~SystemReady(){
-			}
-
-			////////////////////////////////////////////////////////////////////////////////////////////////
-
-			TimeSync::TimeSync():ControlMessage<TimeSync>(){
-			}
-
-			TimeSync::~TimeSync(){
+				return	nodeID;
 			}
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
 
-			NodeJoined::NodeJoined():ControlMessage<NodeJoined>(){
-			}
+			float32	&Threshold::threshold(){
 
-			NodeJoined::~NodeJoined(){
-			}
-
-			uint16	&NodeJoined::nid(){
-
-				return	NID;
+				return	_threshold;
 			}
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
 
-			NodeLeft::NodeLeft():ControlMessage<NodeLeft>(){
+			uint16	&ModuleID::module_cid(){
+
+				return	moduleCID;
 			}
 
-			NodeLeft::~NodeLeft(){
+			uint16	&ModuleID::module_id(){
+
+				return	moduleID;
 			}
 
-			uint16	&NodeLeft::nid(){
+			////////////////////////////////////////////////////////////////////////////////////////////////
 
-				return	NID;
+			uint16	&SpaceID::space_id(){
+
+				return	spaceID;
+			}
+
+			////////////////////////////////////////////////////////////////////////////////////////////////
+
+			float32	&ActivationLevel::activationLevel(){
+
+				return	_activationLevel;
+			}
+
+			////////////////////////////////////////////////////////////////////////////////////////////////
+
+			uint16	&MessageID::message_cid(){
+
+				return	messageCID;
+			}
+
+			////////////////////////////////////////////////////////////////////////////////////////////////
+
+			uint16	&StreamID::stream_id(){
+
+				return	streamID;
+			}
+
+			////////////////////////////////////////////////////////////////////////////////////////////////
+
+			uint16	&ActivateSpace::target_sid(){
+
+				return	_targetSID;
 			}
 		}
 	}

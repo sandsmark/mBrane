@@ -28,6 +28,9 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include	"..\Core\control_messages.h"
+
+
 #define	INITIAL_NID_ARRAY_LENGTH	16
 #define	INITIAL_SID_ARRAY_LENGTH	16
 
@@ -106,7 +109,27 @@ namespace	mBrane{
 	template<class	Engine>	void	Messaging<Engine>::processControlMessage(_Payload	*p){
 
 		switch(p->cid()){
-		//	TODO:	case	xxx_CID:
+		case	SetThreshold_CID:
+			Space::Main[((SetThreshold	*)p)->space_id()]->setActivationThreshold(((SetThreshold	*)p)->threshold());
+			break;
+		case	ActivateModule_CID:
+			ModuleDescriptor::Main[((ActivateModule	*)p)->module_cid()][((ActivateModule	*)p)->module_id()]->setActivationLevel(((ActivateModule	*)p)->space_id(),((ActivateModule	*)p)->activationLevel());
+			break;
+		case	ActivateSpace_CID:
+			Space::Main[((ActivateSpace	*)p)->target_sid()]->setActivationLevel(((ActivateSpace	*)p)->space_id(),((ActivateSpace	*)p)->activationLevel());
+			break;
+		case	SubscribeMessage_CID:
+			ModuleDescriptor::Main[((SubscribeMessage	*)p)->module_cid()][((SubscribeMessage	*)p)->module_id()]->addSubscription_message(((SubscribeMessage	*)p)->space_id(),((SubscribeMessage	*)p)->message_cid());
+			break;
+		case	SubscribeStream_CID:
+			ModuleDescriptor::Main[((SubscribeStream	*)p)->module_cid()][((SubscribeStream	*)p)->module_id()]->addSubscription_stream(((SubscribeStream	*)p)->space_id(),((SubscribeStream	*)p)->stream_id());
+			break;
+		case	UnsubscribeMessage_CID:
+			ModuleDescriptor::Main[((UnsubscribeMessage	*)p)->module_cid()][((UnsubscribeMessage	*)p)->module_id()]->removeSubscription_message(((SubscribeMessage	*)p)->space_id(),((SubscribeMessage	*)p)->message_cid());
+			break;
+		case	UnsubscribeStream_CID:
+			ModuleDescriptor::Main[((UnsubscribeStream	*)p)->module_cid()][((UnsubscribeStream	*)p)->module_id()]->removeSubscription_stream(((SubscribeStream	*)p)->space_id(),((SubscribeStream	*)p)->stream_id());
+			break;
 		default:
 			break;
 		}

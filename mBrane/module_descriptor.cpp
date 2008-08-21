@@ -69,7 +69,7 @@ namespace	mBrane{
 		((P<Projection<ModuleDescriptor> >)projections[spaceID])->subscriptions[DC][MCID]=NodeEntry::Main[DC][MCID][hostID].modules.addElementTail(p);
 	}
 
-	void	ModuleDescriptor::addSubscription_streamData(uint16	spaceID,uint16	SID){
+	void	ModuleDescriptor::addSubscription_stream(uint16	spaceID,uint16	SID){
 
 		if(!projections[spaceID])
 			project(spaceID);
@@ -83,7 +83,7 @@ namespace	mBrane{
 		((P<Projection<ModuleDescriptor> >)projections[spaceID])->subscriptions[DC][MCID].remove();
 	}
 
-	void	ModuleDescriptor::removeSubscription_streamData(uint16	spaceID,uint16	SID){
+	void	ModuleDescriptor::removeSubscription_stream(uint16	spaceID,uint16	SID){
 
 		((P<ModuleEntry>)((P<Projection<ModuleDescriptor> >)projections[spaceID])->subscriptions[ST][SID])=NULL;
 		((P<Projection<ModuleDescriptor> >)projections[spaceID])->subscriptions[ST][SID].remove();
@@ -111,24 +111,42 @@ namespace	mBrane{
 		}
 	}
 
-	inline	void	Projection<ModuleDescriptor>::setActivationlevel(float32	a){
+	void	Projection<ModuleDescriptor>::setActivationLevel(float32	a){
 
 		if(activationLevel<space->getActivationThreshold()){
 
 			if(a>=space->getActivationThreshold())
-				projected->activationCount++;
+				propagateActivation();
 		}else	if(a<space->getActivationThreshold())
-				projected->activationCount--;
+				propagateDeactivation();
 		activationLevel=a;
 	}
 
-	inline	void	Projection<ModuleDescriptor>::updateActivationCount(float32	t){
+	void	Projection<ModuleDescriptor>::updateActivationCount(float32	t){
 
 		if(activationLevel<space->getActivationThreshold()){
 
 			if(activationLevel>=t)
-				projected->activationCount++;
+				propagateActivation();
 		}else	if(activationLevel<t)
-			projected->activationCount--;
+			propagateDeactivation();
+	}
+
+	inline	void	Projection<ModuleDescriptor>::propagateActivation(){
+
+		projected->activationCount++;
+		for(uint32	i=0;i<subscriptions[DC].count();i++)
+			((P<ModuleEntry>)subscriptions[DC][i])->node->activationCount++;
+		for(uint32	i=0;i<subscriptions[ST].count();i++)
+			((P<ModuleEntry>)subscriptions[ST][i])->node->activationCount++;
+	}
+
+	inline	void	Projection<ModuleDescriptor>::propagateDeactivation(){
+
+		projected->activationCount--;
+		for(uint32	i=0;i<subscriptions[DC].count();i++)
+			((P<ModuleEntry>)subscriptions[DC][i])->node->activationCount--;
+		for(uint32	i=0;i<subscriptions[ST].count();i++)
+			((P<ModuleEntry>)subscriptions[ST][i])->node->activationCount--;
 	}
 }

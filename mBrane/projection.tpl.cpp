@@ -42,7 +42,7 @@ namespace	mBrane{
 			projected->activationCount--;
 	}
 
-	template<class	C>	inline	void	Projection<C>::setActivationlevel(float32	a){
+	template<class	C>	inline	void	Projection<C>::setActivationLevel(float32	a){
 
 		if(activationLevel<space->getActivationThreshold()){
 
@@ -94,7 +94,7 @@ namespace	mBrane{
 	template<class	C>	inline	void	Projectable<C>::setActivationLevel(uint16	spaceID,float32	a){
 
 		if(!projections[spaceID])
-			project(Space::Main[spaceID]);
-		((P<Projection<C> >)projections[spaceID])->setActivationlevel(a);
+			project(spaceID);
+		((P<Projection<C> >)projections[spaceID])->setActivationLevel(a);
 	}
 }

@@ -750,12 +750,12 @@ err1:	node->shutdown();
 
 			Thread::Sleep(node->syncPeriod);
 
-			int64	t=node->time();
+			int64	t=Time::Get();
 			if(t-node->lastSyncTime>=node->syncPeriod){
 
 				if(node->network==PRIMARY	||	node->network==BOTH){
 
-					sync.send_ts()=Time::Get();
+					sync.send_ts()=t;
 					node->broadcastControlMessage(PRIMARY,&sync);
 				}else	if(node->network==SECONDARY	||	node->network==BOTH){
 

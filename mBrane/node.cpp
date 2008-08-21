@@ -197,7 +197,7 @@ namespace	mBrane{
 
 		static	NodeJoined	m;
 
-		m.nid()=NID;
+		m.node_id()=NID;
 		m.send_ts()=Time::Get();
 		Messaging::send(_ID,&m,true);
 
@@ -235,7 +235,7 @@ namespace	mBrane{
 			dataChannels[NID]->channels[SECONDARY].data	||	
 			dataChannels[NID]->channels[SECONDARY].stream){
 
-			m.nid()=NID;
+			m.node_id()=NID;
 			m.send_ts()=Time::Get();
 			Messaging::send(_ID,&m,true);
 

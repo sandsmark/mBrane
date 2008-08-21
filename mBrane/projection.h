@@ -50,7 +50,7 @@ namespace	mBrane{
 	public:
 		Projection(C	*projected,Space	*space);
 		~Projection();
-		void	setActivationlevel(float32	a);
+		void	setActivationLevel(float32	a);
 		void	updateActivationCount(float32	t);
 	};
 

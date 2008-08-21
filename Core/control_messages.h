@@ -40,42 +40,134 @@ namespace	mBrane{
 
 			class	dll	SystemReady:	//	sent when all the nodes specified in the node cfg file are up and running
 			public	ControlMessage<SystemReady>{
-			public:
-				SystemReady();
-				~SystemReady();
 			};
 
 			class	dll	TimeSync:
 			public	ControlMessage<TimeSync>{
+			};
+
+			class	dll	NodeID{
+			protected:
+				uint16	nodeID;
 			public:
-				TimeSync();
-				~TimeSync();
+				uint16	&node_id();
 			};
 
 			class	dll	NodeJoined:
-			public	ControlMessage<NodeJoined>{
-			private:
-				uint16	NID;
-			public:
-				NodeJoined();
-				~NodeJoined();
-				uint16	&nid();
+			public	ControlMessage<NodeJoined>,
+			public	NodeID{
 			};
 
 			class	dll	NodeLeft:
-			public	ControlMessage<NodeLeft>{
-			private:
-				uint16	NID;
-			public:
-				NodeLeft();
-				~NodeLeft();
-				uint16	&nid();
+			public	ControlMessage<NodeLeft>,
+			public	NodeID{
 			};
 
-			#define	SystemReady_CID		0
-			#define	TimeSync_CID		1
-			#define	NodeJoined_CID		2
-			#define	NodeLeft_CID		3
+			class	dll	ModuleID{
+			protected:
+				uint16	moduleCID;
+				uint16	moduleID;
+			public:
+				uint16	&module_cid();
+				uint16	&module_id();
+			};
+
+			class	dll	SpaceID{
+			protected:
+				uint16	spaceID;
+			public:
+				uint16	&space_id();
+			};
+
+			class	dll	ActivationLevel{
+			protected:
+				float32	_activationLevel;
+			public:
+				float32	&activationLevel();
+			};
+
+			class	dll	Threshold{
+			protected:
+				float32	_threshold;
+			public:
+				float32	&threshold();
+			};
+
+			class	dll	SetThreshold:
+			public	ControlMessage<SetThreshold>,
+			public	SpaceID,
+			public	Threshold{
+			};
+
+			class	dll	ActivateModule:
+			public	ControlMessage<ActivateModule>,
+			public	ModuleID,
+			public	SpaceID,
+			public	ActivationLevel{				
+			};
+
+			class	dll	ActivateSpace:
+			public	ControlMessage<ActivateSpace>,
+			public	SpaceID,
+			public	ActivationLevel{
+			private:
+				uint16	_targetSID;
+			public:
+				uint16	&target_sid();
+			};
+
+			template<class	U>	class	Subscribe:
+			public	ControlMessage<U>,
+			public	ModuleID,
+			public	SpaceID{
+			};
+
+			class	dll	MessageID{
+			protected:
+				uint16	messageCID;
+			public:
+				uint16	&message_cid();
+			};
+
+			class	dll	StreamID{
+			protected:
+				uint16	streamID;
+			public:
+				uint16	&stream_id();
+			};
+
+			class	dll	SubscribeMessage:
+			public	Subscribe<SubscribeMessage>,
+			public	MessageID{
+			};
+
+			class	dll	SubscribeStream:
+			public	Subscribe<SubscribeStream>,
+			public	StreamID{
+			};
+
+			class	dll	UnsubscribeMessage:
+			public	Subscribe<UnsubscribeMessage>,
+			public	MessageID{
+			};
+
+			class	dll	UnsubscribeStream:
+			public	Subscribe<UnsubscribeStream>,
+			public	StreamID{
+			};
+
+			#define	SystemReady_CID			0
+			#define	TimeSync_CID			1
+			#define	NodeJoined_CID			2
+			#define	NodeLeft_CID			3
+			#define	SetThreshold_CID		4
+			#define	ActivateModule_CID		5
+			#define	ActivateSpace_CID		6
+			#define	SubscribeMessage_CID	7
+			#define	SubscribeStream_CID		8
+			#define	UnsubscribeMessage_CID	9
+			#define	UnsubscribeStream_CID	10
+		
 		}
 	}
 }

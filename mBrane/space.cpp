@@ -46,7 +46,7 @@ namespace	mBrane{
 		return	ID;
 	}
 
-	inline	void	Space::setActivationThreshold(float32	thr){
+	void	Space::setActivationThreshold(float32	thr){
 
 		List<P<Projection<ModuleDescriptor> > >::Iterator	p_module;
 		for(p_module=moduleDescriptors.begin();p_module!=moduleDescriptors.end();p_module++)

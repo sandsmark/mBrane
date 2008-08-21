@@ -45,9 +45,8 @@ namespace	mBrane{
 	class	NodeEntry;
 	class	ModuleEntry:
 	public	Object<Memory,_Object,ModuleEntry>{
-	private:
-		NodeEntry	*node;
 	public:
+		NodeEntry			*node;
 		ModuleDescriptor	*module;
 		ModuleEntry(NodeEntry	*n,ModuleDescriptor	*m);
 		~ModuleEntry();
@@ -67,10 +66,12 @@ namespace	mBrane{
 		ModuleDescriptor	*projected;
 		Space				*space;
 		float32				activationLevel;
+		void				propagateActivation();
+		void				propagateDeactivation();
 	public:
 		Projection(ModuleDescriptor	*projected,Space	*space);
 		~Projection();
-		void	setActivationlevel(float32	a);
+		void	setActivationLevel(float32	a);
 		void	updateActivationCount(float32	t);
 		Array<typename	List<P<ModuleEntry> >::Iterator>	subscriptions[2];	//	0: indexed by message class ID (MCID), 1: indexed by stream ID (SID)
 	};
@@ -84,9 +85,9 @@ namespace	mBrane{
 		ModuleDescriptor(uint16	hostID,_Module	*m=NULL);
 		~ModuleDescriptor();
 		void	addSubscription_message(uint16	spaceID,uint16	MCID);
-		void	addSubscription_streamData(uint16	spaceID,uint16	SID);
+		void	addSubscription_stream(uint16	spaceID,uint16	SID);
 		void	removeSubscription_message(uint16	spaceID,uint16	MCID);
-		void	removeSubscription_streamData(uint16	spaceID,uint16	SID);
+		void	removeSubscription_stream(uint16	spaceID,uint16	SID);
 	};
 }
 
