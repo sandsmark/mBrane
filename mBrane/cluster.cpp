@@ -32,4 +32,12 @@
 
 
 namespace	mBrane{
+
+	uint16	Cluster::LastID=0;
+
+	Cluster::Cluster():Object<Memory,_Object,Cluster>(),ID(LastID++){
+	}
+
+	Cluster::~Cluster(){
+	}
 }

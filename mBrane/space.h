@@ -41,6 +41,7 @@ namespace	mBrane{
 	class	Space:
 	public	Projectable<Space>{
 	private:
+		static	uint16	LastID;
 		uint16	ID;
 		float32	_activationThreshold;	//	in [0,1]
 	public:
@@ -48,7 +49,7 @@ namespace	mBrane{
 		uint32	activationCount;
 		List<P<Projection<ModuleDescriptor> > >	moduleDescriptors;
 		List<P<Projection<Space> > >			spaces;
-		Space(uint16	ID);
+		Space();
 		~Space();
 		uint16	id();
 		void	setActivationThreshold(float32	thr);

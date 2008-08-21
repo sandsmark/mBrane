@@ -321,9 +321,9 @@ namespace	mBrane{
 
 	_Module	*Node::buildModule(uint16	CID,uint16	ID,uint16	clusterCID,uint16	clusterID){
 
-		uint16	cid=0;	//	TODO: allocate cid (see below)
+		//	TODO: allocate cid (see below)
 		_Module	*c=ModuleRegister::Get(CID)->buildModule(ID,clusterCID,clusterID);
-		//	TODO: read config for c, load c on a thread, update initial subscriptions, space membership etc
+		//	TODO: read config for c, set initial subscriptions, space membership etc
 		return	NULL;
 	}
 

@@ -288,6 +288,22 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="Specs"
+				>
+				<File
+					RelativePath=".\cluster_spec.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\module_spec.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\space_spec.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -365,31 +381,51 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="Specs"
+				>
+				<File
+					RelativePath=".\cluster_spec.h"
+					>
+				</File>
+				<File
+					RelativePath=".\module_spec.h"
+					>
+				</File>
+				<File
+					RelativePath=".\space_spec.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
-		<File
-			RelativePath=".\test_application.xml"
+		<Filter
+			Name="ConfigFiles"
 			>
-			<FileConfiguration
-				Name="Debug|Win32"
-				ExcludedFromBuild="true"
+			<File
+				RelativePath=".\test_application.xml"
 				>
-				<Tool
-					Name="VCCustomBuildTool"
-				/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath=".\test_node.xml"
-			>
-			<FileConfiguration
-				Name="Debug|Win32"
-				ExcludedFromBuild="true"
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\test_node.xml"
 				>
-				<Tool
-					Name="VCCustomBuildTool"
-				/>
-			</FileConfiguration>
-		</File>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>

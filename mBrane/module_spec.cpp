@@ -1,4 +1,4 @@
-//	space.cpp
+//	module_spec.cpp
 //
 //	Author: Eric Nivel
 //
@@ -28,51 +28,8 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include	"space.h"
+#include	"module_spec.h"
 
 
 namespace	mBrane{
-
-	uint16	Space::LastID=0;
-
-	Array<P<Space> >	Space::Main;
-
-	Space::Space():ID(LastID++),activationCount(0){
-	}
-
-	Space::~Space(){
-	}
-
-	inline	uint16	Space::id(){
-
-		return	ID;
-	}
-
-	void	Space::setActivationThreshold(float32	thr){
-
-		List<P<Projection<ModuleDescriptor> > >::Iterator	p_module;
-		for(p_module=moduleDescriptors.begin();p_module!=moduleDescriptors.end();p_module++)
-			((P<Projection<ModuleDescriptor> >)p_module)->updateActivationCount(thr);
-		List<P<Projection<Space> > >::Iterator	p_space;
-		for(p_space=spaces.begin();p_space!=spaces.end();p_space++)
-			((P<Projection<Space> >)p_space)->updateActivationCount(thr);
-		_activationThreshold=thr;
-	}
-
-	float32	Space::getActivationThreshold(){
-
-		return	_activationThreshold;
-	}
-
-	List<P<Projection<ModuleDescriptor> > >::Iterator	Space::project(Projection<ModuleDescriptor>	*p){
-
-		P<Projection<ModuleDescriptor> >	_p=p;
-		return	moduleDescriptors.addElementTail(_p);
-	}
-
-	List<P<Projection<Space> > >::Iterator	Space::project(Projection<Space>	*p){
-
-		P<Projection<Space> >	_p=p;
-		return	spaces.addElementTail(_p);
-	}
 }

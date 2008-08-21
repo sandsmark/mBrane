@@ -31,15 +31,29 @@
 #ifndef	mBrane_cluster_h
 #define	mBrane_cluster_h
 
+#include	"..\Core\memory.h"
+#include	"..\Core\object.h"
+
+#include	"cluster_spec.h"
+
+
+using	namespace	mBrane::sdk;
 
 namespace	mBrane{
 
-	class	ClusterClass{	//	aka Entity, i.e. blueprint to instantiate spaces and modules
-		//	TODO
-	};
-
-	class	Cluster{
-		//	TODO
+	class	Cluster:
+	public	Object<Memory,_Object,Cluster>{
+	friend	class	ClusterSpec;
+	private:
+		static	uint16	LastID;
+		Cluster();
+	public:
+		static	Array<P<Cluster> >	Main;
+		uint16	ID;
+		Array<uint32>	moduleDescriptors;
+		Array<uint16>	spaces;
+		Array<uint16>	clusters;
+		~Cluster();
 	};
 }
 

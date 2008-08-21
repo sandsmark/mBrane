@@ -65,10 +65,8 @@ namespace	mBrane{
 
 			class	dll	ModuleID{
 			protected:
-				uint16	moduleCID;
 				uint16	moduleID;
 			public:
-				uint16	&module_cid();
 				uint16	&module_id();
 			};
 

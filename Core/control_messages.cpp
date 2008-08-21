@@ -49,11 +49,6 @@ namespace	mBrane{
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
 
-			uint16	&ModuleID::module_cid(){
-
-				return	moduleCID;
-			}
-
 			uint16	&ModuleID::module_id(){
 
 				return	moduleID;

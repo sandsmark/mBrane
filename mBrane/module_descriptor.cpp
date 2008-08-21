@@ -53,9 +53,11 @@ namespace	mBrane{
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	Array<Array<P<ModuleDescriptor> > >	ModuleDescriptor::Main;
+	uint16	ModuleDescriptor::LastID=0;
 
-	ModuleDescriptor::ModuleDescriptor(uint16	hostID,_Module	*m):Projectable<ModuleDescriptor>(),module(m),hostID(hostID){
+	Array<P<ModuleDescriptor> >	ModuleDescriptor::Main;
+
+	ModuleDescriptor::ModuleDescriptor(uint16	hostID,_Module	*m):Projectable<ModuleDescriptor>(),module(m),hostID(hostID),ID(LastID++){
 	}
 
 	ModuleDescriptor::~ModuleDescriptor(){
@@ -87,6 +89,18 @@ namespace	mBrane{
 
 		((P<ModuleEntry>)((P<Projection<ModuleDescriptor> >)projections[spaceID])->subscriptions[ST][SID])=NULL;
 		((P<Projection<ModuleDescriptor> >)projections[spaceID])->subscriptions[ST][SID].remove();
+	}
+
+	void	ModuleDescriptor::removeSubscriptions_message(uint16	spaceID){
+
+		for(uint16	i=0;i<NodeEntry::Main[DC].count();i++)
+			removeSubscription_message(spaceID,i);
+	}
+
+	void	ModuleDescriptor::removeSubscriptions_stream(uint16	spaceID){
+
+		for(uint16	i=0;i<NodeEntry::Main[ST].count();i++)
+			removeSubscription_stream(spaceID,i);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////

@@ -79,7 +79,9 @@ namespace	mBrane{
 	class	ModuleDescriptor:
 	public	Projectable<ModuleDescriptor>{
 	public:
-		static	Array<Array<P<ModuleDescriptor> > >	Main;	//	indexed by module descriptor class ID | ID
+		static	uint16	LastID;
+		uint16	ID;
+		static	Array<P<ModuleDescriptor> >	Main;	//	indexed by module descriptor ID
 		uint16	hostID;	//	node
 		P<_Module>	module;	//	NULL if remote
 		ModuleDescriptor(uint16	hostID,_Module	*m=NULL);
@@ -88,6 +90,8 @@ namespace	mBrane{
 		void	addSubscription_stream(uint16	spaceID,uint16	SID);
 		void	removeSubscription_message(uint16	spaceID,uint16	MCID);
 		void	removeSubscription_stream(uint16	spaceID,uint16	SID);
+		void	removeSubscriptions_message(uint16	spaceID);
+		void	removeSubscriptions_stream(uint16	spaceID);
 	};
 }
 
