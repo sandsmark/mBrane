@@ -51,8 +51,12 @@ namespace	mBrane{
 			COMPRESSED=2
 		}AllocationScheme;
 
+		class	dll	__Payload{
+		};
+
 		class	dll	_Payload:
-		public	_Object{
+		public	_Object,
+		public	__Payload{
 		public:
 			typedef	enum{
 				CONTROL=0,
@@ -71,7 +75,7 @@ namespace	mBrane{
 			virtual	~_Payload();
 			uint16				cid()				const;
 			Category			category()			const;
-			AllocationScheme	allocationSceme()	const;
+			AllocationScheme	allocationScheme()	const;
 			virtual	void	init();	//	called upon reception
 			int64	&node_send_ts();	//	send timestamp: time of emission from a node
 			int64	&node_recv_ts();	//	recv timestamp: time of reception by a node
@@ -97,9 +101,7 @@ namespace	mBrane{
 			static	const	uint16				CID();
 			static	const	AllocationScheme	_AllocationScheme();
 			static	const	uint8				PtrCount();
-			static	const	P<_RPayload>		*Ptr(_RPayload	*p,uint8	i);
-			static	const	size_t				Size();
-			static	const	size_t				CoreSize();
+			static	P<_RPayload>				*Ptr(__Payload	*p,uint8	i);
 		};
 
 		//	Usage:	template<class	C>	class	DaughterClass: public Payload<Memory,C>{ ... };
@@ -121,7 +123,8 @@ namespace	mBrane{
 		//			NB: Memory can be any Allocator class
 
 		class	dll	_RPayload:	//	raw payload (i.e. without send/recv time stamps) to embed (P<>)in payloads
-		public	_Object{
+		public	_Object,
+		public	__Payload{
 		protected:
 			uint32	_metaData;	//	offset points here; metadata: [cid(16)|reserved(14)|allocation scheme(2)]
 			_RPayload(AllocationScheme	a);
@@ -129,10 +132,10 @@ namespace	mBrane{
 			static	const	size_t	Offset();
 			virtual	~_RPayload();
 			uint16				cid()				const;
-			AllocationScheme	allocationSceme()	const;
+			AllocationScheme	allocationScheme()	const;
+			virtual	void	init();	//	called upon reception
 			virtual	operator	payloads::_DynamicData		*()	const;
 			virtual	operator	payloads::_CompressedData	*()	const;
-			virtual	void	init();	//	called upon reception
 		};
 
 		template<class	M,class	U>	class	RPayload:
@@ -148,9 +151,7 @@ namespace	mBrane{
 			static	const	uint16				CID();
 			static	const	AllocationScheme	_AllocationScheme();
 			static	const	uint8				PtrCount();
-			static	const	P<_RPayload>		*Ptr(_RPayload	*p,uint8	i);
-			static	const	size_t				Size();
-			static	const	size_t				CoreSize();
+			static	P<_RPayload>				*Ptr(__Payload	*p,uint8	i);
 		};
 
 		template<class	C,class	M,class	U>	class	RPayloadAdapter:

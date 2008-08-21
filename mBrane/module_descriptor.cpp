@@ -33,6 +33,19 @@
 
 namespace	mBrane{
 
+	ModuleEntry::ModuleEntry(NodeEntry	*n,ModuleDescriptor	*m):Object<Memory,_Object,ModuleEntry>(),node(n),module(m){
+	}
+
+	ModuleEntry::~ModuleEntry(){
+
+		if(module->activationCount)
+			node->activationCount--;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+
+	Array<Array<P<ModuleDescriptor> > >	ModuleDescriptor::Main;
+
 	ModuleDescriptor::ModuleDescriptor():activationCount(0){
 	}
 
@@ -45,5 +58,12 @@ namespace	mBrane{
 	}
 	
 	ModuleDescriptorProjection::~ModuleDescriptorProjection(){
+	
+		List<typename	List<P<ModuleEntry> >::Iterator>::Iterator	i;
+		for(i=subscriptions.begin();i!=subscriptions.end();i++){
+
+			((P<ModuleEntry>)((List<P<ModuleEntry> >::Iterator)i))=NULL;
+			((List<P<ModuleEntry> >::Iterator)i).remove();
+		}
 	}
 }

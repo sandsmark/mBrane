@@ -125,14 +125,14 @@ namespace	mBrane{
 		if(e.activationCount){
 
 			Job	j;
-			List<ModuleDescriptor	*>				*modules=e.modules;
-			List<ModuleDescriptor	*>::Iterator	i;
+			List<P<ModuleEntry> >			*modules=e.modules;
+			List<P<ModuleEntry> >::Iterator	i;
 			for(i=modules->begin();i!=modules->end();i++){
 
-				if(((ModuleDescriptor	*)i)->activationCount){
+				if(((P<ModuleEntry>)i)->module->activationCount){
 
 					j.p=p;
-					j.m=(ModuleDescriptor	*)i;
+					j.m=((P<ModuleEntry>)i)->module;
 					jobs.push(j);
 				}
 			}
@@ -160,8 +160,6 @@ namespace	mBrane{
 	template<class	Engine>	uint32	thread_function_call	Messaging<Engine>::SendMessages(void	*args){
 
 		Node	*node=(Node	*)args;
-
-		uint16	r;
 
 		OutputSlot	*o;
 		_Payload	*p;
@@ -203,7 +201,7 @@ namespace	mBrane{
 
 					uint16	cid=p->cid();
 					node->routesCS[DC].enter();
-					for(uint32	i=0;i<node->routes[DC][cid].count();i++){
+					for(uint16	i=0;i<node->routes[DC][cid].count();i++){
 
 						if(node->routes[DC][cid][i].activationCount){
 
@@ -219,7 +217,7 @@ namespace	mBrane{
 
 					uint16	sid=p->operator	_StreamData	*()->sid();
 					node->routesCS[ST].enter();
-					for(uint32	i=0;i<node->routes[ST][sid].count();i++){
+					for(uint16	i=0;i<node->routes[ST][sid].count();i++){
 
 						if(node->routes[DC][sid][i].activationCount){
 

@@ -56,19 +56,9 @@ namespace	mBrane{
 			return	0;
 		}
 
-		template<class	M,class	U>	const	P<_RPayload>	*Payload<M,U>::Ptr(_RPayload	*p,uint8	i){
+		template<class	M,class	U>	P<_RPayload>	*Payload<M,U>::Ptr(__Payload	*p,uint8	i){
 
 			return	NULL;
-		}
-
-		template<class	M,class	U>	inline	const	size_t	Payload<M,U>::Size(){
-
-			return	sizeof(U);
-		}
-
-		template<class	M,class	U>	inline	const	size_t	Payload<M,U>::CoreSize(){
-
-			return	sizeof(U);
 		}
 
 		template<class	M,class	U>	inline	Payload<M,U>::Payload():Object<M,_Payload,U>(){
@@ -115,21 +105,11 @@ namespace	mBrane{
 			return	0;
 		}
 
-		template<class	M,class	U>	const	P<_RPayload>	*RPayload<M,U>::Ptr(_RPayload	*p,uint8	i){
+		template<class	M,class	U>	P<_RPayload>	*RPayload<M,U>::Ptr(__Payload	*p,uint8	i){
 
 			return	NULL;
 		}
 		
-		template<class	M,class	U>	inline	const	size_t	RPayload<M,U>::Size(){
-
-			return	sizeof(U);
-		}
-
-		template<class	M,class	U>	inline	const	size_t	RPayload<M,U>::CoreSize(){
-
-			return	sizeof(U);
-		}
-
 		template<class	M,class	U>	inline	RPayload<M,U>::RPayload():Object<M,_RPayload,U>(){
 		}
 

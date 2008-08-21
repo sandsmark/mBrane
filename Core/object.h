@@ -82,6 +82,8 @@ namespace	mBrane{
 		protected:
 			Object();
 		public:
+			static	const	size_t				Size();
+			static	const	size_t				CoreSize();
 			void	*operator	new(size_t	s);
 			void	operator	delete(void	*o);
 		};

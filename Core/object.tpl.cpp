@@ -98,6 +98,16 @@ namespace	mBrane{
 
 		template<class	M,class	S,class	U>	M	*Object<M,S,U>::_Allocator=M::Get(U::Size());
 
+		template<class	M,class	S,class	U>	inline	const	size_t	Object<M,S,U>::Size(){
+
+			return	sizeof(U);
+		}
+
+		template<class	M,class	S,class	U>	inline	const	size_t	Object<M,S,U>::CoreSize(){
+
+			return	sizeof(U);
+		}
+
 		template<class	M,class	S,class	U>	inline	Object<M,S,U>::Object():S(){
 		}
 

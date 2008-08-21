@@ -91,11 +91,6 @@ namespace	mBrane{
 			}
 		}
 
-		template<typename	T,bool	(*B)(T	&,T	&)>	inline	void	List<T,B>::removeElementAt(uint32	i){
-
-			remove(i);
-		}
-
 		template<typename	T,bool	(*B)(T	&,T	&)>	inline	void	List<T,B>::removeElement(T	*t){
 
 			ListElement<T>	*e=(ListElement<T>	*)t;
@@ -114,7 +109,7 @@ namespace	mBrane{
 			return	get(i)->prev;
 		}
 
-		template<typename	T,bool	(*B)(T	&,T	&)>	inline	uint32	List<T,B>::insertAfter(uint32	i,T	&t){
+		template<typename	T,bool	(*B)(T	&,T	&)>	inline	typename	List<T,B>::Iterator	List<T,B>::insertAfter(uint32	i,T	&t){
 
 			uint32	target=getFreeSlot();
 			get(target)->next=get(i)->next;
@@ -124,10 +119,10 @@ namespace	mBrane{
 				get(get(i)->next)->prev=target;
 			if(last==i)
 				last=target;
-			return	target;
+			return	Iterator(this,target);
 		}
 
-		template<typename	T,bool	(*B)(T	&,T	&)>	inline	uint32	List<T,B>::insertBefore(uint32	i,T	&t){
+		template<typename	T,bool	(*B)(T	&,T	&)>	inline	typename	List<T,B>::Iterator	List<T,B>::insertBefore(uint32	i,T	&t){
 
 			uint32	target=getFreeSlot();
 			get(target)->prev=get(i)->prev;
@@ -137,7 +132,7 @@ namespace	mBrane{
 				get(get(i)->prev)->next=target;
 			if(first==i)
 				first=target;
-			return	target;
+			return	Iterator(this,target);
 		}
 
 		template<typename	T,bool	(*B)(T	&,T	&)>	inline	uint32	List<T,B>::getFreeSlot(){
@@ -167,17 +162,20 @@ namespace	mBrane{
 			return	freeSlot;
 		}
 
-		template<typename	T,bool	(*B)(T	&,T	&)>	inline	uint32	List<T,B>::addElementHead(T	&t){
+		template<typename	T,bool	(*B)(T	&,T	&)>	inline	typename	List<T,B>::Iterator	List<T,B>::addElementHead(T	&t){
 
 			return	insertBefore(first,t);
 		}
 		
-		template<typename	T,bool	(*B)(T	&,T	&)>	inline	uint32	List<T,B>::addElementTail(T	&t){
+		template<typename	T,bool	(*B)(T	&,T	&)>	inline	typename	List<T,B>::Iterator	List<T,B>::addElementTail(T	&t){
 
 			return	insertAfter(last,t);
 		}
 
-		template<typename	T,bool	(*B)(T	&,T	&)>	inline	uint32	List<T,B>::addElement(T	&t){
+		template<typename	T,bool	(*B)(T	&,T	&)>	inline	typename	List<T,B>::Iterator	List<T,B>::addElement(T	&t){
+
+			if(!B)	//	calls for a partial specialization, i.e. template<typename	T>	List;
+				return	insertBefore(first,t);
 
 			for(uint32	i=first;i!=NullIndex;i=get(i)->next){
 

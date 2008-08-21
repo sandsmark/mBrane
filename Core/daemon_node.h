@@ -67,8 +67,11 @@ namespace	mBrane{
 				bool	isRunning();
 				//	TODO:	define API as pure virtual functions
 				//			-> node map (an array of mBrane::Networking::NetworkID)
-				//			-> stats
-				//			-> ...
+				//			-> profiling data
+				//				- msg throughput
+				//				- routing latencies (send_ts/recv_ts, node_send_ts/node_recv_ts)
+				//				- runtime per module, and its ratio wrt total node runtime, routing time consumption/module runtime
+				//				- logical topology, i.e. affinities between modules; traffic between nodes in light of traffic between modules
 			};
 
 			class	dll	Daemon{

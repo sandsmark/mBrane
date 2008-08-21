@@ -48,17 +48,19 @@ namespace	mBrane{
 		Space	*space;
 		float32	activationLevel;
 	public:
-		static	const	size_t	Size();
 		Projection(C	*projected,Space	*space,float32	activationLevel);
-		virtual	~Projection();
+		~Projection();
 		void	setActivationlevel(float32	a);
 		void	updateActivationCount();
 	};
 
-	template<class	C>	class	Projectable{
+	template<class	C>	class	Projectable:
+	public	Object<Memory,_Object,Projectable<C> >{
 	private:
-		Array<uint32>	projections;	//	indexes of projections of this on other spaces; to speed up space updating when deleting projections
+		Array<typename	List<P<C> >::Iterator>	projections;	//	indexes of projections of this on other spaces; to speed up space updating when deleting projections
 	public:
+		Projectable();
+		~Projectable();
 		void	project(Space	*s,float	activationLevel);
 		void	unproject(Space	*s);
 	};

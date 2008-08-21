@@ -98,6 +98,7 @@ namespace	mBrane{
 				virtual	void		migrateOut();	//	called when the module is unloaded from its current thread for migration
 				virtual	void		migrateIn();	//	called when the module is loaded in a new thread after having migrated
 				virtual	void		notify(_Payload	*p)=0;	//	called when the module receives a message
+				virtual	void		notify(uint16	sid,_Payload	*p)=0;	//	called when the module receives data from a stream
 				virtual	Decision	dispatch(_Payload	*p)=0;	//	called when the module code is already processing and a new message comes in; default: WAIT
 			};
 		}

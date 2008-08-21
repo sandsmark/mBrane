@@ -33,27 +33,22 @@
 
 namespace	mBrane{
 
-	template<class	C>	const	size_t	Projection<C>::Size(){
-
-		return	sizeof(Projection<C>);
+	template<class	C>	inline	Projection<C>::Projection(C	*projected,Space	*space,float32	activationLevel):Object<Memory,_Object,Projection<C> >(),projected(projected),space(space),activationLevel(activationLevel){
 	}
 
-	template<class	C>	Projection<C>::Projection(C	*projected,Space	*space,float32	activationLevel):Object<Memory,_Object,Projection<C> >(),projected(projected),space(space),activationLevel(activationLevel){
-	}
-
-	template<class	C>	Projection<C>::~Projection(){
+	template<class	C>	inline	Projection<C>::~Projection(){
 
 		if(activationLevel>=space->getActivationThreshold())
 			projected->activationCount--;
 	}
 
-	template<class	C>	void	Projection<C>::setActivationlevel(float32	a){
+	template<class	C>	inline	void	Projection<C>::setActivationlevel(float32	a){
 
 		activationLevel=a;
 		updateActivationCount();
 	}
 
-	template<class	C>	void	Projection<C>::updateActivationCount(){
+	template<class	C>	inline	void	Projection<C>::updateActivationCount(){
 
 		if(activationLevel<space->getActivationThreshold())
 			projected->activationCount--;
@@ -63,16 +58,29 @@ namespace	mBrane{
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	template<class	C>	void	Projectable<C>::project(Space	*s,float	activationLevel){
+	template<class	C>	Projectable<C>::Projectable(){
+	}
+
+	template<class	C>	Projectable<C>::~Projectable(){
+
+		for(uint32	i=0;i<projections.count();i++){
+
+			((P<C>)projections[i])=NULL;
+			projections[i].remove();
+		}
+	}
+
+	template<class	C>	inline	void	Projectable<C>::project(Space	*s,float	activationLevel){
 
 		projections[s->id()]=s->project(this,activationLevel);
 	}
 
-	template<class	C>	void	Projectable<C>::unproject(Space	*s){
+	template<class	C>	inline	void	Projectable<C>::unproject(Space	*s){
 
-		if(projections[s->id()]==Array<uint32>::NullIndex)
+		if(projections[s->id()]==Array<typename	List<P<C> >::Iterator>::NullIndex)
 			return;
-		s->removeProjection((C	*)this,projections[s->id()]);
-		projections[s->id()]=Array<uint32>::NullIndex;
+		((P<C>)projections[s->id()])=NULL;
+		projections[s->id()].remove();
+		projections[s->id()]=Array<typename	List<P<C> >::Iterator>::NullIndex;
 	}
 }

@@ -37,7 +37,7 @@ namespace	mBrane{
 
 		const	size_t	_Payload::Offset(){
 
-			return	sizeof(_Object)+sizeof(int64)*2;
+			return	offsetof(_Payload,_metaData);
 		}
 
 		inline	_Payload::_Payload():_Object(){
@@ -56,7 +56,7 @@ namespace	mBrane{
 			return	(_Payload::Category)((_metaData	&&	0x0000000C)>>2);
 		}
 
-		inline	AllocationScheme	_Payload::allocationSceme()	const{
+		inline	AllocationScheme	_Payload::allocationScheme()	const{
 
 			return	(AllocationScheme)(_metaData	&&	0x00000003);
 		}
@@ -124,7 +124,7 @@ namespace	mBrane{
 			return	_metaData>>16;
 		}
 
-		inline	AllocationScheme	_RPayload::allocationSceme()	const{
+		inline	AllocationScheme	_RPayload::allocationScheme()	const{
 
 			return	(AllocationScheme)(_metaData	&&	0x00000003);
 		}

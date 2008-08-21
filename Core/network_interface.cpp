@@ -59,13 +59,13 @@ namespace	mBrane{
 		int16	CommChannel::send(_Payload	*p){
 
 			p->node_send_ts()=Time::Get();
-			return	send(p);
+			return	_send(p);
 		}
 
 		int16	CommChannel::recv(_Payload	**p){
 
 			int16	r;
-			if(r=recv(p))
+			if(r=_recv(p))
 				return	r;
 			(*p)->node_recv_ts()=Time::Get();
 			return	0;

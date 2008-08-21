@@ -95,7 +95,6 @@ namespace	mBrane{
 sleep:
 		_this->node->supportSync->acquire();
 xec:
-		P<_Payload>	*_p;
 		while(!_this->node->_shutdown){
 
 			_this->node->jobCS.enter();
@@ -139,8 +138,7 @@ xec:
 
 		if(m->processor){
 
-			_Module::Decision	d=m->dispatch(p);
-			switch(d){
+			switch(m->dispatch(p)){
 			case	_Module::WAIT:	//	wait for an exiting xThread to finish; recurse (in case that thread was preempting yet another one)
 				block();
 				((XThread	*)m->processor)->sync->acquire();
@@ -152,7 +150,10 @@ xec:
 				preempted->block();
 				m->processor=this;
 				module=m;
-				m->notify(p);
+				if(p->category()==_Payload::STREAM)
+					m->notify(p->operator	payloads::_StreamData	*()->sid(),p);
+				else
+					m->notify(p);
 				module=NULL;
 				m->processor=preempted;
 				preempted->module=m;
@@ -166,7 +167,10 @@ xec:
 		
 		sync->acquire();
 		(module=m)->processor=this;
-		module->notify(p);
+		if(p->category()==_Payload::STREAM)
+			module->notify(p->operator	payloads::_StreamData	*()->sid(),p);
+		else
+			module->notify(p);
 		module->processor=NULL;
 		module=NULL;
 		sync->release();

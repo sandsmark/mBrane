@@ -189,6 +189,8 @@ namespace	mBrane{
 		daemon::Node::start();
 		//	TODO:	build modules
 		Executing::start();
+
+		bootCallback();
 	}
 
 	void	Node::notifyNodeJoined(uint16	NID,NetworkID	*networkID){

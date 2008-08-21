@@ -54,8 +54,6 @@ namespace	mBrane{
 			template<class	S>	class	DynamicData:
 			public	S,
 			public	_DynamicData{
-			public:
-				operator	_DynamicData	*()	const;
 			};
 
 			class	dll	_CompressedData:
@@ -71,7 +69,7 @@ namespace	mBrane{
 				virtual	void	decompress();
 			};
 
-			template<class	S,class	D,class	F>	class	CompressedData:	//	S: superclass, either Message<U>, StreamData<U> or Payload<U>; subclass U shall not define any data at all (already defined by class D); F: frame data
+			template<class	S,class	D,class	F>	class	CompressedData:	//	S: superclass, either Message<U>, StreamData<U>, Payload<U> or RPayload<U>; subclass U shall not define any data at all (already defined by class D); F: frame data
 			public	S,
 			public	_CompressedData,
 			public	D{
@@ -81,8 +79,6 @@ namespace	mBrane{
 				CompressedData();
 			public:
 				static	const	size_t	CoreSize();
-				operator	_DynamicData	*()	const;
-				operator	_CompressedData	*()	const;
 			};
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
@@ -105,11 +101,11 @@ namespace	mBrane{
 
 			class	dll	_StreamData{
 			protected:
-				uint32	_sid;	//	stream identifer
-				_StreamData(uint32	sid);
+				uint16	_sid;	//	stream identifer
+				_StreamData(uint16	sid);
 			public:
 				virtual	~_StreamData();
-				uint32	&sid();
+				uint16	&sid();
 				operator	_Payload	*()	const;
 			};
 
@@ -117,7 +113,7 @@ namespace	mBrane{
 			public	Payload<Memory,U>,
 			public	_StreamData{
 			protected:
-				StreamData(uint32	sid);
+				StreamData(uint16	sid);
 			public:
 				operator	_StreamData		*()	const;
 			};

@@ -42,15 +42,21 @@ using	namespace	mBrane::sdk::module;
 
 namespace	mBrane{
 
-	class	ModuleDescriptor:
-	public	Projectable<ModuleDescriptor>{
+	class	NodeEntry;
+	class	ModuleEntry:
+	public	Object<Memory,_Object,ModuleEntry>{
+	private:
+		NodeEntry	*node;
 	public:
-		static	Array<Array<ModuleDescriptor> >	MDs;
-		uint32	activationCount;
-		uint16	hostID;	//	node
-		P<_Module>	module;	//	NULL if remote
-		ModuleDescriptor();
-		~ModuleDescriptor();
+		ModuleDescriptor	*module;
+		ModuleEntry(NodeEntry	*n,ModuleDescriptor	*m);
+		~ModuleEntry();
+	};
+
+	class	NodeEntry{
+	public:
+		uint32					activationCount;
+		List<P<ModuleEntry> >	*modules;
 	};
 
 	class	ModuleDescriptorProjection:
@@ -58,7 +64,18 @@ namespace	mBrane{
 	public:
 		ModuleDescriptorProjection(ModuleDescriptor	*projected,Space	*space,float32	activationLevel);
 		~ModuleDescriptorProjection();
-		List<ModuleDescriptor	*>	subscriptions;
+		List<typename	List<P<ModuleEntry> >::Iterator>	subscriptions;
+	};
+
+	class	ModuleDescriptor:
+	public	Projectable<ModuleDescriptorProjection>{
+	public:
+		static	Array<Array<P<ModuleDescriptor> > >	Main;
+		uint32	activationCount;
+		uint16	hostID;	//	node
+		P<_Module>	module;	//	NULL if remote
+		ModuleDescriptor();
+		~ModuleDescriptor();
 	};
 }
 

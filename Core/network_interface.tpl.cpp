@@ -31,16 +31,16 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		template<class	C>	int16	CommChannel::send(C	*c){
+		template<class	C>	int16	CommChannel::_send(C	*c){
 
 			ClassRegister	*CR=ClassRegister::Get(c->cid());
 			int16	r;
 			AllocationScheme	a=c->allocationScheme();
 			if(a>=DYNAMIC){
 				
-				if(a==COMPRESSED	&&	!c->operator	_CompressedData()->isCompressed)
-					c->operator	_CompressedData	*()->compress();
-				if(r=send(((uint8	*)c)+CR->offset(),CR->coreSize()+c->operator	_DynamicData	*()->dynamicSize()))
+				if(a==COMPRESSED	&&	!c->operator	payloads::_CompressedData	*()->isCompressed)
+					c->operator	payloads::_CompressedData	*()->compress();
+				if(r=send(((uint8	*)c)+CR->offset(),CR->coreSize()+c->operator	payloads::_DynamicData	*()->dynamicSize()))
 					return	r;
 			}else	if(r=send(((uint8	*)c)+CR->offset(),CR->size()))
 				return	r;
@@ -51,13 +51,13 @@ namespace	mBrane{
 				p=CR->ptr(c,i);
 				if(!p)
 					continue;
-				if(r=send(*p))
+				if(r=_send((_RPayload	*)*p))
 					return	r;
 			}
 			return	0;
 		}
 
-		template<class	C>	int16	CommChannel::recv(C	**c){
+		template<class	C>	int16	CommChannel::_recv(C	**c){
 
 			uint16	cid;
 			int16	r;
@@ -70,21 +70,21 @@ namespace	mBrane{
 
 				if(r=recv((uint8	*)*c,CR->coreSize()))
 					return	r;
-				if(r=recv(((uint8	*)*c)+CR->coreSize(),(*c)->operator	_DynamicData	*()->dynamicSize()))
+				if(r=recv(((uint8	*)*c)+CR->coreSize(),(*c)->operator	payloads::_DynamicData	*()->dynamicSize()))
 					return	r;
 				if(a==COMPRESSED)
-					(*c)->operator	_CompressedData	*()->decompress();
+					(*c)->operator	payloads::_CompressedData	*()->decompress();
 			}else	if(r=recv((uint8	*)*c,CR->size()))
 				return	r;
 			uint8	ptrCount=CR->ptrCount();
 			P<_RPayload>	*p;
-			_Payload		*ptr;
+			_RPayload		*ptr;
 			for(uint8	i=0;i<ptrCount;i++){
 
 				p=CR->ptr(*c,i);
 				if(!p)
 					continue;
-				if(r=recv(&ptr)){
+				if(r=_recv(&ptr)){
 
 					delete	*c;
 					return	r;

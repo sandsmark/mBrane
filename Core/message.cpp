@@ -67,13 +67,13 @@ namespace	mBrane{
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
 
-			inline	_StreamData::_StreamData(uint32	sid):_sid(sid){
+			inline	_StreamData::_StreamData(uint16	sid):_sid(sid){
 			}
 
 			inline	_StreamData::~_StreamData(){
 			}
 
-			inline	uint32	&_StreamData::sid(){
+			inline	uint16	&_StreamData::sid(){
 
 				return	_sid;
 			}

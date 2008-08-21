@@ -71,8 +71,8 @@ namespace	mBrane{
 		class	dll	CommChannel{
 		protected:
 			CommChannel();	//	initialization to be performed in subclasses' constructors
-			template<class	C>	int16	send(C	*c);
-			template<class	C>	int16	recv(C	**c);
+			template<class	C>	int16	_send(C	*c);
+			template<class	C>	int16	_recv(C	**c);
 		public:
 			virtual	~CommChannel();	//	shutdown to be performed in subclasses' destructors
 			virtual	int16	send(uint8	*b,size_t	s)=0;	//	return 0 if successfull, error code (>0) otherwise

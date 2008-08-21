@@ -35,7 +35,8 @@
 
 #define	MBRANE_MESSAGE_CLASSES	"mBrane_message_classes.h"
 
-#define	MBRANE_MESSAGE_CLASS(C)	static	const	uint16	C##_class=__COUNTER__;
+#define	MBRANE_MESSAGE_CLASS(C)		static	const	uint16	C##_class=__COUNTER__;
+#define	MBRANE_STREAM_DATA_CLASS(C)	static	const	uint16	C##_class=__COUNTER__;
 #include	MBRANE_MESSAGE_CLASSES
 #include	LIBRARY_CLASSES
 
@@ -53,6 +54,16 @@ public:
 	void	notify(_Payload	*p){
 		switch(p->cid()){
 		#define	MBRANE_MESSAGE_CLASS(C)	case	CLASS_ID(C):	((U	*)this)->react((C	*)p);	return;
+		#define	MBRANE_STREAM_DATA_CLASS(C)
+		#include	MBRANE_MESSAGE_CLASSES
+		#include	LIBRARY_CLASSES
+		default:	return;
+		}
+	}
+	void	notify(uint16	sid,_Payload	*p){
+		switch(p->cid()){
+		#define	MBRANE_MESSAGE_CLASS(C)
+		#define	MBRANE_STREAM_DATA_CLASS(C)	case	CLASS_ID(C):	((U	*)this)->react(sid,(C	*)p);	return;
 		#include	MBRANE_MESSAGE_CLASSES
 		#include	LIBRARY_CLASSES
 		default:	return;
@@ -60,7 +71,8 @@ public:
 	}
 	Decision	dispatch(_Payload	*p){
 		switch(p->cid()){
-		#define	MBRANE_MESSAGE_CLASS(C)	case	CLASS_ID(C):	return	((U	*)this)->decide((C	*)p);
+		#define	MBRANE_MESSAGE_CLASS(C)		case	CLASS_ID(C):	return	((U	*)this)->decide((C	*)p);
+		#define	MBRANE_STREAM_DATA_CLASS(C)	case	CLASS_ID(C):	return	((U	*)this)->decide((C	*)p);
 		#include	MBRANE_MESSAGE_CLASSES
 		#include	LIBRARY_CLASSES
 		default:	return	DISCARD;

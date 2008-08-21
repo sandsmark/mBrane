@@ -37,12 +37,12 @@ namespace	mBrane{
 				return	Size()-_S*sizeof(T);
 			}
 
-			template<typename	T,uint32	_S,class	M>	uint8	Array<T,_S,M>::PtrCount(){
+			template<typename	T,uint32	_S,class	M>	const	uint8	Array<T,_S,M>::PtrCount(){
 
 				return	1;
 			}
 
-			template<typename	T,uint32	_S,class	M>	P<_RPayload>	*Array<T,_S,M>::Ptr(_RPayload	*p,uint8	i){
+			template<typename	T,uint32	_S,class	M>	P<_RPayload>	*Array<T,_S,M>::Ptr(__Payload	*p,uint8	i){
 
 				if(i==0)
 					return	(P<_RPayload>	*)&(((Array<T,_S,M>	*)p)->next);
@@ -151,12 +151,12 @@ namespace	mBrane{
 				return	Size()-Array<T,Size,M>::Size()+Array<T,Size,M>::CoreSize();
 			}
 
-			template<typename	T,uint32	_S,class	M>	uint8	List<T,_S,M>::PtrCount(){
+			template<typename	T,uint32	_S,class	M>	const	uint8	List<T,_S,M>::PtrCount(){
 
 				return	1;
 			}
 
-			template<typename	T,uint32	_S,class	M>	P<_RPayload>	*List<T,_S,M>::Ptr(_RPayload	*p,uint8	i){
+			template<typename	T,uint32	_S,class	M>	P<_RPayload>	*List<T,_S,M>::Ptr(__Payload	*p,uint8	i){
 
 				return	((List<T,_S,M>	*)p)->_array.ptr(i);
 			}

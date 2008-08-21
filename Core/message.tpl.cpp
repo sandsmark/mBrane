@@ -32,29 +32,12 @@ namespace	mBrane{
 	namespace	sdk{
 		namespace	payloads{
 
-			template<class	S>	inline	DynamicData<S>::operator	_DynamicData	*()	const{
-				
-				return	(_DynamicData	*)this;	
-			}
-
-			////////////////////////////////////////////////////////////////////////////////////////////////
-
 			template<class	S,class	D,class	F>	inline	const	size_t	CompressedData<S,D,F>::CoreSize(){
 
 				return	Size()-2*sizeof(F);
 			}
 
 			template<class	S,class	D,class	F>	CompressedData<S,D,F>::CompressedData():S(),_CompressedData(),D(){
-			}
-
-			template<class	S,class	D,class	F>	inline	CompressedData<S,D,F>::operator	_DynamicData	*()	const{
-				
-				return	(_DynamicData	*)this;
-			}
-
-			template<class	S,class	D,class	F>	inline	CompressedData<S,D,F>::operator	_CompressedData	*()	const{
-				
-				return	(_CompressedData	*)this;
 			}
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
@@ -89,7 +72,7 @@ namespace	mBrane{
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
 
-			template<class	U>	inline	StreamData<U>::StreamData(uint32	sid):Payload<Memory,U>(),_StreamData(sid){
+			template<class	U>	inline	StreamData<U>::StreamData(uint16	sid):Payload<Memory,U>(),_StreamData(sid){
 
 				_metadata|=(STREAM<<2);
 			}

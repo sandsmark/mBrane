@@ -39,12 +39,13 @@
 namespace	mBrane{
 	namespace	sdk{
 
+		class	__Payload;
 		class	_RPayload;
 		class	dll	ClassRegister{
 		template<class	Register>	friend	class	Array;
 		public:
 			typedef	void	*(*Allocator)();
-			typedef	const	P<_RPayload>	*(*Ptr)(_RPayload	*,uint8);
+			typedef	P<_RPayload>	*(*Ptr)(__Payload	*,uint8);
 		private:
 			static	Array<ClassRegister>	Classes;
 			Allocator	_allocator;
@@ -64,7 +65,7 @@ namespace	mBrane{
 			size_t			coreSize()		const;
 			size_t			offset()		const;
 			uint8			ptrCount()		const;
-			const	P<_RPayload>	*ptr(_RPayload	*,uint8	i);
+			P<_RPayload>	*ptr(__Payload	*,uint8	i);
 		};
 	}
 }
