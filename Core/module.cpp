@@ -42,14 +42,7 @@ namespace	mBrane{
 				Node::Get()->buildModule(CID,ID,clusterCID,clusterID);
 			}
 
-			_Module::_Module(uint16	CID,uint16	ID,uint16	clusterCID,uint16	clusterID,bool	canMigrate,bool	canBeSwapped):	_CID(CID),
-																																_ID(ID),
-																																_clusterCID(clusterCID),
-																																_clusterID(clusterID),
-																																_canMigrate(canMigrate),
-																																_canBeSwapped(canBeSwapped),
-																																_priority(0),
-																																processor(NULL){
+			_Module::_Module():	_Object(),_priority(0),processor(NULL){
 			}
 
 			_Module::~_Module(){

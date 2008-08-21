@@ -46,7 +46,7 @@ namespace	mBrane{
 
 	Array<Array<P<ModuleDescriptor> > >	ModuleDescriptor::Main;
 
-	ModuleDescriptor::ModuleDescriptor():activationCount(0){
+	ModuleDescriptor::ModuleDescriptor(_Module	*m):module(m),activationCount(0){
 	}
 
 	ModuleDescriptor::~ModuleDescriptor(){

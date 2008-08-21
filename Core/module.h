@@ -51,13 +51,16 @@ namespace	mBrane{
 			class	Mutex;
 			class	CriticalSection;
 			class	Timer;
-			class	dll	_Module{	//	migration: migrateOut->dump->payload->send-/ /-receive->load->migrateIn; modules can launch their own internal threads
+			class	dll	_Module:
+			public	_Object{	//	migration: migrateOut->dump->payload->send-/ /-receive->load->migrateIn; modules can launch their own internal threads
 			friend	class	mBrane::XThread;
 			friend	class	Semaphore;
 			friend	class	Mutex;
 			friend	class	CriticalSection;
 			friend	class	Timer;
 			private:
+				XThread	*processor;
+			protected:
 				uint16	_ID;
 				uint16	_CID;
 				uint16	_clusterID;
@@ -65,9 +68,7 @@ namespace	mBrane{
 				bool	_canMigrate;
 				bool	_canBeSwapped;
 				uint8	_priority;
-				XThread	*processor;
-			protected:
-				_Module(uint16	CID,uint16	ID,uint16	clusterCID,uint16	clusterID,bool	canMigrate=true,bool	canBeSwapped=true);
+				_Module();
 				int64	time()	const;
 				void	sleep(int64	d);
 				void	wait(Thread	**threads,uint32	threadCount);

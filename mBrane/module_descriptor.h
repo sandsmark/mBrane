@@ -74,7 +74,7 @@ namespace	mBrane{
 		uint32	activationCount;
 		uint16	hostID;	//	node
 		P<_Module>	module;	//	NULL if remote
-		ModuleDescriptor();
+		ModuleDescriptor(_Module	*m=NULL);
 		~ModuleDescriptor();
 	};
 }

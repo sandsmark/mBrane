@@ -80,5 +80,12 @@ public:
 
 class	Final_C4:public	C4<Final_C4>{};
 
+class	Final_SD1:
+public	StreamData<Final_SD1>{
+public:
+	int64	timeCode;
+	float32	frame[3*1024*768];
+};
+
 
 #endif

@@ -46,10 +46,16 @@
 #define	CLASS_ID(C)	C##_class
 
 template<class	U>	class	Module:
-public	module::_Module{
+public	Object<Memory,module::_Module,Module<U> >{
 protected:
 	static	const	uint16	_CID;
-	Module(uint16	CID,uint16	ID,uint16	clusterCID,uint16	clusterID):module::_Module(CID,ID,clusterCID,clusterID){}
+	Module(uint16	ID,uint16	clusterCID,uint16	clusterID,bool	canBeSwapped=true,bool	canMigrate=true):Object<Memory,module::_Module,Module<U> >(){
+		module::_Module::_CID=Module<U>::_CID;
+		_clusterCID=clusterCID;
+		_clusterID=clusterID;
+		_canBeSwapped=canBeSwapped;
+		_canMigrate=_canMigrate;
+	}
 public:
 	static	module::_Module	*New(uint16	ID,uint16	clusterCID,uint16	clusterID){	return	new	U(ID,clusterCID,clusterID);	}
 	virtual	~Module(){}
@@ -79,7 +85,7 @@ public:
 		default:	return;
 		}
 	}
-	Decision	dispatch(_Payload	*p){
+	module::_Module::Decision	dispatch(_Payload	*p){
 		switch(p->cid()){
 		#define	MBRANE_MESSAGE_CLASS(C)		case	CLASS_ID(C):	return	((U	*)this)->decide((C	*)p);
 		#define	MBRANE_STREAM_DATA_CLASS(C)	case	CLASS_ID(C):	return	((U	*)this)->decide((C	*)p);
