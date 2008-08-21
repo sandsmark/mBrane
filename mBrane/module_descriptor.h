@@ -55,27 +55,38 @@ namespace	mBrane{
 
 	class	NodeEntry{
 	public:
+		static	Array<Array<NodeEntry> >	Main[2];	//	0: Data and Control: message class -> nodes -> modules, 2: Streams: stream id -> nodes -> modules
+		static	CriticalSection				CS[2];
 		uint32					activationCount;
-		List<P<ModuleEntry> >	*modules;
+		List<P<ModuleEntry> >	modules;
 	};
 
-	class	ModuleDescriptorProjection:
-	public	Projection<ModuleDescriptor>{
+	template<>	class	Projection<ModuleDescriptor>:
+	public	Object<Memory,_Object,Projection<ModuleDescriptor> >{
+	private:
+		ModuleDescriptor	*projected;
+		Space				*space;
+		float32				activationLevel;
 	public:
-		ModuleDescriptorProjection(ModuleDescriptor	*projected,Space	*space,float32	activationLevel);
-		~ModuleDescriptorProjection();
-		List<typename	List<P<ModuleEntry> >::Iterator>	subscriptions;
+		Projection(ModuleDescriptor	*projected,Space	*space);
+		~Projection();
+		void	setActivationlevel(float32	a);
+		void	updateActivationCount(float32	t);
+		Array<typename	List<P<ModuleEntry> >::Iterator>	subscriptions[2];	//	0: indexed by message class ID (MCID), 1: indexed by stream ID (SID)
 	};
 
 	class	ModuleDescriptor:
-	public	Projectable<ModuleDescriptorProjection>{
+	public	Projectable<ModuleDescriptor>{
 	public:
-		static	Array<Array<P<ModuleDescriptor> > >	Main;
-		uint32	activationCount;
+		static	Array<Array<P<ModuleDescriptor> > >	Main;	//	indexed by module descriptor class ID | ID
 		uint16	hostID;	//	node
 		P<_Module>	module;	//	NULL if remote
-		ModuleDescriptor(_Module	*m=NULL);
+		ModuleDescriptor(uint16	hostID,_Module	*m=NULL);
 		~ModuleDescriptor();
+		void	addSubscription_message(uint16	spaceID,uint16	MCID);
+		void	addSubscription_streamData(uint16	spaceID,uint16	SID);
+		void	removeSubscription_message(uint16	spaceID,uint16	MCID);
+		void	removeSubscription_streamData(uint16	spaceID,uint16	SID);
 	};
 }
 

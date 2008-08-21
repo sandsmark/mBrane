@@ -38,24 +38,23 @@ using	namespace	mBrane::sdk;
 
 namespace	mBrane{
 
-	class	ModuleDescriptorProjection;
 	class	Space:
 	public	Projectable<Space>{
 	private:
 		uint16	ID;
 		float32	_activationThreshold;	//	in [0,1]
 	public:
-		static	Array<P<Space> >	Main;	//	0 is the root space
+		static	Array<P<Space> >	Main;	//	indexed by space ID; 0 is the root space
 		uint32	activationCount;
-		List<P<ModuleDescriptorProjection> >	moduleDescriptors;
+		List<P<Projection<ModuleDescriptor> > >	moduleDescriptors;
 		List<P<Projection<Space> > >			spaces;
 		Space(uint16	ID);
 		~Space();
 		uint16	id();
 		void	setActivationThreshold(float32	thr);
 		float32	getActivationThreshold();
-		List<P<ModuleDescriptorProjection> >::Iterator	project(ModuleDescriptor	*m,float32	activationLevel);
-		List<P<Projection<Space> > >::Iterator			project(Space	*s,float32	activationLevel);
+		List<P<Projection<ModuleDescriptor> > >::Iterator	project(Projection<ModuleDescriptor>	*p);
+		List<P<Projection<Space> > >::Iterator				project(Projection<Space>	*p);
 	};
 }
 

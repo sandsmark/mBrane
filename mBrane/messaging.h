@@ -89,10 +89,7 @@ namespace	mBrane{
 		Thread					*sendThread;
 		static	uint32	thread_function_call	SendMessages(void	*args);
 		Semaphore	*inputSync;	//	sync on the input message count
-		
-		Array<Array<NodeEntry> >	routes[2];	//	0: Data and Control: message class -> nodes -> modules, 2: Streams: strem id -> nodes -> modules
-		CriticalSection				routesCS[2];
-		
+				
 		Messaging();
 		~Messaging();
 		void	send(uint16	NID,_Payload	*message,bool	local);

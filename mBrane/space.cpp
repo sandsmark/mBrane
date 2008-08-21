@@ -48,15 +48,13 @@ namespace	mBrane{
 
 	inline	void	Space::setActivationThreshold(float32	thr){
 
-		_activationThreshold=thr;
-
-		List<P<ModuleDescriptorProjection> >::Iterator	p_module;
+		List<P<Projection<ModuleDescriptor> > >::Iterator	p_module;
 		for(p_module=moduleDescriptors.begin();p_module!=moduleDescriptors.end();p_module++)
-			((P<ModuleDescriptorProjection>)p_module)->updateActivationCount();
-
+			((P<Projection<ModuleDescriptor> >)p_module)->updateActivationCount(thr);
 		List<P<Projection<Space> > >::Iterator	p_space;
 		for(p_space=spaces.begin();p_space!=spaces.end();p_space++)
-			((P<Projection<Space> >)p_space)->updateActivationCount();
+			((P<Projection<Space> >)p_space)->updateActivationCount(thr);
+		_activationThreshold=thr;
 	}
 
 	float32	Space::getActivationThreshold(){
@@ -64,15 +62,15 @@ namespace	mBrane{
 		return	_activationThreshold;
 	}
 
-	inline	List<P<ModuleDescriptorProjection> >::Iterator	Space::project(ModuleDescriptor	*m,float32	activationLevel){
+	List<P<Projection<ModuleDescriptor> > >::Iterator	Space::project(Projection<ModuleDescriptor>	*p){
 
-		P<ModuleDescriptorProjection>	p=new	ModuleDescriptorProjection(m,this,activationLevel);
-		return	moduleDescriptors.addElementTail(p);
+		P<Projection<ModuleDescriptor> >	_p=p;
+		return	moduleDescriptors.addElementTail(_p);
 	}
 
-	inline	List<P<Projection<Space> > >::Iterator	Space::project(Space	*s,float32	activationLevel){
+	List<P<Projection<Space> > >::Iterator	Space::project(Projection<Space>	*p){
 
-		P<Projection<Space> >	p=new	Projection<Space>(s,this,activationLevel);
-		return	spaces.addElementTail(p);
+		P<Projection<Space> >	_p=p;
+		return	spaces.addElementTail(_p);
 	}
 }

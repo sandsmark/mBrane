@@ -42,13 +42,13 @@ namespace	mBrane{
 
 		inputSync=new	Semaphore(0,65535);
 
-		routes[DC].alloc(ClassRegister::Count());
-		for(uint32	i=0;i<routes[DC].count();i++)
-			routes[DC][i].alloc(INITIAL_NID_ARRAY_LENGTH);
+		NodeEntry::Main[DC].alloc(ClassRegister::Count());
+		for(uint32	i=0;i<NodeEntry::Main[DC].count();i++)
+			NodeEntry::Main[DC][i].alloc(INITIAL_NID_ARRAY_LENGTH);
 
-		routes[ST].alloc(INITIAL_SID_ARRAY_LENGTH);
-		for(uint32	i=0;i<routes[ST].count();i++)
-			routes[ST][i].alloc(INITIAL_NID_ARRAY_LENGTH);
+		NodeEntry::Main[ST].alloc(INITIAL_SID_ARRAY_LENGTH);
+		for(uint32	i=0;i<NodeEntry::Main[ST].count();i++)
+			NodeEntry::Main[ST][i].alloc(INITIAL_NID_ARRAY_LENGTH);
 	}
 
 	template<class	Engine>	Messaging<Engine>::~Messaging(){
@@ -61,14 +61,6 @@ namespace	mBrane{
 		if(sendThread)
 			delete	sendThread;
 		delete	inputSync;
-
-		for(uint32	i=0;i<routes[DC].count();i++)
-			for(uint32	j=0;j<routes[DC][i].count();j++)
-				delete	routes[DC][i][j].modules;
-
-		for(uint32	i=0;i<routes[ST].count();i++)
-			for(uint32	j=0;j<routes[ST][i].count();j++)
-				delete	routes[ST][i][j].modules;
 	}
 	
 	template<class	Engine>	inline	void	Messaging<Engine>::send(uint16	NID,const	_Module	*sender,_Payload	*message,bool	local){
@@ -125,9 +117,9 @@ namespace	mBrane{
 		if(e.activationCount){
 
 			Job	j;
-			List<P<ModuleEntry> >			*modules=e.modules;
+			List<P<ModuleEntry> >			&modules=e.modules;
 			List<P<ModuleEntry> >::Iterator	i;
-			for(i=modules->begin();i!=modules->end();i++){
+			for(i=modules.begin();i!=modules.end();i++){
 
 				if(((P<ModuleEntry>)i)->module->activationCount){
 
@@ -145,13 +137,13 @@ namespace	mBrane{
 		switch(p->category()){
 		case	_Payload::CONTROL:
 		case	_Payload::DATA:
-			routesCS[DC].enter();
-			pushJobs(p,routes[ST][p->cid()][((Node	*)this)->_ID]);
-			routesCS[DC].leave();
+			NodeEntry::CS[DC].enter();
+			pushJobs(p,NodeEntry::Main[ST][p->cid()][((Node	*)this)->_ID]);
+			NodeEntry::CS[DC].leave();
 		case	_Payload::STREAM:
-			routesCS[ST].enter();
-			pushJobs(p,routes[ST][p->operator	_StreamData	*()->sid()][((Node	*)this)->_ID]);
-			routesCS[ST].leave();
+			NodeEntry::CS[ST].enter();
+			pushJobs(p,NodeEntry::Main[ST][p->operator	_StreamData	*()->sid()][((Node	*)this)->_ID]);
+			NodeEntry::CS[ST].leave();
 		}
 	}
 
@@ -175,14 +167,14 @@ namespace	mBrane{
 				uint32	act;
 				if(cat==_Payload::STREAM){
 
-					node->routesCS[ST].enter();
-					act=node->routes[ST][p->operator	_StreamData	*()->sid()][node->_ID].activationCount;
-					node->routesCS[ST].leave();
+					NodeEntry::CS[ST].enter();
+					act=NodeEntry::Main[ST][p->operator	_StreamData	*()->sid()][node->_ID].activationCount;
+					NodeEntry::CS[ST].leave();
 				}else{
 
-					node->routesCS[DC].enter();
-					act=node->routes[DC][p->cid()][node->_ID].activationCount;
-					node->routesCS[DC].leave();
+					NodeEntry::CS[DC].enter();
+					act=NodeEntry::Main[DC][p->cid()][node->_ID].activationCount;
+					NodeEntry::CS[DC].leave();
 				}
 				if(act){
 
@@ -200,10 +192,10 @@ namespace	mBrane{
 				if(cat==_Payload::DATA){
 
 					uint16	cid=p->cid();
-					node->routesCS[DC].enter();
-					for(uint16	i=0;i<node->routes[DC][cid].count();i++){
+					NodeEntry::CS[DC].enter();
+					for(uint16	i=0;i<NodeEntry::Main[DC][cid].count();i++){
 
-						if(node->routes[DC][cid][i].activationCount){
+						if(NodeEntry::Main[DC][cid][i].activationCount){
 
 							if(i==node->_ID){
 
@@ -212,14 +204,14 @@ namespace	mBrane{
 							}else	node->sendData(i,p);
 						}
 					}
-					node->routesCS[DC].leave();
+					NodeEntry::CS[DC].leave();
 				}else{	//	must be stream
 
 					uint16	sid=p->operator	_StreamData	*()->sid();
-					node->routesCS[ST].enter();
-					for(uint16	i=0;i<node->routes[ST][sid].count();i++){
+					NodeEntry::CS[ST].enter();
+					for(uint16	i=0;i<NodeEntry::Main[ST][sid].count();i++){
 
-						if(node->routes[DC][sid][i].activationCount){
+						if(NodeEntry::Main[DC][sid][i].activationCount){
 
 							if(i==node->_ID){
 
@@ -228,7 +220,7 @@ namespace	mBrane{
 							}else	node->sendStreamData(i,p);
 						}
 					}
-					node->routesCS[ST].leave();
+					NodeEntry::CS[ST].leave();
 				}
 			}
 
