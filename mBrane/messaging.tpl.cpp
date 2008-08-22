@@ -138,16 +138,17 @@ namespace	mBrane{
 			NodeEntry::CS[DC].enter();
 			NodeEntry::CS[ST].enter();
 			uint16	module_cid=((CreateModule	*)p)->module_cid;
+			uint16	module_id=ModuleDescriptor::Main[module_cid].count();
 			uint16	node_id=((CreateModule	*)p)->node_id;
 			_Module	*m=NULL;
 			if(node_id==((Node	*)this)->_ID)
 				m=ModuleRegister::Get(module_cid)->buildModule();
-			ModuleDescriptor::Main[module_cid][ModuleDescriptor::Main[module_cid].count()]=new	ModuleDescriptor(node_id,m);
+			ModuleDescriptor::Main[module_cid][ModuleDescriptor::Main[module_cid].count()]=new	ModuleDescriptor(node_id,m,module_cid,module_id);
 			ModuleCreated	mc;
 			mc.sender_cid=((CreateModule	*)p)->sender_cid;
 			mc.sender_id=((CreateModule	*)p)->sender_id;
 			mc.module_cid=module_cid;
-			mc.module_id=ModuleDescriptor::Main[module_cid].count()-1;
+			mc.module_id=module_id;
 			send(&mc,true);
 			break;
 		}case	DeleteModule_CID:{

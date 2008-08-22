@@ -77,7 +77,7 @@ namespace	mBrane{
 		static	Array<Array<P<ModuleDescriptor> > >	Main;	//	indexed by module descriptor class ID | ID
 		uint16	hostID;	//	node
 		P<_Module>	module;	//	NULL if remote
-		ModuleDescriptor(uint16	hostID,_Module	*m=NULL);
+		ModuleDescriptor(uint16	hostID,_Module	*m,uint16	CID,uint16	ID);
 		~ModuleDescriptor();
 		void	activate();
 		void	deactivate();

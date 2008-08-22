@@ -55,10 +55,15 @@ namespace	mBrane{
 
 	Array<Array<P<ModuleDescriptor> > >	ModuleDescriptor::Main;
 
-	ModuleDescriptor::ModuleDescriptor(uint16	hostID,_Module	*m):Projectable<ModuleDescriptor>(),module(m),hostID(hostID){
+	ModuleDescriptor::ModuleDescriptor(uint16	hostID,_Module	*m,uint16	CID,uint16	ID):Projectable<ModuleDescriptor>(),module(m),hostID(hostID){
 
-		if(m)
+		if(m){
+
+			module->descriptor=this;
+			module->_cid=CID;
+			module->_id=ID;
 			module->start();
+		}
 	}
 
 	ModuleDescriptor::~ModuleDescriptor(){
