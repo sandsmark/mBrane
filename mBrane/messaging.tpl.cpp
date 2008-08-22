@@ -137,27 +137,30 @@ namespace	mBrane{
 		case	CreateModule_CID:{
 			NodeEntry::CS[DC].enter();
 			NodeEntry::CS[ST].enter();
+			uint16	module_cid=((CreateModule	*)p)->module_cid;
 			uint16	node_id=((CreateModule	*)p)->node_id;
 			_Module	*m=NULL;
 			if(node_id==((Node	*)this)->_ID)
-				m=ModuleRegister::Get(((CreateModule	*)p)->module_cid)->buildModule();
-			ModuleDescriptor::Main[((CreateModule	*)p)->module_cid][ModuleDescriptor::Main[((CreateModule	*)p)->module_cid].count()]=new	ModuleDescriptor(node_id,m);
+				m=ModuleRegister::Get(module_cid)->buildModule();
+			ModuleDescriptor::Main[module_cid][ModuleDescriptor::Main[module_cid].count()]=new	ModuleDescriptor(node_id,m);
 			ModuleCreated	mc;
 			mc.sender_cid=((CreateModule	*)p)->sender_cid;
 			mc.sender_id=((CreateModule	*)p)->sender_id;
-			mc.module_cid=((CreateModule	*)p)->module_cid;
-			mc.module_id=ModuleDescriptor::Main[((CreateModule	*)p)->module_cid].count()-1;
+			mc.module_cid=module_cid;
+			mc.module_id=ModuleDescriptor::Main[module_cid].count()-1;
 			send(&mc,true);
 			break;
 		}case	DeleteModule_CID:{
 			NodeEntry::CS[DC].enter();
 			NodeEntry::CS[ST].enter();
-			ModuleDescriptor::Main[((DeleteModule	*)p)->module_cid][((DeleteModule	*)p)->module_id]=NULL;
+			uint16	module_cid=((DeleteModule	*)p)->module_cid;
+			uint16	module_id=((DeleteModule	*)p)->module_id;
+			ModuleDescriptor::Main[module_cid][module_id]=NULL;
 			NodeEntry::CS[DC].leave();
 			NodeEntry::CS[ST].leave();
 			ModuleDeleted	md;
-			md.module_cid=((DeleteModule	*)p)->module_cid;
-			md.module_id=((DeleteModule	*)p)->module_id;
+			md.module_cid=module_cid;
+			md.module_id=module_id;
 			send(&md,true);
 			break;
 		}case	CreateSpace_CID:{
@@ -175,11 +178,12 @@ namespace	mBrane{
 		}case	DeleteSpace_CID:{
 			NodeEntry::CS[DC].enter();
 			NodeEntry::CS[ST].enter();
-			Space::Main[((DeleteSpace	*)p)->space_id]=NULL;
+			uint16	space_id=((DeleteSpace	*)p)->space_id;
+			Space::Main[space_id]=NULL;
 			NodeEntry::CS[DC].leave();
 			NodeEntry::CS[ST].leave();
 			SpaceDeleted	sd;
-			sd.space_id=((DeleteSpace	*)p)->space_id;
+			sd.space_id=space_id;
 			send(&sd,true);
 			break;
 		}default:
