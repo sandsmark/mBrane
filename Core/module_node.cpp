@@ -52,7 +52,7 @@ namespace	mBrane{
 				Singleton=NULL;
 			}
 
-			inline	uint16	Node::ID()	const{
+			inline	uint16	Node::id()	const{
 
 				return	_ID;
 			}

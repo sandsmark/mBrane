@@ -31,14 +31,12 @@ bool	signal_handler_function_call	Handler(uint32	event){
 	case	CTRL_C_EVENT:
     case	CTRL_CLOSE_EVENT:
       	node->shutdown();
-		node->unloadApplication();
 		delete	node;
 		return	true;
     case	CTRL_BREAK_EVENT:
     case	CTRL_LOGOFF_EVENT:
     case	CTRL_SHUTDOWN_EVENT:
 		node->shutdown();
-		node->unloadApplication();
 		delete	node;
 		return	false;
     default:
@@ -67,7 +65,6 @@ int	main(int	argc,char	**argv){
 
 			node->run();
 			node->shutdown();
-			node->unloadApplication();
 		}
 		delete	node;
 	}*/

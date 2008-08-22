@@ -37,6 +37,8 @@ namespace	mBrane{
 
 	Array<P<Space> >	Space::Main;
 
+	Array<const	char	*>	Space::Names;
+
 	Space::Space():ID(LastID++),activationCount(0){
 	}
 

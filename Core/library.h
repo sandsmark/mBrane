@@ -47,16 +47,13 @@ template<class	U>	class	LibraryModule:
 public	Object<Memory,module::_Module,Module<U> >{
 protected:
 	static	const	uint16	_CID;
-	LibraryModule(uint16	ID,uint16	clusterCID,uint16	clusterID,bool	canBeSwapped=true,bool	canMigrate=true):Object<Memory,module::_Module,Module<U> >(){
-		module::_Module::_CID=Module<U>::_CID;
-		_clusterCID=clusterCID;
-		_clusterID=clusterID;
+	LibraryModule(bool	canBeSwapped=true,bool	canMigrate=true):Object<Memory,module::_Module,Module<U> >(){
 		_canBeSwapped=canBeSwapped;
 		_canMigrate=_canMigrate;
 	}
 public:
 	static	const	uint16	CID(){	return	_CID;	}
-	static	module::_Module	*New(uint16	CID,uint16	ID,uint16	clusterCID,uint16	clusterID){	return	new	U(CID,ID,clusterCID,clusterID);	}
+	static	module::_Module	*New(){	return	new	U();	}
 	virtual	~LibraryModule(){}
 	void	notify(_Payload	*p){
 		switch(p->cid()){

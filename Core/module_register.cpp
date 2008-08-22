@@ -73,9 +73,14 @@ namespace	mBrane{
 		ModuleRegister::~ModuleRegister(){
 		}
 
-		inline	module::_Module	*ModuleRegister::buildModule(uint16	ID,uint16	clusterCID,uint16	clusterID)	const{
+		inline	module::_Module	*ModuleRegister::buildModule()	const{
 
-			return	_builder(ID,clusterCID,clusterID);
+			return	_builder();
+		}
+
+		inline	const	char	*ModuleRegister::name()	const{
+
+			return	class_name;
 		}
 	}
 }

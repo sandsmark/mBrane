@@ -45,6 +45,7 @@ namespace	mBrane{
 		uint16	ID;
 		float32	_activationThreshold;	//	in [0,1]
 	public:
+		static	Array<const	char	*>	Names;
 		static	Array<P<Space> >	Main;	//	indexed by space ID; 0 is the root space
 		uint32	activationCount;
 		List<P<Projection<ModuleDescriptor> > >	moduleDescriptors;

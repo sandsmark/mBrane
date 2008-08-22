@@ -57,6 +57,9 @@ namespace	mBrane{
 		for(uint16	i=0;i<nodeNames.count();i++)
 			if(nodeNames[i])
 				free((void	*)nodeNames[i]);
+		for(uint16	i=0;i<Space::Names.count();i++)
+			if(Space::Names[i])
+				free((void	*)Space::Names[i]);
 	}
 
 	Node	*Node::loadConfig(const	char	*configFileName){
@@ -100,60 +103,54 @@ namespace	mBrane{
 			}
 		}
 
-		application_configuration_file=mainNode.getAttribute("application_configuration_file");
+		const	char	*application_configuration_file=mainNode.getAttribute("application_configuration_file");
 		if(!application_configuration_file){
 
 			std::cout<<"Error: NodeConfiguration::application_configuration_file is missing\n";
 			return	NULL;
 		}
 
+		if(!loadApplication(application_configuration_file))
+			return	NULL;
+
 		return	this;
 	}
 
 	typedef	 _Module *(__cdecl	*ModuleInstantiator)(uint16,uint16,uint16);	//	test
 
-	Node	*Node::loadApplication(const	char	*fileName){
+	bool	Node::loadApplication(const	char	*fileName){
 
-		if(fileName)
-			application_configuration_file=fileName;
-		XMLNode	mainNode=XMLNode::openFileHelper(application_configuration_file,"ApplicationConfiguration");
+		XMLNode	mainNode=XMLNode::openFileHelper(fileName,"ApplicationConfiguration");
 		if(!mainNode){
 
 			std::cout<<"Error: ApplicationConfiguration corrupted\n";
-			return	NULL;
+			return	false;
 		}
 		const	char	*ul=mainNode.getAttribute("user_library");
 		if(!ul){
 
 			std::cout<<"Error: ApplicationConfiguration::user_library is missing\n";
-			return	NULL;
+			return	false;
 		}
 		if(!(userLibrary=SharedLibrary::New(ul)))
-			return	NULL;
-		//	TODO:	load:
-		//		modules, groups, modules: NB: cluster==entity
-		//		initial subscriptions (per module and per space)
-		//		schedulers (per thread): 2nd step
-		//		migrable or not (per module)
-		//		reception policy: time first or priority first (for all modules): 2nd step
-		//		user thread count: 2nd step
-		//		target thread (per module): 2nd step
-
-		//	begin test
-		ModuleInstantiator	instantiator=userLibrary->getFunction<ModuleInstantiator>("NewCR1");
-		if(instantiator){
-
-			_Module	*c=(instantiator)(0,0,0);
-			delete	c;
-		}
-		//	end test
-		return	this;
+			return	false;
+		//	TODO:	load specs and build:
+		//		modules, spaces, clusters
+		//		initial projections and subscriptions
+		return	true;
 	}
 
 	void	Node::unloadApplication(){
 		
-		//	TODO:	unload entities, modules, groups, modules
+		//	TODO:	delete modules, spaces, clusters
 		delete	userLibrary;
+	}
+
+	uint16	Node::getNIDFromName(const	char	*name){
+
+		for(uint16	i=0;i<nodeNames.count();i++)
+			if(strcmp(nodeNames[i],networkID->name())==0)
+				return	i;
 	}
 
 	void	Node::run(){
@@ -187,7 +184,6 @@ namespace	mBrane{
 		}
 
 		daemon::Node::start();
-		//	TODO:	build modules
 		Executing::start();
 
 		bootCallback();
@@ -199,7 +195,7 @@ namespace	mBrane{
 
 		m.node_id=NID;
 		m.send_ts()=Time::Get();
-		Messaging::send(_ID,&m,true);
+		Messaging::send(&m,true);
 
 		std::cout<<"Node joined: "<<networkID->name()<<":"<<NID<<std::endl;
 
@@ -219,7 +215,7 @@ namespace	mBrane{
 
 				SystemReady	m;
 				m.send_ts()=Time::Get();
-				Messaging::send(_ID,&m,false);
+				Messaging::send(&m,false);
 			}
 		}
 	}
@@ -237,7 +233,7 @@ namespace	mBrane{
 
 			m.node_id=NID;
 			m.send_ts()=Time::Get();
-			Messaging::send(_ID,&m,true);
+			Messaging::send(&m,true);
 
 			std::cout<<"Node left: "<<dataChannels[NID]->networkID->name()<<":"<<NID<<std::endl;
 		}
@@ -303,12 +299,7 @@ namespace	mBrane{
 		Executing::shutdown();
 		daemon::Node::shutdown();
 		Networking::shutdown();
-	}
-
-	void	Node::dump(const	char	*fileName){	//	TODO
-	}
-		
-	void	Node::load(const	char	*fileName){	//	TODO
+		unloadApplication();
 	}
 
 	inline	int64	Node::time()	const{
@@ -319,29 +310,66 @@ namespace	mBrane{
 			return	Time::Get()-timeDrift;
 	}
 
-	_Module	*Node::buildModule(uint16	CID,uint16	ID,uint16	clusterCID,uint16	clusterID){
-
-		//	TODO: allocate cid (see below)
-		_Module	*c=ModuleRegister::Get(CID)->buildModule(ID,clusterCID,clusterID);
-		//	TODO: read config for c, set initial subscriptions, space membership etc
-		return	NULL;
-	}
-
-	void	Node::start(_Module	*m){
-
-		m->start();
-	}
-
-	void	Node::stop(_Module	*m){
-
-		m->stop();
-	}
-
-	void	migrate(_Module	*c,uint16	NID){	//	TODO
-	}
-
 	void	Node::send(const	_Module	*sender,_Payload	*message){
 
-		Messaging::send(_ID,sender,message,false);
+		if(message->category()==_Payload::DATA){
+
+			_Message	*_m=message->operator	_Message	*();
+			_m->senderModule_cid()=sender->descriptor->CID;
+			_m->senderModule_id()=sender->descriptor->ID;
+		}
+		Messaging::send(message,false);
+	}
+
+	void	Node::newSpace(const	_Module	*sender){
+
+		CreateSpace	cs;
+		cs.sender_cid=sender->descriptor->CID;
+		cs.sender_id=sender->descriptor->ID;
+		Messaging::send(&cs,false);
+	}
+
+	void	Node::newModule(const	_Module	*sender,uint16	CID,const	char	*hostName){
+
+		CreateModule	cm;
+		cm.sender_cid=sender->descriptor->CID;
+		cm.sender_id=sender->descriptor->ID;
+		cm.node_id=getNIDFromName(hostName);
+		cm.module_cid=CID;
+		Messaging::send(&cm,false);
+	}
+
+	void	Node::deleteSpace(uint16	ID){
+
+		DeleteSpace	ds;
+		ds.space_id=ID;
+		Messaging::send(&ds,false);
+	}
+
+	void	Node::deleteModule(uint16	CID,uint16	ID){
+
+		DeleteModule	dm;
+		dm.module_cid=CID;
+		dm.module_id=ID;
+		Messaging::send(&dm,false);
+	}
+
+	const	char	*Node::getSpaceName(uint16	ID){
+	
+		return	Space::Names[ID];
+	}
+
+	const	char	*Node::getModuleName(uint16	ID){
+
+		return	ModuleRegister::Get(ID)->name();
+	}
+
+	void	Node::dump(const	char	*fileName){	//	TODO
+	}
+		
+	void	Node::load(const	char	*fileName){	//	TODO
+	}
+
+	void	Node::migrate(uint16	CID,uint16	ID,uint16	NID){	//	TODO
 	}
 }

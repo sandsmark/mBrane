@@ -92,8 +92,7 @@ namespace	mBrane{
 				
 		Messaging();
 		~Messaging();
-		void	send(uint16	NID,_Payload	*message,bool	local);
-		void	send(uint16	NID,const	_Module	*sender,_Payload	*message,bool	local);
+		void	send(_Payload	*message,bool	local);
 		void	processControlMessage(_Payload	*p);
 		void	pushJobs(_Payload	*p,NodeEntry	&e);
 		void	pushJobs(_Payload	*p);

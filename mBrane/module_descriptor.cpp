@@ -56,9 +56,15 @@ namespace	mBrane{
 	Array<Array<P<ModuleDescriptor> > >	ModuleDescriptor::Main;
 
 	ModuleDescriptor::ModuleDescriptor(uint16	hostID,_Module	*m):Projectable<ModuleDescriptor>(),module(m),hostID(hostID){
+
+		if(m)
+			module->start();
 	}
 
 	ModuleDescriptor::~ModuleDescriptor(){
+
+		if(module!=NULL)
+			module->stop();
 	}
 
 	void	ModuleDescriptor::addSubscription_message(uint16	spaceID,uint16	MCID){

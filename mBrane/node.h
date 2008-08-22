@@ -60,37 +60,40 @@ namespace	mBrane{
 	template<class	Engine>	friend	class	Messaging;
 	private:
 		//	CONFIG
-		const	char	*application_configuration_file;
 		SharedLibrary	*userLibrary;
 		Node	*loadConfig(const	char	*configFileName);
-
 		//	NETWORKING
 		void	start(uint16	assignedNID,NetworkID	*networkID,bool	isTimeReference);
 		void	notifyNodeJoined(uint16	NID,NetworkID	*networkID);
 		void	notifyNodeLeft(uint16	NID);
-
 		//	MESSAGING
 		void	startReceivingThreads(uint16	NID);
-
 		//	NODE
 		uint16	nodeCount;
 		Array<const	char	*>	nodeNames;
+		uint16	getNIDFromName(const	char	*name);
 		Node();
+		bool	loadApplication(const	char	*fileName);
+		void	unloadApplication();
 	public:
+		//	main() NODE API
 		static	Node	*New(const	char	*configFileName);
 		~Node();
 		void	run();
 		void	shutdown();
-		void	dump(const	char	*fileName);	//	dumps the current system state; module dump fileNames: module_class_ID.bin: ex: CR1_123.bin
-		void	load(const	char	*fileName);	//	initializes itself from a previously saved system state
-		Node	*loadApplication(const	char	*fileName=NULL);	//	return NULL if unsuccessful; fileName overrides the fileName found in the node config file
-		void	unloadApplication();
-		int64	time()	const;	//	in ms since midnight 01/01/70
+		//	MODULE NODE API
 		void	send(const	_Module	*sender,_Payload	*message);
-		_Module	*buildModule(uint16	CID,uint16	ID,uint16	clusterCID,uint16	clusterID);
-		void	start(_Module	*c);
-		void	stop(_Module	*c);
-		void	migrate(_Module	*c,uint16	NID);
+		int64	time()	const;
+		void	newSpace(const	_Module	*sender);
+		void	newModule(const	_Module	*sender,uint16	CID,const	char	*hostName=NULL);
+		void	deleteSpace(uint16	ID);
+		void	deleteModule(uint16	CID,uint16	ID);
+		const	char	*getSpaceName(uint16	ID);
+		const	char	*getModuleName(uint16	ID);
+		//	DAEMON NODE API
+		void	dump(const	char	*fileName);
+		void	load(const	char	*fileName);
+		void	migrate(uint16	CID,uint16	ID,uint16	NID);
 	};
 }
 

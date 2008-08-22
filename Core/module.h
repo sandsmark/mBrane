@@ -39,6 +39,8 @@ using	namespace	mBrane::sdk::payloads;
 
 namespace	mBrane{
 	class	XThread;
+	class	ModuleDescriptor;
+	class	Node;
 	namespace	sdk{
 		namespace	module{
 
@@ -53,49 +55,43 @@ namespace	mBrane{
 			class	Timer;
 			class	dll	_Module:
 			public	_Object{	//	migration: migrateOut->dump->payload->send-/ /-receive->load->migrateIn; modules can launch their own internal threads
+			friend	class	mBrane::Node;
 			friend	class	mBrane::XThread;
+			friend	class	mBrane::ModuleDescriptor;
 			friend	class	Semaphore;
 			friend	class	Mutex;
 			friend	class	CriticalSection;
 			friend	class	Timer;
 			private:
-				XThread	*processor;
+				XThread				*processor;
+				ModuleDescriptor	*descriptor;
 			protected:
-				uint16	_ID;
-				uint16	_CID;
-				uint16	_clusterID;
-				uint16	_clusterCID;
+				uint16	_cid;
+				uint16	_id;
 				bool	_canMigrate;
 				bool	_canBeSwapped;
 				uint8	_priority;
+				bool	_ready;	//	set to false after stop and migrateOut, set to true after start and migrateIn
 				_Module();
-				int64	time()	const;
 				void	sleep(int64	d);
 				void	wait(Thread	**threads,uint32	threadCount);
 				void	wait(Thread	*_thread);
-				void	send(_Payload	*p)	const;
 			public:
 				typedef	enum{
 					DISCARD=0,
 					WAIT=1,
 					PREEMPT=2
 				}Decision;
-				static	void	New(uint16	CID,uint16	ID,uint16	clusterCID,uint16	clusterID);
 				virtual	~_Module();
-				uint16	cid()	const;
-				uint16	id()	const;
-				uint16	cluster_cid()	const;
-				uint16	cluster_id()	const;
 				uint8	&priority();
 				bool	canMigrate();	//	on another node; dynamic
 				bool	canBeSwapped();	//	on another thread within the same node; dynamic
+				bool	isReady();
 				virtual	uint32		dumpSize();	//	dynamic
 				virtual	_Payload	*dump();	//	dumps the current state; can be called anytime
 				virtual	void		load(_Payload	*chunk);	//	initializes itself from a previously saved state
 				virtual	void		start();	//	called when the module is loaded in a thread for the first time, i.e. at node starting time
 				virtual	void		stop();	//	called just before the module is unloaded from the thread for the last time, i.e. at node shutdown time
-				virtual	void		swapOut();	//	called when the module is unloaded from its current thread for swapping
-				virtual	void		swapIn();	//	called when the module is loaded in a new thread after having been swapped out
 				virtual	void		migrateOut();	//	called when the module is unloaded from its current thread for migration
 				virtual	void		migrateIn();	//	called when the module is loaded in a new thread after having migrated
 				virtual	void		notify(_Payload	*p)=0;	//	called when the module receives a message

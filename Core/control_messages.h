@@ -46,97 +46,132 @@ namespace	mBrane{
 			public	ControlMessage<TimeSync>{
 			};
 
-			class	dll	NodeID{
+			class	dll	NodeJoined:
+			public	ControlMessage<NodeJoined>{
 			public:
 				uint16	node_id;
 			};
 
-			class	dll	NodeJoined:
-			public	ControlMessage<NodeJoined>,
-			public	NodeID{
-			};
-
 			class	dll	NodeLeft:
-			public	ControlMessage<NodeLeft>,
-			public	NodeID{
+			public	ControlMessage<NodeLeft>{
+			public:
+				uint16	node_id;
 			};
 
-			class	dll	ModuleID{
+			class	dll	SetThreshold:
+			public	ControlMessage<SetThreshold>{
+			public:
+				uint16	space_id;
+				float32	threshold;
+			};
+
+			class	dll	ActivateModule:
+			public	ControlMessage<ActivateModule>{
+			public:
+				uint16	module_cid;
+				uint16	module_id;
+				uint16	space_id;
+				float32	activationLevel;
+			};
+
+			class	dll	ActivateSpace:
+			public	ControlMessage<ActivateSpace>{
+			public:
+				uint16	space_id;
+				uint16	target_sid;
+				float32	activationLevel;
+			};
+
+			template<class	U>	class	Subscribe:
+			public	ControlMessage<U>{
+			public:
+				uint16	module_cid;
+				uint16	module_id;
+				uint16	space_id;
+			};
+
+			class	dll	SubscribeMessage:
+			public	Subscribe<SubscribeMessage>{
+			public:
+				uint16	message_cid;
+			};
+
+			class	dll	SubscribeStream:
+			public	Subscribe<SubscribeStream>{
+			public:
+				uint16	stream_id;
+			};
+
+			class	dll	UnsubscribeMessage:
+			public	Subscribe<UnsubscribeMessage>{
+			public:
+				uint16	message_cid;
+			};
+
+			class	dll	UnsubscribeStream:
+			public	Subscribe<UnsubscribeStream>{
+			public:
+				uint16	stream_id;
+			};
+
+			class	dll	CreateModule:
+			public	ControlMessage<CreateModule>{
+			public:
+				uint16	sender_cid;
+				uint16	sender_id;
+				uint16	module_cid;
+				uint16	node_id;
+			};
+
+			class	dll	ModuleCreated:
+			public	ControlMessage<ModuleCreated>{
+			public:
+				uint16	sender_cid;
+				uint16	sender_id;
+				uint16	module_cid;
+				uint16	module_id;
+				uint16	node_id;
+			};
+
+			class	dll	DeleteModule:
+			public	ControlMessage<DeleteModule>{
 			public:
 				uint16	module_cid;
 				uint16	module_id;
 			};
 
-			class	dll	SpaceID{
+			class	dll	ModuleDeleted:
+			public	ControlMessage<ModuleDeleted>{
+			public:
+				uint16	module_cid;
+				uint16	module_id;
+			};
+
+			class	dll	CreateSpace:
+			public	ControlMessage<CreateSpace>{
+			public:
+				uint16	sender_cid;
+				uint16	sender_id;
+			};
+
+			class	dll	SpaceCreated:
+			public	ControlMessage<SpaceCreated>{
+			public:
+				uint16	sender_cid;
+				uint16	sender_id;
+				uint16	space_id;
+			};
+
+			class	dll	DeleteSpace:
+			public	ControlMessage<DeleteSpace>{
 			public:
 				uint16	space_id;
 			};
 
-			class	dll	ActivationLevel{
+			class	dll	SpaceDeleted:
+			public	ControlMessage<SpaceDeleted>{
 			public:
-				float32	activationLevel;
-			};
-
-			class	dll	Threshold{
-			public:
-				float32	threshold;
-			};
-
-			class	dll	SetThreshold:
-			public	ControlMessage<SetThreshold>,
-			public	SpaceID,
-			public	Threshold{
-			};
-
-			class	dll	ActivateModule:
-			public	ControlMessage<ActivateModule>,
-			public	ModuleID,
-			public	SpaceID,
-			public	ActivationLevel{				
-			};
-
-			class	dll	ActivateSpace:
-			public	ControlMessage<ActivateSpace>,
-			public	SpaceID,
-			public	ActivationLevel{
-			public:
-				uint16	target_sid;
-			};
-
-			template<class	U>	class	Subscribe:
-			public	ControlMessage<U>,
-			public	ModuleID,
-			public	SpaceID{
-			};
-
-			class	dll	MessageID{
-			public:
-				uint16	message_cid;
-			};
-
-			class	dll	StreamID{
-			public:
-				uint16	stream_id;
-			};
-
-			class	dll	SubscribeMessage:
-			public	Subscribe<SubscribeMessage>,
-			public	MessageID{
-			};
-
-			class	dll	SubscribeStream:
-			public	Subscribe<SubscribeStream>,
-			public	StreamID{
-			};
-
-			class	dll	UnsubscribeMessage:
-			public	Subscribe<UnsubscribeMessage>,
-			public	MessageID{
-			};
-
-			class	dll	UnsubscribeStream:
-			public	Subscribe<UnsubscribeStream>,
-			public	StreamID{
+				uint16	space_id;
 			};
 
 			#define	SystemReady_CID			0
@@ -150,7 +185,14 @@ namespace	mBrane{
 			#define	SubscribeStream_CID		8
 			#define	UnsubscribeMessage_CID	9
 			#define	UnsubscribeStream_CID	10
-		
+			#define	CreateModule_CID		11
+			#define	ModuleCreated_CID		12
+			#define	CreateSpace_CID			13
+			#define	SpaceCreated_CID		14
+			#define	DeleteModule_CID		15
+			#define	ModuleDeleted_CID		16
+			#define	DeleteSpace_CID			17
+			#define	SpaceDeleted_CID		18
 		}
 	}
 }

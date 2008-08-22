@@ -37,35 +37,10 @@ namespace	mBrane{
 	namespace	sdk{
 		namespace	module{
 
-			void	_Module::New(uint16	CID,uint16	ID,uint16	clusterCID,uint16	clusterID){
-
-				Node::Get()->buildModule(CID,ID,clusterCID,clusterID);
-			}
-
-			_Module::_Module():	_Object(),_priority(0),processor(NULL){
+			_Module::_Module():	_Object(),_priority(0),processor(NULL),_ready(false){
 			}
 
 			_Module::~_Module(){
-			}
-
-			inline	uint16	_Module::cid()	const{
-
-				return	_CID;
-			}
-
-			inline	uint16	_Module::id()	const{
-
-				return	_ID;
-			}
-
-			inline	uint16	_Module::cluster_cid()	const{
-
-				return	_clusterCID;
-			}
-
-			inline	uint16	_Module::cluster_id()	const{
-
-				return	_clusterID;
 			}
 
 			inline	uint8	&_Module::priority(){
@@ -83,6 +58,11 @@ namespace	mBrane{
 				return	_canBeSwapped;
 			}
 
+			bool	_Module::isReady(){
+
+				return	_ready;
+			}
+
 			uint32	_Module::dumpSize(){
 
 				return	0;
@@ -97,26 +77,23 @@ namespace	mBrane{
 			}
 
 			void	_Module::start(){
+
+				_ready=true;
 			}
 
 			void	_Module::stop(){
-			}
 
-			inline	void	_Module::swapOut(){
-			}
-
-			inline	void	_Module::swapIn(){
+				_ready=false;
 			}
 
 			inline	void	_Module::migrateOut(){
+
+				_ready=false;
 			}
 
 			inline	void	_Module::migrateIn(){
-			}
 
-			inline	int64	_Module::time()	const{
-
-				return	Node::Get()->time();
+				_ready=true;
 			}
 
 			void	_Module::sleep(int64	d){
@@ -138,11 +115,6 @@ namespace	mBrane{
 				if(processor)
 					processor->block();
 				Thread::Wait(_thread);
-			}
-			
-			inline	void	_Module::send(_Payload	*p)	const{
-
-				Node::Get()->send(this,p);
 			}
 		}
 	}

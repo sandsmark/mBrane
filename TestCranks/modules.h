@@ -7,7 +7,7 @@
 class	Module1:
 public Module<Module1>{
 public:
-	Module1(uint16	ID,uint16	clusterCID,uint16	clusterID);
+	Module1();
 	~Module1();
 	template<class	T>	Decision	decide(T	*p){
 		return	WAIT;

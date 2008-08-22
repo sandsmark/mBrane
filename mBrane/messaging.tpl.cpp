@@ -29,6 +29,7 @@
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include	"..\Core\control_messages.h"
+#include	"..\Core\module_register.h"
 
 
 #define	INITIAL_NID_ARRAY_LENGTH	16
@@ -65,30 +66,13 @@ namespace	mBrane{
 			delete	sendThread;
 		delete	inputSync;
 	}
-	
-	template<class	Engine>	inline	void	Messaging<Engine>::send(uint16	NID,const	_Module	*sender,_Payload	*message,bool	local){
 
-		message->send_ts()=Time::Get();
-		if(message->category()==_Payload::DATA){
+	template<class	Engine>	inline	void	Messaging<Engine>::send(_Payload	*message,bool	local){
 
-			_Message	*_m=message->operator	_Message	*();
-			_m->senderModule_cid()=sender->cid();
-			_m->senderModule_iid()=sender->id();
-			_m->senderCluster_cid()=sender->cluster_cid();
-			_m->senderCluster_iid()=sender->cluster_id();
-		}
 		OutputSlot	o;
 		o.p=message;
 		o.local=local;
-		messageOutputQueue.push(o);
-	}
-
-	template<class	Engine>	inline	void	Messaging<Engine>::send(uint16	NID,_Payload	*message,bool	local){
-
 		message->send_ts()=Time::Get();
-		OutputSlot	o;
-		o.p=message;
-		o.local=local;
 		messageOutputQueue.push(o);
 	}
 
@@ -110,27 +94,95 @@ namespace	mBrane{
 
 		switch(p->cid()){
 		case	SetThreshold_CID:
+			NodeEntry::CS[DC].enter();
+			NodeEntry::CS[ST].enter();
 			Space::Main[((SetThreshold	*)p)->space_id]->setActivationThreshold(((SetThreshold	*)p)->threshold);
+			NodeEntry::CS[DC].leave();
+			NodeEntry::CS[ST].leave();
 			break;
 		case	ActivateModule_CID:
+			NodeEntry::CS[DC].enter();
+			NodeEntry::CS[ST].enter();
 			ModuleDescriptor::Main[((ActivateModule	*)p)->module_cid][((ActivateModule	*)p)->module_id]->setActivationLevel(((ActivateModule	*)p)->space_id,((ActivateModule	*)p)->activationLevel);
+			NodeEntry::CS[DC].leave();
+			NodeEntry::CS[ST].leave();
 			break;
 		case	ActivateSpace_CID:
+			NodeEntry::CS[DC].enter();
+			NodeEntry::CS[ST].enter();
 			Space::Main[((ActivateSpace	*)p)->target_sid]->setActivationLevel(((ActivateSpace	*)p)->space_id,((ActivateSpace	*)p)->activationLevel);
+			NodeEntry::CS[DC].leave();
+			NodeEntry::CS[ST].leave();
 			break;
 		case	SubscribeMessage_CID:
+			NodeEntry::CS[DC].enter();
 			ModuleDescriptor::Main[((SubscribeMessage	*)p)->module_cid][((SubscribeMessage	*)p)->module_id]->addSubscription_message(((SubscribeMessage	*)p)->space_id,((SubscribeMessage	*)p)->message_cid);
+			NodeEntry::CS[DC].leave();
 			break;
 		case	SubscribeStream_CID:
+			NodeEntry::CS[ST].enter();
 			ModuleDescriptor::Main[((SubscribeMessage	*)p)->module_cid][((SubscribeMessage	*)p)->module_id]->addSubscription_stream(((SubscribeStream	*)p)->space_id,((SubscribeStream	*)p)->stream_id);
+			NodeEntry::CS[ST].leave();
 			break;
 		case	UnsubscribeMessage_CID:
+			NodeEntry::CS[DC].enter();
 			ModuleDescriptor::Main[((UnsubscribeMessage	*)p)->module_cid][((UnsubscribeMessage	*)p)->module_id]->removeSubscription_message(((SubscribeMessage	*)p)->space_id,((SubscribeMessage	*)p)->message_cid);
+			NodeEntry::CS[DC].leave();
 			break;
 		case	UnsubscribeStream_CID:
+			NodeEntry::CS[ST].enter();
 			ModuleDescriptor::Main[((UnsubscribeStream	*)p)->module_cid][((UnsubscribeStream	*)p)->module_id]->removeSubscription_stream(((SubscribeStream	*)p)->space_id,((SubscribeStream	*)p)->stream_id);
+			NodeEntry::CS[ST].leave();
 			break;
-		default:
+		case	CreateModule_CID:{
+			NodeEntry::CS[DC].enter();
+			NodeEntry::CS[ST].enter();
+			uint16	node_id=((CreateModule	*)p)->node_id;
+			_Module	*m=NULL;
+			if(node_id==((Node	*)this)->_ID)
+				m=ModuleRegister::Get(((CreateModule	*)p)->module_cid)->buildModule();
+			ModuleDescriptor::Main[((CreateModule	*)p)->module_cid][ModuleDescriptor::Main[((CreateModule	*)p)->module_cid].count()]=new	ModuleDescriptor(node_id,m);
+			ModuleCreated	mc;
+			mc.sender_cid=((CreateModule	*)p)->sender_cid;
+			mc.sender_id=((CreateModule	*)p)->sender_id;
+			mc.module_cid=((CreateModule	*)p)->module_cid;
+			mc.module_id=ModuleDescriptor::Main[((CreateModule	*)p)->module_cid].count()-1;
+			send(&mc,true);
+			break;
+		}case	DeleteModule_CID:{
+			NodeEntry::CS[DC].enter();
+			NodeEntry::CS[ST].enter();
+			ModuleDescriptor::Main[((DeleteModule	*)p)->module_cid][((DeleteModule	*)p)->module_id]=NULL;
+			NodeEntry::CS[DC].leave();
+			NodeEntry::CS[ST].leave();
+			ModuleDeleted	md;
+			md.module_cid=((DeleteModule	*)p)->module_cid;
+			md.module_id=((DeleteModule	*)p)->module_id;
+			send(&md,true);
+			break;
+		}case	CreateSpace_CID:{
+			NodeEntry::CS[DC].enter();
+			NodeEntry::CS[ST].enter();
+			Space::Main[Space::Main.count()]=new	Space();
+			NodeEntry::CS[DC].leave();
+			NodeEntry::CS[ST].leave();
+			SpaceCreated	sc;
+			sc.sender_cid=((CreateSpace	*)p)->sender_cid;
+			sc.sender_id=((CreateSpace	*)p)->sender_id;
+			sc.space_id=Space::Main.count()-1;
+			send(&sc,true);
+			break;
+		}case	DeleteSpace_CID:{
+			NodeEntry::CS[DC].enter();
+			NodeEntry::CS[ST].enter();
+			Space::Main[((DeleteSpace	*)p)->space_id]=NULL;
+			NodeEntry::CS[DC].leave();
+			NodeEntry::CS[ST].leave();
+			SpaceDeleted	sd;
+			sd.space_id=((DeleteSpace	*)p)->space_id;
+			send(&sd,true);
+			break;
+		}default:
 			break;
 		}
 	}
@@ -144,7 +196,7 @@ namespace	mBrane{
 			List<P<ModuleEntry> >::Iterator	i;
 			for(i=modules.begin();i!=modules.end();i++){
 
-				if(((P<ModuleEntry>)i)->module->activationCount){
+				if(((P<ModuleEntry>)i)->module->module->isReady()	&&	((P<ModuleEntry>)i)->module->activationCount){
 
 					j.p=p;
 					j.m=((P<ModuleEntry>)i)->module;

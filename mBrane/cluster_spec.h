@@ -58,7 +58,7 @@ namespace	mBrane{
 		Array<ClusterRef	*>	clusters;
 		ClusterSpec();
 		~ClusterSpec();
-		Cluster	*buildCluster();
+		void	instanciate();
 	};
 }
 

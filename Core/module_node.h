@@ -49,12 +49,15 @@ namespace	mBrane{
 				~Node();
 			public:
 				static	Node	*Get();
-				uint16	ID()	const;
-				virtual	_Module	*buildModule(uint16	CID,uint16	ID,uint16	clusterCID,uint16	clusterID)=0;
-				virtual	void	start(_Module	*m)=0;
-				virtual	void	stop(_Module	*m)=0;
+				uint16	id()	const;
 				virtual	void	send(const	_Module	*sender,_Payload	*p)=0;
 				virtual	int64	time()	const=0;	//	in ms since 01/01/70
+				virtual	void	newSpace(const	_Module	*sender)=0;	//	names are meaningless for dynamic instances
+				virtual	void	newModule(const	_Module	*sender,uint16	CID,const	char	*hostName=NULL)=0;
+				virtual	void	deleteSpace(uint16	ID)=0;
+				virtual	void	deleteModule(uint16	CID,uint16	ID)=0;
+				virtual	const	char	*getSpaceName(uint16	ID)=0;
+				virtual	const	char	*getModuleName(uint16	ID)=0;
 			};
 		}
 	}

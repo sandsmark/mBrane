@@ -29,7 +29,6 @@
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include	"cluster_spec.h"
-#include	"cluster.h"
 
 
 namespace	mBrane{
@@ -47,10 +46,6 @@ namespace	mBrane{
 	ClusterSpec::~ClusterSpec(){
 	}
 
-	Cluster	*ClusterSpec::buildCluster(){
-
-		Cluster	*c=new	Cluster();
-
-		return	c;
+	void	ClusterSpec::instanciate(){
 	}
 }

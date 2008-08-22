@@ -51,16 +51,13 @@ template<class	U>	class	Module:
 public	Object<Memory,module::_Module,Module<U> >{
 protected:
 	static	const	uint16	_CID;
-	Module(uint16	ID,uint16	clusterCID,uint16	clusterID,bool	canBeSwapped=true,bool	canMigrate=true):Object<Memory,module::_Module,Module<U> >(){
-		module::_Module::_CID=Module<U>::_CID;
-		_clusterCID=clusterCID;
-		_clusterID=clusterID;
+	Module(bool	canBeSwapped=true,bool	canMigrate=true):Object<Memory,module::_Module,Module<U> >(){
 		_canBeSwapped=canBeSwapped;
 		_canMigrate=_canMigrate;
 	}
 public:
 	static	const	uint16	CID(){	return	_CID;	}
-	static	module::_Module	*New(uint16	ID,uint16	clusterCID,uint16	clusterID){	return	new	U(ID,clusterCID,clusterID);	}
+	static	module::_Module	*New(){	return	new	U();	}
 	virtual	~Module(){}
 	void	notify(_Payload	*p){
 		switch(p->cid()){
@@ -117,7 +114,7 @@ template<class	U>	const	uint16	Module<U>::_CID=ModuleRegister::Load(New);
 //	module instanciation
 #define	MODULE_CLASS(C)	\
 extern	"C"{	\
-	mBrane::sdk::module::_Module *	__cdecl	New##C(uint16	ID,uint16	clusterID,uint16	clusterCID){	return	new	C(ID,clusterCID,clusterID);	}	\
+	mBrane::sdk::module::_Module *	__cdecl	New##C(){	return	new	C();	}	\
 	const	mBrane::uint16	C##_CID(){	return	C::CID();	}	\
 }
 

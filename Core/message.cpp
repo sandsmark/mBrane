@@ -85,7 +85,7 @@ namespace	mBrane{
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
 
-			inline	_Message::_Message():_senderModuleCID(0),_senderModuleIID(0),_senderClusterCID(0),_senderClusterIID(0){
+			inline	_Message::_Message():_senderModuleCID(0),_senderModuleID(0),_senderClusterCID(0),_senderClusterID(0){
 			}
 
 			inline	_Message::~_Message(){
@@ -101,9 +101,9 @@ namespace	mBrane{
 				return	_senderModuleCID;
 			}
 
-			inline	uint16	&_Message::senderModule_iid(){
+			inline	uint16	&_Message::senderModule_id(){
 
-				return	_senderModuleIID;
+				return	_senderModuleID;
 			}
 
 			inline	uint16	&_Message::senderCluster_cid(){
@@ -111,9 +111,9 @@ namespace	mBrane{
 				return	_senderClusterCID;
 			}
 
-			inline	uint16	&_Message::senderCluster_iid(){
+			inline	uint16	&_Message::senderCluster_id(){
 
-				return	_senderClusterIID;
+				return	_senderClusterID;
 			}
 		}
 	}

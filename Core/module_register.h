@@ -41,7 +41,7 @@ namespace	mBrane{
 		class	dll	ModuleRegister{
 		template<class	Register>	friend	class	Array;
 		public:
-			typedef	module::_Module	*(*ModuleBuilder)(uint16,uint16,uint16);
+			typedef	module::_Module	*(*ModuleBuilder)();
 		private:
 			static	Array<ModuleRegister>	Modules;
 			ModuleBuilder	_builder;
@@ -54,7 +54,8 @@ namespace	mBrane{
 			static	uint16	Count();
 			ModuleRegister();
 			~ModuleRegister();
-			module::_Module	*buildModule(uint16	ID,uint16	clusterCID,uint16	clusterID)	const;
+			module::_Module	*buildModule()	const;
+			const	char	*name()	const;
 		};
 	}
 }
