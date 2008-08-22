@@ -127,7 +127,7 @@ namespace	mBrane{
 		public	__Payload{
 		protected:
 			uint32	_metaData;	//	offset points here; metadata: [cid(16)|reserved(14)|allocation scheme(2)]
-			_RPayload(AllocationScheme	a);
+			_RPayload();
 		public:
 			static	const	size_t	Offset();
 			virtual	~_RPayload();
@@ -141,7 +141,7 @@ namespace	mBrane{
 		template<class	M,class	U>	class	RPayload:
 		public	Object<M,_RPayload,U>{
 		private:
-			static	const	uint16	_CID;
+			static	const	uint32	_MetaData;
 		protected:
 			RPayload();
 		public:

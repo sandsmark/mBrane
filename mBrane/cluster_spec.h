@@ -45,14 +45,17 @@ namespace	mBrane{
 		static	uint16	LastCID;
 		uint16	CID;
 	public:
+		static	Array<ClusterSpec>	Main;
 		static	ClusterSpec	*New(XMLNode	&n);
-		typedef	struct{
+		class	ClusterRef{
+		public:
+			static	ClusterRef	*New(XMLNode	&n);
 			uint16	clusterClass;
 			uint16	clusterCount;
-		}ClusterDef;
+		};
 		Array<ModuleSpec	*>	modules;
 		Array<SpaceSpec		*>	spaces;
-		Array<ClusterSpec	*>	clusters;
+		Array<ClusterRef	*>	clusters;
 		ClusterSpec();
 		~ClusterSpec();
 		Cluster	*buildCluster();

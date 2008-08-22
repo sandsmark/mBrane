@@ -55,6 +55,7 @@ protected:
 		_canMigrate=_canMigrate;
 	}
 public:
+	static	const	uint16	CID(){	return	_CID;	}
 	static	module::_Module	*New(uint16	CID,uint16	ID,uint16	clusterCID,uint16	clusterID){	return	new	U(CID,ID,clusterCID,clusterID);	}
 	virtual	~LibraryModule(){}
 	void	notify(_Payload	*p){
@@ -86,6 +87,21 @@ public:
 	}
 };
 template<class	U>	uint16	Module<U>::_CID=ModuleRegister::Load(New);
+
+
+//	for retrieving CIDs from names (in specs)
+#define	MBRANE_MESSAGE_CLASS(C)		static	const	uint16	C##_name=ClassRegister::Load(#C);
+#define	MBRANE_STREAM_DATA_CLASS(C)	static	const	uint16	C##_name=ClassRegister::Load(#C);
+#include	MBRANE_MESSAGE_CLASSES
+#include	LIBRARY_CLASSES
+
+
+//	module instanciation
+#define	MODULE_CLASS(C)	\
+extern	"C"{	\
+	mBrane::sdk::module::_Module *	__cdecl	New##C(uint16	ID,uint16	clusterID,uint16	clusterCID){	return	new	C(ID,clusterCID,clusterID);	}	\
+	const	mBrane::uint16	C##_CID=C::CID();	\
+}
 
 
 #endif

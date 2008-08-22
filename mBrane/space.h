@@ -54,6 +54,8 @@ namespace	mBrane{
 		uint16	id();
 		void	setActivationThreshold(float32	thr);
 		float32	getActivationThreshold();
+		void	activate();
+		void	deactivate();		
 		List<P<Projection<ModuleDescriptor> > >::Iterator	project(Projection<ModuleDescriptor>	*p);
 		List<P<Projection<Space> > >::Iterator				project(Projection<Space>	*p);
 	};

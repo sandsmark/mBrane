@@ -1,7 +1,7 @@
 //	user defined
 
-#ifndef	c_h
-#define	c_h
+#ifndef	application_c_h
+#define	application_c_h
 
 #include	"..\Core\mBrane.h"
 

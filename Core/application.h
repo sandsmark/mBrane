@@ -32,6 +32,8 @@
 #define	_application_h_
 
 #include	"module_register.h"
+#include	"class_register.h"
+
 
 #define	MBRANE_MESSAGE_CLASSES	"mBrane_message_classes.h"
 
@@ -42,7 +44,7 @@
 #endif
 #include	APPLICATION_CLASSES
 
-//	for use in switches (instead of user_class::CID())
+//	for use in switches (instead of the non constant expression user_class::CID())
 #define	CLASS_ID(C)	C##_class
 
 template<class	U>	class	Module:
@@ -57,6 +59,7 @@ protected:
 		_canMigrate=_canMigrate;
 	}
 public:
+	static	const	uint16	CID(){	return	_CID;	}
 	static	module::_Module	*New(uint16	ID,uint16	clusterCID,uint16	clusterID){	return	new	U(ID,clusterCID,clusterID);	}
 	virtual	~Module(){}
 	void	notify(_Payload	*p){
@@ -99,8 +102,24 @@ public:
 		}
 	}
 };
-
 template<class	U>	const	uint16	Module<U>::_CID=ModuleRegister::Load(New);
+
+
+//	for retrieving CIDs from names (in specs)
+#define	MBRANE_MESSAGE_CLASS(C)		static	const	uint16	C##_name=ClassRegister::Load(#C);
+#define	MBRANE_STREAM_DATA_CLASS(C)	static	const	uint16	C##_name=ClassRegister::Load(#C);
+#ifndef	LIBRARY_CLASSES
+	#include	MBRANE_MESSAGE_CLASSES
+#endif
+#include	APPLICATION_CLASSES
+
+
+//	module instanciation
+#define	MODULE_CLASS(C)	\
+extern	"C"{	\
+	mBrane::sdk::module::_Module *	__cdecl	New##C(uint16	ID,uint16	clusterID,uint16	clusterCID){	return	new	C(ID,clusterCID,clusterID);	}	\
+	const	mBrane::uint16	C##_CID=C::CID();	\
+}
 
 
 #endif

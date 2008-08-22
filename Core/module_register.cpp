@@ -37,9 +37,22 @@ namespace	mBrane{
 
 		Array<ModuleRegister>	ModuleRegister::Modules;
 
+		void	ModuleRegister::SetClassName(uint16	CID,const	char	*className){
+
+			strcpy(Get(CID)->class_name,className);
+		}
+
 		inline	ModuleRegister	*ModuleRegister::Get(uint16	CID){
 
 			return	Modules.get(CID);
+		}
+
+		const	uint16	ModuleRegister::GetCID(const	char	*className){
+
+			for(uint16	i=0;i<Modules.count();i++)
+				if(strcmp(Modules.get(i)->class_name,className)==0)
+					return	i;
+			return	ClassRegister::NoClass;
 		}
 
 		inline	uint16	ModuleRegister::Count(){

@@ -47,10 +47,8 @@ namespace	mBrane{
 			};
 
 			class	dll	NodeID{
-			protected:
-				uint16	nodeID;
 			public:
-				uint16	&node_id();
+				uint16	node_id;
 			};
 
 			class	dll	NodeJoined:
@@ -64,31 +62,24 @@ namespace	mBrane{
 			};
 
 			class	dll	ModuleID{
-			protected:
-				uint16	moduleID;
 			public:
-				uint16	&module_id();
+				uint16	module_cid;
+				uint16	module_id;
 			};
 
 			class	dll	SpaceID{
-			protected:
-				uint16	spaceID;
 			public:
-				uint16	&space_id();
+				uint16	space_id;
 			};
 
 			class	dll	ActivationLevel{
-			protected:
-				float32	_activationLevel;
 			public:
-				float32	&activationLevel();
+				float32	activationLevel;
 			};
 
 			class	dll	Threshold{
-			protected:
-				float32	_threshold;
 			public:
-				float32	&threshold();
+				float32	threshold;
 			};
 
 			class	dll	SetThreshold:
@@ -108,10 +99,8 @@ namespace	mBrane{
 			public	ControlMessage<ActivateSpace>,
 			public	SpaceID,
 			public	ActivationLevel{
-			private:
-				uint16	_targetSID;
 			public:
-				uint16	&target_sid();
+				uint16	target_sid;
 			};
 
 			template<class	U>	class	Subscribe:
@@ -121,17 +110,13 @@ namespace	mBrane{
 			};
 
 			class	dll	MessageID{
-			protected:
-				uint16	messageCID;
 			public:
-				uint16	&message_cid();
+				uint16	message_cid;
 			};
 
 			class	dll	StreamID{
-			protected:
-				uint16	streamID;
 			public:
-				uint16	&stream_id();
+				uint16	stream_id;
 			};
 
 			class	dll	SubscribeMessage:

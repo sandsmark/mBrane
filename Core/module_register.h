@@ -45,9 +45,12 @@ namespace	mBrane{
 		private:
 			static	Array<ModuleRegister>	Modules;
 			ModuleBuilder	_builder;
+			char			class_name[255];
 		public:
 			static	uint16	Load(ModuleBuilder	b);
+			static	void	SetClassName(uint16	CID,const	char	*className);
 			static	ModuleRegister	*Get(uint16	CID);
+			static	const	uint16	GetCID(const	char	*className);
 			static	uint16	Count();
 			ModuleRegister();
 			~ModuleRegister();

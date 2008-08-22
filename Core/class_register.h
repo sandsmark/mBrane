@@ -54,9 +54,13 @@ namespace	mBrane{
 			size_t		_offset;	//	from this
 			uint8		_ptrCount;
 			Ptr			_ptr;
+			char		class_name[255];
 		public:
+			static	const	uint16	NoClass;	//	max: 0xFFFE classes
 			template<class	C,class	M>	static	uint32	Load();	//	returns class meta data (Cf payload.h)
+			static	const	uint16	Load(const	char	*className);
 			static	ClassRegister	*Get(uint16	CID);
+			static	const	uint16	GetCID(const	char	*className);
 			static	uint16	Count();
 			ClassRegister();
 			~ClassRegister();

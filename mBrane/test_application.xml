@@ -1,17 +1,18 @@
 <ApplicationConfiguration user_library="C:\eric\work\mBrane\mBrane\Debug\TestModules.dll">
-	<Space	name="" activationThreshold="">
-		<Projection	space="" activationlevel=""/>
+	<Space name="" activationThreshold="">
+		<Projection space="" activationlevel=""/>
 	</Space>
-	<Module	class="" count="">
-		<Projection	space="" activationlevel=""/>
-		<Subscription	space="" message_class=""/>
-		<Subscription	space="" stream=""/>
+	<Module class="" count="">
+		<Projection space="" activationlevel="">
+			<Subscription space="" message_class=""/>
+			<Subscription space="" stream=""/>
+		</Projection>
 	</Module>
-	<Cluster	class="">
+	<Cluster class="">
 		<Space>
 		</Space>
 		<Module>
 		</Module>
-		<Cluster	class="" count=""/>
+		<Cluster class="" count=""/>
 	</Cluster>
 </ApplicationConfiguration>

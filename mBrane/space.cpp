@@ -75,4 +75,24 @@ namespace	mBrane{
 		P<Projection<Space> >	_p=p;
 		return	spaces.addElementTail(_p);
 	}
+
+	inline	void	Space::activate(){
+
+		List<P<Projection<Space> > >::Iterator	i;
+		for(i=spaces.begin();i!=spaces.end();i++)
+			((P<Projection<Space> >)i)->activate();
+		List<P<Projection<ModuleDescriptor> > >::Iterator	j;
+		for(j=moduleDescriptors.begin();j!=moduleDescriptors.end();j++)
+			((P<Projection<ModuleDescriptor> >)j)->activate();
+	}
+
+	inline	void	Space::deactivate(){
+
+		List<P<Projection<Space> > >::Iterator	i;
+		for(i=spaces.begin();i!=spaces.end();i++)
+			((P<Projection<Space> >)i)->deactivate();
+		List<P<Projection<ModuleDescriptor> > >::Iterator	j;
+		for(j=moduleDescriptors.begin();j!=moduleDescriptors.end();j++)
+			((P<Projection<ModuleDescriptor> >)j)->deactivate();
+	}
 }

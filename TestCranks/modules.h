@@ -1,14 +1,14 @@
-#ifndef	_modules_h
-#define	_modules_h
+#ifndef	application_modules_h
+#define	application_modules_h
 
 #include	"test.h"
 
 
-class	CR1:
-public Module<CR1>{
+class	Module1:
+public Module<Module1>{
 public:
-	CR1(uint16	ID,uint16	clusterCID,uint16	clusterID);
-	~CR1();
+	Module1(uint16	ID,uint16	clusterCID,uint16	clusterID);
+	~Module1();
 	template<class	T>	Decision	decide(T	*p){
 		return	WAIT;
 	}
@@ -25,6 +25,9 @@ public:
 	//		}
 	//	}
 };
+
+
+MODULE_CLASS(Module1)
 
 
 #endif

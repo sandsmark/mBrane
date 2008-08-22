@@ -37,6 +37,8 @@ namespace	mBrane{
 
 		Array<ClassRegister>	ClassRegister::Classes;
 
+		const	uint16	ClassRegister::NoClass=0xFFFF;
+
 		inline	ClassRegister	*ClassRegister::Get(uint16	CID){
 
 			return	Classes.get(CID);
@@ -45,6 +47,21 @@ namespace	mBrane{
 		inline	uint16	ClassRegister::Count(){
 
 			return	Classes.count();
+		}
+
+		const	uint16	ClassRegister::Load(const char *className){
+
+			static	uint16	I=0;
+			strcpy(Get(I)->class_name,className);
+			return	I++;
+		}
+
+		const	uint16	ClassRegister::GetCID(const	char	*className){
+
+			for(uint16	i=0;i<Classes.count();i++)
+				if(strcmp(Classes.get(i)->class_name,className)==0)
+					return	i;
+			return	NoClass;
 		}
 
 		ClassRegister::ClassRegister():_allocator(NULL){

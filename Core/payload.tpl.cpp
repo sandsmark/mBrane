@@ -83,7 +83,7 @@ namespace	mBrane{
 
 		////////////////////////////////////////////////////////////////////////////////////
 
-		template<class	M,class	U>	const	uint16	RPayload<M,U>::_CID=ClassRegister::Load<U,M>();
+		template<class	M,class	U>	const	uint16	RPayload<M,U>::_MetaData=ClassRegister::Load<U,M>();
 
 		template<class	M,class	U>	inline	void	*RPayload<M,U>::New(){	//	to initialize the _vftable
 
@@ -92,7 +92,7 @@ namespace	mBrane{
 
 		template<class	M,class	U>	inline	const	uint16	RPayload<M,U>::CID(){
 
-			return	_CID;
+			return	_MetaData>>16;
 		}
 
 		template<class	M,class	U>	const	AllocationScheme	RPayload<M,U>::_AllocationScheme(){
@@ -116,7 +116,7 @@ namespace	mBrane{
 		template<class	M,class	U>	inline	void	*RPayload<M,U>::operator	new(size_t	s){
 
 			U	*p=(U	*)Object<M,_RPayload,U>::operator	new(s);
-			p->_cid=_CID;
+			p->_metaData=_MetaData;
 			return	p;
 		}
 		

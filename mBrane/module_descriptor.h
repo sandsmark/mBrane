@@ -61,31 +61,27 @@ namespace	mBrane{
 	};
 
 	template<>	class	Projection<ModuleDescriptor>:
-	public	Object<Memory,_Object,Projection<ModuleDescriptor> >{
-	private:
-		ModuleDescriptor	*projected;
-		Space				*space;
-		float32				activationLevel;
-		void				propagateActivation();
-		void				propagateDeactivation();
+	public	_Projection<ModuleDescriptor,Projection<ModuleDescriptor> >{
 	public:
+		Array<typename	List<P<ModuleEntry> >::Iterator>	subscriptions[2];	//	0: indexed by message class ID (MCID), 1: indexed by stream ID (SID)
 		Projection(ModuleDescriptor	*projected,Space	*space);
 		~Projection();
-		void	setActivationLevel(float32	a);
-		void	updateActivationCount(float32	t);
-		Array<typename	List<P<ModuleEntry> >::Iterator>	subscriptions[2];	//	0: indexed by message class ID (MCID), 1: indexed by stream ID (SID)
+		void	activate();
+		void	deactivate();
 	};
 
 	class	ModuleDescriptor:
 	public	Projectable<ModuleDescriptor>{
 	public:
-		static	uint16	LastID;
+		uint16	CID;
 		uint16	ID;
-		static	Array<P<ModuleDescriptor> >	Main;	//	indexed by module descriptor ID
+		static	Array<Array<P<ModuleDescriptor> > >	Main;	//	indexed by module descriptor class ID | ID
 		uint16	hostID;	//	node
 		P<_Module>	module;	//	NULL if remote
 		ModuleDescriptor(uint16	hostID,_Module	*m=NULL);
 		~ModuleDescriptor();
+		void	activate();
+		void	deactivate();
 		void	addSubscription_message(uint16	spaceID,uint16	MCID);
 		void	addSubscription_stream(uint16	spaceID,uint16	SID);
 		void	removeSubscription_message(uint16	spaceID,uint16	MCID);

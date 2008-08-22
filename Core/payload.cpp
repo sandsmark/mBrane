@@ -111,9 +111,7 @@ namespace	mBrane{
 			return	sizeof(_Object);
 		}
 
-		inline	_RPayload::_RPayload(AllocationScheme	a):_Object(){
-
-			_metaData|=a;	//	CID set in Payload<M,U>::operator	new
+		inline	_RPayload::_RPayload():_Object(){
 		}
 
 		inline	_RPayload::~_RPayload(){

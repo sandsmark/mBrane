@@ -42,6 +42,7 @@ namespace	mBrane{
 	class	SpaceSpec{
 	private:
 	public:
+		static	Array<SpaceSpec>	Main;
 		static	SpaceSpec	*New(XMLNode	&n);
 		Array<float32>	activationLevels;	//	per space
 		float32			activationThreshold;

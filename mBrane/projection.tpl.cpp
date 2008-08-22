@@ -33,34 +33,54 @@
 
 namespace	mBrane{
 
-	template<class	C>	inline	Projection<C>::Projection(C	*projected,Space	*space):Object<Memory,_Object,Projection<C> >(),projected(projected),space(space),activationLevel(0){
+	template<class	C,class	U>	inline	_Projection<C,U>::_Projection(C	*projected,Space	*space):Object<Memory,_Object,U>(),projected(projected),space(space),activationLevel(0){
 	}
 
-	template<class	C>	inline	Projection<C>::~Projection(){
+	template<class	C,class	U>	inline	_Projection<C,U>::~_Projection(){
 
 		if(activationLevel>=space->getActivationThreshold())
-			projected->activationCount--;
+			deactivate();
 	}
 
-	template<class	C>	inline	void	Projection<C>::setActivationLevel(float32	a){
+	template<class	C,class	U>	inline	void	_Projection<C,U>::setActivationLevel(float32	a){
 
 		if(activationLevel<space->getActivationThreshold()){
 
 			if(a>=space->getActivationThreshold())
-				projected->activationCount++;
+				activate();
 		}else	if(a<space->getActivationThreshold())
-				projected->activationCount--;
+			deactivate();
 		activationLevel=a;
 	}
 
-	template<class	C>	inline	void	Projection<C>::updateActivationCount(float32	t){
+	template<class	C,class	U>	inline	void	_Projection<C,U>::updateActivationCount(float32	t){
 
 		if(activationLevel<space->getActivationThreshold()){
 
 			if(activationLevel>=t)
-				projected->activationCount++;
+				activate();
 		}else	if(activationLevel<t)
-			projected->activationCount--;
+			deactivate();
+	}
+
+	template<class	C,class	U>	inline	void	_Projection<C,U>::activate(){
+
+		projected->activate();
+		((U	*)this)->activate();
+	}
+
+	template<class	C,class	U>	inline	void	_Projection<C,U>::deactivate(){
+
+		projected->deactivate();
+		((U	*)this)->deactivate();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+
+	template<class	C>	Projection<C>::Projection(C	*projected,Space	*space):_Projection<C,Projection<C> >(projected,space){
+	}
+
+	template<class	C>	Projection<C>::~Projection(){
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
@@ -96,5 +116,17 @@ namespace	mBrane{
 		if(!projections[spaceID])
 			project(spaceID);
 		((P<Projection<C> >)projections[spaceID])->setActivationLevel(a);
+	}
+
+	template<class	C>	inline	void	Projectable<C>::activate(){
+
+		activationCount++;
+		((C	*)this)->activate();
+	}
+
+	template<class	C>	inline	void	Projectable<C>::deactivate(){
+
+		activationCount--;
+		((C	*)this)->deactivate();
 	}
 }

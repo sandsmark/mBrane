@@ -184,10 +184,6 @@
 				RelativePath=".\modules.cpp"
 				>
 			</File>
-			<File
-				RelativePath=".\test.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

@@ -42,17 +42,23 @@ namespace	mBrane{
 	class	ModuleSpec{
 	private:
 	public:
+		static	Array<ModuleSpec>	Main;
 		static	ModuleSpec	*New(XMLNode	&n);
 		uint16	moduleClass;
-		class	SubscriptionSpec{
+		class	ProjectionSpec{
 		public:
-			static	SubscriptionSpec	*New(XMLNode	&n);
-			uint16	targetID;	//	message class ID or stream ID
-			uint16	spaceID;
+			static	ProjectionSpec	*New(XMLNode	&n);
+			class	SubscriptionSpec{
+			public:
+				static	SubscriptionSpec	*New(XMLNode	&n);
+				uint16	targetID;	//	message class ID or stream ID
+				uint16	spaceID;
+			};
+			Array<SubscriptionSpec	*>	subscriptions_messages;
+			Array<SubscriptionSpec	*>	subscriptions_streams;
+			float32						activationLevel;
 		};
-		Array<SubscriptionSpec	*>	subscriptions_messages;
-		Array<SubscriptionSpec	*>	subscriptions_streams;
-		Array<float32>				activationLevels;	//	per space for which a subscription exists
+		Array<ProjectionSpec>	projections;	//	per space
 	};
 }
 

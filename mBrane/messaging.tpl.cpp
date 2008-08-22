@@ -110,32 +110,32 @@ namespace	mBrane{
 
 		switch(p->cid()){
 		case	SetThreshold_CID:
-			Space::Main[((SetThreshold	*)p)->space_id()]->setActivationThreshold(((SetThreshold	*)p)->threshold());
+			Space::Main[((SetThreshold	*)p)->space_id]->setActivationThreshold(((SetThreshold	*)p)->threshold);
 			break;
 		case	ActivateModule_CID:
-			ModuleDescriptor::Main[((ActivateModule	*)p)->module_id()]->setActivationLevel(((ActivateModule	*)p)->space_id(),((ActivateModule	*)p)->activationLevel());
+			ModuleDescriptor::Main[((ActivateModule	*)p)->module_cid][((ActivateModule	*)p)->module_id]->setActivationLevel(((ActivateModule	*)p)->space_id,((ActivateModule	*)p)->activationLevel);
 			break;
 		case	ActivateSpace_CID:
-			Space::Main[((ActivateSpace	*)p)->target_sid()]->setActivationLevel(((ActivateSpace	*)p)->space_id(),((ActivateSpace	*)p)->activationLevel());
+			Space::Main[((ActivateSpace	*)p)->target_sid]->setActivationLevel(((ActivateSpace	*)p)->space_id,((ActivateSpace	*)p)->activationLevel);
 			break;
 		case	SubscribeMessage_CID:
-			ModuleDescriptor::Main[((SubscribeMessage	*)p)->module_id()]->addSubscription_message(((SubscribeMessage	*)p)->space_id(),((SubscribeMessage	*)p)->message_cid());
+			ModuleDescriptor::Main[((SubscribeMessage	*)p)->module_cid][((SubscribeMessage	*)p)->module_id]->addSubscription_message(((SubscribeMessage	*)p)->space_id,((SubscribeMessage	*)p)->message_cid);
 			break;
 		case	SubscribeStream_CID:
-			ModuleDescriptor::Main[((SubscribeStream	*)p)->module_id()]->addSubscription_stream(((SubscribeStream	*)p)->space_id(),((SubscribeStream	*)p)->stream_id());
+			ModuleDescriptor::Main[((SubscribeMessage	*)p)->module_cid][((SubscribeMessage	*)p)->module_id]->addSubscription_stream(((SubscribeStream	*)p)->space_id,((SubscribeStream	*)p)->stream_id);
 			break;
 		case	UnsubscribeMessage_CID:
-			ModuleDescriptor::Main[((UnsubscribeMessage	*)p)->module_id()]->removeSubscription_message(((SubscribeMessage	*)p)->space_id(),((SubscribeMessage	*)p)->message_cid());
+			ModuleDescriptor::Main[((UnsubscribeMessage	*)p)->module_cid][((UnsubscribeMessage	*)p)->module_id]->removeSubscription_message(((SubscribeMessage	*)p)->space_id,((SubscribeMessage	*)p)->message_cid);
 			break;
 		case	UnsubscribeStream_CID:
-			ModuleDescriptor::Main[((UnsubscribeStream	*)p)->module_id()]->removeSubscription_stream(((SubscribeStream	*)p)->space_id(),((SubscribeStream	*)p)->stream_id());
+			ModuleDescriptor::Main[((UnsubscribeStream	*)p)->module_cid][((UnsubscribeStream	*)p)->module_id]->removeSubscription_stream(((SubscribeStream	*)p)->space_id,((SubscribeStream	*)p)->stream_id);
 			break;
 		default:
 			break;
 		}
 	}
 
-	template<class	Engine>	void	Messaging<Engine>::pushJobs(_Payload	*p,NodeEntry	&e){
+	template<class	Engine>	inline	void	Messaging<Engine>::pushJobs(_Payload	*p,NodeEntry	&e){
 
 		if(e.activationCount){
 
@@ -154,7 +154,7 @@ namespace	mBrane{
 		}
 	}
 
-	template<class	Engine>	void	Messaging<Engine>::pushJobs(_Payload	*p){
+	template<class	Engine>	inline	void	Messaging<Engine>::pushJobs(_Payload	*p){
 
 		//	find local receiving modules; insert {p,module} pairs in pipeline
 		switch(p->category()){

@@ -41,30 +41,41 @@ namespace	mBrane{
 	class	Space;
 	class	ModuleDescriptor;
 
-	template<class	C>	class	Projection:
-	public	Object<Memory,_Object,Projection<C> >{
-	private:
+	template<class	C,class	U>	class	_Projection:
+	public	Object<Memory,_Object,U>{
+	protected:
 		C		*projected;
 		Space	*space;
 		float32	activationLevel;
+		_Projection(C	*projected,Space	*space);
+	public:
+		~_Projection();
+		void	activate();
+		void	deactivate();
+		void	setActivationLevel(float32	a);
+		void	updateActivationCount(float32	t);
+	};
+
+	template<class	C>	class	Projection:
+	public	_Projection<C,Projection<C> >{
 	public:
 		Projection(C	*projected,Space	*space);
 		~Projection();
-		void	setActivationLevel(float32	a);
-		void	updateActivationCount(float32	t);
 	};
 
 	template<class	C>	class	Projectable:
 	public	Object<Memory,_Object,Projectable<C> >{
 	protected:
 		Array<typename	List<P<Projection<C> > >::Iterator>	projections;	//	indexed by space ID; to speed up space updating when deleting projections
+		void	activate();
+		void	deactivate();
 	public:
 		uint32	activationCount;
 		Projectable();
 		~Projectable();
 		void	project(uint16	spaceID);
 		void	unproject(uint16	spaceID);
-		void	setActivationLevel(uint16	spaceID,float32	a);
+		void	setActivationLevel(uint16	spaceID,float32	a);	//	projects on space if necessary
 	};
 }
 

@@ -1,13 +1,13 @@
 <NodeConfiguration application_configuration_file="C:\eric\work\mBrane\mBrane\test_application.xml">
 	<Network sync_period="10000" bcast_timeout="1000" boot_callback="NULL">
-		<!--sync_period: in ms; period at which sync signals are broadcast from the reference node-->
+		<!--sync_period:   in ms; period at which sync signals are broadcast from the reference node-->
 		<!--bcast_timeout: in ms; delay after which a node believes it is the reference node; if 0, the node will be the time reference-->
 		<!--boot_callback: path to shared library defining a function to be called when the reference node is ready (use it to boot the other nodes)-->
 		<Interfaces>
 			<TCP shared_library="mBrane_tcp"/>
 			<UDP shared_library="mBrane_udp"/>
-			<PRM shared_library="mBrane_prm"/>
-			<Infiniband shared_object="mBrane_ib"/><!--MPI over IB, Linux only-->
+			<RM	shared_library="mBrane_pgm"/><!--Reliable Multicast-->
+			<Infiniband shared_library="mBrane_mpi_o_ib"/><!--MPI over IB, Linux only-->
 		</Interfaces>
 		<Discovery interface="UDP" nic="eth0" port="10000"/>
 		<Primary>
@@ -19,6 +19,14 @@
 			<!--same form as primary's-->
 		</Secondary>
 	</Network>
+	<!--for future use
+	<SharedMemory shared_library="mBrane_rdma_o_ib>">
+		shared_library: access to a fabric allowing RDMA semantics (here RDMA over IB, Linux only)
+		follow declarations of pinned down RAM segments
+		form: <Segment size="" mode=""/> size in MB, mode is read or write; segments to be made available to modules via the module_node_api
+	</SharedMemory>
+	<Components profiling="" monitoring=""/> apply to network, node and module execution; values: 0/1
+	-->
 	<Daemons>
 		<!--ex: <Daemon shared_library="..." parameter0="..." ... parameterN="..."/>-->	   
 	</Daemons>
