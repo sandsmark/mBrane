@@ -100,7 +100,7 @@ template<class	U>	uint16	Module<U>::_CID=ModuleRegister::Load(New);
 #define	MODULE_CLASS(C)	\
 extern	"C"{	\
 	mBrane::sdk::module::_Module *	__cdecl	New##C(uint16	ID,uint16	clusterID,uint16	clusterCID){	return	new	C(ID,clusterCID,clusterID);	}	\
-	const	mBrane::uint16	C##_CID=C::CID();	\
+	const	mBrane::uint16	C##_CID(){	return	C::CID();	}	\
 }
 
 

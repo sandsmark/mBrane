@@ -110,7 +110,7 @@ namespace	mBrane{
 		return	this;
 	}
 
-	typedef	 _Module *(__cdecl	*ModuleInstantiator)(uint16);	//	test
+	typedef	 _Module *(__cdecl	*ModuleInstantiator)(uint16,uint16,uint16);	//	test
 
 	Node	*Node::loadApplication(const	char	*fileName){
 
@@ -143,7 +143,7 @@ namespace	mBrane{
 		ModuleInstantiator	instantiator=userLibrary->getFunction<ModuleInstantiator>("NewCR1");
 		if(instantiator){
 
-			_Module	*c=(instantiator)(0);
+			_Module	*c=(instantiator)(0,0,0);
 			delete	c;
 		}
 		//	end test
