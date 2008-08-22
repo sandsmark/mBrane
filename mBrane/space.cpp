@@ -33,21 +33,14 @@
 
 namespace	mBrane{
 
-	uint16	Space::LastID=0;
-
 	Array<P<Space> >	Space::Main;
 
 	Array<const	char	*>	Space::Names;
 
-	Space::Space():ID(LastID++),activationCount(0){
+	Space::Space():activationCount(0){
 	}
 
 	Space::~Space(){
-	}
-
-	inline	uint16	Space::id(){
-
-		return	ID;
 	}
 
 	void	Space::setActivationThreshold(float32	thr){
