@@ -68,6 +68,8 @@ namespace	mBrane{
 		void	notifyNodeLeft(uint16	NID);
 		//	MESSAGING
 		void	startReceivingThreads(uint16	NID);
+		//	SHARED MEMORY
+		Array<Array<uint8> >	sharedMemorySegments;
 		//	NODE
 		uint16	nodeCount;
 		Array<const	char	*>	nodeNames;
@@ -91,9 +93,11 @@ namespace	mBrane{
 		const	char	*getSpaceName(uint16	ID);
 		const	char	*getModuleName(uint16	ID);
 		//	DAEMON NODE API
-		void	dump(const	char	*fileName);
-		void	load(const	char	*fileName);
-		void	migrate(uint16	CID,uint16	ID,uint16	NID);
+		void			dump(const	char	*fileName);
+		void			load(const	char	*fileName);
+		void			migrate(uint16	CID,uint16	ID,uint16	NID);
+		Array<uint8>	&sharedMemorySegment(uint8	segment);
+		_Module			*getModule(uint16	CID,uint16	ID);
 	};
 }
 

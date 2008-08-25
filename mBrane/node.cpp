@@ -103,6 +103,8 @@ namespace	mBrane{
 			}
 		}
 
+		//	TODO:	load RDMA library, alloc sharedMemorySegments and pin them down
+
 		const	char	*application_configuration_file=mainNode.getAttribute("application_configuration_file");
 		if(!application_configuration_file){
 
@@ -371,5 +373,15 @@ namespace	mBrane{
 	}
 
 	void	Node::migrate(uint16	CID,uint16	ID,uint16	NID){	//	TODO
+	}
+
+	Array<uint8>	&Node::sharedMemorySegment(uint8	segment){
+
+		return	sharedMemorySegments[segment];
+	}
+
+	_Module	*Node::getModule(uint16	CID,uint16	ID){
+
+		return	ModuleDescriptor::Main[CID][ID]->module;
 	}
 }

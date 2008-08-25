@@ -123,25 +123,8 @@ namespace	mBrane{
 				uint16	node_id;
 			};
 
-			class	dll	ModuleCreated:
-			public	ControlMessage<ModuleCreated>{
-			public:
-				uint16	sender_cid;
-				uint16	sender_id;
-				uint16	module_cid;
-				uint16	module_id;
-				uint16	node_id;
-			};
-
 			class	dll	DeleteModule:
 			public	ControlMessage<DeleteModule>{
-			public:
-				uint16	module_cid;
-				uint16	module_id;
-			};
-
-			class	dll	ModuleDeleted:
-			public	ControlMessage<ModuleDeleted>{
 			public:
 				uint16	module_cid;
 				uint16	module_id;
@@ -154,22 +137,8 @@ namespace	mBrane{
 				uint16	sender_id;
 			};
 
-			class	dll	SpaceCreated:
-			public	ControlMessage<SpaceCreated>{
-			public:
-				uint16	sender_cid;
-				uint16	sender_id;
-				uint16	space_id;
-			};
-
 			class	dll	DeleteSpace:
 			public	ControlMessage<DeleteSpace>{
-			public:
-				uint16	space_id;
-			};
-
-			class	dll	SpaceDeleted:
-			public	ControlMessage<SpaceDeleted>{
 			public:
 				uint16	space_id;
 			};
@@ -186,13 +155,9 @@ namespace	mBrane{
 			#define	UnsubscribeMessage_CID	9
 			#define	UnsubscribeStream_CID	10
 			#define	CreateModule_CID		11
-			#define	ModuleCreated_CID		12
-			#define	CreateSpace_CID			13
-			#define	SpaceCreated_CID		14
-			#define	DeleteModule_CID		15
-			#define	ModuleDeleted_CID		16
-			#define	DeleteSpace_CID			17
-			#define	SpaceDeleted_CID		18
+			#define	CreateSpace_CID			12
+			#define	DeleteModule_CID		13
+			#define	DeleteSpace_CID			14
 		}
 	}
 }

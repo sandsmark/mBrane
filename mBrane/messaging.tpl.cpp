@@ -90,7 +90,7 @@ namespace	mBrane{
 		Engine::shutdown();
 	}
 
-	template<class	Engine>	void	Messaging<Engine>::processControlMessage(_Payload	*p,module::Node::Network	network){
+	template<class	Engine>	void	Messaging<Engine>::processControlMessage(_Payload	*p){
 
 		switch(p->cid()){
 		case	SetThreshold_CID:
@@ -144,12 +144,6 @@ namespace	mBrane{
 			if(node_id==((Node	*)this)->_ID)
 				m=ModuleRegister::Get(module_cid)->buildModule();
 			ModuleDescriptor::Main[module_cid][ModuleDescriptor::Main[module_cid].count()]=new	ModuleDescriptor(node_id,m,module_cid,module_id);
-			ModuleCreated	mc;
-			mc.sender_cid=((CreateModule	*)p)->sender_cid;
-			mc.sender_id=((CreateModule	*)p)->sender_id;
-			mc.module_cid=module_cid;
-			mc.module_id=module_id;
-			send(&mc,network);
 			break;
 		}case	DeleteModule_CID:{
 			NodeEntry::CS[DC].enter();
@@ -159,10 +153,6 @@ namespace	mBrane{
 			ModuleDescriptor::Main[module_cid][module_id]=NULL;
 			NodeEntry::CS[DC].leave();
 			NodeEntry::CS[ST].leave();
-			ModuleDeleted	md;
-			md.module_cid=module_cid;
-			md.module_id=module_id;
-			send(&md,network);
 			break;
 		}case	CreateSpace_CID:{
 			NodeEntry::CS[DC].enter();
@@ -170,11 +160,6 @@ namespace	mBrane{
 			Space::Main[Space::Main.count()]=new	Space();
 			NodeEntry::CS[DC].leave();
 			NodeEntry::CS[ST].leave();
-			SpaceCreated	sc;
-			sc.sender_cid=((CreateSpace	*)p)->sender_cid;
-			sc.sender_id=((CreateSpace	*)p)->sender_id;
-			sc.space_id=Space::Main.count()-1;
-			send(&sc,network);
 			break;
 		}case	DeleteSpace_CID:{
 			NodeEntry::CS[DC].enter();
@@ -183,9 +168,6 @@ namespace	mBrane{
 			Space::Main[space_id]=NULL;
 			NodeEntry::CS[DC].leave();
 			NodeEntry::CS[ST].leave();
-			SpaceDeleted	sd;
-			sd.space_id=space_id;
-			send(&sd,network);
 			break;
 		}default:
 			break;
@@ -235,13 +217,12 @@ namespace	mBrane{
 
 		MessageSlot	*out;
 		_Payload	*p;
-		MessageSlot	in;
-		in.network=out->network;
+		P<_Payload>	_p;
 		while(!node->_shutdown){
 
 			out=node->messageOutputQueue.pop();
 			p=out->p;
-			in.p=p;
+			_p=p;
 			_Payload::Category	cat=p->category();
 			if(out->network==module::Node::LOCAL){
 				
@@ -259,7 +240,7 @@ namespace	mBrane{
 				}
 				if(act){
 
-					node->messageInputQueue.push(in);
+					node->messageInputQueue.push(_p);
 					node->inputSync->release();
 				}
 			}else	if(cat==_Payload::CONTROL)
@@ -276,7 +257,7 @@ namespace	mBrane{
 
 							if(i==node->_ID){
 
-								node->messageInputQueue.push(in);
+								node->messageInputQueue.push(_p);
 								node->inputSync->release();
 							}else	node->sendData(i,p,out->network);
 						}
@@ -292,7 +273,7 @@ namespace	mBrane{
 
 							if(i==node->_ID){
 
-								node->messageInputQueue.push(in);
+								node->messageInputQueue.push(_p);
 								node->inputSync->release();
 							}else	node->sendStreamData(i,p,out->network);
 						}
