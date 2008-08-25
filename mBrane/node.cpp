@@ -50,6 +50,9 @@ namespace	mBrane{
 	}
 
 	Node::Node():Networking(),MESSAGING_CLASS(),Executing(),nodeCount(0){
+		//	default space
+		Space::Main[0]=new	Space();
+		Space::Main[0]->setActivationThreshold(1.0);
 	}
 
 	Node::~Node(){
@@ -136,7 +139,9 @@ namespace	mBrane{
 		}
 		if(!(userLibrary=SharedLibrary::New(ul)))
 			return	false;
-		//	TODO:	load specs and build:
+
+		//	TODO:	
+		//		load specs and build:
 		//		modules, spaces, clusters
 		//		initial projections and subscriptions
 		return	true;
