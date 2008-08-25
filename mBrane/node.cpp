@@ -146,8 +146,7 @@ namespace	mBrane{
 	}
 
 	void	Node::unloadApplication(){
-		
-		//	TODO:	delete modules, spaces, clusters
+
 		delete	userLibrary;
 	}
 
