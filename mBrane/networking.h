@@ -43,7 +43,7 @@ namespace	mBrane{
 	class	RecvThread;
 	template<class	Engine>	class	Messaging;
 	class	Networking:
-	public	Node{
+	public	daemon::Node{
 	friend	class	RecvThread;
 	template<class	Engine>	friend	class	Messaging;
 		//	boot one single node with a timeout (if it times out, it's the ref node)
@@ -134,9 +134,10 @@ namespace	mBrane{
 		uint16	recvMap(CommChannel	*c);
 		uint16	connect(NetworkID	*networkID);
 		uint16	connect(Network	network,NetworkID	*networkID);
-		void	broadcastControlMessage(Network	network,_Payload	*p);
-		void	sendData(uint16	NID,_Payload	*p);
-		void	sendStreamData(uint16	NID,_Payload	*p);
+		void	_broadcastControlMessage(_Payload	*p,Network	network);
+		void	broadcastControlMessage(_Payload	*p,Network	network);
+		void	sendData(uint16	NID,_Payload	*p,Network	network);
+		void	sendStreamData(uint16	NID,_Payload	*p,Network	network);
 		void	processError(uint16	entry);	//	upon send/recv error. Disconnect the node on both networks
 		uint16	addNodeEntry();
 

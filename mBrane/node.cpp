@@ -195,7 +195,7 @@ namespace	mBrane{
 
 		m.node_id=NID;
 		m.send_ts()=Time::Get();
-		Messaging::send(&m,true);
+		Messaging::send(&m,LOCAL);
 
 		std::cout<<"Node joined: "<<networkID->name()<<":"<<NID<<std::endl;
 
@@ -215,7 +215,7 @@ namespace	mBrane{
 
 				SystemReady	m;
 				m.send_ts()=Time::Get();
-				Messaging::send(&m,false);
+				Messaging::send(&m,BOTH);
 			}
 		}
 	}
@@ -233,7 +233,7 @@ namespace	mBrane{
 
 			m.node_id=NID;
 			m.send_ts()=Time::Get();
-			Messaging::send(&m,true);
+			Messaging::send(&m,LOCAL);
 
 			std::cout<<"Node left: "<<dataChannels[NID]->networkID->name()<<":"<<NID<<std::endl;
 		}
@@ -310,7 +310,7 @@ namespace	mBrane{
 			return	Time::Get()-timeDrift;
 	}
 
-	void	Node::send(const	_Module	*sender,_Payload	*message){
+	void	Node::send(const	_Module	*sender,_Payload	*message,Network	network){
 
 		if(message->category()==_Payload::DATA){
 
@@ -318,40 +318,40 @@ namespace	mBrane{
 			_m->senderModule_cid()=sender->descriptor->CID;
 			_m->senderModule_id()=sender->descriptor->ID;
 		}
-		Messaging::send(message,false);
+		Messaging::send(message,network);
 	}
 
-	void	Node::newSpace(const	_Module	*sender){
+	void	Node::newSpace(const	_Module	*sender,Network	network){
 
 		CreateSpace	cs;
 		cs.sender_cid=sender->descriptor->CID;
 		cs.sender_id=sender->descriptor->ID;
-		Messaging::send(&cs,false);
+		Messaging::send(&cs,network);
 	}
 
-	void	Node::newModule(const	_Module	*sender,uint16	CID,const	char	*hostName){
+	void	Node::newModule(const	_Module	*sender,uint16	CID,Network	network,const	char	*hostName){
 
 		CreateModule	cm;
 		cm.sender_cid=sender->descriptor->CID;
 		cm.sender_id=sender->descriptor->ID;
 		cm.node_id=getNIDFromName(hostName);
 		cm.module_cid=CID;
-		Messaging::send(&cm,false);
+		Messaging::send(&cm,network);
 	}
 
-	void	Node::deleteSpace(uint16	ID){
+	void	Node::deleteSpace(uint16	ID,Network	network){
 
 		DeleteSpace	ds;
 		ds.space_id=ID;
-		Messaging::send(&ds,false);
+		Messaging::send(&ds,network);
 	}
 
-	void	Node::deleteModule(uint16	CID,uint16	ID){
+	void	Node::deleteModule(uint16	CID,uint16	ID,Network	network){
 
 		DeleteModule	dm;
 		dm.module_cid=CID;
 		dm.module_id=ID;
-		Messaging::send(&dm,false);
+		Messaging::send(&dm,network);
 	}
 
 	const	char	*Node::getSpaceName(uint16	ID){

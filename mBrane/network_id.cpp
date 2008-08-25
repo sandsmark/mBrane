@@ -46,15 +46,15 @@ namespace	mBrane{
 	NetworkID::NetworkID():data(NULL){
 	}
 
-	NetworkID::NetworkID(uint16	NID,Network	description,uint8	nameSize,char	*name){
+	NetworkID::NetworkID(uint16	NID,Node::Network	description,uint8	nameSize,char	*name){
 
 		uint8	s=sizeof(uint16)+sizeof(uint8)+sizeof(uint8);
 		Size=DiscoveryIDSize;
 		headerSize=s+nameSize;
 		switch(description){
-		case	PRIMARY:	Size+=CtrlIDSize[PRIMARY]+DataIDSize[PRIMARY]+StreamIDSize[PRIMARY];	break;
-		case	SECONDARY:	Size+=CtrlIDSize[SECONDARY]+DataIDSize[SECONDARY]+StreamIDSize[SECONDARY];	break;
-		case	BOTH:		Size+=CtrlIDSize[PRIMARY]+DataIDSize[PRIMARY]+StreamIDSize[PRIMARY]+CtrlIDSize[SECONDARY]+DataIDSize[SECONDARY]+StreamIDSize[SECONDARY];	break;
+		case	Node::PRIMARY:	Size+=CtrlIDSize[Node::PRIMARY]+DataIDSize[Node::PRIMARY]+StreamIDSize[Node::PRIMARY];	break;
+		case	Node::SECONDARY:	Size+=CtrlIDSize[Node::SECONDARY]+DataIDSize[Node::SECONDARY]+StreamIDSize[Node::SECONDARY];	break;
+		case	Node::BOTH:		Size+=CtrlIDSize[Node::PRIMARY]+DataIDSize[Node::PRIMARY]+StreamIDSize[Node::PRIMARY]+CtrlIDSize[Node::SECONDARY]+DataIDSize[Node::SECONDARY]+StreamIDSize[Node::SECONDARY];	break;
 		}
 		data=new	uint8[headerSize+Size];
 		((uint16	*)data)[0]=NID;
@@ -74,9 +74,9 @@ namespace	mBrane{
 		return	((uint16	*)data)[0];
 	}
 
-	Network	NetworkID::network()	const{
+	Node::Network	NetworkID::network()	const{
 
-		return	(Network)data[sizeof(uint16)];
+		return	(Node::Network)data[sizeof(uint16)];
 	}
 	
 	char	*NetworkID::name()	const{
@@ -90,39 +90,39 @@ namespace	mBrane{
 		case	DISCOVERY:			return	data+headerSize;
 		case	CONTROL_PRIMARY:
 			switch(data[2]){
-			case	BOTH:
-			case	PRIMARY:	return	data+headerSize+DiscoveryIDSize;
-			case	SECONDARY:	return	NULL;
+			case	Node::BOTH:
+			case	Node::PRIMARY:	return	data+headerSize+DiscoveryIDSize;
+			case	Node::SECONDARY:	return	NULL;
 			}
 		case	DATA_PRIMARY:
 			switch(data[2]){
-			case	BOTH:
-			case	PRIMARY:	return	data+headerSize+DiscoveryIDSize+CtrlIDSize[PRIMARY];
-			case	SECONDARY:	return	NULL;
+			case	Node::BOTH:
+			case	Node::PRIMARY:	return	data+headerSize+DiscoveryIDSize+CtrlIDSize[Node::PRIMARY];
+			case	Node::SECONDARY:	return	NULL;
 			}
 		case	STREAM_PRIMARY:
 			switch(data[2]){
-			case	BOTH:
-			case	PRIMARY:	return	data+headerSize+DiscoveryIDSize+CtrlIDSize[PRIMARY]+DataIDSize[PRIMARY];
-			case	SECONDARY:	return	NULL;
+			case	Node::BOTH:
+			case	Node::PRIMARY:	return	data+headerSize+DiscoveryIDSize+CtrlIDSize[Node::PRIMARY]+DataIDSize[Node::PRIMARY];
+			case	Node::SECONDARY:	return	NULL;
 			}
 		case	CONTROL_SECONDARY:
 			switch(data[2]){
-			case	PRIMARY:	return	NULL;
-			case	SECONDARY:	return	data+headerSize+DiscoveryIDSize;
-			case	BOTH:		return	data+headerSize+DiscoveryIDSize+CtrlIDSize[PRIMARY]+DataIDSize[PRIMARY]+StreamIDSize[PRIMARY];
+			case	Node::PRIMARY:	return	NULL;
+			case	Node::SECONDARY:	return	data+headerSize+DiscoveryIDSize;
+			case	Node::BOTH:		return	data+headerSize+DiscoveryIDSize+CtrlIDSize[Node::PRIMARY]+DataIDSize[Node::PRIMARY]+StreamIDSize[Node::PRIMARY];
 			}
 		case	DATA_SECONDARY:
 			switch(data[2]){
-			case	PRIMARY:	return	NULL;
-			case	SECONDARY:	return	data+headerSize+DiscoveryIDSize+CtrlIDSize[SECONDARY];
-			case	BOTH:		return	data+headerSize+DiscoveryIDSize+CtrlIDSize[PRIMARY]+DataIDSize[PRIMARY]+StreamIDSize[PRIMARY]+CtrlIDSize[SECONDARY];
+			case	Node::PRIMARY:	return	NULL;
+			case	Node::SECONDARY:	return	data+headerSize+DiscoveryIDSize+CtrlIDSize[Node::SECONDARY];
+			case	Node::BOTH:		return	data+headerSize+DiscoveryIDSize+CtrlIDSize[Node::PRIMARY]+DataIDSize[Node::PRIMARY]+StreamIDSize[Node::PRIMARY]+CtrlIDSize[Node::SECONDARY];
 			}
 		case	STREAM_SECONDARY:
 			switch(data[2]){
-			case	PRIMARY:	return	NULL;
-			case	SECONDARY:	return	data+headerSize+DiscoveryIDSize+CtrlIDSize[SECONDARY]+DataIDSize[SECONDARY];
-			case	BOTH:		return	data+headerSize+DiscoveryIDSize+CtrlIDSize[PRIMARY]+DataIDSize[PRIMARY]+StreamIDSize[PRIMARY]+CtrlIDSize[SECONDARY]+DataIDSize[SECONDARY];
+			case	Node::PRIMARY:	return	NULL;
+			case	Node::SECONDARY:	return	data+headerSize+DiscoveryIDSize+CtrlIDSize[Node::SECONDARY]+DataIDSize[Node::SECONDARY];
+			case	Node::BOTH:		return	data+headerSize+DiscoveryIDSize+CtrlIDSize[Node::PRIMARY]+DataIDSize[Node::PRIMARY]+StreamIDSize[Node::PRIMARY]+CtrlIDSize[Node::SECONDARY]+DataIDSize[Node::SECONDARY];
 			}
 		}
 	}

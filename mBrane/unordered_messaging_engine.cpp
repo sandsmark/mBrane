@@ -66,8 +66,9 @@ namespace	mBrane{
 		Node	*node=(Node	*)args;
 
 		uint32	recvThread=0;
-		Pipe<P<_Payload>,MESSAGE_INPUT_QUEUE_BLOCK_SIZE>	*buffer=NULL;
-		P<_Payload>	*_p;
+		Messaging<UnorderedMessagingEngine>::MessageSlot	*messageSlot;
+		module::Node::Network	network;
+		P<_Payload>				*_p;
 		while(!node->_shutdown){
 
 			node->inputSync->acquire();
@@ -75,16 +76,21 @@ namespace	mBrane{
 			if(recvThread++>=node->recvThreads.count()){
 
 				recvThread=0;
-				buffer=&node->messageInputQueue;
-			}else
-				buffer=&node->recvThreads[recvThread]->buffer;
+				messageSlot=node->messageInputQueue.pop(false);
+				if(!messageSlot)
+					continue;
+				_p=messageSlot->p;
+				network=messageSlot->network;
+			}else{
 
-			_p=buffer->pop(false);
-			if(!_p)
-				continue;
+				_p=node->recvThreads[recvThread]->buffer.pop(false);
+				if(!_p)
+					continue;
+				network=module::Node::LOCAL;
+			}
 
 			if((*_p)->category()==_Payload::CONTROL)
-				node->processControlMessage(*_p);
+				node->processControlMessage(*_p,network);
 
 			node->pushJobs(*_p);
 			*_p=NULL;

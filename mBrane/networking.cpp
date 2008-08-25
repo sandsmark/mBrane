@@ -570,33 +570,45 @@ err2:	delete[]	networkID;
 		}
 	}
 
-	inline	void	Networking::broadcastControlMessage(Network	network,_Payload	*p){
+	inline	void	Networking::_broadcastControlMessage(_Payload	*p,Network	network){
 
-		for(uint16	i=0;i<controlChannels[network].count();i++){
-
+		for(uint16	i=0;i<controlChannels[network].count();i++)
 			if(controlChannels[network][i]	&&	controlChannels[network][i]->send(p))
 				processError(i);
-		}
 	}
 
-	void	Networking::sendData(uint16	NID,_Payload	*p){
+	inline	void	Networking::broadcastControlMessage(_Payload	*p,Network	network){
 
-		if(dataChannels[NID]->channels[PRIMARY].data){
+		if(network==PRIMARY	||	network==BOTH)
+			_broadcastControlMessage(p,network);
+		if(network==SECONDARY	||	network==BOTH)
+			_broadcastControlMessage(p,network);
+	}
+
+	void	Networking::sendData(uint16	NID,_Payload	*p,Network	network){
+
+		if((network==PRIMARY	||	network==BOTH)	&&	dataChannels[NID]->channels[PRIMARY].data){
 
 			if(dataChannels[NID]->channels[PRIMARY].data->send(p))
 				processError(NID);
-		}else	if(dataChannels[NID]->channels[SECONDARY].data->send(p))
-			processError(NID);
+		}else	if((network==SECONDARY	||	network==BOTH)	&&	dataChannels[NID]->channels[SECONDARY].data){
+			
+			if(dataChannels[NID]->channels[SECONDARY].data->send(p))
+				processError(NID);
+		}
 	}
 
-	void	Networking::sendStreamData(uint16	NID,_Payload	*p){
+	void	Networking::sendStreamData(uint16	NID,_Payload	*p,Network	network){
 
-		if(dataChannels[NID]->channels[PRIMARY].stream){
+		if((network==PRIMARY	||	network==BOTH)	&&	dataChannels[NID]->channels[PRIMARY].stream){
 
 			if(dataChannels[NID]->channels[PRIMARY].stream->send(p))
 				processError(NID);
-		}else	if(dataChannels[NID]->channels[SECONDARY].stream->send(p))
-			processError(NID);
+		}else	if((network==SECONDARY	||	network==BOTH)	&&	dataChannels[NID]->channels[SECONDARY].stream){
+			
+			if(dataChannels[NID]->channels[SECONDARY].stream->send(p))
+				processError(NID);
+		}
 	}
 
 	inline	void	Networking::processError(uint16	entry){
@@ -753,15 +765,8 @@ err1:	node->shutdown();
 			int64	t=Time::Get();
 			if(t-node->lastSyncTime>=node->syncPeriod){
 
-				if(node->network==PRIMARY	||	node->network==BOTH){
-
-					sync.send_ts()=t;
-					node->broadcastControlMessage(PRIMARY,&sync);
-				}else	if(node->network==SECONDARY	||	node->network==BOTH){
-
-					sync.send_ts()=Time::Get();
-					node->broadcastControlMessage(SECONDARY,&sync);
-				}
+				sync.send_ts()=t;
+				node->broadcastControlMessage(&sync,BOTH);
 				node->lastSyncTime=t;
 			}
 		}

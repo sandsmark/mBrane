@@ -67,11 +67,11 @@ namespace	mBrane{
 		delete	inputSync;
 	}
 
-	template<class	Engine>	inline	void	Messaging<Engine>::send(_Payload	*message,bool	local){
+	template<class	Engine>	inline	void	Messaging<Engine>::send(_Payload	*message,module::Node::Network	network){
 
-		OutputSlot	o;
+		MessageSlot	o;
 		o.p=message;
-		o.local=local;
+		o.network=network;
 		message->send_ts()=Time::Get();
 		messageOutputQueue.push(o);
 	}
@@ -90,7 +90,7 @@ namespace	mBrane{
 		Engine::shutdown();
 	}
 
-	template<class	Engine>	void	Messaging<Engine>::processControlMessage(_Payload	*p){
+	template<class	Engine>	void	Messaging<Engine>::processControlMessage(_Payload	*p,module::Node::Network	network){
 
 		switch(p->cid()){
 		case	SetThreshold_CID:
@@ -149,7 +149,7 @@ namespace	mBrane{
 			mc.sender_id=((CreateModule	*)p)->sender_id;
 			mc.module_cid=module_cid;
 			mc.module_id=module_id;
-			send(&mc,true);
+			send(&mc,network);
 			break;
 		}case	DeleteModule_CID:{
 			NodeEntry::CS[DC].enter();
@@ -162,7 +162,7 @@ namespace	mBrane{
 			ModuleDeleted	md;
 			md.module_cid=module_cid;
 			md.module_id=module_id;
-			send(&md,true);
+			send(&md,network);
 			break;
 		}case	CreateSpace_CID:{
 			NodeEntry::CS[DC].enter();
@@ -174,7 +174,7 @@ namespace	mBrane{
 			sc.sender_cid=((CreateSpace	*)p)->sender_cid;
 			sc.sender_id=((CreateSpace	*)p)->sender_id;
 			sc.space_id=Space::Main.count()-1;
-			send(&sc,true);
+			send(&sc,network);
 			break;
 		}case	DeleteSpace_CID:{
 			NodeEntry::CS[DC].enter();
@@ -185,7 +185,7 @@ namespace	mBrane{
 			NodeEntry::CS[ST].leave();
 			SpaceDeleted	sd;
 			sd.space_id=space_id;
-			send(&sd,true);
+			send(&sd,network);
 			break;
 		}default:
 			break;
@@ -233,16 +233,17 @@ namespace	mBrane{
 
 		Node	*node=(Node	*)args;
 
-		OutputSlot	*o;
+		MessageSlot	*out;
 		_Payload	*p;
-		P<_Payload>	_p;
+		MessageSlot	in;
+		in.network=out->network;
 		while(!node->_shutdown){
 
-			o=node->messageOutputQueue.pop();
-			p=o->p;
-			_p=p;
+			out=node->messageOutputQueue.pop();
+			p=out->p;
+			in.p=p;
 			_Payload::Category	cat=p->category();
-			if(o->local){
+			if(out->network==module::Node::LOCAL){
 				
 				uint32	act;
 				if(cat==_Payload::STREAM){
@@ -258,16 +259,12 @@ namespace	mBrane{
 				}
 				if(act){
 
-					node->messageInputQueue.push(_p);
+					node->messageInputQueue.push(in);
 					node->inputSync->release();
 				}
-			}else	if(cat==_Payload::CONTROL){
-
-				if(node->network==PRIMARY	||	node->network==BOTH)
-					node->broadcastControlMessage(PRIMARY,p);
-				if(node->network==SECONDARY	||	node->network==BOTH)
-					node->broadcastControlMessage(SECONDARY,p);
-			}else{
+			}else	if(cat==_Payload::CONTROL)
+				node->broadcastControlMessage(p,out->network);
+			else{
 				//	find target remote nodes; send on data/stream channels; push in messageInputQueue if the local node is a target
 				if(cat==_Payload::DATA){
 
@@ -279,9 +276,9 @@ namespace	mBrane{
 
 							if(i==node->_ID){
 
-								node->messageInputQueue.push(_p);
+								node->messageInputQueue.push(in);
 								node->inputSync->release();
-							}else	node->sendData(i,p);
+							}else	node->sendData(i,p,out->network);
 						}
 					}
 					NodeEntry::CS[DC].leave();
@@ -295,9 +292,9 @@ namespace	mBrane{
 
 							if(i==node->_ID){
 
-								node->messageInputQueue.push(_p);
+								node->messageInputQueue.push(in);
 								node->inputSync->release();
-							}else	node->sendStreamData(i,p);
+							}else	node->sendStreamData(i,p,out->network);
 						}
 					}
 					NodeEntry::CS[ST].leave();
@@ -307,7 +304,7 @@ namespace	mBrane{
 			if(node->isTimeReference)
 				node->lastSyncTime=p->node_send_ts();
 
-			o->p=NULL;
+			out->p=NULL;
 		}
 
 		return	0;

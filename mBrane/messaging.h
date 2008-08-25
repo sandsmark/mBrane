@@ -77,11 +77,11 @@ namespace	mBrane{
 	friend	class	Executing;
 	protected:
 		typedef	struct{
-			bool		local;
+			module::Node::Network	network;
 			P<_Payload>	p;
-		}OutputSlot;
-		Pipe<P<_Payload>,MESSAGE_INPUT_QUEUE_BLOCK_SIZE>	messageInputQueue;	//	incoming local messages
-		Pipe<OutputSlot,MESSAGE_OUTPUT_QUEUE_BLOCK_SIZE>	messageOutputQueue;
+		}MessageSlot;
+		Pipe<MessageSlot,MESSAGE_INPUT_QUEUE_BLOCK_SIZE>	messageInputQueue;	//	incoming local messages
+		Pipe<MessageSlot,MESSAGE_OUTPUT_QUEUE_BLOCK_SIZE>	messageOutputQueue;
 
 		Pipe<Job,JOB_QUEUE_BLOCK_SIZE>	jobs;
 
@@ -92,8 +92,8 @@ namespace	mBrane{
 				
 		Messaging();
 		~Messaging();
-		void	send(_Payload	*message,bool	local);
-		void	processControlMessage(_Payload	*p);
+		void	send(_Payload	*message,module::Node::Network	network);
+		void	processControlMessage(_Payload	*p,module::Node::Network	network);
 		void	pushJobs(_Payload	*p,NodeEntry	&e);
 		void	pushJobs(_Payload	*p);
 		void	start();

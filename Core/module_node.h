@@ -48,14 +48,20 @@ namespace	mBrane{
 				Node(uint16	ID);
 				~Node();
 			public:
+				typedef	enum{
+					PRIMARY=0,
+					SECONDARY=1,
+					BOTH=2,
+					LOCAL=3
+				}Network;
 				static	Node	*Get();
 				uint16	id()	const;
-				virtual	void	send(const	_Module	*sender,_Payload	*p)=0;
+				virtual	void	send(const	_Module	*sender,_Payload	*p,Network	network=PRIMARY)=0;
 				virtual	int64	time()	const=0;	//	in ms since 01/01/70
-				virtual	void	newSpace(const	_Module	*sender)=0;	//	names are meaningless for dynamic instances
-				virtual	void	newModule(const	_Module	*sender,uint16	CID,const	char	*hostName=NULL)=0;
-				virtual	void	deleteSpace(uint16	ID)=0;
-				virtual	void	deleteModule(uint16	CID,uint16	ID)=0;
+				virtual	void	newSpace(const	_Module	*sender,Network	network=PRIMARY)=0;	//	names are meaningless for dynamic instances
+				virtual	void	newModule(const	_Module	*sender,uint16	CID,Network	network=PRIMARY,const	char	*hostName=NULL)=0;
+				virtual	void	deleteSpace(uint16	ID,Network	network=PRIMARY)=0;
+				virtual	void	deleteModule(uint16	CID,uint16	ID,Network	network=PRIMARY)=0;
 				virtual	const	char	*getSpaceName(uint16	ID)=0;
 				virtual	const	char	*getModuleName(uint16	ID)=0;
 			};

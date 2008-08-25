@@ -82,12 +82,12 @@ namespace	mBrane{
 		void	run();
 		void	shutdown();
 		//	MODULE NODE API
-		void	send(const	_Module	*sender,_Payload	*message);
+		void	send(const	_Module	*sender,_Payload	*message,module::Node::Network	network=module::Node::PRIMARY);
 		int64	time()	const;
-		void	newSpace(const	_Module	*sender);
-		void	newModule(const	_Module	*sender,uint16	CID,const	char	*hostName=NULL);
-		void	deleteSpace(uint16	ID);
-		void	deleteModule(uint16	CID,uint16	ID);
+		void	newSpace(const	_Module	*sender,Network	network=PRIMARY);
+		void	newModule(const	_Module	*sender,uint16	CID,Network	network=PRIMARY,const	char	*hostName=NULL);
+		void	deleteSpace(uint16	ID,Network	network=PRIMARY);
+		void	deleteModule(uint16	CID,uint16	ID,Network	network=PRIMARY);
 		const	char	*getSpaceName(uint16	ID);
 		const	char	*getModuleName(uint16	ID);
 		//	DAEMON NODE API
