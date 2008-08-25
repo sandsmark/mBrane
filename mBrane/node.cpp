@@ -121,8 +121,6 @@ namespace	mBrane{
 		return	this;
 	}
 
-	typedef	 _Module *(__cdecl	*ModuleInstantiator)(uint16,uint16,uint16);	//	test
-
 	bool	Node::loadApplication(const	char	*fileName){
 
 		XMLNode	mainNode=XMLNode::openFileHelper(fileName,"ApplicationConfiguration");
