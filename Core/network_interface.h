@@ -46,7 +46,7 @@ namespace	mBrane{
 			typedef	enum{
 				UDP=0,
 				TCP=1,
-				PRM=2,
+				RM=2,
 				IB=3
 			}Protocol;
 		protected:
