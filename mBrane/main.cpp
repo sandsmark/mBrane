@@ -5,7 +5,7 @@
 
 using	namespace	mBrane;
 using	namespace	mBrane::sdk;
-
+/*
 class	M:
 public	DynamicData<Message<M> >{
 public:
@@ -13,7 +13,7 @@ public:
 	uint32	b;
 	size_t	dynamicSize()	const{	return	0;	}
 };
-/*
+
 class	CM:public	ControlMessage<CM>{
 public:
 	uint32	a;
@@ -55,19 +55,16 @@ int	main(int	argc,char	**argv){
 		std::cout<<"usage: mBrane <boot delay in ms> <config file name>\n";
 		return	0;
 	}
-/*
+
 	Thread::Sleep(atoi(argv[1]));
 
 	node=mBrane::Node::New(argv[2]);
 	if(node){
 
-		if(!node->loadApplication()){
-
-			node->run();
-			node->shutdown();
-		}
+		node->run();
+		node->shutdown();
 		delete	node;
-	}*/
+	}
 /*
 	TimeProbe	probe;
 	Timer	_timer;

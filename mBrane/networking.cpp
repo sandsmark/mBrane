@@ -86,7 +86,7 @@ namespace	mBrane{
 			std::cout<<"Error: NodeConfiguration::Network::"<<name<<"::interface is missing\n";
 			return	false;
 		}
-		XMLNode	interfaces=node.getChildNode("Interfaces");
+		XMLNode	interfaces=n.getChildNode("Interfaces");
 		XMLNode	i=interfaces.getChildNode(_i);
 		if(!i){
 
