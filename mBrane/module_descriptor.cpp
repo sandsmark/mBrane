@@ -53,6 +53,8 @@ namespace	mBrane{
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
+	Array<const	char	*>	ModuleDescriptor::Names;
+	
 	Array<Array<P<ModuleDescriptor> > >	ModuleDescriptor::Main;
 
 	ModuleDescriptor::ModuleDescriptor(uint16	hostID,_Module	*m,uint16	CID,uint16	ID):Projectable<ModuleDescriptor>(),module(m),hostID(hostID){

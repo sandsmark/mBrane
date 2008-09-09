@@ -74,6 +74,7 @@ namespace	mBrane{
 	public	Projectable<ModuleDescriptor>{
 	public:
 		uint16	CID;
+		static	Array<const	char	*>	Names;
 		static	Array<Array<P<ModuleDescriptor> > >	Main;	//	indexed by module descriptor class ID | ID
 		uint16	hostID;	//	node
 		P<_Module>	module;	//	NULL if remote

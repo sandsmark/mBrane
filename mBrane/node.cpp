@@ -63,6 +63,9 @@ namespace	mBrane{
 		for(uint16	i=0;i<Space::Names.count();i++)
 			if(Space::Names[i])
 				free((void	*)Space::Names[i]);
+		for(uint16	i=0;i<ModuleDescriptor::Names.count();i++)
+			if(ModuleDescriptor::Names[i])
+				free((void	*)ModuleDescriptor::Names[i]);
 	}
 
 	Node	*Node::loadConfig(const	char	*configFileName){

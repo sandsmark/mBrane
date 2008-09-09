@@ -44,7 +44,7 @@ namespace	mBrane{
 	public:
 		static	Array<SpaceSpec>	Main;
 		static	SpaceSpec	*New(XMLNode	&n);
-		Array<float32>	activationLevels;	//	per space
+		Array<float32>	activationLevels;	//	per projection
 		float32			activationThreshold;
 		SpaceSpec();
 		~SpaceSpec();
