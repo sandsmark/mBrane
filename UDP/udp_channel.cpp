@@ -40,12 +40,18 @@ UDPChannel::UDPChannel(mBrane::socket	s):BroadcastCommChannel(),s(s){
 UDPChannel::~UDPChannel(){
 }
 
-int16	UDPChannel::send(uint8	*b,size_t	s){	//	TODO
+int16	UDPChannel::send(uint8	*b,size_t	s){
+
+	if(::sendto(this->s,(char	*)b,s,0,NULL,0)==SOCKET_ERROR)
+		return	1;
 
 	return	0;
 }
 
-int16	UDPChannel::recv(uint8	*b,size_t	s,bool	peek){	//	TODO
+int16	UDPChannel::recv(uint8	*b,size_t	s,bool	peek){
+
+	if(::recvfrom(this->s,(char	*)b,s,0,NULL,0)==SOCKET_ERROR)
+		return	1;
 
 	return	0;
 }
