@@ -59,7 +59,7 @@ namespace	mBrane{
 			virtual	bool	operator	==(NetworkInterface	&i)=0;
 			virtual	bool	operator	!=(NetworkInterface	&i)=0;
 			virtual	bool	canBroadcast()=0;	//	as opposed to connected mode
-			virtual	uint16	start()=0;	//	initialize the network interface; loads parameters from XML file; returns 0 if successful
+			virtual	uint16	start()=0;	//	initialize the network interface; returns 0 if successful
 			virtual	uint16	stop()=0;	//	the network interface; returns 0 if successful
 			virtual	uint16	getIDSize()=0;	//	node net ID to be broadcast
 			virtual	void	fillID(uint8	*ID)=0;	//	with relevant parameters (different from Node::_ID; ex: IP addr and port)

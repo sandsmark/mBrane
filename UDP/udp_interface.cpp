@@ -31,6 +31,8 @@
 #include	"udp_interface.h"
 #include	"udp_channel.h"
 
+#include	<iphlpapi.h>
+
 
 uint32	UDPInterface::Intialized=0;
 
@@ -63,10 +65,14 @@ void	UDPInterface::Shutdown(){
 
 UDPInterface	*UDPInterface::New(XMLNode &n){
 
+	if(!Init())
+		return	NULL;
+
 	UDPInterface	*i=new	UDPInterface();
 	if(!i->load(n)){
 
 		delete	i;
+		Shutdown();
 		return	NULL;
 	}
 	return	i;
@@ -82,27 +88,45 @@ UDPInterface::~UDPInterface(){
 
 bool	UDPInterface::load(XMLNode	&n){
 
-	if(!Init())
-		return	false;
-
 	const	char	*_nic=n.getAttribute("nic");
 	if(!_nic){
 
 		std::cout<<"Error: NodeConfiguration::Network::"<<n.getName()<<"::nic is missing\n";
-		goto	err;
+		return	false;
 	}
-	//	TODO:	set address to the addr of the eth interface specified by nic: see Psyclone::CoreLibrary::getLocalInterfaceAddresses
+	
+	uint32	size=sizeof(IP_ADAPTER_INFO);
+    IP_ADAPTER_INFO	_adapters;
+	GetAdaptersInfo(&_adapters,&size);	//	initial call to get the actual size
+	IP_ADAPTER_INFO	*adapters=new	IP_ADAPTER_INFO[size];
+	GetAdaptersInfo(&_adapters,&size);
+	IP_ADAPTER_INFO	*a;
+	uint8	i;
+	for(i=0,a=adapters;i<size;a=a->Next){
+
+		if(strcmp(_nic,a->Description)==0){
+
+			address.s_addr=inet_addr(a->IpAddressList.IpAddress.String);
+			break;
+		}
+	}
+	delete[]	adapters;
+
+	if(i==size){
+
+		std::cout<<"Error: NodeConfiguration::Network::"<<n.getName()<<"::nic "<<_nic<<"does not exist\n";
+		return	false;
+	}
+
 	const	char	*_port=n.getAttribute("port");
 	if(!_port){
 
 		std::cout<<"Error: NodeConfiguration::Network::"<<n.getName()<<"::port is missing\n";
-		goto	err;
+		return	false;
 	}
 	port=atoi(_port);
 
 	return	true;
-err:Shutdown();
-	return	false;
 }
 
 bool	UDPInterface::operator	==(NetworkInterface	&i){
@@ -122,27 +146,39 @@ bool	UDPInterface::canBroadcast(){
 	return	true;
 }
 
-uint16	UDPInterface::start(){	//	TODO
+uint16	UDPInterface::start(){
 
 	return	0;
 }
 
-uint16	UDPInterface::stop(){	//	TODO
+uint16	UDPInterface::stop(){
 
+	Shutdown();
 	return	0;
 }
 
-uint16	UDPInterface::getIDSize(){	//	TODO
+uint16	UDPInterface::getIDSize(){
 
-	return	0;
+	return	sizeof(struct	in_addr)+sizeof(uint32);
 }
 
-void	UDPInterface::fillID(uint8	*ID){	//	TODO
+void	UDPInterface::fillID(uint8	*ID){	//	address|port
 
-	
+	memcpy(ID,&address,sizeof(struct	in_addr));
+	memcpy(ID+sizeof(struct	in_addr),&port,sizeof(uint32));
 }
 
-uint16	UDPInterface::newChannel(uint8	*ID,CommChannel	**channel){	//	TODO
+uint16	UDPInterface::newChannel(uint8	*ID,CommChannel	**channel){
+
+	mBrane::socket	s;
+	if((s=::socket(AF_INET,SOCK_DGRAM,IPPROTO_UDP))==SOCKET_ERROR){
+
+		closesocket(s);
+		Shutdown();
+		return	1;
+	}
+
+	*channel=new	UDPChannel(s);
 
 	return	0;
 }

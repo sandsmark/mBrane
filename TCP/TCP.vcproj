@@ -62,7 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Core.lib WS2_32.lib"
+				AdditionalDependencies="Core.lib WS2_32.lib Iphlpapi.lib"
 				OutputFile="$(OutDir)\mBrane_tcp.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="$(OutDir)"
@@ -140,7 +140,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Core.lib WS2_32.lib"
+				AdditionalDependencies="Core.lib WS2_32.lib Iphlpapi.lib"
 				OutputFile="$(OutDir)\mBrane_tcp.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(OutDir)"
