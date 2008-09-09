@@ -5,47 +5,18 @@
 		<Projection space="0" activationlevel="1"/><!--space1 projected on space0-->
 	</Space>
 	<!--second module instantiations-->
-	<Module class="Module0" name="first_module" host="local"><!--name will be Module0_first_module; if no name is specified, name will be Module0_x where x is a number starting at 0-->
+	<Module class="Module0" name="first_module" host="local"><!--if no name is specified, name will be x where x is a number starting at 0, allocated per module class-->
 		<Projection space="space1" activationlevel="1">
 			<Subscription message_class="SystemReady"/>
 			<Subscription stream="0"/>
 		</Projection>
 	</Module>
-	<!--third, cluster class definitions-->
-	<ClusterClass name="Cluster0" host="local"><!--name is mandatory; if host is specified, all modules and sub clusters will be instantiated on that host-->
-	</ClusterClass>
-	<ClusterClass name="Cluster1">
-		<!--first, space definitions-->
-		<Space name="space3" activationThreshold="0.5"/>
-		<!--second module instantiations-->
-		<Module class="Module0" host="local">
-			<Projection space="space1" activationlevel="1">
-				<Subscription message_class="SystemReady"/>
-			</Projection>
-		</Module>
-		<Module class="Module0" host="local">
-			<Projection space="space3" activationlevel="1">
-				<Subscription message_class="SystemReady"/>
-			</Projection>
-		</Module>
-		<Module class="Module0" count="2" name="subGroup1" host="local"><!--will instantiate 2 modules on local host; names will be: Module0_subGroup1_x-->
-			<Projection space="space3" activationlevel="1">
-				<Subscription message_class="SystemReady"/>
-			</Projection>
-		</Module>
-		<!--third, cluster instantiations-->
-		<Cluster class="Cluster0" name="first_cluster" host="local"/><!--name will be Cluster0_first_cluster; if no name is specified, name will be Cluster0_x-->
-		<Cluster class="Cluster0" count="3" host="local"/><!--3 cluster instances of Cluster0 will be built on local host; names: Cluster0_x-->
-	</ClusterClass>
-	<!--fourth, cluster instantiations-->
-	<Cluster class="Cluster1" name="first_cluster" host="local"/>
 	<!--GENERAL REMARKS-->
 	<!--0	all nodes have the exact same application config file-->
 	<!--1	no circular references (in projections or in cluster instantiations defined in cluster classes-->
-	<!--2	inclusion of external definitions via path to the xml node; applies to cluster classes, module instantiation, space instantiation-->
-	<!--	ex: <ClusterClass import="fileName.xml::mainNode.subNode.node"/>-->
-	<!--3	cluster instances: propagate their names to their components: ex (from Cluster1 class definition): Cluster1_first_cluster_space1-->
-	<!--4	host: node name or "local"-->
-	<!--5	subscriptions are optional-->
-	<!--6	names are specified only here and can be retrieved at runtime; dynamically generated instances have no names-->
+	<!--2	inclusion of external definitions via path to the xml node; applies to cluster module instantiation, space instantiation-->
+	<!--	ex: <Module import="fileName.xml::mainNode.subNode.node"/>-->
+	<!--3	host: node name or "local"-->
+	<!--4	subscriptions are optional-->
+	<!--5	names are specified only here and can be retrieved at runtime; dynamically generated instances have no names-->
 </ApplicationConfiguration>

@@ -143,7 +143,7 @@ namespace	mBrane{
 			_Module	*m=NULL;
 			if(node_id==((Node	*)this)->_ID)
 				m=ModuleRegister::Get(module_cid)->buildModule();
-			ModuleDescriptor::Main[module_cid][ModuleDescriptor::Main[module_cid].count()]=new	ModuleDescriptor(node_id,m,module_cid,module_id);
+			ModuleDescriptor::Main[module_cid][module_id]=new	ModuleDescriptor(node_id,m,module_cid,module_id);
 			break;
 		}case	DeleteModule_CID:{
 			NodeEntry::CS[DC].enter();

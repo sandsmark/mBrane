@@ -288,10 +288,6 @@
 				Name="Specs"
 				>
 				<File
-					RelativePath=".\cluster_spec.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\module_spec.cpp"
 					>
 				</File>
@@ -376,10 +372,6 @@
 			<Filter
 				Name="Specs"
 				>
-				<File
-					RelativePath=".\cluster_spec.h"
-					>
-				</File>
 				<File
 					RelativePath=".\module_spec.h"
 					>
