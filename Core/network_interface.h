@@ -77,7 +77,6 @@ namespace	mBrane{
 			virtual	~CommChannel();	//	shutdown to be performed in subclasses' destructors
 			virtual	int16	send(uint8	*b,size_t	s)=0;	//	return 0 if successfull, error code (>0) otherwise
 			virtual	int16	recv(uint8	*b,size_t	s,bool	peek=false)=0;
-			virtual	uint64	rtt()=0;	//	round trip time estimate; make sure rtt() is quick to return and does not involve extra network traffic
 			int16	send(_Payload	*p);	//	return 0 if successfull, error code (>0) otherwise
 			int16	recv(_Payload	**p);
 		};

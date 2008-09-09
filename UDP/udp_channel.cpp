@@ -49,8 +49,3 @@ int16	UDPChannel::recv(uint8	*b,size_t	s,bool	peek){	//	TODO
 
 	return	0;
 }
-
-uint64	UDPChannel::rtt(){	//	TODO (use IP Helper API)
-
-	return	0;
-}

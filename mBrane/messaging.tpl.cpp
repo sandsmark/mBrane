@@ -282,9 +282,6 @@ namespace	mBrane{
 				}
 			}
 
-			if(node->isTimeReference)
-				node->lastSyncTime=p->node_send_ts();
-
 			out->p=NULL;
 		}
 

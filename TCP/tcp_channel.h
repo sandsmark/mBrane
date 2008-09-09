@@ -46,7 +46,6 @@ public:
 	~TCPChannel();
 	int16	send(uint8	*b,size_t	s);
 	int16	recv(uint8	*b,size_t	s,bool	peek=false);
-	uint64	rtt();
 };
 
 

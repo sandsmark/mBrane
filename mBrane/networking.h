@@ -125,7 +125,6 @@ namespace	mBrane{
 		static	uint32	thread_function_call	AcceptConnections(void	*args);
 		static	uint32	thread_function_call	Sync(void	*args);
 		int64	timeDrift;	//	in ms
-		int64	lastSyncTime;	//	in ms
 		int64	syncPeriod;	//	in ms
 
 		uint16	sendID(CommChannel	*c,NetworkID	*networkID);

@@ -40,6 +40,8 @@ namespace	mBrane{
 
 		RecvThread	*_this=(RecvThread	*)args;
 
+		SyncEcho	echo;
+
 		_Payload	*p;
 		while(!_this->node->_shutdown){
 
@@ -49,14 +51,19 @@ namespace	mBrane{
 				continue;
 			}
 
-			if(!_this->node->isTimeReference)
-				_this->node->timeDrift=p->node_recv_ts()-p->node_send_ts()-_this->channel->rtt()/2;
-			
 			P<_Payload>	_p=p;
-			if(p->cid()!=TimeSync::CID()){
-
+			switch(p->cid()){
+			case	SyncEcho_CID:	//	non-ref node, compute drift
+				_this->node->timeDrift=Time::Get()-((SyncEcho	*)p)->time-(p->node_recv_ts()-p->node_send_ts());
+				break;
+			case	SyncProbe_CID:	//	ref node, echo
+				echo.time=Time::Get();
+				_this->channel->send(&echo);
+				break;
+			default:
 				_this->buffer.push(_p);
 				_this->node->inputSync->release();
+				break;
 			}
 		}
 

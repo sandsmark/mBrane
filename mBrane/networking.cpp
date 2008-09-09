@@ -369,11 +369,10 @@ namespace	mBrane{
 		_ID=assignedNID;
 		referenceNID=networkID->NID();
 
-		if(isTimeReference){
-
+		if(isTimeReference)
 			commThreads[commThreads.count()]=Thread::New<Thread>(ScanIDs,this);
+		else
 			commThreads[commThreads.count()]=Thread::New<Thread>(Sync,this);
-		}
 	}
 
 	uint16	Networking::sendID(CommChannel	*c,NetworkID	*networkID){
@@ -577,7 +576,7 @@ err2:	delete[]	networkID;
 				processError(i);
 	}
 
-	inline	void	Networking::broadcastControlMessage(_Payload	*p,Network	network){
+	void	Networking::broadcastControlMessage(_Payload	*p,Network	network){
 
 		if(network==PRIMARY	||	network==BOTH)
 			_broadcastControlMessage(p,network);
@@ -753,21 +752,22 @@ err1:	node->shutdown();
 		return	0;
 	}
 
-	uint32	thread_function_call	Networking::Sync(void	*args){
+	uint32	thread_function_call	Networking::Sync(void	*args){	//	executed by non-time ref nodes
 
 		Networking	*node=(Networking	*)args;
 
-		TimeSync	sync;
+		SyncProbe	probe;
 		while(!node->_shutdown){
 
 			Thread::Sleep(node->syncPeriod);
-
-			int64	t=Time::Get();
-			if(t-node->lastSyncTime>=node->syncPeriod){
-
-				sync.send_ts()=t;
-				node->broadcastControlMessage(&sync,BOTH);
-				node->lastSyncTime=t;
+			switch(node->network){
+			case	PRIMARY:
+			case	BOTH:
+				node->dataChannels[node->referenceNID]->channels[PRIMARY].data->send(&probe);
+				break;
+			case	SECONDARY:
+				node->dataChannels[node->referenceNID]->channels[SECONDARY].data->send(&probe);
+				break;
 			}
 		}
 		return	0;

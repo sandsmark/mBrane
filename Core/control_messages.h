@@ -42,8 +42,14 @@ namespace	mBrane{
 			public	ControlMessage<SystemReady>{
 			};
 
-			class	dll	TimeSync:
-			public	ControlMessage<TimeSync>{
+			class	dll	SyncProbe:
+			public	ControlMessage<SyncProbe>{
+			};
+
+			class	dll	SyncEcho:
+			public	ControlMessage<SyncEcho>{
+			public:
+				int64	time;	//	us
 			};
 
 			class	dll	NodeJoined:
@@ -144,20 +150,21 @@ namespace	mBrane{
 			};
 
 			#define	SystemReady_CID			0
-			#define	TimeSync_CID			1
-			#define	NodeJoined_CID			2
-			#define	NodeLeft_CID			3
-			#define	SetThreshold_CID		4
-			#define	ActivateModule_CID		5
-			#define	ActivateSpace_CID		6
-			#define	SubscribeMessage_CID	7
-			#define	SubscribeStream_CID		8
-			#define	UnsubscribeMessage_CID	9
-			#define	UnsubscribeStream_CID	10
-			#define	CreateModule_CID		11
-			#define	CreateSpace_CID			12
-			#define	DeleteModule_CID		13
-			#define	DeleteSpace_CID			14
+			#define	SyncProbe_CID			1
+			#define	SyncEcho_CID			2
+			#define	NodeJoined_CID			3
+			#define	NodeLeft_CID			4
+			#define	SetThreshold_CID		5
+			#define	ActivateModule_CID		6
+			#define	ActivateSpace_CID		7
+			#define	SubscribeMessage_CID	8
+			#define	SubscribeStream_CID		9
+			#define	UnsubscribeMessage_CID	10
+			#define	UnsubscribeStream_CID	11
+			#define	CreateModule_CID		12
+			#define	CreateSpace_CID			13
+			#define	DeleteModule_CID		14
+			#define	DeleteSpace_CID			15
 		}
 	}
 }
