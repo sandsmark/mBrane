@@ -118,11 +118,7 @@ namespace	mBrane{
 				std::cout<<"Error: Module: "<<name<<" ::Projection::activation_level is Missing\n";
 				goto	error;
 			}
-			Space	*_s;
-			if(strcmp(spaceName,"root")==0)
-				_s=Space::Main[0];
-			else
-				_s=Space::Get(spaceName);
+			Space	*_s=Space::Get(spaceName);
 			if(!_s){
 
 				std::cout<<"Error: Space "<<spaceName<<" does not exist\n";

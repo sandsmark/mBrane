@@ -39,6 +39,8 @@ namespace	mBrane{
 
 	Space	*Space::Get(const	char	*name){
 
+		if(strcmp(name,"root")==0)
+			return	Space::Main[0];
 		for(uint16	i=0;i<Space::Names.count();i++)
 			if(strcmp(Space::Names[i],name)==0)
 				return	Space::Main[i];
@@ -78,18 +80,13 @@ namespace	mBrane{
 				std::cout<<"Error: Space: "<<name<<" ::Projection::name is Missing\n";
 				goto	error;
 			}
-			//	TODO: detect projections on root space
 			const	char	*_activationLevel=projection.getAttribute("activation_level");
 			if(!_activationLevel){
 
 				std::cout<<"Error: Space: "<<name<<" ::Projection::activation_level is Missing\n";
 				goto	error;
 			}
-			Space	*_s;
-			if(strcmp(spaceName,"root")==0)
-				_s=Space::Main[0];
-			else
-				_s=Space::Get(spaceName);
+			Space	*_s=Space::Get(spaceName);
 			if(!_s){
 
 				std::cout<<"Error: Space "<<spaceName<<" does not exist\n";
