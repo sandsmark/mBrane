@@ -101,7 +101,9 @@ namespace	mBrane{
 		}
 
 		uint16	projectionCount=n.nChildNode("Projection");
-		for(uint16	i=0;i<projectionCount;i++){
+		if(!projectionCount)
+			m->setActivationLevel(0,1);
+		else	for(uint16	i=0;i<projectionCount;i++){
 
 			XMLNode	projection=n.getChildNode("Projection",i);
 			const	char	*spaceName=projection.getAttribute("space");	//	to be projected on
@@ -116,7 +118,11 @@ namespace	mBrane{
 				std::cout<<"Error: Module: "<<name<<" ::Projection::activation_level is Missing\n";
 				goto	error;
 			}
-			Space	*_s=Space::Get(spaceName);
+			Space	*_s;
+			if(strcmp(spaceName,"root")==0)
+				_s=Space::Main[0];
+			else
+				_s=Space::Get(spaceName);
 			if(!_s){
 
 				std::cout<<"Error: Space "<<spaceName<<" does not exist\n";

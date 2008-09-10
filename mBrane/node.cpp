@@ -52,10 +52,6 @@ namespace	mBrane{
 	}
 
 	Node::Node():Networking(),MESSAGING_CLASS(),Executing(),nodeCount(0){
-		
-		Space	*defaultSpace=new	Space();
-		defaultSpace->setActivationThreshold(1.0);
-		defaultSpace->activate();
 	}
 
 	Node::~Node(){
@@ -123,6 +119,9 @@ namespace	mBrane{
 
 	bool	Node::loadApplication(const	char	*fileName){
 
+		Space	*rootSpace=new	Space();
+		rootSpace->setActivationThreshold(1.0);
+
 		XMLNode	mainNode=XMLNode::openFileHelper(fileName,"ApplicationConfiguration");
 		if(!mainNode){
 
@@ -157,6 +156,7 @@ namespace	mBrane{
 		}
 
 		Space::Init();
+		rootSpace->activate();
 
 		return	true;
 	}

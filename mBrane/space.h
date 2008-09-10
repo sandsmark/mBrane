@@ -47,7 +47,7 @@ namespace	mBrane{
 	public:
 		static	Array<const	char	*>	Names;
 		static	Space					*Get(const	char	*name);
-		static	Array<P<Space> >		Main;	//	indexed by space ID; 0 is the default space
+		static	Array<P<Space> >		Main;	//	indexed by space ID; 0 is the root space
 		static	Space					*New(XMLNode	&n);
 		static	void					Init();
 		uint32	activationCount;

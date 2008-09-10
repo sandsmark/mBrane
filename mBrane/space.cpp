@@ -67,7 +67,9 @@ namespace	mBrane{
 		memcpy((void	*)Space::Names[s->ID],name,strlen(name));
 
 		uint16	projectionCount=n.nChildNode("Projection");
-		for(uint16	i=0;i<projectionCount;i++){
+		if(!projectionCount)
+			s->setActivationLevel(0,1);
+		else	for(uint16	i=0;i<projectionCount;i++){
 
 			XMLNode	projection=n.getChildNode("Projection",i);
 			const	char	*spaceName=projection.getAttribute("space");	//	to be projected on
@@ -76,13 +78,18 @@ namespace	mBrane{
 				std::cout<<"Error: Space: "<<name<<" ::Projection::name is Missing\n";
 				goto	error;
 			}
+			//	TODO: detect projections on root space
 			const	char	*_activationLevel=projection.getAttribute("activation_level");
 			if(!_activationLevel){
 
 				std::cout<<"Error: Space: "<<name<<" ::Projection::activation_level is Missing\n";
 				goto	error;
 			}
-			Space	*_s=Get(spaceName);
+			Space	*_s;
+			if(strcmp(spaceName,"root")==0)
+				_s=Space::Main[0];
+			else
+				_s=Space::Get(spaceName);
 			if(!_s){
 
 				std::cout<<"Error: Space "<<spaceName<<" does not exist\n";
