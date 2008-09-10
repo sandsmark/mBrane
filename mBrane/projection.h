@@ -72,7 +72,7 @@ namespace	mBrane{
 	public:
 		uint16	ID;
 		uint32	activationCount;
-		Projectable();
+		Projectable(uint16	ID);
 		~Projectable();
 		void	project(uint16	spaceID);
 		void	unproject(uint16	spaceID);

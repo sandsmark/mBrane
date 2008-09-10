@@ -40,6 +40,8 @@ using	namespace	mBrane::sdk::payloads;
 
 namespace	mBrane{
 
+	const	uint16	Node::NoNode=0xFFFFFFFF;
+
 	Node	*Node::New(const	char	*configFileName){
 
 		Node	*n=new	Node();
@@ -50,9 +52,10 @@ namespace	mBrane{
 	}
 
 	Node::Node():Networking(),MESSAGING_CLASS(),Executing(),nodeCount(0){
-		//	default space
-		Space::Main[0]=new	Space();
-		Space::Main[0]->setActivationThreshold(1.0);
+		
+		Space	*defaultSpace=new	Space();
+		defaultSpace->setActivationThreshold(1.0);
+		defaultSpace->activate();
 	}
 
 	Node::~Node(){
@@ -60,12 +63,6 @@ namespace	mBrane{
 		for(uint16	i=0;i<nodeNames.count();i++)
 			if(nodeNames[i])
 				free((void	*)nodeNames[i]);
-		for(uint16	i=0;i<Space::Names.count();i++)
-			if(Space::Names[i])
-				free((void	*)Space::Names[i]);
-		for(uint16	i=0;i<ModuleDescriptor::Names.count();i++)
-			if(ModuleDescriptor::Names[i])
-				free((void	*)ModuleDescriptor::Names[i]);
 	}
 
 	Node	*Node::loadConfig(const	char	*configFileName){
@@ -109,7 +106,7 @@ namespace	mBrane{
 			}
 		}
 
-		//	TODO:	load RDMA library, alloc sharedMemorySegments and pin them down
+		//	FUTURE DEVELOPMENT: load RDMA library, alloc sharedMemorySegments and pin them down. See test_node.xml
 
 		const	char	*application_configuration_file=mainNode.getAttribute("application_configuration_file");
 		if(!application_configuration_file){
@@ -141,10 +138,26 @@ namespace	mBrane{
 		if(!(userLibrary=SharedLibrary::New(ul)))
 			return	false;
 
-		//	TODO:	
-		//		load specs and build:
-		//		modules, spaces, clusters
-		//		initial projections and subscriptions
+		uint16	spaceCount=mainNode.nChildNode("Space");
+		for(uint16	i=0;i<spaceCount;i++){
+
+			XMLNode	spaceNode=mainNode.getChildNode("Space",i);
+			Space	*s=Space::New(spaceNode);
+			if(!s)
+				return	false;
+		}
+
+		uint16	moduleCount=mainNode.nChildNode("Module");
+		for(uint16	i=0;i<moduleCount;i++){
+
+			XMLNode				moduleNode=mainNode.getChildNode("Module",i);
+			ModuleDescriptor	*m=ModuleDescriptor::New(moduleNode);
+			if(!m)
+				return	false;
+		}
+
+		Space::Init();
+
 		return	true;
 	}
 
@@ -153,11 +166,14 @@ namespace	mBrane{
 		delete	userLibrary;
 	}
 
-	uint16	Node::getNIDFromName(const	char	*name){
+	uint16	Node::getNID(const	char	*name){
 
+		if(strcmp(name,"local")==0)
+			return	_ID;
 		for(uint16	i=0;i<nodeNames.count();i++)
 			if(strcmp(nodeNames[i],networkID->name())==0)
 				return	i;
+		return	NoNode;
 	}
 
 	void	Node::run(){
@@ -341,9 +357,11 @@ namespace	mBrane{
 		CreateModule	cm;
 		cm.sender_cid=sender->descriptor->CID;
 		cm.sender_id=sender->descriptor->ID;
-		cm.node_id=getNIDFromName(hostName);
-		cm.module_cid=CID;
-		Messaging::send(&cm,network);
+		if((cm.node_id=getNID(hostName))!=NoNode){
+
+			cm.module_cid=CID;
+			Messaging::send(&cm,network);
+		}
 	}
 
 	void	Node::deleteSpace(uint16	ID,Network	network){

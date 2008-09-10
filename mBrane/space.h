@@ -31,6 +31,8 @@
 #ifndef	mBrane_space_h
 #define	mBrane_space_h
 
+#include	"..\Core\xml_parser.h"
+
 #include	"module_descriptor.h"
 
 
@@ -44,7 +46,10 @@ namespace	mBrane{
 		float32	_activationThreshold;	//	in [0,1]
 	public:
 		static	Array<const	char	*>	Names;
-		static	Array<P<Space> >	Main;	//	indexed by space ID; 0 is the default space
+		static	Space					*Get(const	char	*name);
+		static	Array<P<Space> >		Main;	//	indexed by space ID; 0 is the default space
+		static	Space					*New(XMLNode	&n);
+		static	void					Init();
 		uint32	activationCount;
 		List<P<Projection<ModuleDescriptor> > >	moduleDescriptors;
 		List<P<Projection<Space> > >			spaces;

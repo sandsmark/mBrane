@@ -1,12 +1,12 @@
 <ApplicationConfiguration user_library="C:\eric\work\mBrane\mBrane\Debug\TestModules.dll">
 	<!--first, space definitions-->
-	<Space name="space0" activationThreshold="0.5"/><!--name is mandatory-->
-	<Space name="space1" activationThreshold="0.5">
-		<Projection space="0" activationlevel="1"/><!--space1 projected on space0-->
+	<Space name="space0" activation_threshold="0.5"/><!--name is mandatory-->
+	<Space name="space1" activation_threshold="0.5">
+		<Projection space="0" activation_level="1"/><!--space1 projected on space0-->
 	</Space>
 	<!--second module instantiations-->
 	<Module class="Module0" name="first_module" host="local"><!--if no name is specified, name will be x where x is a number starting at 0, allocated per module class-->
-		<Projection space="space1" activationlevel="1">
+		<Projection space="space1" activation_level="1">
 			<Subscription message_class="SystemReady"/>
 			<Subscription stream="0"/>
 		</Projection>
@@ -19,4 +19,8 @@
 	<!--3	host: node name or "local"-->
 	<!--4	subscriptions are optional-->
 	<!--5	names are specified only here and can be retrieved at runtime; dynamically generated instances have no names-->
+	<!--6   FUTURE DEVELOPMENT: define a simple scripting language to parametrize space/module instantiation-->
+	<!--    ex: names, class, subscriptions, projections, thresholds, activation levels-->
+	<!--    idea: space/module instantiation templates-->
+	<!--    THEN: introduce clusters-->
 </ApplicationConfiguration>

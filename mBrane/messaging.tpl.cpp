@@ -138,26 +138,25 @@ namespace	mBrane{
 			NodeEntry::CS[DC].enter();
 			NodeEntry::CS[ST].enter();
 			uint16	module_cid=((CreateModule	*)p)->module_cid;
-			uint16	module_id=ModuleDescriptor::Main[module_cid].count();
 			uint16	node_id=((CreateModule	*)p)->node_id;
 			_Module	*m=NULL;
 			if(node_id==((Node	*)this)->_ID)
 				m=ModuleRegister::Get(module_cid)->buildModule();
-			ModuleDescriptor::Main[module_cid][module_id]=new	ModuleDescriptor(node_id,m,module_cid,module_id);
+			new	ModuleDescriptor(node_id,m,module_cid);
 			break;
 		}case	DeleteModule_CID:{
 			NodeEntry::CS[DC].enter();
 			NodeEntry::CS[ST].enter();
 			uint16	module_cid=((DeleteModule	*)p)->module_cid;
 			uint16	module_id=((DeleteModule	*)p)->module_id;
-			ModuleDescriptor::Main[module_cid][module_id]=NULL;
+			delete	(ModuleDescriptor	*)ModuleDescriptor::Main[module_cid][module_id];
 			NodeEntry::CS[DC].leave();
 			NodeEntry::CS[ST].leave();
 			break;
 		}case	CreateSpace_CID:{
 			NodeEntry::CS[DC].enter();
 			NodeEntry::CS[ST].enter();
-			Space::Main[Space::Main.count()]=new	Space();
+			new	Space();
 			NodeEntry::CS[DC].leave();
 			NodeEntry::CS[ST].leave();
 			break;
@@ -165,7 +164,7 @@ namespace	mBrane{
 			NodeEntry::CS[DC].enter();
 			NodeEntry::CS[ST].enter();
 			uint16	space_id=((DeleteSpace	*)p)->space_id;
-			Space::Main[space_id]=NULL;
+			delete	(Space	*)Space::Main[space_id];
 			NodeEntry::CS[DC].leave();
 			NodeEntry::CS[ST].leave();
 			break;

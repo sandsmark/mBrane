@@ -37,10 +37,82 @@ namespace	mBrane{
 
 	Array<const	char	*>	Space::Names;
 
-	Space::Space():activationCount(0){
+	Space	*Space::Get(const	char	*name){
+
+		for(uint16	i=0;i<Space::Names.count();i++)
+			if(strcmp(Space::Names[i],name)==0)
+				return	Space::Main[i];
+		return	NULL;
+	}
+
+	Space	*Space::New(XMLNode	&n){
+
+		const	char	*name=n.getAttribute("name");
+		if(!name){
+
+			std::cout<<"Error: Space::name is missing\n";
+			return	NULL;
+		}
+
+		const	char	*_activationThreshold=n.getAttribute("activation_threshold");
+		if(!_activationThreshold){
+
+			std::cout<<"Error: Space::activation_threshold is missing\n";
+			return	NULL;
+		}
+
+		Space	*s=new	Space();
+		s->setActivationThreshold(atoi(_activationThreshold));
+		Space::Names[s->ID]=new	char[strlen(name)];
+		memcpy((void	*)Space::Names[s->ID],name,strlen(name));
+
+		uint16	projectionCount=n.nChildNode("Projection");
+		for(uint16	i=0;i<projectionCount;i++){
+
+			XMLNode	projection=n.getChildNode("Projection",i);
+			const	char	*spaceName=projection.getAttribute("space");	//	to be projected on
+			if(!spaceName){
+
+				std::cout<<"Error: Space: "<<name<<" ::Projection::name is Missing\n";
+				goto	error;
+			}
+			const	char	*_activationLevel=projection.getAttribute("activation_level");
+			if(!_activationLevel){
+
+				std::cout<<"Error: Space: "<<name<<" ::Projection::activation_level is Missing\n";
+				goto	error;
+			}
+			Space	*_s=Get(spaceName);
+			if(!_s){
+
+				std::cout<<"Error: Space "<<spaceName<<" does not exist\n";
+				goto	error;
+			}
+			s->setActivationLevel(_s->ID,atoi(_activationLevel));
+		}
+
+		return	s;
+error:	delete	s;
+		return	NULL;
+	}
+
+	void	Space::Init(){
+
+		for(uint16	i=0;i<Space::Main.count();i++)
+			Space::Main[i]->setActivationThreshold(Space::Main[i]->getActivationThreshold());
+	}
+
+	Space::Space():Projectable<Space>(Space::Main.count()),activationCount(0){
+
+		Space::Main[ID]=this;
 	}
 
 	Space::~Space(){
+
+		if(Space::Main[ID]==NULL)
+			return;
+		Space::Main[ID]=NULL;
+		delete[]	Space::Names[ID];
 	}
 
 	void	Space::setActivationThreshold(float32	thr){

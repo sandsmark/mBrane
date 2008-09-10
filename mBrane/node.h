@@ -73,11 +73,12 @@ namespace	mBrane{
 		//	NODE
 		uint16	nodeCount;
 		Array<const	char	*>	nodeNames;
-		uint16	getNIDFromName(const	char	*name);
 		Node();
 		bool	loadApplication(const	char	*fileName);
 		void	unloadApplication();
 	public:
+		static	const	uint16	NoNode;
+		uint16	getNID(const	char	*name);
 		//	main() NODE API
 		static	Node	*New(const	char	*configFileName);
 		~Node();

@@ -28,7 +28,13 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include	"..\Core\module_register.h"
+#include	"..\Core\class_register.h"
+
 #include	"module_descriptor.h"
+#include	"node.h"
+
+#include	<iostream>
 
 
 #define	DC	0	//	Data and Control
@@ -53,11 +59,102 @@ namespace	mBrane{
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	Array<const	char	*>	ModuleDescriptor::Names;
+	Array<Array<const	char	*> >	ModuleDescriptor::Names;
 	
 	Array<Array<P<ModuleDescriptor> > >	ModuleDescriptor::Main;
 
-	ModuleDescriptor::ModuleDescriptor(uint16	hostID,_Module	*m,uint16	CID,uint16	ID):Projectable<ModuleDescriptor>(),module(m),hostID(hostID){
+	ModuleDescriptor	*ModuleDescriptor::New(XMLNode	&n){
+
+		const	char	*_class=n.getAttribute("class");
+		if(!_class){
+
+			std::cout<<"Error: Module::class is missing\n";
+			return	NULL;
+		}
+
+		uint16	CID=ModuleRegister::GetCID(_class);
+		if(CID==ClassRegister::NoClass){
+
+			std::cout<<"Error: class: "<<_class<<" does not exists\n";
+			return	NULL;
+		}
+
+		const	char	*name=n.getAttribute("name");
+
+		const	char	*_host=n.getAttribute("host");
+		if(!_host){
+
+			std::cout<<"Error: Module::host is missing\n";
+			return	NULL;
+		}
+
+		uint16	hostID=((mBrane::Node	*)Node::Get())->getNID(_host);
+		_Module	*_m=NULL;
+		if(strcmp(_host,"local")==0)
+			_m=ModuleRegister::Get(CID)->buildModule();
+
+		ModuleDescriptor	*m=new	ModuleDescriptor(hostID,_m,CID);
+		if(name){
+			
+			ModuleDescriptor::Names[m->CID][m->ID]=new	char[strlen(name)];
+			memcpy((void	*)ModuleDescriptor::Names[m->CID][m->ID],name,strlen(name));
+		}
+
+		uint16	projectionCount=n.nChildNode("Projection");
+		for(uint16	i=0;i<projectionCount;i++){
+
+			XMLNode	projection=n.getChildNode("Projection",i);
+			const	char	*spaceName=projection.getAttribute("space");	//	to be projected on
+			if(!spaceName){
+
+				std::cout<<"Error: Module: "<<name<<" ::Projection::name is Missing\n";
+				goto	error;
+			}
+			const	char	*_activationLevel=projection.getAttribute("activation_level");
+			if(!_activationLevel){
+
+				std::cout<<"Error: Module: "<<name<<" ::Projection::activation_level is Missing\n";
+				goto	error;
+			}
+			Space	*_s=Space::Get(spaceName);
+			if(!_s){
+
+				std::cout<<"Error: Space "<<spaceName<<" does not exist\n";
+				goto	error;
+			}
+			m->setActivationLevel(_s->ID,atoi(_activationLevel));
+			uint16	subscriptionCount=projection.nChildNode("Subscription");
+			for(uint16	i=0;i<subscriptionCount;i++){
+
+				XMLNode	subscription=n.getChildNode("Subscription",i);
+				const	char	*_messageClass=subscription.getAttribute("message_class");
+				const	char	*_stream=subscription.getAttribute("stream");
+				if(!_messageClass	&&	!_stream){
+
+					std::cout<<"Error: Module::"<<name<<"Projection::"<<spaceName<<"Subscription: neither message_class nor stream are specified\n";
+					goto	error;
+				}
+				if(_messageClass){
+
+					uint16	MCID=ClassRegister::GetCID(_messageClass);
+					if(MCID==ClassRegister::NoClass){
+
+						std::cout<<"Error: Module::"<<name<<"Projection::"<<spaceName<<"Subscription::message_class: "<<_messageClass<<" does not exist\n";
+						goto	error;
+					}
+					m->addSubscription_message(_s->ID,MCID);
+				}
+				if(_stream)
+					m->addSubscription_stream(_s->ID,atoi(_stream));
+			}
+		}
+
+		return	m;
+error:	delete	m;
+		return	NULL;
+	}
+
+	ModuleDescriptor::ModuleDescriptor(uint16	hostID,_Module	*m,uint16	CID):Projectable<ModuleDescriptor>(ModuleDescriptor::Main[CID].count()),module(m),hostID(hostID),CID(CID){
 
 		if(m){
 
@@ -66,12 +163,18 @@ namespace	mBrane{
 			module->_id=ID;
 			module->start();
 		}
+
+		ModuleDescriptor::Main[CID][ID]=this;
 	}
 
 	ModuleDescriptor::~ModuleDescriptor(){
 
+		if(ModuleDescriptor::Main[CID][ID]==NULL)
+			return;
 		if(module!=NULL)
 			module->stop();
+		ModuleDescriptor::Main[CID][ID]=NULL;
+		delete[]	ModuleDescriptor::Names[CID][ID];
 	}
 
 	void	ModuleDescriptor::addSubscription_message(uint16	spaceID,uint16	MCID){

@@ -284,18 +284,6 @@
 					>
 				</File>
 			</Filter>
-			<Filter
-				Name="Specs"
-				>
-				<File
-					RelativePath=".\module_spec.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\space_spec.cpp"
-					>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -366,18 +354,6 @@
 				>
 				<File
 					RelativePath=".\executing.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Specs"
-				>
-				<File
-					RelativePath=".\module_spec.h"
-					>
-				</File>
-				<File
-					RelativePath=".\space_spec.h"
 					>
 				</File>
 			</Filter>

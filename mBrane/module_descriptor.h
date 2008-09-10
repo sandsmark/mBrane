@@ -33,6 +33,7 @@
 
 #include	"..\Core\list.h"
 #include	"..\Core\module.h"
+#include	"..\Core\xml_parser.h"
 
 #include	"projection.h"
 
@@ -74,11 +75,12 @@ namespace	mBrane{
 	public	Projectable<ModuleDescriptor>{
 	public:
 		uint16	CID;
-		static	Array<const	char	*>	Names;
+		static	Array<Array<const	char	*> >	Names;
 		static	Array<Array<P<ModuleDescriptor> > >	Main;	//	indexed by module descriptor class ID | ID
+		static	ModuleDescriptor					*New(XMLNode	&n);
 		uint16	hostID;	//	node
 		P<_Module>	module;	//	NULL if remote
-		ModuleDescriptor(uint16	hostID,_Module	*m,uint16	CID,uint16	ID);
+		ModuleDescriptor(uint16	hostID,_Module	*m,uint16	CID);
 		~ModuleDescriptor();
 		void	activate();
 		void	deactivate();
