@@ -74,7 +74,7 @@ namespace	mBrane{
 
 		uint16	ModuleRegister::Load(ModuleBuilder	b){
 
-			ModuleRegister	*r=Modules->alloc();
+			ModuleRegister	*r=Get()->alloc();
 			r->_builder=b;
 			return	(uint16)(Modules->count()-1);
 		}

@@ -101,7 +101,7 @@ public:
 };
 template<class	U>	const	uint16	Module<U>::_CID=ModuleRegister::Load(New);
 
-/*
+
 //	for retrieving CIDs from names (in specs)
 #define	MBRANE_MESSAGE_CLASS(C)		static	const	uint16	C##_name=ClassRegister::Load(#C);
 #define	MBRANE_STREAM_DATA_CLASS(C)	static	const	uint16	C##_name=ClassRegister::Load(#C);
@@ -109,7 +109,7 @@ template<class	U>	const	uint16	Module<U>::_CID=ModuleRegister::Load(New);
 	#include	MBRANE_MESSAGE_CLASSES
 #endif
 #include	APPLICATION_CLASSES
-*/
+
 
 //	module instanciation
 #define	MODULE_CLASS(C)	\
