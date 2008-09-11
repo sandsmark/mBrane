@@ -73,15 +73,17 @@ namespace	mBrane{
 
 	class	ModuleDescriptor:
 	public	Projectable<ModuleDescriptor>{
+	private:
+		const	char	*name;
 	public:
 		uint16	CID;
-		static	Array<Array<const	char	*> >	Names;
 		static	Array<Array<P<ModuleDescriptor> > >	Main;	//	indexed by module descriptor class ID | ID
 		static	ModuleDescriptor					*New(XMLNode	&n);
 		uint16	hostID;	//	node
 		P<_Module>	module;	//	NULL if remote
-		ModuleDescriptor(uint16	hostID,_Module	*m,uint16	CID);
+		ModuleDescriptor(uint16	hostID,_Module	*m,uint16	CID,const	char	*name=NULL);
 		~ModuleDescriptor();
+		const	char	*getName();
 		void	activate();
 		void	deactivate();
 		void	addSubscription_message(uint16	spaceID,uint16	MCID);

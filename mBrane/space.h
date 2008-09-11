@@ -43,9 +43,9 @@ namespace	mBrane{
 	class	Space:
 	public	Projectable<Space>{
 	private:
+		const	char	*name;
 		float32	_activationThreshold;	//	in [0,1]
 	public:
-		static	Array<const	char	*>	Names;
 		static	Space					*Get(const	char	*name);
 		static	Array<P<Space> >		Main;	//	indexed by space ID; 0 is the root space
 		static	Space					*New(XMLNode	&n);
@@ -53,8 +53,9 @@ namespace	mBrane{
 		uint32	activationCount;
 		List<P<Projection<ModuleDescriptor> > >	moduleDescriptors;
 		List<P<Projection<Space> > >			spaces;
-		Space();
+		Space(const	char	*name=NULL);
 		~Space();
+		const	char	*getName();
 		void	setActivationThreshold(float32	thr);
 		float32	getActivationThreshold();
 		void	activate();

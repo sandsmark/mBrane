@@ -35,14 +35,12 @@ namespace	mBrane{
 
 	Array<P<Space> >	Space::Main;
 
-	Array<const	char	*>	Space::Names;
-
 	Space	*Space::Get(const	char	*name){
 
 		if(strcmp(name,"root")==0)
 			return	Space::Main[0];
-		for(uint16	i=0;i<Space::Names.count();i++)
-			if(strcmp(Space::Names[i],name)==0)
+		for(uint16	i=0;i<Space::Main.count();i++)
+			if(strcmp(Space::Main[i]->name,name)==0)
 				return	Space::Main[i];
 		return	NULL;
 	}
@@ -63,10 +61,8 @@ namespace	mBrane{
 			return	NULL;
 		}
 
-		Space	*s=new	Space();
+		Space	*s=new	Space(name);
 		s->setActivationThreshold(atoi(_activationThreshold));
-		Space::Names[s->ID]=new	char[strlen(name)];
-		memcpy((void	*)Space::Names[s->ID],name,strlen(name));
 
 		uint16	projectionCount=n.nChildNode("Projection");
 		if(!projectionCount)
@@ -106,17 +102,23 @@ error:	delete	s;
 			Space::Main[i]->setActivationThreshold(Space::Main[i]->getActivationThreshold());
 	}
 
-	Space::Space():Projectable<Space>(Space::Main.count()),activationCount(0){
+	Space::Space(const	char	*name):Projectable<Space>(Space::Main.count()),activationCount(0){
 
-		Space::Main[ID]=this;
+		if(name){
+
+			this->name=new	char[strlen(name)];
+			memcpy((void	*)this->name,name,strlen(name));
+		}
 	}
 
 	Space::~Space(){
 
-		if(Space::Main[ID]==NULL)
-			return;
-		Space::Main[ID]=NULL;
-		delete[]	Space::Names[ID];
+		delete[]	name;
+	}
+
+	const	char	*Space::getName(){
+
+		return	name;
 	}
 
 	void	Space::setActivationThreshold(float32	thr){

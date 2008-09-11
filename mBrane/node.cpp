@@ -381,7 +381,7 @@ namespace	mBrane{
 
 	const	char	*Node::getSpaceName(uint16	ID){
 	
-		return	Space::Names[ID];
+		return	Space::Main[ID]->getName();
 	}
 
 	const	char	*Node::getModuleName(uint16	ID){

@@ -59,8 +59,6 @@ namespace	mBrane{
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	Array<Array<const	char	*> >	ModuleDescriptor::Names;
-	
 	Array<Array<P<ModuleDescriptor> > >	ModuleDescriptor::Main;
 
 	ModuleDescriptor	*ModuleDescriptor::New(XMLNode	&n){
@@ -93,12 +91,7 @@ namespace	mBrane{
 		if(strcmp(_host,"local")==0)
 			_m=ModuleRegister::Get(CID)->buildModule();
 
-		ModuleDescriptor	*m=new	ModuleDescriptor(hostID,_m,CID);
-		if(name){
-			
-			ModuleDescriptor::Names[m->CID][m->ID]=new	char[strlen(name)];
-			memcpy((void	*)ModuleDescriptor::Names[m->CID][m->ID],name,strlen(name));
-		}
+		ModuleDescriptor	*m=new	ModuleDescriptor(hostID,_m,CID,name);
 
 		uint16	projectionCount=n.nChildNode("Projection");
 		if(!projectionCount)
@@ -156,7 +149,7 @@ error:	delete	m;
 		return	NULL;
 	}
 
-	ModuleDescriptor::ModuleDescriptor(uint16	hostID,_Module	*m,uint16	CID):Projectable<ModuleDescriptor>(ModuleDescriptor::Main[CID].count()),module(m),hostID(hostID),CID(CID){
+	ModuleDescriptor::ModuleDescriptor(uint16	hostID,_Module	*m,uint16	CID,const	char	*name):Projectable<ModuleDescriptor>(ModuleDescriptor::Main[CID].count()),module(m),hostID(hostID),CID(CID){
 
 		if(m){
 
@@ -166,7 +159,16 @@ error:	delete	m;
 			module->start();
 		}
 
-		ModuleDescriptor::Main[CID][ID]=this;
+		if(name){
+
+			this->name=new	char[strlen(name)];
+			memcpy((void	*)this->name,name,strlen(name));
+		}
+	}
+
+	const	char	*ModuleDescriptor::getName(){
+
+		return	name;
 	}
 
 	ModuleDescriptor::~ModuleDescriptor(){
@@ -176,7 +178,7 @@ error:	delete	m;
 		if(module!=NULL)
 			module->stop();
 		ModuleDescriptor::Main[CID][ID]=NULL;
-		delete[]	ModuleDescriptor::Names[CID][ID];
+		delete[]	name;
 	}
 
 	void	ModuleDescriptor::addSubscription_message(uint16	spaceID,uint16	MCID){

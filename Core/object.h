@@ -94,9 +94,7 @@ namespace	mBrane{
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		class	Connection;
 		class	dll	_Object{
-		friend	class	Connection;
 		template<class	C>	friend	class	P;
 		friend	class	_P;
 		private:
