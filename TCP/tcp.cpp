@@ -33,6 +33,8 @@
 
 
 NetworkInterface	*Load(XMLNode	&n,daemon::Node	*node){
-
+#if defined	BUILD_DLL
+	std::cout<<"BUG\n";
+#endif
 	return	TCPInterface::New(n);
 }

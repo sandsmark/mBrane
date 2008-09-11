@@ -49,7 +49,8 @@ namespace	mBrane{
 				~MArray();
 				Memory	*init(size_t	s);
 			};
-			static	MArray	Memories;
+			static	MArray	*Memories;
+			static	MArray	*Get();
 			class	Block{
 				const	uint16	objectCount;
 				const	size_t	objectSize;
@@ -76,6 +77,7 @@ namespace	mBrane{
 			Memory(size_t	objectSize);
 		public:
 			static	Memory	*Get(size_t	s);
+			static	void	Cleanup();
 			Memory();
 			~Memory();
 			void	*operator	new(size_t	s);

@@ -46,7 +46,8 @@ namespace	mBrane{
 		public:
 			typedef	module::_Module	*(*ModuleBuilder)();
 		private:
-			static	Array<ModuleRegister>	Modules;
+			static	Array<ModuleRegister>	*Modules;
+			static	Array<ModuleRegister>	*Get();
 			ModuleBuilder	_builder;
 			char			class_name[255];
 		public:
@@ -55,6 +56,7 @@ namespace	mBrane{
 			static	ModuleRegister	*Get(uint16	CID);
 			static	const	uint16	GetCID(const	char	*className);
 			static	uint16	Count();
+			static	void	Cleanup();
 			ModuleRegister();
 			~ModuleRegister();
 			module::_Module	*buildModule()	const;

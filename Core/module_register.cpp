@@ -35,7 +35,19 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		Array<ModuleRegister>	ModuleRegister::Modules;
+		Array<ModuleRegister>	*ModuleRegister::Modules=NULL;
+
+		Array<ModuleRegister>	*ModuleRegister::Get(){
+
+			if(!Modules)
+				Modules=new	Array<ModuleRegister>();
+			return	Modules;
+		}
+
+		void	ModuleRegister::Cleanup(){
+
+			delete	Modules;
+		}
 
 		void	ModuleRegister::SetClassName(uint16	CID,const	char	*className){
 
@@ -44,27 +56,27 @@ namespace	mBrane{
 
 		inline	ModuleRegister	*ModuleRegister::Get(uint16	CID){
 
-			return	Modules.get(CID);
+			return	Get()->get(CID);
 		}
 
 		const	uint16	ModuleRegister::GetCID(const	char	*className){
 
-			for(uint16	i=0;i<Modules.count();i++)
-				if(strcmp(Modules.get(i)->class_name,className)==0)
+			for(uint16	i=0;i<Modules->count();i++)
+				if(strcmp(Modules->get(i)->class_name,className)==0)
 					return	i;
 			return	ClassRegister::NoClass;
 		}
 
 		inline	uint16	ModuleRegister::Count(){
 
-			return	(uint16)Modules.count();
+			return	(uint16)Modules->count();
 		}
 
 		uint16	ModuleRegister::Load(ModuleBuilder	b){
 
-			ModuleRegister	*r=Modules.alloc();
+			ModuleRegister	*r=Modules->alloc();
 			r->_builder=b;
-			return	(uint16)(Modules.count()-1);
+			return	(uint16)(Modules->count()-1);
 		}
 
 		ModuleRegister::ModuleRegister():_builder(NULL){

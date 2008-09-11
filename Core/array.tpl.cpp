@@ -52,15 +52,15 @@ namespace	mBrane{
 
 			if(_array){
 
-				T	*oldArray=_array;
-				_array=new	T[_count+count];
-				memset(_array+_count,0,count);
-				memcpy(_array,oldArray,_count*sizeof(T));
+				T	*newArray=(T	*)malloc((_count+count)*sizeof(T));
+				memset(newArray+_count,0,count*sizeof(T));
+				memcpy(newArray,_array,_count*sizeof(T));
 				_count+=count;
+				_array=newArray;
 			}else{
 
-				_array=new	T[_count=count];
-				memset(_array,0,_count);
+				_array=(T	*)malloc((_count=count)*sizeof(T));
+				memset(_array,0,_count*sizeof(T));
 			}
 			
 			return	_array+_count-1;

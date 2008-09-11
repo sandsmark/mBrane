@@ -125,16 +125,28 @@ namespace	mBrane{
 
 		////////////////////////////////////////////////////////////////////////
 
-		Memory::MArray	Memory::Memories;
+		Memory::MArray	*Memory::Memories=NULL;
+
+		Memory::MArray	*Memory::Get(){
+
+			if(!Memories)
+				Memories=new	Memory::MArray();
+			return	Memories;
+		}
+
+		void	Memory::Cleanup(){
+
+			delete	Memories;
+		}
 
 		inline	Memory	*Memory::Get(size_t	s){
 
-			return	Memories.init(s);
+			return	Get()->init(s);
 		}
 
 		void	*Memory::operator	new(size_t	s){
 
-			return	Memories.alloc();
+			return	Memories->alloc();
 		}
 
 		void	Memory::operator	delete(void	*b){

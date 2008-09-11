@@ -38,10 +38,10 @@
 
 namespace	mBrane{
 	namespace	sdk{
-
+/*
 		class	ClassRegister;
-		template	class	dll	Array<ClassRegister>;
-
+		export_static	template	class	dll	Array<ClassRegister>;
+*/
 		class	__Payload;
 		class	_RPayload;
 		class	dll	ClassRegister{
@@ -50,7 +50,8 @@ namespace	mBrane{
 			typedef	void	*(*Allocator)();
 			typedef	P<_RPayload>	*(*Ptr)(__Payload	*,uint8);
 		private:
-			static	Array<ClassRegister>	Classes;
+			static	Array<ClassRegister>	*Classes;
+			static	Array<ClassRegister>	*Get();
 			Allocator	_allocator;
 			size_t		_size;	//	transmission size
 			size_t		_coreSize;	//	transmission size for compressed payloads: size of the payload minus the size of the compressed data
@@ -60,6 +61,7 @@ namespace	mBrane{
 			char		class_name[255];
 		public:
 			static	const	uint16	NoClass;	//	max: 0xFFFE classes
+			static	void	Cleanup();
 			template<class	C,class	M>	static	uint32	Load();	//	returns class meta data (Cf payload.h)
 			static	const	uint16	Load(const	char	*className);
 			static	ClassRegister	*Get(uint16	CID);

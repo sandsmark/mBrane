@@ -59,6 +59,10 @@ namespace	mBrane{
 		for(uint16	i=0;i<nodeNames.count();i++)
 			if(nodeNames[i])
 				free((void	*)nodeNames[i]);
+
+		ClassRegister::Cleanup();
+		ModuleRegister::Cleanup();
+		Memory::Cleanup();
 	}
 
 	Node	*Node::loadConfig(const	char	*configFileName){
@@ -142,7 +146,6 @@ namespace	mBrane{
 		if(!userInitFunction)
 			return	false;
 		userInitFunction();
-		ClassRegister::Get(0);//	DEBUG
 
 		uint16	spaceCount=mainNode.nChildNode("Space");
 		for(uint16	i=0;i<spaceCount;i++){

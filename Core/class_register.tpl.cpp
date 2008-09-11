@@ -33,8 +33,8 @@ namespace	mBrane{
 
 		template<class	C,class	M>	static	uint32	ClassRegister::Load(){
 
-			ClassRegister	*r=Classes.alloc();
-			uint32	metaData=((Classes.count()-1)<<16)	|	C::_AllocationScheme();
+			ClassRegister	*r=Get()->alloc();
+			uint32	metaData=((Classes->count()-1)<<16)	|	C::_AllocationScheme();
 			C::_Allocator=M::Get(C::Size());
 			r->_allocator=C::New;
 			r->_size=C::Size()-C::Offset();
