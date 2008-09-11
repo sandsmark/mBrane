@@ -8,7 +8,12 @@
 #include	"c.h"	//	user classes declarations
 
 #define	APPLICATION_CLASSES	"application_classes.h"
-#include	"..\Core\application.h"	//	std include; mandatory
+//#include	"..\Core\application.h"	//	std include; mandatory
+
+
+extern	"C"{
+void	dll_export	Init();
+}
 
 
 #endif

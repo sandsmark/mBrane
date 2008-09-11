@@ -51,7 +51,7 @@ namespace	mBrane{
 		XMLNode	threads=n.getChildNode("Threads");
 		if(!!threads){
 
-			const	char	*tc=n.getAttribute("thread_count");
+			const	char	*tc=threads.getAttribute("thread_count");
 			if(!tc){
 
 				std::cout<<"Error: "<<n.getName()<<"::Threads::thread_count is missing\n";

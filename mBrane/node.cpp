@@ -137,6 +137,13 @@ namespace	mBrane{
 		if(!(userLibrary=SharedLibrary::New(ul)))
 			return	false;
 
+		typedef	void	(*UserInitFunction)();
+		UserInitFunction	userInitFunction=userLibrary->getFunction<UserInitFunction>("Init");
+		if(!userInitFunction)
+			return	false;
+		userInitFunction();
+		ClassRegister::Get(0);//	DEBUG
+
 		uint16	spaceCount=mainNode.nChildNode("Space");
 		for(uint16	i=0;i<spaceCount;i++){
 

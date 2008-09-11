@@ -97,22 +97,34 @@ bool	UDPInterface::load(XMLNode	&n){
 	
 	uint32	size=sizeof(IP_ADAPTER_INFO);
     IP_ADAPTER_INFO	_adapters;
-	GetAdaptersInfo(&_adapters,&size);	//	initial call to get the actual size
-	IP_ADAPTER_INFO	*adapters=new	IP_ADAPTER_INFO[size];
-	GetAdaptersInfo(&_adapters,&size);
+	uint32	r=GetAdaptersInfo(&_adapters,&size);	//	initial call to get the actual size
+	if(r!=ERROR_SUCCESS){
+
+		std::cout<<"Error: could not get adapter info\n";
+		return	false;
+	}
+	IP_ADAPTER_INFO	*adapters=(IP_ADAPTER_INFO	*)new	uint8[size];
+	r=GetAdaptersInfo(adapters,&size);
+	if(r!=ERROR_SUCCESS){
+
+		std::cout<<"Error: could not get adapter info\n";
+		return	false;
+	}
 	IP_ADAPTER_INFO	*a;
 	uint8	i;
-	for(i=0,a=adapters;i<size;a=a->Next){
+	bool	found=false;
+	for(i=0,a=adapters;a;a=a->Next){
 
 		if(strcmp(_nic,a->Description)==0){
 
 			address.s_addr=inet_addr(a->IpAddressList.IpAddress.String);
+			found=true;
 			break;
 		}
 	}
 	delete[]	adapters;
 
-	if(i==size){
+	if(!found){
 
 		std::cout<<"Error: NodeConfiguration::Network::"<<n.getName()<<"::nic "<<_nic<<"does not exist\n";
 		return	false;

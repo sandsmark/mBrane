@@ -23,5 +23,5 @@
 	<!--    ex: names, class, subscriptions, projections, thresholds, activation levels-->
 	<!--    idea: space/module instantiation templates-->
 	<!--    THEN: introduce clusters-->
-	<!--7	if no projection is specified, projection on root space with activation level of 1 is assumed-->
+	<!--7	if no projection is specified, projection on default space with activation level of 1 is assumed-->
 </ApplicationConfiguration>

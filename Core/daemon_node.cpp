@@ -73,6 +73,8 @@ namespace	mBrane{
 						this->daemons[i]=d;
 					}
 				}
+
+				return	true;
 			}
 
 			void	Node::start(){

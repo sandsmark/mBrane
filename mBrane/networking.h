@@ -145,7 +145,7 @@ namespace	mBrane{
 
 		Networking();
 		~Networking();
-		bool	loadInterface(XMLNode	&n,const	char	*name,InterfaceType	type);
+		bool	loadInterface(XMLNode	&interfaces,XMLNode	&config,const	char	*name,InterfaceType	type);
 		bool	loadConfig(XMLNode	&n);
 	};
 }

@@ -72,9 +72,9 @@ namespace	mBrane{
 		}
 	}
 
-	bool	Networking::loadInterface(XMLNode	&n,const	char	*name,InterfaceType	type){
+	bool	Networking::loadInterface(XMLNode	&interfaces,XMLNode	&config,const	char	*name,InterfaceType	type){
 
-		XMLNode	node=n.getChildNode(name);
+		XMLNode	node=config.getChildNode(name);
 		if(!node){
 
 			std::cout<<"Error: NodeConfiguration::Network::"<<name<<" is missing\n";
@@ -86,19 +86,26 @@ namespace	mBrane{
 			std::cout<<"Error: NodeConfiguration::Network::"<<name<<"::interface is missing\n";
 			return	false;
 		}
-		XMLNode	interfaces=n.getChildNode("Interfaces");
 		XMLNode	i=interfaces.getChildNode(_i);
 		if(!i){
 
 			std::cout<<"Error: NodeConfiguration::Network::Interfaces::"<<_i<<" is missing\n";
 			return	false;
-		}else{
-		
-			if(!(networkInterfaceLoaders[type]=DynamicClassLoader<NetworkInterface>::New(i)))
-				return	false;
-			if(!(networkInterfaces[type]=networkInterfaceLoaders[type]->getInstance(i,this)))
-				return	false;
 		}
+
+		if(!(networkInterfaceLoaders[type]=DynamicClassLoader<NetworkInterface>::New(i)))
+			return	false;
+		
+		XMLNode	parameters=config.getChildNode(name);
+		if(!parameters){
+
+			std::cout<<"Error: NodeConfiguration::Network::"<<name<<" is missing\n";
+			return	false;
+		}
+
+		if(!(networkInterfaces[type]=networkInterfaceLoaders[type]->getInstance(parameters,this)))
+			return	false;
+
 		return	true;
 	}
 
@@ -116,7 +123,7 @@ namespace	mBrane{
 			std::cout<<"Error: NodeConfiguration::Network::Interfaces is missing\n";
 			return	false;
 		}
-		if(!loadInterface(network,"Discovery",DISCOVERY))
+		if(!loadInterface(interfaces,network,"Discovery",DISCOVERY))
 			return	false;
 		if(!networkInterfaces[DISCOVERY]->canBroadcast()){
 
@@ -148,20 +155,20 @@ namespace	mBrane{
 		}
 		if(primary.nChildNode()==3){
 			
-			if(!loadInterface(primary,"Control",CONTROL_PRIMARY))
+			if(!loadInterface(interfaces,primary,"Control",CONTROL_PRIMARY))
 				return	false;
-			if(!loadInterface(primary,"Data",DATA_PRIMARY))
+			if(!loadInterface(interfaces,primary,"Data",DATA_PRIMARY))
 				return	false;
-			if(!loadInterface(primary,"Stream",STREAM_PRIMARY))
+			if(!loadInterface(interfaces,primary,"Stream",STREAM_PRIMARY))
 				return	false;
 		}
 		if(secondary.nChildNode()==3){
 			
-			if(!loadInterface(secondary,"Control",CONTROL_SECONDARY))
+			if(!loadInterface(interfaces,secondary,"Control",CONTROL_SECONDARY))
 				return	false;
-			if(!loadInterface(secondary,"Data",DATA_SECONDARY))
+			if(!loadInterface(interfaces,secondary,"Data",DATA_SECONDARY))
 				return	false;
-			if(!loadInterface(secondary,"Stream",STREAM_SECONDARY))
+			if(!loadInterface(interfaces,secondary,"Stream",STREAM_SECONDARY))
 				return	false;
 		}
 
