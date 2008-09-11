@@ -63,6 +63,7 @@ namespace	mBrane{
 
 		Space	*s=new	Space(name);
 		s->setActivationThreshold(atoi(_activationThreshold));
+		Space::Main[Space::Main.count()]=s;
 
 		uint16	projectionCount=n.nChildNode("Projection");
 		if(!projectionCount)

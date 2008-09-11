@@ -62,7 +62,7 @@ namespace	mBrane{
 				Iterator	&operator	--(){	index=list->_array[index].prev;	return	*this;	}
 				bool	operator	==(Iterator	&i)	const{	return	index==i.index;	}
 				bool	operator	!=(Iterator	&i)	const{	return	index!=i.index;	}
-				bool	operator	!()	const{	return	index==NullIndex;	}
+				bool	operator	!()	const{	return	index==NullIndex	||	list==NULL;	}
 				operator	T&()	const{	return	list->_array[index].data;	}
 				Iterator	insertAfter(T	&t)	const{	list->insertAfter(index,t);		return	Iterator(list,list->_array[index].next);	}
 				Iterator	insertBefore(T	&t)	const{	list->insertBefore(index,t);	return	Iterator(list,list->_array[index].prev);	}

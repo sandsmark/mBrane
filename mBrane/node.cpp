@@ -123,8 +123,8 @@ namespace	mBrane{
 
 	bool	Node::loadApplication(const	char	*fileName){
 
-		Space	*rootSpace=new	Space();
-		rootSpace->setActivationThreshold(1.0);
+		Space::Main[0]=new	Space("Root");	//	root space
+		Space::Main[0]->setActivationThreshold(1.0);
 
 		XMLNode	mainNode=XMLNode::openFileHelper(fileName,"ApplicationConfiguration");
 		if(!mainNode){
@@ -166,7 +166,7 @@ namespace	mBrane{
 		}
 
 		Space::Init();
-		rootSpace->activate();
+		Space::Main[0]->activate();
 
 		return	true;
 	}
