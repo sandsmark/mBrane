@@ -38,6 +38,9 @@
 namespace	mBrane{
 	namespace	sdk{
 
+		class	ModuleRegister;
+		template	class	dll	Array<ModuleRegister>;
+
 		class	dll	ModuleRegister{
 		template<class	Register>	friend	class	Array;
 		public:

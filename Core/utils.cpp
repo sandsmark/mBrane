@@ -108,7 +108,7 @@ namespace	mBrane{
 
 	inline	void	Thread::Sleep(int64	d){
 #if defined	WINDOWS
-		::Sleep(d);
+		::Sleep((uint32)d);
 #elif defined LINUX
 #elif defined OSX
 #endif
@@ -173,7 +173,7 @@ namespace	mBrane{
 
 	inline	int64	TimeProbe::us(){
 
-		return	cpu_counts*Time::Period;
+		return	(int64)(cpu_counts*Time::Period);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
@@ -229,7 +229,7 @@ namespace	mBrane{
 #if defined	WINDOWS
 		uint32	s=255;
 		GetComputerName(name,&s);
-		return	s;
+		return	(uint8)s;
 #elif defined LINUX
 #elif defined OSX
 #endif

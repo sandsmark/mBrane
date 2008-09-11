@@ -167,7 +167,7 @@ uint16	TCPInterface::start(){
 	struct	sockaddr_in	addr;
 	addr.sin_family= AF_INET;
 	addr.sin_addr.s_addr=inet_addr("127.0.0.1");
-	addr.sin_port=htons(port);
+	addr.sin_port=htons((uint16)port);
 
 	if(bind(s,(SOCKADDR	*)&addr,sizeof(struct	sockaddr_in))==SOCKET_ERROR){
 
@@ -209,7 +209,7 @@ uint16	TCPInterface::newChannel(uint8	*ID,CommChannel	**channel){	//	connect to 
 	struct sockaddr_in	addr;
 	addr.sin_family=AF_INET;
 	addr.sin_addr=*((struct	in_addr	*)ID);
-	addr.sin_port=*((uint32	*)(ID+sizeof(struct	in_addr)));
+	addr.sin_port=(uint16)*((uint32	*)(ID+sizeof(struct	in_addr)));
 	if(connect(s,(SOCKADDR	*)&addr,sizeof(struct sockaddr_in))==SOCKET_ERROR){
 
 		closesocket(s);

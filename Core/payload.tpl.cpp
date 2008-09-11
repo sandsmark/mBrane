@@ -43,7 +43,7 @@ namespace	mBrane{
 
 		template<class	M,class	U>	inline	const	uint16	Payload<M,U>::CID(){
 
-			return	_MetaData>>16;
+			return	(uint16)(_MetaData>>16);
 		}
 
 		template<class	M,class	U>	const	AllocationScheme	Payload<M,U>::_AllocationScheme(){

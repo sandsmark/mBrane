@@ -59,7 +59,7 @@ namespace	mBrane{
 				XMLNode	daemons=n.getChildNode("Daemons");
 				if(!!daemons){
 
-					int32	daemonCount=daemons.nChildNode("Daemon");
+					uint32	daemonCount=daemons.nChildNode("Daemon");
 					for(uint32	i=0;i<daemonCount;i++){
 
 						XMLNode	n=daemons.getChildNode(i);

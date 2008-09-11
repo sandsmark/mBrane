@@ -48,6 +48,10 @@
 	#endif
 	#define	dll_export	__declspec(dllexport)
 	#define	dll_import	__declspec(dllimport)
+
+	#pragma	warning(disable:	4530)	//	warning: exception disabled
+	#pragma	warning(disable:	4996)	//	warning: this function may be unsafe
+	#pragma	warning(disable:	4800)	//	warning: forcing value to bool
 #else
 	#define dll
 #endif

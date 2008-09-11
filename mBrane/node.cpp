@@ -40,7 +40,7 @@ using	namespace	mBrane::sdk::payloads;
 
 namespace	mBrane{
 
-	const	uint16	Node::NoNode=0xFFFFFFFF;
+	const	uint16	Node::NoNode=0xFFFF;
 
 	Node	*Node::New(const	char	*configFileName){
 

@@ -57,14 +57,14 @@ namespace	mBrane{
 
 		inline	uint16	ModuleRegister::Count(){
 
-			return	Modules.count();
+			return	(uint16)Modules.count();
 		}
 
 		uint16	ModuleRegister::Load(ModuleBuilder	b){
 
 			ModuleRegister	*r=Modules.alloc();
 			r->_builder=b;
-			return	Modules.count()-1;
+			return	(uint16)(Modules.count()-1);
 		}
 
 		ModuleRegister::ModuleRegister():_builder(NULL){

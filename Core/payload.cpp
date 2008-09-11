@@ -48,7 +48,7 @@ namespace	mBrane{
 
 		inline	uint16	_Payload::cid()	const{
 			
-			return	_metaData>>16;
+			return	(uint16)(_metaData>>16);
 		}
 
 		inline	_Payload::Category	_Payload::category()	const{
@@ -119,7 +119,7 @@ namespace	mBrane{
 
 		inline	uint16	_RPayload::cid()	const{
 			
-			return	_metaData>>16;
+			return	(uint16)(_metaData>>16);
 		}
 
 		inline	AllocationScheme	_RPayload::allocationScheme()	const{

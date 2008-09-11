@@ -46,7 +46,7 @@ namespace	mBrane{
 
 		inline	uint16	ClassRegister::Count(){
 
-			return	Classes.count();
+			return	(uint16)Classes.count();
 		}
 
 		const	uint16	ClassRegister::Load(const char *className){
