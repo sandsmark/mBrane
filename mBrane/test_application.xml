@@ -2,7 +2,7 @@
 	<!--first, space definitions-->
 	<Space name="space0" activation_threshold="0.5"/><!--name is mandatory-->
 	<Space name="space1" activation_threshold="0.5">
-		<Projection space="0" activation_level="1"/><!--space1 projected on space0-->
+		<Projection space="space0" activation_level="1"/><!--space1 projected on space0-->
 	</Space>
 	<!--second module instantiations-->
 	<Module class="Module0" name="first_module" host="local"><!--if no name is specified, name will be x where x is a number starting at 0, allocated per module class-->

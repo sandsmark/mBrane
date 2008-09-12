@@ -48,12 +48,7 @@ namespace	mBrane{
 		Space	*space;
 		float32	activationLevel;
 		_Projection(C	*projected,Space	*space);
-	public:
 		~_Projection();
-		void	activate();
-		void	deactivate();
-		void	setActivationLevel(float32	a);
-		void	updateActivationCount(float32	t);
 	};
 
 	template<class	C>	class	Projection:
@@ -61,6 +56,10 @@ namespace	mBrane{
 	public:
 		Projection(C	*projected,Space	*space);
 		~Projection();
+		void	activate();
+		void	deactivate();
+		void	setActivationLevel(float32	a);
+		void	updateActivationCount(float32	t);
 	};
 
 	template<class	C>	class	Projectable:

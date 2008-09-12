@@ -171,8 +171,8 @@ error:	delete	m;
 
 		if(name){
 
-			this->name=new	char[strlen(name)];
-			memcpy((void	*)this->name,name,strlen(name));
+			this->name=new	char[strlen(name)+1];
+			memcpy((void	*)this->name,name,strlen(name)+1);
 		}
 	}
 
@@ -243,10 +243,14 @@ error:	delete	m;
 	}
 
 	Projection<ModuleDescriptor>::~Projection(){
+
+		if(activationLevel>=space->getActivationThreshold())
+			deactivate();
 	}
 	
 	void	Projection<ModuleDescriptor>::activate(){
 
+		projected->activate();
 		for(uint32	i=0;i<subscriptions[DC].count();i++)
 			((P<ModuleEntry>)subscriptions[DC][i])->node->activationCount++;
 		for(uint32	i=0;i<subscriptions[ST].count();i++)
@@ -255,9 +259,31 @@ error:	delete	m;
 
 	void	Projection<ModuleDescriptor>::deactivate(){
 
+		projected->deactivate();
 		for(uint32	i=0;i<subscriptions[DC].count();i++)
 			((P<ModuleEntry>)subscriptions[DC][i])->node->activationCount--;
 		for(uint32	i=0;i<subscriptions[ST].count();i++)
 			((P<ModuleEntry>)subscriptions[ST][i])->node->activationCount--;
+	}
+
+	inline	void	Projection<ModuleDescriptor>::setActivationLevel(float32	a){
+
+		if(activationLevel<space->getActivationThreshold()){
+
+			if(a>=space->getActivationThreshold())
+				activate();
+		}else	if(a<space->getActivationThreshold())
+			deactivate();
+		activationLevel=a;
+	}
+
+	void	Projection<ModuleDescriptor>::updateActivationCount(float32	t){
+
+		if(activationLevel<space->getActivationThreshold()){
+
+			if(activationLevel>=t)
+				activate();
+		}else	if(activationLevel<t)
+			deactivate();
 	}
 }

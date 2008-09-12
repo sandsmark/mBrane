@@ -109,8 +109,8 @@ error:	delete	s;
 
 		if(name){
 
-			this->name=new	char[strlen(name)];
-			memcpy((void	*)this->name,name,strlen(name));
+			this->name=new	char[strlen(name)+1];
+			memcpy((void	*)this->name,name,strlen(name)+1);
 		}
 
 		moduleDescriptors.alloc(INITIAL_LIST_SIZE);

@@ -71,6 +71,8 @@ namespace	mBrane{
 		~Projection();
 		void	activate();
 		void	deactivate();
+		void	setActivationLevel(float32	a);
+		void	updateActivationCount(float32	t);
 	};
 
 	class	ModuleDescriptor:

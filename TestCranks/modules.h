@@ -4,11 +4,11 @@
 #include	"test.h"
 
 
-class	Module1:
-public Module<Module1>{
+class	Module0:
+public Module<Module0>{
 public:
-	Module1();
-	~Module1();
+	Module0();
+	~Module0();
 	template<class	T>	Decision	decide(T	*p){
 		return	WAIT;
 	}
@@ -27,7 +27,7 @@ public:
 };
 
 
-MODULE_CLASS(Module1)
+MODULE_CLASS(Module0)
 
 
 #endif

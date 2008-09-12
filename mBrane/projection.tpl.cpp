@@ -37,12 +37,20 @@ namespace	mBrane{
 	}
 
 	template<class	C,class	U>	inline	_Projection<C,U>::~_Projection(){
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+
+	template<class	C>	inline	Projection<C>::Projection(C	*projected,Space	*space):_Projection<C,Projection<C> >(projected,space){
+	}
+
+	template<class	C>	inline	Projection<C>::~Projection(){
 
 		if(activationLevel>=space->getActivationThreshold())
 			deactivate();
 	}
 
-	template<class	C,class	U>	inline	void	_Projection<C,U>::setActivationLevel(float32	a){
+	template<class	C>	inline	void	Projection<C>::setActivationLevel(float32	a){
 
 		if(activationLevel<space->getActivationThreshold()){
 
@@ -53,7 +61,7 @@ namespace	mBrane{
 		activationLevel=a;
 	}
 
-	template<class	C,class	U>	inline	void	_Projection<C,U>::updateActivationCount(float32	t){
+	template<class	C>	inline	void	Projection<C>::updateActivationCount(float32	t){
 
 		if(activationLevel<space->getActivationThreshold()){
 
@@ -63,24 +71,14 @@ namespace	mBrane{
 			deactivate();
 	}
 
-	template<class	C,class	U>	inline	void	_Projection<C,U>::activate(){
+	template<class	C>	inline	void	Projection<C>::activate(){
 
 		projected->activate();
-		((U	*)this)->activate();
 	}
 
-	template<class	C,class	U>	inline	void	_Projection<C,U>::deactivate(){
+	template<class	C>	inline	void	Projection<C>::deactivate(){
 
 		projected->deactivate();
-		((U	*)this)->deactivate();
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////
-
-	template<class	C>	Projection<C>::Projection(C	*projected,Space	*space):_Projection<C,Projection<C> >(projected,space){
-	}
-
-	template<class	C>	Projection<C>::~Projection(){
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
