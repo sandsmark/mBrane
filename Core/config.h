@@ -39,5 +39,7 @@
 #define	ARCH_32
 //#define	ARCH_64
 
+#define	MBRANE_VERSION	0.0
+
 
 #endif

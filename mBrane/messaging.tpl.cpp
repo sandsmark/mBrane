@@ -181,7 +181,7 @@ namespace	mBrane{
 			Job	j;
 			List<P<ModuleEntry> >			&modules=e.modules;
 			List<P<ModuleEntry> >::Iterator	i;
-			for(i=modules.begin();i!=modules.end();i++){
+			for(i=modules.begin();i!=modules.end();++i){
 
 				if(((P<ModuleEntry>)i)->module->module->isReady()	&&	((P<ModuleEntry>)i)->module->activationCount){
 

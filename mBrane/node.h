@@ -72,12 +72,11 @@ namespace	mBrane{
 		Array<Array<uint8> >	sharedMemorySegments;
 		//	NODE
 		uint16	nodeCount;
-		Array<const	char	*>	nodeNames;
+		Array<Host::host_name>	nodeNames;
 		Node();
 		bool	loadApplication(const	char	*fileName);
 		void	unloadApplication();
 	public:
-		static	const	uint16	NoNode;
 		uint16	getNID(const	char	*name);
 		//	main() NODE API
 		static	Node	*New(const	char	*configFileName);

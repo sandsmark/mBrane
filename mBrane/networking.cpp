@@ -465,7 +465,7 @@ namespace	mBrane{
 		if(isTimeReference)
 			assignedNID=addNodeEntry();
 		else
-			assignedNID=NO_ID;
+			assignedNID=NoID;
 
 		if(!networkInterfaces[offset+_Payload::CONTROL]->canBroadcast()){
 
@@ -697,7 +697,7 @@ err2:	delete[]	networkID;
 					goto	err0;
 				if(r=c->recv((uint8	*)&assignedID,sizeof(uint16)))
 					goto	err0;
-				if(assignedNID!=NO_ID){
+				if(assignedNID!=NoID){
 
 					if(r=node->recvMap(c))
 						goto	err0;

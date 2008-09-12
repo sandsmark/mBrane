@@ -130,10 +130,10 @@ error:	delete	s;
 	void	Space::setActivationThreshold(float32	thr){
 
 		List<P<Projection<ModuleDescriptor> > >::Iterator	p_module;
-		for(p_module=moduleDescriptors.begin();p_module!=moduleDescriptors.end();p_module++)
+		for(p_module=moduleDescriptors.begin();p_module!=moduleDescriptors.end();++p_module)
 			((P<Projection<ModuleDescriptor> >)p_module)->updateActivationCount(thr);
 		List<P<Projection<Space> > >::Iterator	p_space;
-		for(p_space=spaces.begin();p_space!=spaces.end();p_space++)
+		for(p_space=spaces.begin();p_space!=spaces.end();++p_space)
 			((P<Projection<Space> >)p_space)->updateActivationCount(thr);
 		_activationThreshold=thr;
 	}
@@ -158,20 +158,20 @@ error:	delete	s;
 	inline	void	Space::activate(){
 
 		List<P<Projection<Space> > >::Iterator	i;
-		for(i=spaces.begin();i!=spaces.end();i++)
+		for(i=spaces.begin();i!=spaces.end();++i)
 			((P<Projection<Space> >)i)->activate();
 		List<P<Projection<ModuleDescriptor> > >::Iterator	j;
-		for(j=moduleDescriptors.begin();j!=moduleDescriptors.end();j++)
+		for(j=moduleDescriptors.begin();j!=moduleDescriptors.end();++j)
 			((P<Projection<ModuleDescriptor> >)j)->activate();
 	}
 
 	inline	void	Space::deactivate(){
 
 		List<P<Projection<Space> > >::Iterator	i;
-		for(i=spaces.begin();i!=spaces.end();i++)
+		for(i=spaces.begin();i!=spaces.end();++i)
 			((P<Projection<Space> >)i)->deactivate();
 		List<P<Projection<ModuleDescriptor> > >::Iterator	j;
-		for(j=moduleDescriptors.begin();j!=moduleDescriptors.end();j++)
+		for(j=moduleDescriptors.begin();j!=moduleDescriptors.end();++j)
 			((P<Projection<ModuleDescriptor> >)j)->deactivate();
 	}
 }

@@ -40,8 +40,6 @@ using	namespace	mBrane::sdk::payloads;
 
 namespace	mBrane{
 
-	const	uint16	Node::NoNode=0xFFFF;
-
 	Node	*Node::New(const	char	*configFileName){
 
 		Node	*n=new	Node();
@@ -56,10 +54,6 @@ namespace	mBrane{
 
 	Node::~Node(){
 
-		for(uint16	i=0;i<nodeNames.count();i++)
-			if(nodeNames[i])
-				free((void	*)nodeNames[i]);
-
 		ClassRegister::Cleanup();
 		ModuleRegister::Cleanup();
 		Memory::Cleanup();
@@ -68,6 +62,9 @@ namespace	mBrane{
 	Node	*Node::loadConfig(const	char	*configFileName){
 
 		hostNameSize=Host::Name(hostName);
+
+		std::cout<<"---------------- mBrane V"<<MBRANE_VERSION<<" ----------------\n";
+		std::cout<<"started on "<<hostName<<"\n";
 
 		XMLNode	mainNode=XMLNode::openFileHelper(configFileName,"NodeConfiguration");
 		if(!mainNode){
@@ -99,10 +96,10 @@ namespace	mBrane{
 				if(!_n){
 
 					std::cout<<"Error: NodeConfiguration::Nodes::node_"<<i<<"::hostname is missing\n";
-					nodeNames[i]=NULL;
+					strcpy(nodeNames[i],"");
 					return	NULL;
 				}
-				nodeNames[i]=_n;
+				strcpy(nodeNames[i],_n);
 			}
 		}
 
@@ -183,13 +180,35 @@ namespace	mBrane{
 		for(uint16	i=0;i<nodeNames.count();i++)
 			if(strcmp(nodeNames[i],networkID->name())==0)
 				return	i;
-		return	NoNode;
+		return	NoID;
 	}
 
 	void	Node::run(){
 
-		if(!Networking::init())
+		if(!Networking::init()){
+
 			shutdown();
+			return;
+		}
+
+		for(uint32	i=0;ModuleDescriptor::Main.count();i++)	//	resolve host names into NID
+			for(uint32	j=0;ModuleDescriptor::Main[i].count();j++){
+
+				uint16	NID=getNID(ModuleDescriptor::Main[i][j]->hostName);
+				if(NID==NoID){
+
+					std::cout<<"Error: host "<<ModuleDescriptor::Main[i][j]->hostName<<" has not joined\n";
+					shutdown();
+					return;
+				}
+				ModuleDescriptor::Main[i][j]->hostID=NID;
+			}
+
+		for(uint32	i=0;ModuleDescriptor::Main.count();i++)	//	apply initial subscriptions
+			for(uint32	j=0;ModuleDescriptor::Main[i].count();j++)
+				ModuleDescriptor::Main[i][j]->applyInitialSubscriptions();
+
+		std::cout<<"Running\n";
 	}
 
 	void	Node::start(uint16	assignedNID,NetworkID	*networkID,bool	isTimeReference){
@@ -239,7 +258,7 @@ namespace	mBrane{
 				if(strcmp(nodeNames[i],networkID->name())==0){
 
 					free((void	*)nodeNames[i]);
-					nodeNames[i]=NULL;
+					strcpy(nodeNames[i],"");
 					nodeCount--;
 					break;
 				}
@@ -328,6 +347,7 @@ namespace	mBrane{
 		if(_shutdown)
 			return;
 		_shutdown=true;
+		std::cout<<"Shutting down...\n";
 		Messaging::shutdown();
 		Executing::shutdown();
 		daemon::Node::shutdown();
@@ -367,7 +387,7 @@ namespace	mBrane{
 		CreateModule	cm;
 		cm.sender_cid=sender->descriptor->CID;
 		cm.sender_id=sender->descriptor->ID;
-		if((cm.node_id=getNID(hostName))!=NoNode){
+		if((cm.node_id=getNID(hostName))!=NoID){
 
 			cm.module_cid=CID;
 			Messaging::send(&cm,network);

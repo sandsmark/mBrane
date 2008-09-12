@@ -49,11 +49,6 @@ namespace	mBrane{
 			delete	Modules;
 		}
 
-		void	ModuleRegister::SetClassName(uint16	CID,const	char	*className){
-
-			strcpy(Get(CID)->class_name,className);
-		}
-
 		inline	ModuleRegister	*ModuleRegister::Get(uint16	CID){
 
 			return	Get()->get(CID);
@@ -72,10 +67,11 @@ namespace	mBrane{
 			return	(uint16)Modules->count();
 		}
 
-		uint16	ModuleRegister::Load(ModuleBuilder	b){
+		uint16	ModuleRegister::Load(ModuleBuilder	b,const	char	*className){
 
 			ModuleRegister	*r=Get()->alloc();
 			r->_builder=b;
+			strcpy(r->class_name,className);
 			return	(uint16)(Modules->count()-1);
 		}
 

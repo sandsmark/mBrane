@@ -68,8 +68,8 @@ namespace	mBrane{
 		//
 		//	reference nodes must be on the primary network
 	protected:
-		char	hostName[255];
-		uint8	hostNameSize;
+		Host::host_name	hostName;
+		uint8			hostNameSize;
 
 		typedef	void	(*BootCallback)();
 		SharedLibrary	*callbackLibrary;

@@ -78,14 +78,23 @@ namespace	mBrane{
 	class	ModuleDescriptor:
 	public	Projectable<ModuleDescriptor>{
 	private:
+		class	Subscription{
+		public:
+			uint16	spaceID;
+			uint16	MCID;
+			uint16	SID;
+		};
+		Array<Subscription>	initialSubscriptions;
 		const	char	*name;
 	public:
 		uint16	CID;
 		static	Array<Array<P<ModuleDescriptor> > >	Main;	//	indexed by module descriptor class ID | ID
 		static	ModuleDescriptor					*New(XMLNode	&n);
-		uint16	hostID;	//	node
+		Host::host_name	hostName;	//	resolved in hostID at Node::run() time
+		uint16	hostID;	//	dynamically assigned; initially set to NoID, then resolved
 		P<_Module>	module;	//	NULL if remote
-		ModuleDescriptor(uint16	hostID,_Module	*m,uint16	CID,const	char	*name=NULL);
+		ModuleDescriptor(const	char	*hostName,_Module	*m,uint16	CID,const	char	*name);	//	invoked at Node::loadApplication() time
+		ModuleDescriptor(uint16	hostID,_Module	*m,uint16	CID);									//	invoked dynamically
 		~ModuleDescriptor();
 		const	char	*getName();
 		void	activate();
@@ -96,6 +105,7 @@ namespace	mBrane{
 		void	removeSubscription_stream(uint16	spaceID,uint16	SID);
 		void	removeSubscriptions_message(uint16	spaceID);
 		void	removeSubscriptions_stream(uint16	spaceID);
+		void	applyInitialSubscriptions();
 	};
 }
 

@@ -5,7 +5,7 @@
 		<Projection space="space0" activation_level="1"/><!--space1 projected on space0-->
 	</Space>
 	<!--second module instantiations-->
-	<Module class="Module0" name="first_module" host="local"><!--if no name is specified, name will be x where x is a number starting at 0, allocated per module class-->
+	<Module class="Module0" name="first_module" host="local"><!--name optional-->
 		<Projection space="space1" activation_level="1">
 			<Subscription message_class="SystemReady"/>
 			<Subscription stream="0"/>

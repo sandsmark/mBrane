@@ -43,11 +43,11 @@ namespace	mBrane{
 			private:
 				static	Node	*Singleton;
 			protected:
-				static	const	uint16	NO_ID=0xFFFF;
 				uint16	_ID;	//	max: 0xFFFE
 				Node(uint16	ID);
 				~Node();
 			public:
+				static	const	uint16	NoID=0xFFFF;
 				typedef	enum{
 					PRIMARY=0,
 					SECONDARY=1,

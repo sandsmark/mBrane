@@ -85,6 +85,7 @@ namespace	mBrane{
 
 	class	dll	Host{
 	public:
+		typedef	char	host_name[255];
 		static	uint8	Name(char	*name);	//	name size=255; return the actual size
 	};
 

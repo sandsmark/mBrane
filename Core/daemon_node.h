@@ -58,7 +58,7 @@ namespace	mBrane{
 				Array<DynamicClassLoader<Daemon>	*>	daemonLoaders;
 				Array<Daemon	*>						daemons;
 				Array<Thread	*>						daemonThreads;
-				Node(uint16	ID=NO_ID);
+				Node(uint16	ID=NoID);
 				bool	loadConfig(XMLNode	&n);
 				void	start();
 				virtual	void	shutdown();

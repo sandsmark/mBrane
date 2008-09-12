@@ -101,56 +101,66 @@ namespace	mBrane{
 		if(strcmp(_host,"local")==0)
 			_m=ModuleRegister::Get(CID)->buildModule();
 
-		ModuleDescriptor	*m=new	ModuleDescriptor(hostID,_m,CID,name);
+		ModuleDescriptor	*m=new	ModuleDescriptor(_host,_m,CID,name);
 
 		uint16	projectionCount=n.nChildNode("Projection");
 		if(!projectionCount)
 			m->setActivationLevel(0,1);
-		else	for(uint16	i=0;i<projectionCount;i++){
+		else{
+			
+			uint32	subscriptionIndex=0;
+			for(uint16	i=0;i<projectionCount;i++){
 
-			XMLNode	projection=n.getChildNode("Projection",i);
-			const	char	*spaceName=projection.getAttribute("space");	//	to be projected on
-			if(!spaceName){
+				XMLNode	projection=n.getChildNode("Projection",i);
+				const	char	*spaceName=projection.getAttribute("space");	//	to be projected on
+				if(!spaceName){
 
-				std::cout<<"Error: Module: "<<name<<" ::Projection::name is Missing\n";
-				goto	error;
-			}
-			const	char	*_activationLevel=projection.getAttribute("activation_level");
-			if(!_activationLevel){
-
-				std::cout<<"Error: Module: "<<name<<" ::Projection::activation_level is Missing\n";
-				goto	error;
-			}
-			Space	*_s=Space::Get(spaceName);
-			if(!_s){
-
-				std::cout<<"Error: Space "<<spaceName<<" does not exist\n";
-				goto	error;
-			}
-			m->setActivationLevel(_s->ID,(float32)atof(_activationLevel));
-			uint16	subscriptionCount=projection.nChildNode("Subscription");
-			for(uint16	i=0;i<subscriptionCount;i++){
-
-				XMLNode	subscription=n.getChildNode("Subscription",i);
-				const	char	*_messageClass=subscription.getAttribute("message_class");
-				const	char	*_stream=subscription.getAttribute("stream");
-				if(!_messageClass	&&	!_stream){
-
-					std::cout<<"Error: Module::"<<name<<"Projection::"<<spaceName<<"Subscription: neither message_class nor stream are specified\n";
+					std::cout<<"Error: Module: "<<name<<" ::Projection::name is Missing\n";
 					goto	error;
 				}
-				if(_messageClass){
+				const	char	*_activationLevel=projection.getAttribute("activation_level");
+				if(!_activationLevel){
 
-					uint16	MCID=ClassRegister::GetCID(_messageClass);
-					if(MCID==ClassRegister::NoClass){
+					std::cout<<"Error: Module: "<<name<<" ::Projection::activation_level is Missing\n";
+					goto	error;
+				}
+				Space	*_s=Space::Get(spaceName);
+				if(!_s){
 
-						std::cout<<"Error: Module::"<<name<<"Projection::"<<spaceName<<"Subscription::message_class: "<<_messageClass<<" does not exist\n";
+					std::cout<<"Error: Space "<<spaceName<<" does not exist\n";
+					goto	error;
+				}
+				m->setActivationLevel(_s->ID,(float32)atof(_activationLevel));
+				uint16	subscriptionCount=projection.nChildNode("Subscription");
+				for(uint16	i=0;i<subscriptionCount;i++,subscriptionIndex++){
+
+					XMLNode	subscription=projection.getChildNode("Subscription",i);
+					const	char	*_messageClass=subscription.getAttribute("message_class");
+					const	char	*_stream=subscription.getAttribute("stream");
+					if(!_messageClass	&&	!_stream){
+
+						std::cout<<"Error: Module::"<<name<<"Projection::"<<spaceName<<"Subscription: neither message_class nor stream are specified\n";
 						goto	error;
 					}
-					m->addSubscription_message(_s->ID,MCID);
+					if(_messageClass){
+
+						uint16	MCID=ClassRegister::GetCID(_messageClass);
+						if(MCID==ClassRegister::NoClass){
+
+							std::cout<<"Error: Module::"<<name<<"Projection::"<<spaceName<<"Subscription::message_class: "<<_messageClass<<" does not exist\n";
+							goto	error;
+						}
+						m->initialSubscriptions[subscriptionIndex].spaceID=_s->ID;
+						m->initialSubscriptions[subscriptionIndex].MCID=MCID;
+						m->initialSubscriptions[subscriptionIndex].SID=0xFFFF;
+					}
+					if(_stream){
+
+						m->initialSubscriptions[subscriptionIndex].spaceID=_s->ID;
+						m->initialSubscriptions[subscriptionIndex].MCID=ClassRegister::NoClass;
+						m->initialSubscriptions[subscriptionIndex].SID=atoi(_stream);
+					}
 				}
-				if(_stream)
-					m->addSubscription_stream(_s->ID,atoi(_stream));
 			}
 		}
 
@@ -159,7 +169,7 @@ error:	delete	m;
 		return	NULL;
 	}
 
-	ModuleDescriptor::ModuleDescriptor(uint16	hostID,_Module	*m,uint16	CID,const	char	*name):Projectable<ModuleDescriptor>((uint16)ModuleDescriptor::Main[CID].count()),module(m),hostID(hostID),CID(CID){
+	ModuleDescriptor::ModuleDescriptor(const	char	*hostName,_Module	*m,uint16	CID,const	char	*name):Projectable<ModuleDescriptor>((uint16)ModuleDescriptor::Main[CID].count()),module(m),hostID(module::Node::NoID),CID(CID){
 
 		if(m){
 
@@ -169,6 +179,8 @@ error:	delete	m;
 			module->start();
 		}
 
+		strcpy(this->hostName,hostName);
+
 		if(name){
 
 			this->name=new	char[strlen(name)+1];
@@ -176,9 +188,17 @@ error:	delete	m;
 		}
 	}
 
-	const	char	*ModuleDescriptor::getName(){
+	ModuleDescriptor::ModuleDescriptor(uint16	hostID,_Module	*m,uint16	CID):Projectable<ModuleDescriptor>((uint16)ModuleDescriptor::Main[CID].count()),module(m),hostID(hostID),CID(CID){
 
-		return	name;
+		if(m){
+
+			module->descriptor=this;
+			module->_cid=CID;
+			module->_id=ID;
+			module->start();
+		}
+
+		strcpy((char	*)name,"");
 	}
 
 	ModuleDescriptor::~ModuleDescriptor(){
@@ -189,6 +209,12 @@ error:	delete	m;
 			module->stop();
 		ModuleDescriptor::Main[CID][ID]=NULL;
 		delete[]	name;
+	}
+
+
+	const	char	*ModuleDescriptor::getName(){
+
+		return	name;
 	}
 
 	void	ModuleDescriptor::addSubscription_message(uint16	spaceID,uint16	MCID){
@@ -235,6 +261,17 @@ error:	delete	m;
 	}
 
 	void	ModuleDescriptor::deactivate(){
+	}
+
+	void	ModuleDescriptor::applyInitialSubscriptions(){
+
+		for(uint32	i=0;i<initialSubscriptions.count();i++){
+
+			if(initialSubscriptions[i].MCID==ClassRegister::NoClass)
+				addSubscription_stream(initialSubscriptions[i].spaceID,initialSubscriptions[i].SID);
+			else
+				addSubscription_message(initialSubscriptions[i].spaceID,initialSubscriptions[i].MCID);
+		}	
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////

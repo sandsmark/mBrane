@@ -83,7 +83,7 @@ public:
 		}
 	}
 };
-template<class	U>	uint16	Module<U>::_CID=ModuleRegister::Load(New);
+template<class	U>	uint16	Module<U>::_CID=ModuleRegister::Load(New,U::ClassName);
 
 
 //	for retrieving CIDs from names (in specs)
@@ -93,10 +93,19 @@ template<class	U>	uint16	Module<U>::_CID=ModuleRegister::Load(New);
 #include	LIBRARY_CLASSES
 
 
-//	module instanciation
-#define	MODULE_CLASS(C)	\
+#define	MODULE_CLASS_BEGIN(C,S)	\
+class	C:	\
+public S{	\
+public:	\
+	static	const	char	*ClassName;	\
+	C():S(){}	\
+	~C(){}
+
+#define	MODULE_CLASS_END(C)	\
+};	\
+const	char	*C::ClassName=#C;	\
 extern	"C"{	\
-	mBrane::sdk::module::_Module *	__cdecl	New##C(uint16	ID,uint16	clusterID,uint16	clusterCID){	return	new	C(ID,clusterCID,clusterID);	}	\
+	mBrane::sdk::module::_Module *	__cdecl	New##C(){	return	new	C();	}	\
 	const	mBrane::uint16	C##_CID(){	return	C::CID();	}	\
 }
 
