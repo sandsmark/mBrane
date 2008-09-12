@@ -64,7 +64,7 @@ namespace	mBrane{
 		}
 
 		Space	*s=new	Space(name);
-		s->setActivationThreshold(atoi(_activationThreshold));
+		s->setActivationThreshold((float32)atof(_activationThreshold));
 		Space::Main[Space::Main.count()]=s;
 
 		uint16	projectionCount=n.nChildNode("Projection");
@@ -91,7 +91,7 @@ namespace	mBrane{
 				std::cout<<"Error: Space "<<spaceName<<" does not exist\n";
 				goto	error;
 			}
-			s->setActivationLevel(_s->ID,atoi(_activationLevel));
+			s->setActivationLevel(_s->ID,(float32)atof(_activationLevel));
 		}
 
 		return	s;
@@ -105,7 +105,7 @@ error:	delete	s;
 			Space::Main[i]->setActivationThreshold(Space::Main[i]->getActivationThreshold());
 	}
 
-	Space::Space(const	char	*name):Projectable<Space>(Space::Main.count()),activationCount(0){
+	Space::Space(const	char	*name):Projectable<Space>((uint16)Space::Main.count()),activationCount(0){
 
 		if(name){
 

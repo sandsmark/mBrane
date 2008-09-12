@@ -127,7 +127,7 @@ namespace	mBrane{
 				std::cout<<"Error: Space "<<spaceName<<" does not exist\n";
 				goto	error;
 			}
-			m->setActivationLevel(_s->ID,atoi(_activationLevel));
+			m->setActivationLevel(_s->ID,(float32)atof(_activationLevel));
 			uint16	subscriptionCount=projection.nChildNode("Subscription");
 			for(uint16	i=0;i<subscriptionCount;i++){
 
@@ -159,7 +159,7 @@ error:	delete	m;
 		return	NULL;
 	}
 
-	ModuleDescriptor::ModuleDescriptor(uint16	hostID,_Module	*m,uint16	CID,const	char	*name):Projectable<ModuleDescriptor>(ModuleDescriptor::Main[CID].count()),module(m),hostID(hostID),CID(CID){
+	ModuleDescriptor::ModuleDescriptor(uint16	hostID,_Module	*m,uint16	CID,const	char	*name):Projectable<ModuleDescriptor>((uint16)ModuleDescriptor::Main[CID].count()),module(m),hostID(hostID),CID(CID){
 
 		if(m){
 

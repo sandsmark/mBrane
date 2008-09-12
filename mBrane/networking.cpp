@@ -559,7 +559,7 @@ err2:	delete[]	networkID;
 			}
 		}
 		channelsCS.leave();
-		return	dataChannels.count();
+		return	(uint16)dataChannels.count();
 	}
 
 	void	Networking::setNewReference(){	//	elect the first node in the list

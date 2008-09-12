@@ -38,10 +38,7 @@
 
 namespace	mBrane{
 	namespace	sdk{
-/*
-		class	ClassRegister;
-		export_static	template	class	dll	Array<ClassRegister>;
-*/
+
 		class	__Payload;
 		class	_RPayload;
 		class	dll	ClassRegister{

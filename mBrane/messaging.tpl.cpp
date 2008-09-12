@@ -138,7 +138,7 @@ namespace	mBrane{
 			NodeEntry::CS[DC].enter();
 			NodeEntry::CS[ST].enter();
 			uint16	module_cid=((CreateModule	*)p)->module_cid;
-			uint16	module_id=ModuleDescriptor::Main[module_cid].count();
+			uint16	module_id=(uint16)ModuleDescriptor::Main[module_cid].count();
 			uint16	node_id=((CreateModule	*)p)->node_id;
 			_Module	*m=NULL;
 			if(node_id==((Node	*)this)->_ID)

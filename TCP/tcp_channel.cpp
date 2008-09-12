@@ -44,7 +44,7 @@ TCPChannel::~TCPChannel(){
 
 int16	TCPChannel::send(uint8	*b,size_t	s){
 
-	if(::send(this->s,(char	*)b,s,0)==SOCKET_ERROR)
+	if(::send(this->s,(char	*)b,(int)s,0)==SOCKET_ERROR)
 		return	1;
 
 	return	0;
@@ -52,7 +52,7 @@ int16	TCPChannel::send(uint8	*b,size_t	s){
 
 int16	TCPChannel::recv(uint8	*b,size_t	s,bool	peek){
 
-	if(::recv(this->s,(char	*)b,s,peek?MSG_PEEK:0)==SOCKET_ERROR)
+	if(::recv(this->s,(char	*)b,(int)s,peek?MSG_PEEK:0)==SOCKET_ERROR)
 		return	1;
 
 	return	0;
