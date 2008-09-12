@@ -36,7 +36,7 @@ namespace	mBrane{
 			const	char	*l=n.getAttribute("shared_library");
 			if(!l){
 
-				std::cout<<"Error: "<<n.getName()<<"::shared_library is missing\n";
+				std::cout<<"> Error: "<<n.getName()<<"::shared_library is missing\n";
 				return	NULL;
 			}
 			SharedLibrary	*library;
@@ -45,7 +45,7 @@ namespace	mBrane{
 				C::Load	load;
 				if(!(load=library->getFunction<C::Load>("Load"))){
 
-					std::cout<<"Error: "<<n.getName()<<": could not find function Load\n";
+					std::cout<<"> Error: "<<n.getName()<<": could not find function Load\n";
 					return	NULL;
 				}
 				return	new	DynamicClassLoader(library,load);

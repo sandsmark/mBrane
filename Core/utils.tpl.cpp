@@ -42,7 +42,7 @@ namespace	mBrane{
 			if(!function){
 
 				DWORD	error=GetLastError();
-				std::cout<<"GetProcAddress Error: "<<error<<std::endl;
+				std::cout<<"GetProcAddress > Error: "<<error<<std::endl;
 			}
 		}
 #elif defined LINUX

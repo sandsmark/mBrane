@@ -145,24 +145,24 @@ XMLCSTR XMLNode::getError(XMLError xerror)
     case eXMLErrorNone:                  return _X("No error");
     case eXMLErrorMissingEndTag:         return _X("Warning: Unmatched end tag");
     case eXMLErrorNoXMLTagFound:         return _X("Warning: No XML tag found");
-    case eXMLErrorEmpty:                 return _X("Error: No XML data");
-    case eXMLErrorMissingTagName:        return _X("Error: Missing start tag name");
-    case eXMLErrorMissingEndTagName:     return _X("Error: Missing end tag name");
-    case eXMLErrorUnmatchedEndTag:       return _X("Error: Unmatched end tag");
-    case eXMLErrorUnmatchedEndClearTag:  return _X("Error: Unmatched clear tag end");
-    case eXMLErrorUnexpectedToken:       return _X("Error: Unexpected token found");
-    case eXMLErrorNoElements:            return _X("Error: No elements found");
-    case eXMLErrorFileNotFound:          return _X("Error: File not found");
-    case eXMLErrorFirstTagNotFound:      return _X("Error: First Tag not found");
-    case eXMLErrorUnknownCharacterEntity:return _X("Error: Unknown character entity");
-    case eXMLErrorCharConversionError:   return _X("Error: unable to convert between WideChar and MultiByte chars");
-    case eXMLErrorCannotOpenWriteFile:   return _X("Error: unable to open file for writing");
-    case eXMLErrorCannotWriteFile:       return _X("Error: cannot write into file");
+    case eXMLErrorEmpty:                 return _X("> Error: No XML data");
+    case eXMLErrorMissingTagName:        return _X("> Error: Missing start tag name");
+    case eXMLErrorMissingEndTagName:     return _X("> Error: Missing end tag name");
+    case eXMLErrorUnmatchedEndTag:       return _X("> Error: Unmatched end tag");
+    case eXMLErrorUnmatchedEndClearTag:  return _X("> Error: Unmatched clear tag end");
+    case eXMLErrorUnexpectedToken:       return _X("> Error: Unexpected token found");
+    case eXMLErrorNoElements:            return _X("> Error: No elements found");
+    case eXMLErrorFileNotFound:          return _X("> Error: File not found");
+    case eXMLErrorFirstTagNotFound:      return _X("> Error: First Tag not found");
+    case eXMLErrorUnknownCharacterEntity:return _X("> Error: Unknown character entity");
+    case eXMLErrorCharConversionError:   return _X("> Error: unable to convert between WideChar and MultiByte chars");
+    case eXMLErrorCannotOpenWriteFile:   return _X("> Error: unable to open file for writing");
+    case eXMLErrorCannotWriteFile:       return _X("> Error: cannot write into file");
 
     case eXMLErrorBase64DataSizeIsNotMultipleOf4: return _X("Warning: Base64-string length is not a multiple of 4");
     case eXMLErrorBase64DecodeTruncatedData:      return _X("Warning: Base64-string is truncated");
-    case eXMLErrorBase64DecodeIllegalCharacter:   return _X("Error: Base64-string contains an illegal character");
-    case eXMLErrorBase64DecodeBufferTooSmall:     return _X("Error: Base64 decode output buffer is too small");
+    case eXMLErrorBase64DecodeIllegalCharacter:   return _X("> Error: Base64-string contains an illegal character");
+    case eXMLErrorBase64DecodeBufferTooSmall:     return _X("> Error: Base64 decode output buffer is too small");
     };
     return _X("Unknown");
 }
@@ -988,7 +988,7 @@ static inline void *myRealloc(void *p, int newsize, int memInc, int sizeofElem)
     if ((memInc==0)||((newsize%memInc)==0)) p=realloc(p,(newsize+memInc)*sizeofElem);
 //    if (!p)
 //    {
-//        printf("XMLParser Error: Not enough memory! Aborting...\n"); exit(220);
+//        printf("XMLParser > Error: Not enough memory! Aborting...\n"); exit(220);
 //    }
     return p;
 }

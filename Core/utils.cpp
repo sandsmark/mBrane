@@ -72,7 +72,7 @@ namespace	mBrane{
 		if(!library){
 
 			DWORD	error=GetLastError();
-			std::cout<<"Error: unable to load shared library "<<fileName<<" :"<<error<<std::endl;
+			std::cout<<"> Error: unable to load shared library "<<fileName<<" :"<<error<<std::endl;
 			return	NULL;
 		}
 #elif defined LINUX
