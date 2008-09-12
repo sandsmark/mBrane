@@ -44,6 +44,8 @@ namespace	mBrane{
 			networkInterfaceLoaders[i]=NULL;
 			networkInterfaces[i]=NULL;
 		}
+
+		bootCallback=NULL;
 	}
 
 	Networking::~Networking(){
@@ -77,19 +79,19 @@ namespace	mBrane{
 		XMLNode	node=config.getChildNode(name);
 		if(!node){
 
-			std::cout<<"Error: NodeConfiguration::Network::"<<name<<" is missing\n";
+			std::cout<<"> Error: NodeConfiguration::Network::"<<name<<" is missing\n";
 			return	false;
 		}
 		const	char	*_i=node.getAttribute("interface");
 		if(!_i){
 
-			std::cout<<"Error: NodeConfiguration::Network::"<<name<<"::interface is missing\n";
+			std::cout<<"> Error: NodeConfiguration::Network::"<<name<<"::interface is missing\n";
 			return	false;
 		}
 		XMLNode	i=interfaces.getChildNode(_i);
 		if(!i){
 
-			std::cout<<"Error: NodeConfiguration::Network::Interfaces::"<<_i<<" is missing\n";
+			std::cout<<"> Error: NodeConfiguration::Network::Interfaces::"<<_i<<" is missing\n";
 			return	false;
 		}
 
@@ -99,7 +101,7 @@ namespace	mBrane{
 		XMLNode	parameters=config.getChildNode(name);
 		if(!parameters){
 
-			std::cout<<"Error: NodeConfiguration::Network::"<<name<<" is missing\n";
+			std::cout<<"> Error: NodeConfiguration::Network::"<<name<<" is missing\n";
 			return	false;
 		}
 
@@ -114,32 +116,32 @@ namespace	mBrane{
 		XMLNode	network=n.getChildNode("Network");
 		if(!network){
 
-			std::cout<<"Error: NodeConfiguration::Network is missing\n";
+			std::cout<<"> Error: NodeConfiguration::Network is missing\n";
 			return	false;
 		}
 		XMLNode	interfaces=network.getChildNode("Interfaces");
 		if(!interfaces){
 
-			std::cout<<"Error: NodeConfiguration::Network::Interfaces is missing\n";
+			std::cout<<"> Error: NodeConfiguration::Network::Interfaces is missing\n";
 			return	false;
 		}
 		if(!loadInterface(interfaces,network,"Discovery",DISCOVERY))
 			return	false;
 		if(!networkInterfaces[DISCOVERY]->canBroadcast()){
 
-			std::cout<<"Error: discovery interface is not broadcast capable\n";
+			std::cout<<"> Error: discovery interface is not broadcast capable\n";
 			return	false;
 		}
 		XMLNode	primary=network.getChildNode("Primary");
 		if(!primary){
 
-			std::cout<<"Error: NodeConfiguration::Network::Primary is missing\n";
+			std::cout<<"> Error: NodeConfiguration::Network::Primary is missing\n";
 			return	false;
 		}
 		XMLNode	secondary=network.getChildNode("Secondary");
 		if(!secondary){
 
-			std::cout<<"Error: NodeConfiguration::Network::Secondary is missing\n";
+			std::cout<<"> Error: NodeConfiguration::Network::Secondary is missing\n";
 			return	false;
 		}
 		if(primary.nChildNode()!=3)
@@ -150,7 +152,7 @@ namespace	mBrane{
 			this->network=BOTH;
 		if(primary.nChildNode()!=3	&&	secondary.nChildNode()!=3){
 
-			std::cout<<"Error: no network specified\n";
+			std::cout<<"> Error: no network specified\n";
 			return	false;
 		}
 		if(primary.nChildNode()==3){
@@ -175,7 +177,7 @@ namespace	mBrane{
 		const	char	*sp=network.getAttribute("sync_period");
 		if(!sp){
 
-			std::cout<<"Error: NodeConfiguration::Network::sync_period is missing\n";
+			std::cout<<"> Error: NodeConfiguration::Network::sync_period is missing\n";
 			return	false;
 		}
 		syncPeriod=atoi(sp);
@@ -183,7 +185,7 @@ namespace	mBrane{
 		const	char	*bt=network.getAttribute("bcast_timeout");
 		if(!bt){
 
-			std::cout<<"Error: NodeConfiguration::Network::bcast_timeout is missing\n";
+			std::cout<<"> Error: NodeConfiguration::Network::bcast_timeout is missing\n";
 			return	false;
 		}
 		bcastTimeout=atoi(bt);
@@ -193,7 +195,7 @@ namespace	mBrane{
 		const	char	*bc=network.getAttribute("boot_callback");
 		if(!bc){
 
-			std::cout<<"Error: NodeConfiguration::Network::boot_callback is missing\n";
+			std::cout<<"> Error: NodeConfiguration::Network::boot_callback is missing\n";
 			return	false;
 		}
 		if(strcmp(bc,"NULL")!=0){
@@ -209,30 +211,30 @@ namespace	mBrane{
 
 	bool	Networking::startInterfaces(){
 
-		if(!networkInterfaces[DISCOVERY]->start())
+		if(networkInterfaces[DISCOVERY]->start())
 			return	false;
 
 		if(network==PRIMARY	||	network==BOTH){
 
-			if(!networkInterfaces[CONTROL_PRIMARY]->start())
+			if(networkInterfaces[CONTROL_PRIMARY]->start())
 				return	false;
 			if(*networkInterfaces[DATA_PRIMARY]!=*networkInterfaces[CONTROL_PRIMARY])
-				if(!networkInterfaces[DATA_PRIMARY]->start())
+				if(networkInterfaces[DATA_PRIMARY]->start())
 					return	false;
 			if(*networkInterfaces[STREAM_PRIMARY]!=*networkInterfaces[DATA_PRIMARY])
-				if(!networkInterfaces[STREAM_PRIMARY]->start())
+				if(networkInterfaces[STREAM_PRIMARY]->start())
 					return	false;
 		}
 
 		if(network==SECONDARY	||	network==BOTH){
 
-			if(!networkInterfaces[CONTROL_SECONDARY]->start())
+			if(networkInterfaces[CONTROL_SECONDARY]->start())
 				return	false;
 			if(*networkInterfaces[DATA_SECONDARY]!=*networkInterfaces[CONTROL_SECONDARY])
-				if(!networkInterfaces[DATA_SECONDARY]->start())
+				if(networkInterfaces[DATA_SECONDARY]->start())
 					return	false;
 			if(*networkInterfaces[STREAM_SECONDARY]!=*networkInterfaces[DATA_SECONDARY])
-				if(!networkInterfaces[STREAM_SECONDARY]->start())
+				if(networkInterfaces[STREAM_SECONDARY]->start())
 					return	false;
 		}
 

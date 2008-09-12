@@ -54,13 +54,13 @@ namespace	mBrane{
 			const	char	*tc=threads.getAttribute("thread_count");
 			if(!tc){
 
-				std::cout<<"Error: "<<n.getName()<<"::Threads::thread_count is missing\n";
+				std::cout<<"> Error: "<<n.getName()<<"::Threads::thread_count is missing\n";
 				return	false;
 			}
 			threadCount=atoi(tc);
 			if(threadCount==0	||	threadCount>512){
 				
-				std::cout<<"Error: thread count must be in [1,512]\n";
+				std::cout<<"> Error: thread count must be in [1,512]\n";
 				return	false;
 			}
 		}

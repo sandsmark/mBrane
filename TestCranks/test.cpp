@@ -3,5 +3,5 @@
 
 void	Init(){
 
-	std::cout<<"User library initialized\n";
+	std::cout<<"Test library initialized\n";
 }

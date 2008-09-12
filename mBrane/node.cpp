@@ -64,12 +64,12 @@ namespace	mBrane{
 		hostNameSize=Host::Name(hostName);
 
 		std::cout<<"---------------- mBrane V"<<MBRANE_VERSION<<" ----------------\n";
-		std::cout<<"started on "<<hostName<<"\n";
+		std::cout<<"> Started on "<<hostName<<"\n";
 
 		XMLNode	mainNode=XMLNode::openFileHelper(configFileName,"NodeConfiguration");
 		if(!mainNode){
 
-			std::cout<<"Error: NodeConfiguration corrupted\n";
+			std::cout<<"> Error: NodeConfiguration corrupted\n";
 			return	NULL;
 		}
 		
@@ -95,7 +95,7 @@ namespace	mBrane{
 				const	char	*_n=n.getAttribute("hostname");
 				if(!_n){
 
-					std::cout<<"Error: NodeConfiguration::Nodes::node_"<<i<<"::hostname is missing\n";
+					std::cout<<"> Error: NodeConfiguration::Nodes::node_"<<i<<"::hostname is missing\n";
 					strcpy(nodeNames[i],"");
 					return	NULL;
 				}
@@ -108,7 +108,7 @@ namespace	mBrane{
 		const	char	*application_configuration_file=mainNode.getAttribute("application_configuration_file");
 		if(!application_configuration_file){
 
-			std::cout<<"Error: NodeConfiguration::application_configuration_file is missing\n";
+			std::cout<<"> Error: NodeConfiguration::application_configuration_file is missing\n";
 			return	NULL;
 		}
 
@@ -126,13 +126,13 @@ namespace	mBrane{
 		XMLNode	mainNode=XMLNode::openFileHelper(fileName,"ApplicationConfiguration");
 		if(!mainNode){
 
-			std::cout<<"Error: ApplicationConfiguration corrupted\n";
+			std::cout<<"> Error: ApplicationConfiguration corrupted\n";
 			return	false;
 		}
 		const	char	*ul=mainNode.getAttribute("user_library");
 		if(!ul){
 
-			std::cout<<"Error: ApplicationConfiguration::user_library is missing\n";
+			std::cout<<"> Error: ApplicationConfiguration::user_library is missing\n";
 			return	false;
 		}
 		if(!(userLibrary=SharedLibrary::New(ul)))
@@ -143,6 +143,7 @@ namespace	mBrane{
 		if(!userInitFunction)
 			return	false;
 		userInitFunction();
+		std::cout<<"> User library "<<ul<<" loaded\n";
 
 		uint16	spaceCount=mainNode.nChildNode("Space");
 		for(uint16	i=0;i<spaceCount;i++){
@@ -197,7 +198,7 @@ namespace	mBrane{
 				uint16	NID=getNID(ModuleDescriptor::Main[i][j]->hostName);
 				if(NID==NoID){
 
-					std::cout<<"Error: host "<<ModuleDescriptor::Main[i][j]->hostName<<" has not joined\n";
+					std::cout<<"> Error: host "<<ModuleDescriptor::Main[i][j]->hostName<<" has not joined\n";
 					shutdown();
 					return;
 				}
@@ -208,7 +209,7 @@ namespace	mBrane{
 			for(uint32	j=0;ModuleDescriptor::Main[i].count();j++)
 				ModuleDescriptor::Main[i][j]->applyInitialSubscriptions();
 
-		std::cout<<"Running\n";
+		std::cout<<"> Running\n";
 	}
 
 	void	Node::start(uint16	assignedNID,NetworkID	*networkID,bool	isTimeReference){
@@ -238,7 +239,8 @@ namespace	mBrane{
 		daemon::Node::start();
 		Executing::start();
 
-		bootCallback();
+		if(bootCallback)
+			bootCallback();
 	}
 
 	void	Node::notifyNodeJoined(uint16	NID,NetworkID	*networkID){
@@ -347,7 +349,7 @@ namespace	mBrane{
 		if(_shutdown)
 			return;
 		_shutdown=true;
-		std::cout<<"Shutting down...\n";
+		std::cout<<"> Shutting down...\n";
 		Messaging::shutdown();
 		Executing::shutdown();
 		daemon::Node::shutdown();

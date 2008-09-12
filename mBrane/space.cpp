@@ -52,14 +52,14 @@ namespace	mBrane{
 		const	char	*name=n.getAttribute("name");
 		if(!name){
 
-			std::cout<<"Error: Space::name is missing\n";
+			std::cout<<"> Error: Space::name is missing\n";
 			return	NULL;
 		}
 
 		const	char	*_activationThreshold=n.getAttribute("activation_threshold");
 		if(!_activationThreshold){
 
-			std::cout<<"Error: Space::activation_threshold is missing\n";
+			std::cout<<"> Error: Space::activation_threshold is missing\n";
 			return	NULL;
 		}
 
@@ -76,19 +76,19 @@ namespace	mBrane{
 			const	char	*spaceName=projection.getAttribute("space");	//	to be projected on
 			if(!spaceName){
 
-				std::cout<<"Error: Space: "<<name<<" ::Projection::name is Missing\n";
+				std::cout<<"> Error: Space: "<<name<<" ::Projection::name is Missing\n";
 				goto	error;
 			}
 			const	char	*_activationLevel=projection.getAttribute("activation_level");
 			if(!_activationLevel){
 
-				std::cout<<"Error: Space: "<<name<<" ::Projection::activation_level is Missing\n";
+				std::cout<<"> Error: Space: "<<name<<" ::Projection::activation_level is Missing\n";
 				goto	error;
 			}
 			Space	*_s=Space::Get(spaceName);
 			if(!_s){
 
-				std::cout<<"Error: Space "<<spaceName<<" does not exist\n";
+				std::cout<<"> Error: Space "<<spaceName<<" does not exist\n";
 				goto	error;
 			}
 			s->setActivationLevel(_s->ID,(float32)atof(_activationLevel));

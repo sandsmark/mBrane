@@ -50,7 +50,7 @@ bool	UDPInterface::Init(){
 	r=WSAStartup(MAKEWORD(2,2),&wsaData);
 	if(r){
 
-		std::cout<<"Error: WSAStartup failed: "<<r<<std::endl;
+		std::cout<<"> Error: WSAStartup failed: "<<r<<std::endl;
 		return	false;
 	}
 	Intialized++;
@@ -91,7 +91,7 @@ bool	UDPInterface::load(XMLNode	&n){
 	const	char	*_nic=n.getAttribute("nic");
 	if(!_nic){
 
-		std::cout<<"Error: NodeConfiguration::Network::"<<n.getName()<<"::nic is missing\n";
+		std::cout<<"> Error: NodeConfiguration::Network::"<<n.getName()<<"::nic is missing\n";
 		return	false;
 	}
 	
@@ -100,14 +100,14 @@ bool	UDPInterface::load(XMLNode	&n){
 	uint32	r=GetAdaptersInfo(&_adapters,&size);	//	initial call to get the actual size
 	if(r!=ERROR_SUCCESS){
 
-		std::cout<<"Error: could not get adapter info\n";
+		std::cout<<"> Error: could not get adapter info\n";
 		return	false;
 	}
 	IP_ADAPTER_INFO	*adapters=(IP_ADAPTER_INFO	*)new	uint8[size];
 	r=GetAdaptersInfo(adapters,&size);
 	if(r!=ERROR_SUCCESS){
 
-		std::cout<<"Error: could not get adapter info\n";
+		std::cout<<"> Error: could not get adapter info\n";
 		return	false;
 	}
 	IP_ADAPTER_INFO	*a;
@@ -126,14 +126,14 @@ bool	UDPInterface::load(XMLNode	&n){
 
 	if(!found){
 
-		std::cout<<"Error: NodeConfiguration::Network::"<<n.getName()<<"::nic "<<_nic<<"does not exist\n";
+		std::cout<<"> Error: NodeConfiguration::Network::"<<n.getName()<<"::nic "<<_nic<<"does not exist\n";
 		return	false;
 	}
 
 	const	char	*_port=n.getAttribute("port");
 	if(!_port){
 
-		std::cout<<"Error: NodeConfiguration::Network::"<<n.getName()<<"::port is missing\n";
+		std::cout<<"> Error: NodeConfiguration::Network::"<<n.getName()<<"::port is missing\n";
 		return	false;
 	}
 	port=atoi(_port);

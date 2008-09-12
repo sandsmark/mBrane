@@ -76,14 +76,14 @@ namespace	mBrane{
 		const	char	*_class=n.getAttribute("class");
 		if(!_class){
 
-			std::cout<<"Error: Module::class is missing\n";
+			std::cout<<"> Error: Module::class is missing\n";
 			return	NULL;
 		}
 
 		uint16	CID=ModuleRegister::GetCID(_class);
 		if(CID==ClassRegister::NoClass){
 
-			std::cout<<"Error: class: "<<_class<<" does not exists\n";
+			std::cout<<"> Error: class: "<<_class<<" does not exists\n";
 			return	NULL;
 		}
 
@@ -92,7 +92,7 @@ namespace	mBrane{
 		const	char	*_host=n.getAttribute("host");
 		if(!_host){
 
-			std::cout<<"Error: Module::host is missing\n";
+			std::cout<<"> Error: Module::host is missing\n";
 			return	NULL;
 		}
 
@@ -115,19 +115,19 @@ namespace	mBrane{
 				const	char	*spaceName=projection.getAttribute("space");	//	to be projected on
 				if(!spaceName){
 
-					std::cout<<"Error: Module: "<<name<<" ::Projection::name is Missing\n";
+					std::cout<<"> Error: Module: "<<name<<" ::Projection::name is Missing\n";
 					goto	error;
 				}
 				const	char	*_activationLevel=projection.getAttribute("activation_level");
 				if(!_activationLevel){
 
-					std::cout<<"Error: Module: "<<name<<" ::Projection::activation_level is Missing\n";
+					std::cout<<"> Error: Module: "<<name<<" ::Projection::activation_level is Missing\n";
 					goto	error;
 				}
 				Space	*_s=Space::Get(spaceName);
 				if(!_s){
 
-					std::cout<<"Error: Space "<<spaceName<<" does not exist\n";
+					std::cout<<"> Error: Space "<<spaceName<<" does not exist\n";
 					goto	error;
 				}
 				m->setActivationLevel(_s->ID,(float32)atof(_activationLevel));
@@ -139,7 +139,7 @@ namespace	mBrane{
 					const	char	*_stream=subscription.getAttribute("stream");
 					if(!_messageClass	&&	!_stream){
 
-						std::cout<<"Error: Module::"<<name<<"Projection::"<<spaceName<<"Subscription: neither message_class nor stream are specified\n";
+						std::cout<<"> Error: Module::"<<name<<"Projection::"<<spaceName<<"Subscription: neither message_class nor stream are specified\n";
 						goto	error;
 					}
 					if(_messageClass){
@@ -147,7 +147,7 @@ namespace	mBrane{
 						uint16	MCID=ClassRegister::GetCID(_messageClass);
 						if(MCID==ClassRegister::NoClass){
 
-							std::cout<<"Error: Module::"<<name<<"Projection::"<<spaceName<<"Subscription::message_class: "<<_messageClass<<" does not exist\n";
+							std::cout<<"> Error: Module::"<<name<<"Projection::"<<spaceName<<"Subscription::message_class: "<<_messageClass<<" does not exist\n";
 							goto	error;
 						}
 						m->initialSubscriptions[subscriptionIndex].spaceID=_s->ID;
