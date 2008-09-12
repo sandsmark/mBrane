@@ -85,7 +85,7 @@ namespace	mBrane{
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	template<class	C>	Projectable<C>::Projectable(uint16	ID):activationCount(0),ID(ID){
+	template<class	C>	Projectable<C>::Projectable(uint16	ID):Object<Memory,_Object,C>(),activationCount(0),ID(ID){
 	}
 
 	template<class	C>	Projectable<C>::~Projectable(){

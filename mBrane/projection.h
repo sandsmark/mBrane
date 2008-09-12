@@ -64,7 +64,7 @@ namespace	mBrane{
 	};
 
 	template<class	C>	class	Projectable:
-	public	Object<Memory,_Object,Projectable<C> >{
+	public	Object<Memory,_Object,C>{
 	protected:
 		Array<typename	List<P<Projection<C> > >::Iterator>	projections;	//	indexed by space ID; to speed up space updating when deleting projections
 		void	activate();
