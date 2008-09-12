@@ -88,11 +88,12 @@ namespace	mBrane{
 				next=NULL;
 			}
 
-			template<typename	T,uint32	_S,class	M>	Array<T,_S,M>	*Array<T,_S,M>::add(){
+			template<typename	T,uint32	_S,class	M>	Array<T,_S,M>	*Array<T,_S,M>::add(uint32	&offset){
 
+				offset+=_S;
 				if(!next)
 					return	next=new	Array<T,_S,M>();
-				return	next->add();
+				return	next->add(offset);
 			}
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
@@ -177,7 +178,7 @@ namespace	mBrane{
 				return	_count;
 			}
 
-			template<typename	T,uint32	_S,class	M>	void	List<T,_S,M>::initArray(Array<ListElement<T>,_S,M>	*_array){
+			template<typename	T,uint32	_S,class	M>	void	List<T,_S,M>::initArray(Array<ListElement<T>,_S,M>	*_array,uint32	offset){
 
 				for(uint32	i=0;i<_S;i++){
 
@@ -190,15 +191,15 @@ namespace	mBrane{
 					else
 						_array[i].next=NullIndex;
 				}
-				firstFree=0;
-				lastFree=_S-1;
+				firstFree=offset;
+				lastFree=offset+_S-1;
 			}
 
 			template<typename	T,uint32	_S,class	M>	inline	void	List<T,_S,M>::clear(){
 
 				first=last=NullIndex;
 				_count=0;
-				initArray(_array);
+				initArray(_array,0);
 			}
 
 			template<typename	T,uint32	_S,class	M>	inline	void	List<T,_S,M>::remove(uint32	i){
@@ -215,11 +216,7 @@ namespace	mBrane{
 				_array[i].prev=lastFree;
 				_array[i].next=NullIndex;
 				lastFree=i;
-				if(--_count==0){
-
-					first=NullIndex;
-					last=NullIndex;
-				}
+				_count--;
 			}
 
 			template<typename	T,uint32	_S,class	M>	inline	uint32	List<T,_S,M>::removeReturnNext(uint32	i){
@@ -237,31 +234,47 @@ namespace	mBrane{
 			template<typename	T,uint32	_S,class	M>	inline	void	List<T,_S,M>::insertAfter(uint32	i,T	&t){
 
 				uint32	target=getFreeSlot();
-				_array[target].next=_array[i].next;
+				if(i!=NullIndex){
+
+					_array[target].next=_array[i].next;
+					if(_array[i].next!=NullIndex)
+						_array[_array[i].next].prev=target;
+					_array[i].next=target;
+				}
 				_array[target].prev=i;
 				_array[target].data=t;
-				if(_array[i].next!=NullIndex)
-					_array[_array[i].next].prev=target;
 				if(last==i)
 					last=target;
+				if(first==i)
+					first=target;
 			}
 
 			template<typename	T,uint32	_S,class	M>	inline	void	List<T,_S,M>::insertBefore(uint32	i,T	&t){
 
 				uint32	target=getFreeSlot();
-				_array[target].prev=_array[i].prev;
+				if(i!=NullIndex){
+
+					_array[target].prev=_array[i].prev;
+					if(_array[i].prev!=NullIndex)
+						_array[_array[i].prev].next=target;
+					_array[i].prev=target;
+				}
 				_array[target].next=i;
 				_array[target].data=t;
-				if(_array[i].prev!=NullIndex)
-					_array[_array[i].prev].next=target;
+				if(last==i)
+					last=target;
 				if(first==i)
 					first=target;
 			}
 
 			template<typename	T,uint32	_S,class	M>	inline	uint32	List<T,_S,M>::getFreeSlot(){
 
-				if(_count==_S)
-					initArray(_array.add());
+				if(_count==_S){
+
+					uint32	offset=0;
+					Array<ListElement<T>,_S,M>	*a=_array.add(offset);
+					initArray(a,offset);
+				}
 
 				uint32	freeSlot=firstFree;
 				firstFree=_array[firstFree].next;

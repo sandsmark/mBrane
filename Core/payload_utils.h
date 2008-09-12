@@ -47,7 +47,7 @@ namespace	mBrane{
 				P<Array<T,_S,M> >	next;
 				uint32	_count;
 				T	block[_S];
-				Array<T,_S,M>	*add();
+				Array<T,_S,M>	*add(uint32	&offset);
 			public:
 				static	const	size_t	CoreSize();
 				Array();
@@ -96,7 +96,7 @@ namespace	mBrane{
 					Iterator	&operator	--(){	if(index!=NullIndex)	index=list->_array[index].prev;	return	*this;	}
 					bool	operator	==(Iterator	&i)	const{	return	index==i.index;	}
 					bool	operator	!=(Iterator	&i)	const{	return	index!=i.index;	}
-					bool	operator	!()	const{	return	index==NullIndex;	}
+					bool	operator	!()	const{	return	index==NullIndex	||	list==NULL;	}
 					operator	T&()	const{	return	list->_array[index].data;	}
 					void	insertAfter(T	&t)	const{	list->insertAfter(index,t);	}
 					void	insertBefore(T	&t)	const{	list->insertBefore(index,t);	}
@@ -116,7 +116,7 @@ namespace	mBrane{
 				uint32	_count;
 				uint32	firstFree;
 				uint32	lastFree;
-				void	initArray(Array<ListElement<T>,_S,M>	*_array);
+				void	initArray(Array<ListElement<T>,_S,M>	*_array,uint32	offset);
 				uint32	getFreeSlot();
 				void	remove(uint32	i);
 				uint32	removeReturnNext(uint32	i);

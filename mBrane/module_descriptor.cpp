@@ -40,6 +40,8 @@
 #define	DC	0	//	Data and Control
 #define	ST	1	//	Streams
 
+#define	INITIAL_LIST_SIZE	32
+
 namespace	mBrane{
 
 	ModuleEntry::ModuleEntry(NodeEntry	*n,ModuleDescriptor	*m):Object<Memory,_Object,ModuleEntry>(),node(n),module(m){
@@ -56,6 +58,14 @@ namespace	mBrane{
 	Array<Array<NodeEntry> >	NodeEntry::Main[2];
 
 	CriticalSection	NodeEntry::CS[2];
+
+	NodeEntry::NodeEntry(){
+
+		modules.alloc(INITIAL_LIST_SIZE);
+	}
+
+	NodeEntry::~NodeEntry(){
+	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 

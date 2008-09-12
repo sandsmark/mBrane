@@ -57,6 +57,8 @@ namespace	mBrane{
 	public:
 		static	Array<Array<NodeEntry> >	Main[2];	//	0: Data and Control: message class -> nodes -> modules, 2: Streams: stream id -> nodes -> modules
 		static	CriticalSection				CS[2];
+		NodeEntry();
+		~NodeEntry();
 		uint32					activationCount;
 		List<P<ModuleEntry> >	modules;
 	};

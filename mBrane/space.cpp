@@ -31,6 +31,8 @@
 #include	"space.h"
 
 
+#define	INITIAL_LIST_SIZE	32
+
 namespace	mBrane{
 
 	Array<P<Space> >	Space::Main;
@@ -110,6 +112,9 @@ error:	delete	s;
 			this->name=new	char[strlen(name)];
 			memcpy((void	*)this->name,name,strlen(name));
 		}
+
+		moduleDescriptors.alloc(INITIAL_LIST_SIZE);
+		spaces.alloc(INITIAL_LIST_SIZE);
 	}
 
 	Space::~Space(){

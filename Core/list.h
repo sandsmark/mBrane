@@ -87,6 +87,7 @@ namespace	mBrane{
 		public:
 			List(uint32	count=0);
 			~List();
+			void		alloc(uint32	count);
 			uint32		elementCount()	const;
 			void		clear();
 			Iterator	addElementHead(T	&t);	//	returns the index of the new element
