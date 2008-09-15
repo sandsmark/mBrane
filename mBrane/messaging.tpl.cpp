@@ -32,9 +32,6 @@
 #include	"..\Core\module_register.h"
 
 
-#define	INITIAL_NID_ARRAY_LENGTH	16
-#define	INITIAL_SID_ARRAY_LENGTH	16
-
 #define	DC	0	//	Data and Control
 #define	ST	1	//	Streams
 
@@ -45,14 +42,6 @@ namespace	mBrane{
 	template<class	Engine>	Messaging<Engine>::Messaging():Engine(),sendThread(NULL){
 
 		inputSync=new	Semaphore(0,65535);
-
-		NodeEntry::Main[DC].alloc(ClassRegister::Count());
-		for(uint32	i=0;i<NodeEntry::Main[DC].count();i++)
-			NodeEntry::Main[DC][i].alloc(INITIAL_NID_ARRAY_LENGTH);
-
-		NodeEntry::Main[ST].alloc(INITIAL_SID_ARRAY_LENGTH);
-		for(uint32	i=0;i<NodeEntry::Main[ST].count();i++)
-			NodeEntry::Main[ST][i].alloc(INITIAL_NID_ARRAY_LENGTH);
 	}
 
 	template<class	Engine>	Messaging<Engine>::~Messaging(){

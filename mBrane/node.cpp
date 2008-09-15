@@ -36,6 +36,9 @@
 #include	<iostream>
 
 
+#define	INITIAL_NID_ARRAY_LENGTH	16
+#define	INITIAL_SID_ARRAY_LENGTH	16
+
 using	namespace	mBrane::sdk::payloads;
 
 namespace	mBrane{
@@ -185,6 +188,14 @@ namespace	mBrane{
 	}
 
 	void	Node::run(){
+
+		NodeEntry::Main[DC].alloc(ClassRegister::Count());
+		for(uint32	i=0;i<NodeEntry::Main[DC].count();i++)
+			NodeEntry::Main[DC][i].alloc(INITIAL_NID_ARRAY_LENGTH);
+
+		NodeEntry::Main[ST].alloc(INITIAL_SID_ARRAY_LENGTH);
+		for(uint32	i=0;i<NodeEntry::Main[ST].count();i++)
+			NodeEntry::Main[ST][i].alloc(INITIAL_NID_ARRAY_LENGTH);
 
 		if(!Networking::init()){
 
