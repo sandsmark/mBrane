@@ -166,7 +166,7 @@ uint16	TCPInterface::start(){
   
 	struct	sockaddr_in	addr;
 	addr.sin_family= AF_INET;
-	addr.sin_addr.s_addr=inet_addr("127.0.0.1");
+	addr.sin_addr.s_addr=address.s_addr;
 	addr.sin_port=htons((uint16)port);
 
 	if(bind(s,(SOCKADDR	*)&addr,sizeof(struct	sockaddr_in))==SOCKET_ERROR){
@@ -216,6 +216,9 @@ uint16	TCPInterface::newChannel(uint8	*ID,CommChannel	**channel){	//	connect to 
 		Shutdown();
 		return	1;
 	}
+
+	BOOL	off=true;
+	setsockopt(s,IPPROTO_TCP,TCP_NODELAY,(char	*)&off,sizeof(BOOL));
 
 	*channel=new	TCPChannel(s);
 	
