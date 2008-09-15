@@ -40,8 +40,7 @@ namespace	mBrane{
 
 		RecvThread	*_this=(RecvThread	*)args;
 
-		SyncEcho	echo;
-
+		SyncEcho	*echo;
 		_Payload	*p;
 		while(!_this->node->_shutdown){
 
@@ -57,8 +56,9 @@ namespace	mBrane{
 				_this->node->timeDrift=Time::Get()-((SyncEcho	*)p)->time-(p->node_recv_ts()-p->node_send_ts());
 				break;
 			case	SyncProbe_CID:	//	ref node, echo
-				echo.time=Time::Get();
-				_this->channel->send(&echo);
+				echo=new	SyncEcho();
+				echo->time=Time::Get();
+				_this->channel->send(echo);
 				break;
 			default:
 				_this->buffer.push(_p);

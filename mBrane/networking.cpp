@@ -303,28 +303,32 @@ namespace	mBrane{
 					return	false;
 			}
 			
-			AcceptConnectionArgs	args;
-			args.node=this;
-			args.timeout=bcastTimeout;
 			if(!networkInterfaces[CONTROL_PRIMARY]->canBroadcast()){
 
-				args.network=PRIMARY;
-				args.category=_Payload::CONTROL;
-				commThreads[commThreads.count()]=Thread::New<Thread>(AcceptConnections,&args);
-				args.timeout=-1;
+				AcceptConnectionArgs	*args=new	AcceptConnectionArgs();
+				args->timeout=bcastTimeout;
+				args->node=this;
+				args->network=PRIMARY;
+				args->category=_Payload::CONTROL;
+				commThreads[commThreads.count()]=Thread::New<Thread>(AcceptConnections,args);
 			}
 			if(*networkInterfaces[DATA_PRIMARY]!=*networkInterfaces[CONTROL_PRIMARY]){
 			
-				args.network=PRIMARY;
-				args.category=_Payload::DATA;
-				commThreads[commThreads.count()]=Thread::New<Thread>(AcceptConnections,&args);
-				args.timeout=-1;
+				AcceptConnectionArgs	*args=new	AcceptConnectionArgs();
+				args->timeout=-1;
+				args->node=this;
+				args->network=PRIMARY;
+				args->category=_Payload::DATA;
+				commThreads[commThreads.count()]=Thread::New<Thread>(AcceptConnections,args);
 			}
 			if(*networkInterfaces[STREAM_PRIMARY]!=*networkInterfaces[DATA_PRIMARY]){
 			
-				args.network=PRIMARY;
-				args.category=_Payload::STREAM;
-				commThreads[commThreads.count()]=Thread::New<Thread>(AcceptConnections,&args);
+				AcceptConnectionArgs	*args=new	AcceptConnectionArgs();
+				args->timeout=-1;
+				args->node=this;
+				args->network=PRIMARY;
+				args->category=_Payload::STREAM;
+				commThreads[commThreads.count()]=Thread::New<Thread>(AcceptConnections,args);
 			}
 		}
 
@@ -339,29 +343,33 @@ namespace	mBrane{
 				if(networkInterfaces[CONTROL_SECONDARY]->newChannel(networkID->at(CONTROL_SECONDARY),&(controlChannels[SECONDARY][0])))
 					return	false;
 			}
-
-			AcceptConnectionArgs	args;
-			args.node=this;
-			args.timeout=bcastTimeout;
+	
 			if(!networkInterfaces[CONTROL_SECONDARY]->canBroadcast()){
 
-				args.network=SECONDARY;
-				args.category=_Payload::CONTROL;
-				commThreads[commThreads.count()]=Thread::New<Thread>(AcceptConnections,&args);
-				args.timeout=-1;
+				AcceptConnectionArgs	*args=new	AcceptConnectionArgs();
+				args->timeout=bcastTimeout;
+				args->node=this;
+				args->network=SECONDARY;
+				args->category=_Payload::CONTROL;
+				commThreads[commThreads.count()]=Thread::New<Thread>(AcceptConnections,args);
 			}
 			if(*networkInterfaces[DATA_SECONDARY]!=*networkInterfaces[CONTROL_SECONDARY]){
 			
-				args.network=SECONDARY;
-				args.category=_Payload::DATA;
-				commThreads[commThreads.count()]=Thread::New<Thread>(AcceptConnections,&args);
-				args.timeout=-1;
+				AcceptConnectionArgs	*args=new	AcceptConnectionArgs();
+				args->timeout=-1;
+				args->node=this;				
+				args->network=SECONDARY;
+				args->category=_Payload::DATA;
+				commThreads[commThreads.count()]=Thread::New<Thread>(AcceptConnections,args);
 			}
 			if(*networkInterfaces[STREAM_SECONDARY]!=*networkInterfaces[DATA_SECONDARY]){
 			
-				args.network=SECONDARY;
-				args.category=_Payload::STREAM;
-				commThreads[commThreads.count()]=Thread::New<Thread>(AcceptConnections,&args);
+				AcceptConnectionArgs	*args=new	AcceptConnectionArgs();
+				args->timeout=-1;
+				args->node=this;
+				args->network=SECONDARY;
+				args->category=_Payload::STREAM;
+				commThreads[commThreads.count()]=Thread::New<Thread>(AcceptConnections,args);
 			}
 		}
 
@@ -737,9 +745,11 @@ err2:	delete[]	networkID;
 				node->notifyNodeJoined(remoteNID,node->dataChannels[remoteNID]->networkID);
 			}
 		}
+		delete	args;
 		return	0;
 err0:	delete	c;
 err1:	node->shutdown();
+		delete	args;
 		return	r;
 	}
 
@@ -765,17 +775,18 @@ err1:	node->shutdown();
 
 		Networking	*node=(Networking	*)args;
 
-		SyncProbe	probe;
+		SyncProbe	*probe;
 		while(!node->_shutdown){
 
 			Thread::Sleep(node->syncPeriod);
+			probe=new	SyncProbe();
 			switch(node->network){
 			case	PRIMARY:
 			case	BOTH:
-				node->dataChannels[node->referenceNID]->channels[PRIMARY].data->send(&probe);
+				node->dataChannels[node->referenceNID]->channels[PRIMARY].data->send(probe);
 				break;
 			case	SECONDARY:
-				node->dataChannels[node->referenceNID]->channels[SECONDARY].data->send(&probe);
+				node->dataChannels[node->referenceNID]->channels[SECONDARY].data->send(probe);
 				break;
 			}
 		}
