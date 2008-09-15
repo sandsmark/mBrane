@@ -41,8 +41,9 @@ class	UDPChannel:
 public	BroadcastCommChannel{
 private:
 	mBrane::socket	s;
+	sockaddr_in		bcast_address;
 public:
-	UDPChannel(mBrane::socket	s);
+	UDPChannel(mBrane::socket	s,uint32	port);
 	~UDPChannel();
 	int16	send(uint8	*b,size_t	s);
 	int16	recv(uint8	*b,size_t	s,bool	peek=false);

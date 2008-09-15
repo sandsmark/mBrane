@@ -190,7 +190,10 @@ uint16	UDPInterface::newChannel(uint8	*ID,CommChannel	**channel){
 		return	1;
 	}
 
-	*channel=new	UDPChannel(s);
+	BOOL	on=true;
+	setsockopt(s,SOL_SOCKET,SO_BROADCAST,(char	*)&on,sizeof(BOOL));
+
+	*channel=new	UDPChannel(s,port);
 
 	return	0;
 }

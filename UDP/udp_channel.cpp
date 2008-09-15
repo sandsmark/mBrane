@@ -34,7 +34,11 @@
 using	namespace	mBrane;
 using	namespace	mBrane::sdk;
 
-UDPChannel::UDPChannel(mBrane::socket	s):BroadcastCommChannel(),s(s){
+UDPChannel::UDPChannel(mBrane::socket	s,uint32	port):BroadcastCommChannel(),s(s){
+
+	bcast_address.sin_family=AF_INET;
+	bcast_address.sin_port=port;
+	bcast_address.sin_addr.s_addr=INADDR_BROADCAST;
 }
 
 UDPChannel::~UDPChannel(){
@@ -42,7 +46,7 @@ UDPChannel::~UDPChannel(){
 
 int16	UDPChannel::send(uint8	*b,size_t	s){
 
-	if(::sendto(this->s,(char	*)b,(int)s,0,NULL,0)==SOCKET_ERROR)
+	if(::sendto(this->s,(char	*)b,(int)s,0,(SOCKADDR	*)&bcast_address,sizeof(sockaddr_in))==SOCKET_ERROR)
 		return	1;
 
 	return	0;
