@@ -419,7 +419,12 @@ namespace	mBrane{
 
 	void	SignalHandler::Add(signal_handler	h){
 #if defined	WINDOWS
-		SetConsoleCtrlHandler(h,true);
+		if(SetConsoleCtrlHandler(h,true)==0){
+
+			int	e=GetLastError();
+			std::cout<<"Error: "<<e<<" failed to add signal handler\n";
+			return;
+		}
 #elif defined LINUX
 #elif defined OSX
 #endif

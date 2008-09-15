@@ -96,7 +96,6 @@ namespace	mBrane{
 			return	NULL;
 		}
 
-		uint16	hostID=((mBrane::Node	*)Node::Get())->getNID(_host);
 		_Module	*_m=NULL;
 		if(strcmp(_host,"local")==0)
 			_m=ModuleRegister::Get(CID)->buildModule();

@@ -192,29 +192,24 @@ namespace	mBrane{
 			return;
 		}
 
-		for(uint32	i=0;ModuleDescriptor::Main.count();i++)	//	resolve host names into NID
-			for(uint32	j=0;ModuleDescriptor::Main[i].count();j++){
-
-				uint16	NID=getNID(ModuleDescriptor::Main[i][j]->hostName);
-				if(NID==NoID){
-
-					std::cout<<"> Error: host "<<ModuleDescriptor::Main[i][j]->hostName<<" has not joined\n";
-					shutdown();
-					return;
-				}
-				ModuleDescriptor::Main[i][j]->hostID=NID;
-			}
-
-		for(uint32	i=0;ModuleDescriptor::Main.count();i++)	//	apply initial subscriptions
-			for(uint32	j=0;ModuleDescriptor::Main[i].count();j++)
-				ModuleDescriptor::Main[i][j]->applyInitialSubscriptions();
-
 		std::cout<<"> Running\n";
 	}
 
 	void	Node::start(uint16	assignedNID,NetworkID	*networkID,bool	isTimeReference){
 
 		Networking::start(assignedNID,networkID,isTimeReference);
+
+		for(uint32	i=0;i<ModuleDescriptor::Main.count();i++)	//	resolve host names into NID
+			for(uint32	j=0;j<ModuleDescriptor::Main[i].count();j++){
+
+				if(	strcmp(ModuleDescriptor::Main[i][j]->hostName,hostName)==0	||
+					strcmp(ModuleDescriptor::Main[i][j]->hostName,"local")==0){
+
+					ModuleDescriptor::Main[i][j]->hostID=assignedNID;
+					break;
+				}
+			}
+
 		Messaging::start();
 
 		if(network==PRIMARY	||	network==BOTH){
@@ -245,32 +240,56 @@ namespace	mBrane{
 
 	void	Node::notifyNodeJoined(uint16	NID,NetworkID	*networkID){
 
+		static	uint16	ToJoin=nodeCount;
+
+		if(!ToJoin	&&	nodeCount){	//	a node is joining after startup
+
+			//	TODO: update NodeEntries. See Node::notifyNodeLeft()
+		}else	if(ToJoin){	//	a node is joining during startup
+
+			for(uint16	i=0;i<nodeNames.count();i++)
+				if(strcmp(nodeNames[i],networkID->name())==0){
+
+					ToJoin--;
+					break;
+				}
+
+			for(uint32	i=0;i<ModuleDescriptor::Main.count();i++)	//	resolve host names into NID
+				for(uint32	j=0;j<ModuleDescriptor::Main[i].count();j++){
+
+					if(strcmp(ModuleDescriptor::Main[i][j]->hostName,networkID->name())==0){
+
+						ModuleDescriptor::Main[i][j]->hostID=NID;
+						break;
+					}
+				}
+
+			if(!ToJoin){	//	startup time initialization
+
+				for(uint32	i=0;i<ModuleDescriptor::Main.count();i++)	//	apply initial subscriptions
+					for(uint32	j=0;j<ModuleDescriptor::Main[i].count();j++)
+						ModuleDescriptor::Main[i][j]->applyInitialSubscriptions();
+
+				if(isTimeReference){
+
+					SystemReady	*m=new	SystemReady();
+					m->send_ts()=Time::Get();
+					Messaging::send(m,BOTH);
+				}
+			}
+		}else{	//	nodeCount==0
+
+			SystemReady	*m=new	SystemReady();
+			m->send_ts()=Time::Get();
+			Messaging::send(m,BOTH);
+		}
+
 		NodeJoined	*m=new	NodeJoined();
 		m->node_id=NID;
 		m->send_ts()=Time::Get();
 		Messaging::send(m,LOCAL);
 
-		std::cout<<"Node joined: "<<networkID->name()<<":"<<NID<<std::endl;
-
-		if(isTimeReference	&&	nodeCount){
-
-			for(uint16	i=0;i<nodeNames.count();i++){
-
-				if(strcmp(nodeNames[i],networkID->name())==0){
-
-					free((void	*)nodeNames[i]);
-					strcpy(nodeNames[i],"");
-					nodeCount--;
-					break;
-				}
-			}
-			if(!nodeCount){
-
-				SystemReady	m;
-				m.send_ts()=Time::Get();
-				Messaging::send(&m,BOTH);
-			}
-		}
+		std::cout<<"> Node joined: "<<networkID->name()<<":"<<NID<<std::endl;
 	}
 
 	void	Node::notifyNodeLeft(uint16	NID){
@@ -282,12 +301,14 @@ namespace	mBrane{
 			dataChannels[NID]->channels[SECONDARY].data	||	
 			dataChannels[NID]->channels[SECONDARY].stream){
 
+			//	TODO: update NodeEntries. Implies defining a policy for node ressucitation.
+
 			NodeLeft	*m=new	NodeLeft();
 			m->node_id=NID;
 			m->send_ts()=Time::Get();
 			Messaging::send(m,LOCAL);
 
-			std::cout<<"Node left: "<<dataChannels[NID]->networkID->name()<<":"<<NID<<std::endl;
+			std::cout<<"> Node left: "<<dataChannels[NID]->networkID->name()<<":"<<NID<<std::endl;
 		}
 	}
 

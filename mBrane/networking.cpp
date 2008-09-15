@@ -596,9 +596,9 @@ err2:	delete[]	networkID;
 	void	Networking::broadcastControlMessage(_Payload	*p,Network	network){
 
 		if(network==PRIMARY	||	network==BOTH)
-			_broadcastControlMessage(p,network);
+			_broadcastControlMessage(p,PRIMARY);
 		if(network==SECONDARY	||	network==BOTH)
-			_broadcastControlMessage(p,network);
+			_broadcastControlMessage(p,SECONDARY);
 	}
 
 	void	Networking::sendData(uint16	NID,_Payload	*p,Network	network){

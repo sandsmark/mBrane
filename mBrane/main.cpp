@@ -59,13 +59,8 @@ int	main(int	argc,char	**argv){
 	Thread::Sleep(atoi(argv[1]));
 
 	node=mBrane::Node::New(argv[2]);
-	if(node){
-
+	if(node)
 		node->run();
-		node->shutdown();
-		delete	node;
-	}
-
 /*
 	TimeProbe	probe;
 	Timer	_timer;
