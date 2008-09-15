@@ -114,6 +114,14 @@ namespace	mBrane{
 #endif
 	}
 
+	inline	void	Thread::Sleep(){
+#if defined	WINDOWS
+		::Sleep(INFINITE);
+#elif defined LINUX
+#elif defined OSX
+#endif
+	}
+
 	Thread::Thread(){
 	}
 

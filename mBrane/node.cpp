@@ -204,6 +204,8 @@ namespace	mBrane{
 		}
 
 		std::cout<<"> Running\n";
+
+		Thread::Sleep();
 	}
 
 	void	Node::start(uint16	assignedNID,NetworkID	*networkID,bool	isTimeReference){
