@@ -97,26 +97,25 @@ bool	UDPInterface::load(XMLNode	&n){
 	
 	uint32	size=sizeof(IP_ADAPTER_INFO);
     IP_ADAPTER_INFO	_adapters;
+	IP_ADAPTER_INFO	*adapters = NULL;
+	// Make an initial call to GetAdaptersInfo to get
+	// the necessary size into the ulOutBufLen variable
 	uint32	r=GetAdaptersInfo(&_adapters,&size);	//	initial call to get the actual size
-	if(r!=ERROR_SUCCESS){
-
+	if(r==ERROR_BUFFER_OVERFLOW){
+		// Now we know the size, allocate and call again
+		adapters=(IP_ADAPTER_INFO *) new uint8[size];
+		r=GetAdaptersInfo(adapters,&size);
+	}
+	if (r!=ERROR_SUCCESS) {
 		std::cout<<"> Error: could not get adapter info\n";
 		return	false;
 	}
-	IP_ADAPTER_INFO	*adapters=(IP_ADAPTER_INFO	*)new	uint8[size];
-	r=GetAdaptersInfo(adapters,&size);
-	if(r!=ERROR_SUCCESS){
 
-		std::cout<<"> Error: could not get adapter info\n";
-		return	false;
-	}
 	IP_ADAPTER_INFO	*a;
 	uint8	i;
 	bool	found=false;
 	for(i=0,a=adapters;a;a=a->Next){
-
 		if(strcmp(_nic,a->Description)==0){
-
 			address.s_addr=inet_addr(a->IpAddressList.IpAddress.String);
 			found=true;
 			break;
