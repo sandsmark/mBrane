@@ -16,7 +16,7 @@ MODULE_CLASS_BEGIN(Module0,Module<Module0>)
 	//	alternative: 1 method and a switch, ex:
 	//	template<class	P>	void	react(P	*p){
 	//		switch(p->cid(){
-	//		case	CLASS_ID(C1_FINAL):	... break;
+	//		case	CLASS_ID(FINAL_C1):	... break;
 	//		...
 	//		}
 	//	}
