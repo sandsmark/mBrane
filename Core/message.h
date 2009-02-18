@@ -122,16 +122,12 @@ namespace	mBrane{
 			protected:
 				uint16	_senderModuleCID;
 				uint16	_senderModuleID;
-				uint16	_senderClusterCID;
-				uint16	_senderClusterID;
 				_Message();
 			public:
 				virtual	~_Message();
 				operator	_Payload	*()	const;
 				uint16	&senderModule_cid();
 				uint16	&senderModule_id();
-				uint16	&senderCluster_cid();
-				uint16	&senderCluster_id();
 			};
 
 			template<class	U>	class	Message:

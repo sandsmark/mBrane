@@ -85,7 +85,7 @@ namespace	mBrane{
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	uint32	thread_function_call	XThread::Xec(void	*args){
+	uint32	thread_function_call	XThread::Xec(void	*args){	//	TODO: use the module's priority as the current priority of the thread.
 
 		XThread	*_this=((XThread	*)args);
 

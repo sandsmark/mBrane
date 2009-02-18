@@ -13,8 +13,8 @@
 	</Module>
 	<!--GENERAL REMARKS-->
 	<!--0	all nodes have the exact same application config file-->
-	<!--1	no circular references (in projections or in cluster instantiations defined in cluster classes-->
-	<!--2	inclusion of external definitions via path to the xml node; applies to cluster module instantiation, space instantiation-->
+	<!--1	no circular references (in projections)-->
+	<!--2	inclusion of external definitions via path to the xml node;-->
 	<!--	ex: <Module import="fileName.xml::mainNode.subNode.node"/>-->
 	<!--3	host: node name or "local"-->
 	<!--4	subscriptions are optional-->
@@ -22,6 +22,5 @@
 	<!--6   FUTURE DEVELOPMENT: define a simple scripting language to parametrize space/module instantiation-->
 	<!--    ex: names, class, subscriptions, projections, thresholds, activation levels-->
 	<!--    idea: space/module instantiation templates-->
-	<!--    THEN: introduce clusters-->
 	<!--7	if no projection is specified, projection on default space with activation level of 1 is assumed-->
 </ApplicationConfiguration>
