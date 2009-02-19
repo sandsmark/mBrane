@@ -43,6 +43,11 @@ namespace	mBrane{
 			class	Node;
 		}
 
+		//	Used for loading daemon and network interfaces classes.
+		//	Can be used for any other class provided in a sharedLibrary exhibiting a static Load function, e.g.
+		//	extern	"C"{
+		//	AnyClass	dll_export	*Load(XMLNode	&n,daemon::Node	*node);
+		//	}
 		template<class	C>	class	DynamicClassLoader{
 		private:
 			SharedLibrary	*library;

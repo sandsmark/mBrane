@@ -35,7 +35,7 @@
 #include	"xml_parser.h"
 #include	"dynamic_class_loader.h"
 
-//	Node API, as seen from the daemons
+
 namespace	mBrane{
 	class	RecvThread;
 	class	XThread;
@@ -46,6 +46,7 @@ namespace	mBrane{
 		namespace	daemon{
 
 			class	Daemon;
+			//	Node API, as seen from the daemons
 			class	dll	Node:
 			public	module::Node{
 			friend	class	RecvThread;

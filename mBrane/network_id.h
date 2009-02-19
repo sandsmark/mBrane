@@ -48,7 +48,9 @@ namespace	mBrane{
 		DISCOVERY=6
 	}InterfaceType;
 
-	class	NetworkID{	//	total size depends on network: headerSize+Size[PRIMARY]+Size[SECONDARY] or headerSize+Size[PRIMARY] or headerSize+Size[SECONDARY]
+	//	Identifier of a node connection.
+	//	The total size depends on the network: headerSize+Size[PRIMARY]+Size[SECONDARY] or headerSize+Size[PRIMARY] or headerSize+Size[SECONDARY]
+	class	NetworkID{
 	public:
 		static	uint16	DiscoveryIDSize;
 		static	uint16	Size;

@@ -42,31 +42,37 @@ namespace	mBrane{
 
 	class	RecvThread;
 	template<class	Engine>	class	Messaging;
+	//	Handles network initialization and connection.
+	//	Handles two isolated networks: primary (ex: core computation) and secondary (ex: I/O, signal processing)
+	//	Network IDs carry the primary, secondary or both identifications
+	//	When receiving a bcast id bearing two, connect to the primary only
+	//	When sending to a node, use the primary only if two are available
+	//	Receiving is agnostic
+	//
+	//	Reference nodes must be on the primary network
+	//
+	//	Node boot sequence:
+	//
+	//		1 boot one single node with a timeout (if it times out, it's the ref node)
+	//		2 when ready (callback), boot all the other nodes
+	//
+	//	Algorithm for node connection:
+	//
+	//		bcast its net ID on discovery channel
+	//		accept connections:
+	//			if timedout this is ref node, scan IDs on discovery channel
+	//			else
+	//				the ref node sends (on data channel if control channel is bcast, on control channel otherwise): its own net ID, an assigned NID and the net map (i.e. the list of ready nodes net ID)
+	//				connect to each node in the list excepted the sender
+	//		if(ref node) send time sync periodically on control channel
+	//		start messages sending and receiving threads
+	//
+	//	When at least one connection to a remote node dies, the node in question is considred dead and the other connections to it are terminated
+	//	if the ref node dies, the node with the lowest NID is the new ref node
 	class	Networking:
 	public	daemon::Node{
 	friend	class	RecvThread;
 	template<class	Engine>	friend	class	Messaging;
-		//	boot one single node with a timeout (if it times out, it's the ref node)
-		//	when ready (callback), boot all the other nodes
-		//	algorithm:
-		//		bcast its net ID on discovery channel
-		//		accept connections:
-		//			if timedout this is ref node, scan IDs on discovery channel
-		//			else
-		//				the ref node sends (on data channel if control channel is bcast, on control channel otherwise): its own net ID, an assigned NID and the net map (i.e. the list of ready nodes net ID)
-		//				connect to each node in the list excepted the sender
-		//		if(ref node) send time sync periodically on control channel
-		//		start messages sending and receiving threads
-		//	when at least one connection to a remote node dies, the node in question is considred dead and the other connections to it are terminated
-		//	if the ref node dies, the node with the lowest NID is the new ref node
-		//
-		//	handles two isolated networks: primary (ex: core computation) and secondary (ex: I/O, signal processing)
-		//	network IDs carry the primary, secondary or both identifications
-		//	when receiving a bcast id bearing two, connect to the primary only
-		//	when sending to a node, use the primary only if two are available
-		//	receiving is agnostic
-		//
-		//	reference nodes must be on the primary network
 	protected:
 		Host::host_name	hostName;
 		uint8			hostNameSize;

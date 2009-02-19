@@ -41,6 +41,8 @@ namespace	mBrane{
 		class	ModuleRegister;
 		template	class	dll	Array<ModuleRegister>;
 
+		//	Allows to retrieve module class data from module class IDs.
+		//	Allows to retrieve module class IDs from module class names.
 		class	dll	ModuleRegister{
 		template<class	Register>	friend	class	Array;
 		public:
@@ -48,6 +50,7 @@ namespace	mBrane{
 		private:
 			static	Array<ModuleRegister>	*Modules;
 			static	Array<ModuleRegister>	*Get();
+			//	Module class data
 			ModuleBuilder	_builder;
 			char			class_name[255];
 		public:

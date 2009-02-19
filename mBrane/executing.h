@@ -42,6 +42,7 @@ using	namespace	mBrane::sdk::module;
 namespace	mBrane{
 
 	class	Node;
+	//	Message processing thread class.
 	class	XThread:
 	public	Thread,
 	public	module::XThread{
@@ -65,7 +66,8 @@ namespace	mBrane{
 		Status	work(_Payload	*p,_Module	*c);
 	};
 
-	class	Executing{	//	thread pool
+	//	XThread pool.
+	class	Executing{
 	friend	class	XThread;
 	protected:
 		

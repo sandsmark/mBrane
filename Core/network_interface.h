@@ -47,7 +47,7 @@ namespace	mBrane{
 				UDP=0,
 				TCP=1,
 				RM=2,
-				IB=3
+				IB=3	//	MPI2
 			}Protocol;
 		protected:
 			Protocol	_protocol;
@@ -87,7 +87,6 @@ namespace	mBrane{
 			ConnectedCommChannel();
 		public:
 			virtual	~ConnectedCommChannel();
-			const	uint16	nid()	const;
 		};
 
 		class	dll	BroadcastCommChannel:

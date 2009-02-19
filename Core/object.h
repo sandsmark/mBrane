@@ -39,6 +39,7 @@
 namespace	mBrane{
 	namespace	sdk{
 
+		//	Root pointer class.
 		class	_Object;
 		class	dll	_P{
 		protected:
@@ -49,7 +50,11 @@ namespace	mBrane{
 			virtual	~_P();
 		};
 
-		template<class	C>	class	P:	//	smart pointer: no circular refs (use std c++ ptrs), no passing in functions (cast P<C> into C*), nor can it be a return value defined in a function (return C* instead)
+		//	Smart pointer (ref counting, deallocates when ref count<=0).
+		//	No circular refs (use std c++ ptrs).
+		//	No passing in functions (cast P<C> into C*).
+		//	Cannot be a value returned by a function (return C* instead).
+		template<class	C>	class	P:
 		public	_P{
 		public:
 			P();
@@ -74,6 +79,13 @@ namespace	mBrane{
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		class	ClassRegister;
+		//	Standard base class for all objects in mBrane.
+		//	M: memory allocator class.
+		//	S: base class.
+		//	U: derived class.
+		//	Usage:	template<class	C>	class	DaughterClass:public	Object<Memory,_Object,C>{ ... };
+		//			class _DaughterClass:public DaughterClass<_DaughterClass>{};
+		//			NB: Memory can be any Allocator class
 		template<class	M,class	S,class	U>	class	Object:
 		public	S{
 		friend	class	ClassRegister;
@@ -82,18 +94,15 @@ namespace	mBrane{
 		protected:
 			Object();
 		public:
-			static	const	size_t				Size();
-			static	const	size_t				CoreSize();
+			static	const	size_t				Size();	// Total size of instance data
+			static	const	size_t				CoreSize(); // Size of the non-variable instance data
 			void	*operator	new(size_t	s);
 			void	operator	delete(void	*o);
 		};
 
-		//	Usage:	template<class	C>	class	DaughterClass:public	Object<Memory,_Object,C>{ ... };
-		//			class _DaughterClass:public DaughterClass<_DaughterClass>{};
-		//			NB: Memory can be any Allocator class
-
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+		//	Root smart-pointable object class.
 		class	dll	_Object{
 		template<class	C>	friend	class	P;
 		friend	class	_P;
@@ -107,6 +116,7 @@ namespace	mBrane{
 			virtual	~_Object();
 		};
 
+		//	Template version of the well-known DP. Adapts C to _Object.
 		template<class	C>	class	_ObjectAdapter:
 		public	C,
 		public	_Object{
@@ -114,6 +124,7 @@ namespace	mBrane{
 			_ObjectAdapter();
 		};
 
+		//	Template version of the well-known DP. Adapts C to Object<M,_Object,U>.
 		template<class	C,class	M,class	U>	class	ObjectAdapter:
 		public	C,
 		public	Object<M,_Object,U>{

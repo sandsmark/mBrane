@@ -39,6 +39,11 @@
 namespace	mBrane{
 	namespace	sdk{
 
+		//	Memory allocator for Object-derived classes.
+		//	One instance of Memory handles the allocation for instances of a given (fixed) size. memory allocation is provided
+		//	in the form of a segment of a larger Block. Blocks are alloacted to a certain size (objectSize x objectCount), and
+		//	are linked together. Free segments in Blocks are linked together (starting with firstFree).
+		//	Memory holds statically as many instances of Memory as there is instance sizes to provide allocation for.
 		class	dll	Memory{
 		template<class	Register>	friend	class	Array;
 		private:

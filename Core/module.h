@@ -44,6 +44,7 @@ namespace	mBrane{
 	namespace	sdk{
 		namespace	module{
 
+			//	View on the message processing thread, from _Module.
 			class	XThread{
 			public:
 				virtual	void	block()=0;
@@ -53,8 +54,11 @@ namespace	mBrane{
 			class	Mutex;
 			class	CriticalSection;
 			class	Timer;
+			//	Root class for all modules.
+			//	The actual base class for user-defined modules is defined in application.h and respectively, in library.h for module library vendors
+			//	Migration sequence: migrateOut->dump->payload->send-/ /-receive->load->migrateIn; modules can then launch their own internal threads if any
 			class	dll	_Module:
-			public	_Object{	//	migration: migrateOut->dump->payload->send-/ /-receive->load->migrateIn; modules can launch their own internal threads
+			public	_Object{
 			friend	class	mBrane::Node;
 			friend	class	mBrane::XThread;
 			friend	class	mBrane::ModuleDescriptor;
@@ -69,7 +73,6 @@ namespace	mBrane{
 				uint16	_cid;
 				uint16	_id;
 				bool	_canMigrate;
-				bool	_canBeSwapped;
 				uint8	_priority;
 				bool	_ready;	//	set to false after stop and migrateOut, set to true after start and migrateIn
 				_Module();
@@ -85,8 +88,7 @@ namespace	mBrane{
 				virtual	~_Module();
 				uint8	&priority();
 				bool	canMigrate();	//	on another node; dynamic
-				bool	canBeSwapped();	//	on another thread within the same node; dynamic
-				bool	isReady();
+				bool	isReady();	//	if not, messages will be lost
 				virtual	uint32		dumpSize();	//	dynamic
 				virtual	_Payload	*dump();	//	dumps the current state; can be called anytime
 				virtual	void		load(_Payload	*chunk);	//	initializes itself from a previously saved state
@@ -96,7 +98,7 @@ namespace	mBrane{
 				virtual	void		migrateIn();	//	called when the module is loaded in a new thread after having migrated
 				virtual	void		notify(_Payload	*p)=0;	//	called when the module receives a message
 				virtual	void		notify(uint16	sid,_Payload	*p)=0;	//	called when the module receives data from a stream
-				virtual	Decision	dispatch(_Payload	*p)=0;	//	called when the module code is already processing and a new message comes in; default: WAIT
+				virtual	Decision	dispatch(_Payload	*p)=0;	//	called when the module code is already processed by an XThread and a new message comes in
 			};
 		}
 	}

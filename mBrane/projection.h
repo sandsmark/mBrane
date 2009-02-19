@@ -38,6 +38,7 @@ using	namespace	mBrane::sdk;
 
 namespace	mBrane{
 
+	//	The following classes are possible values for instatntiating the C parameter of the template classes below.
 	class	Space;
 	class	ModuleDescriptor;
 

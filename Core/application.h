@@ -51,8 +51,7 @@ template<class	U>	class	Module:
 public	Object<Memory,module::_Module,Module<U> >{
 protected:
 	static	const	uint16	_CID;
-	Module(bool	canBeSwapped=true,bool	canMigrate=true):Object<Memory,module::_Module,Module<U> >(){
-		_canBeSwapped=canBeSwapped;
+	Module(bool	canMigrate=true):Object<Memory,module::_Module,Module<U> >(){
 		_canMigrate=_canMigrate;
 	}
 public:

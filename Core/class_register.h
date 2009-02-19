@@ -41,6 +41,8 @@ namespace	mBrane{
 
 		class	__Payload;
 		class	_RPayload;
+		//	Allows to retrieve class data from class IDs.
+		//	Allows to retrieve class IDs from class names.
 		class	dll	ClassRegister{
 		template<class	Register>	friend	class	Array;
 		public:
@@ -49,6 +51,7 @@ namespace	mBrane{
 		private:
 			static	Array<ClassRegister>	*Classes;
 			static	Array<ClassRegister>	*Get();
+			//	Class data
 			Allocator	_allocator;
 			size_t		_size;	//	transmission size
 			size_t		_coreSize;	//	transmission size for compressed payloads: size of the payload minus the size of the compressed data

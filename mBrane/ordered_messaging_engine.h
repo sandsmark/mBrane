@@ -44,6 +44,10 @@ using	namespace	mBrane::sdk;
 
 namespace	mBrane{
 
+	//	DEPRECATED. DO NOT USE.
+	//	ATTEMPT TO RESOLVE OUT OF ORDER MESSAGES.
+	//	STATUS: FAILED.
+	//	REASON: : REORGANIZING THE JOB PIPELINE IS WAY TOO EXPENSIVE.
 	class	OrderedMessagingEngine{
 	protected:
 		static	uint32	thread_function_call	FeedJobs(void	*args);

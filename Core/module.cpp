@@ -53,11 +53,6 @@ namespace	mBrane{
 				return	_canMigrate;
 			}
 
-			inline	bool	_Module::canBeSwapped(){
-
-				return	_canBeSwapped;
-			}
-
 			bool	_Module::isReady(){
 
 				return	_ready;

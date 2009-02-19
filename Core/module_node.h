@@ -33,12 +33,13 @@
 
 #include	"payload.h"
 
-//	Node API, as seen from the module
+
 namespace	mBrane{
 	namespace	sdk{
 		namespace	module{
 
 			class	_Module;
+			//	Node API, as seen from the module
 			class	dll	Node{
 			private:
 				static	Node	*Singleton;

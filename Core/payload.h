@@ -51,9 +51,11 @@ namespace	mBrane{
 			COMPRESSED=2
 		}AllocationScheme;
 
+		//	Utility class; common root for the Payload and RPayload.
 		class	dll	__Payload{
 		};
 
+		//	Base class for all payloads.
 		class	dll	_Payload:
 		public	_Object,
 		public	__Payload{
@@ -71,7 +73,7 @@ namespace	mBrane{
 			int64	_send_ts;
 			_Payload();
 		public:
-			static	const	size_t	Offset();
+			static	const	size_t	Offset();	//	to metadata from this
 			virtual	~_Payload();
 			uint16				cid()				const;
 			Category			category()			const;
@@ -88,6 +90,10 @@ namespace	mBrane{
 		};
 
 		class	_RPayload;
+		//	Standard base class for all payloads in mBrane and user code.
+		//	Usage:	template<class	C>	class	DaughterClass: public Payload<Memory,C>{ ... };
+		//			class _DaughterClass:public DaughterClass<_DaughterClass>{};
+		//			NB: Memory can be any Allocator class
 		template<class	M,class	U>	class	Payload:
 		public	Object<M,_Payload,U>{
 		private:
@@ -100,14 +106,14 @@ namespace	mBrane{
 			void	operator	delete(void	*o);
 			static	const	uint16				CID();
 			static	const	AllocationScheme	_AllocationScheme();
-			static	const	uint8				PtrCount();
-			static	P<_RPayload>				*Ptr(__Payload	*p,uint8	i);
+			static	const	uint8				PtrCount();	//	number of pointers to raw payloads
+			static	P<_RPayload>				*Ptr(__Payload	*p,uint8	i);	//	iterates the pointers to raw payloads
 		};
 
-		//	Usage:	template<class	C>	class	DaughterClass: public Payload<Memory,C>{ ... };
-		//			class _DaughterClass:public DaughterClass<_DaughterClass>{};
+		//	Template variant of the well-known DP. Adapts C to Payload<M,U>.
+		//	Usage:	class	Some3rdPartyClass{ ... };
+		//			class Some3rdPartyClassAdapted:public PayloadAdapter<Some3rdPartyClass,Memory,Some3rdPartyClassAdapted>{ ... };
 		//			NB: Memory can be any Allocator class
-
 		template<class	C,class	M,class	U>	class	PayloadAdapter:
 		public	C,
 		public	Payload<M,U>{
@@ -118,18 +124,15 @@ namespace	mBrane{
 		//	Convenience for writing Ptr(_RPayload	*p,uint8	i)
 #define	PTR(Class,Instance,Member)	(P<_RPayload>	*)(((uint8	*)Instance)+offsetof(Class,Member));
 
-		//	Usage:	class	Some3rdPartyClass{ ... };
-		//			class Some3rdPartyClassAdapted:public PayloadAdapter<Some3rdPartyClass,Memory,Some3rdPartyClassAdapted>{ ... };
-		//			NB: Memory can be any Allocator class
-
-		class	dll	_RPayload:	//	raw payload (i.e. without send/recv time stamps) to embed (P<>)in payloads
+		//	Raw payload, i.e. without send/recv time stamps; to embed (P<>) in payloads.
+		class	dll	_RPayload:
 		public	_Object,
 		public	__Payload{
 		protected:
 			uint32	_metaData;	//	offset points here; metadata: [cid(16)|reserved(14)|allocation scheme(2)]
 			_RPayload();
 		public:
-			static	const	size_t	Offset();
+			static	const	size_t	Offset();	//	to metadata from this
 			virtual	~_RPayload();
 			uint16				cid()				const;
 			AllocationScheme	allocationScheme()	const;
@@ -138,6 +141,7 @@ namespace	mBrane{
 			virtual	operator	payloads::_CompressedData	*()	const;
 		};
 
+		//	Standard raw payload (no transmission information) to embed in any payload.
 		template<class	M,class	U>	class	RPayload:
 		public	Object<M,_RPayload,U>{
 		private:
@@ -150,10 +154,11 @@ namespace	mBrane{
 			void	operator	delete(void	*o);
 			static	const	uint16				CID();
 			static	const	AllocationScheme	_AllocationScheme();
-			static	const	uint8				PtrCount();
-			static	P<_RPayload>				*Ptr(__Payload	*p,uint8	i);
+			static	const	uint8				PtrCount();	//	number of pointers to raw payloads
+			static	P<_RPayload>				*Ptr(__Payload	*p,uint8	i);	//	iterates the pointers to raw payloads
 		};
 
+		//	Template variant of the well-known DP. Adapts C to RPayload<M,U>.
 		template<class	C,class	M,class	U>	class	RPayloadAdapter:
 		public	C,
 		public	RPayload<M,U>{
