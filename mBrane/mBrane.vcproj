@@ -362,6 +362,14 @@
 			Name="ConfigFiles"
 			>
 			<File
+				RelativePath=".\cm_app.xml"
+				>
+			</File>
+			<File
+				RelativePath=".\cm_node.xml"
+				>
+			</File>
+			<File
 				RelativePath=".\test_application.xml"
 				>
 				<FileConfiguration
