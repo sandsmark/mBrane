@@ -77,7 +77,7 @@ namespace	mBrane{
 				}
 				if(!next)
 					next=new	Array<T,_S,M>();
-				return	next->operator	[](i);
+				return	next->operator	[](i-_S);
 			}
 
 			template<typename	T,uint32	_S,class	M>	void	Array<T,_S,M>::clear(){

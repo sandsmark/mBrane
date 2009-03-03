@@ -60,6 +60,10 @@ namespace	mBrane{
 				if(!!daemons){
 
 					uint32	daemonCount=daemons.nChildNode("Daemon");
+					daemonLoaders.alloc(daemonCount);
+					this->daemons.alloc(daemonCount);
+					daemonThreads.alloc(daemonCount);
+
 					for(uint32	i=0;i<daemonCount;i++){
 
 						XMLNode	n=daemons.getChildNode(i);

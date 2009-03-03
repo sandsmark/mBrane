@@ -45,17 +45,9 @@ namespace	mBrane{
 		//	are linked together. Free segments in Blocks are linked together (starting with firstFree).
 		//	Memory holds statically as many instances of Memory as there is instance sizes to provide allocation for.
 		class	dll	Memory{
-		template<class	Register>	friend	class	Array;
 		private:
-			class	MArray:
-			public	Array<Memory>{
-			public:
-				MArray();
-				~MArray();
-				Memory	*init(size_t	s);
-			};
-			static	MArray	*Memories;
-			static	MArray	*Get();
+			static	Array<Memory,128>	*Memories;
+			static	Array<Memory,128>	*Get();
 			class	Block{
 				const	uint16	objectCount;
 				const	size_t	objectSize;
@@ -82,13 +74,14 @@ namespace	mBrane{
 			Memory(size_t	objectSize);
 		public:
 			static	Memory	*Get(size_t	s);
-			static	void	Cleanup();
 			Memory();
 			~Memory();
 			void	*operator	new(size_t	s);
 			void	operator	delete(void	*b);
 			void	*alloc();
 			void	dealloc(void	*o);
+
+			static	void	Cleanup();
 		};
 	}
 }

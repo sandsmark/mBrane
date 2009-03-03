@@ -44,8 +44,8 @@ namespace	mBrane{
 			uint32	prev;
 		};
 
-		template<typename	T,bool	(*B)(T	&,T	&)=NULL>	class	List:
-		protected	Array<ListElement<T> >{
+		template<typename	T,uint16	Size,bool	(*B)(T	&,T	&)=NULL>	class	List:
+		protected	Array<ListElement<T>,Size>{
 		public:
 			class	Iterator{
 			friend	class	List;
@@ -58,14 +58,14 @@ namespace	mBrane{
 				Iterator(Iterator	&i):list(i.list),index(i.index){}
 				~Iterator(){}
 				Iterator	&operator	=(Iterator	&i){	list=i.list;	index=i.index;	return	*this;	}
-				Iterator	&operator	++(){	index=list->_array[index].next;	return	*this;	}
-				Iterator	&operator	--(){	index=list->_array[index].prev;	return	*this;	}
+				Iterator	&operator	++(){	index=list->block[index].next;	return	*this;	}
+				Iterator	&operator	--(){	index=list->block[index].prev;	return	*this;	}
 				bool	operator	==(Iterator	&i)	const{	return	index==i.index;	}
 				bool	operator	!=(Iterator	&i)	const{	return	index!=i.index;	}
 				bool	operator	!()	const{	return	index==NullIndex	||	list==NULL;	}
-				operator	T&()	const{	return	list->_array[index].data;	}
-				Iterator	insertAfter(T	&t)	const{	list->insertAfter(index,t);		return	Iterator(list,list->_array[index].next);	}
-				Iterator	insertBefore(T	&t)	const{	list->insertBefore(index,t);	return	Iterator(list,list->_array[index].prev);	}
+				operator	T&()	const{	return	list->block[index].data;	}
+				Iterator	insertAfter(T	&t)	const{	list->insertAfter(index,t);		return	Iterator(list,list->block[index].next);	}
+				Iterator	insertBefore(T	&t)	const{	list->insertBefore(index,t);	return	Iterator(list,list->block[index].prev);	}
 				void		remove(){	list->remove(index);	index=NullIndex;	}
 				void		removeJumpNext(){	index=list->removeReturnNext(index);	}
 				void		removeJumpPrevious(){	index=list->removeReturnPrevious(index);	}
@@ -85,9 +85,9 @@ namespace	mBrane{
 			Iterator	insertAfter(uint32	i,T	&t);	//	returns the index of the new element
 			Iterator	insertBefore(uint32	i,T	&t);
 		public:
-			List(uint32	count=0);
+			List();
 			~List();
-			void		alloc(uint32	count);
+			void		alloc();
 			uint32		elementCount()	const;
 			void		clear();
 			Iterator	addElementHead(T	&t);	//	returns the index of the new element

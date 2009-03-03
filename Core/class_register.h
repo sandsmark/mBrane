@@ -44,13 +44,12 @@ namespace	mBrane{
 		//	Allows to retrieve class data from class IDs.
 		//	Allows to retrieve class IDs from class names.
 		class	dll	ClassRegister{
-		template<class	Register>	friend	class	Array;
 		public:
 			typedef	void	*(*Allocator)();
 			typedef	P<_RPayload>	*(*Ptr)(__Payload	*,uint8);
 		private:
-			static	Array<ClassRegister>	*Classes;
-			static	Array<ClassRegister>	*Get();
+			static	Array<ClassRegister,128>	*Classes;
+			static	Array<ClassRegister,128>	*Get();
 			//	Class data
 			Allocator	_allocator;
 			size_t		_size;	//	transmission size
@@ -61,7 +60,6 @@ namespace	mBrane{
 			char		class_name[255];
 		public:
 			static	const	uint16	NoClass;	//	max: 0xFFFE classes
-			static	void	Cleanup();
 			template<class	C,class	M>	static	uint32	Load();	//	returns class meta data (Cf payload.h)
 			static	const	uint16	Load(const	char	*className);
 			static	ClassRegister	*Get(uint16	CID);
@@ -75,6 +73,8 @@ namespace	mBrane{
 			size_t			offset()		const;
 			uint8			ptrCount()		const;
 			P<_RPayload>	*ptr(__Payload	*,uint8	i);
+
+			static	void	Cleanup();
 		};
 	}
 }

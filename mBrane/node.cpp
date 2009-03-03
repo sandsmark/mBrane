@@ -36,9 +36,6 @@
 #include	<iostream>
 
 
-#define	INITIAL_NID_ARRAY_LENGTH	16
-#define	INITIAL_SID_ARRAY_LENGTH	16
-
 using	namespace	mBrane::sdk::payloads;
 
 namespace	mBrane{
@@ -91,7 +88,6 @@ namespace	mBrane{
 		else{
 
 			nodeCount=nodeList.nChildNode("Node");
-			nodeNames.alloc(nodeCount);
 			for(uint16	i=0;i<nodeCount;i++){
 
 				XMLNode	n=nodeList.getChildNode(i);
@@ -188,14 +184,6 @@ namespace	mBrane{
 	}
 
 	void	Node::run(){
-
-		NodeEntry::Main[DC].alloc(ClassRegister::Count());
-		for(uint32	i=0;i<NodeEntry::Main[DC].count();i++)
-			NodeEntry::Main[DC][i].alloc(INITIAL_NID_ARRAY_LENGTH);
-
-		NodeEntry::Main[ST].alloc(INITIAL_SID_ARRAY_LENGTH);
-		for(uint32	i=0;i<NodeEntry::Main[ST].count();i++)
-			NodeEntry::Main[ST][i].alloc(INITIAL_NID_ARRAY_LENGTH);
 
 		if(!Networking::init()){
 
@@ -462,10 +450,10 @@ namespace	mBrane{
 	void	Node::migrate(uint16	CID,uint16	ID,uint16	NID){	//	TODO
 	}
 
-	Array<uint8>	&Node::sharedMemorySegment(uint8	segment){
-
-		return	sharedMemorySegments[segment];
-	}
+//	Array<uint8>	&Node::sharedMemorySegment(uint8	segment){
+//
+//		return	sharedMemorySegments[segment];
+//	}
 
 	_Module	*Node::getModule(uint16	CID,uint16	ID){
 

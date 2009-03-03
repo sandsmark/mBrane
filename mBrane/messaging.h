@@ -85,8 +85,8 @@ namespace	mBrane{
 
 		Pipe<Job,JOB_QUEUE_BLOCK_SIZE>	jobs;
 
-		Array<RecvThread	*>	recvThreads;
-		Thread					*sendThread;
+		Array<RecvThread	*,32>	recvThreads;
+		Thread						*sendThread;
 		static	uint32	thread_function_call	SendMessages(void	*args);
 		Semaphore	*inputSync;	//	sync on the input message count
 				

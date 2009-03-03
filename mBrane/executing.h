@@ -71,7 +71,7 @@ namespace	mBrane{
 	friend	class	XThread;
 	protected:
 		
-		Array<Thread	*>	xThreads;
+		StaticArray<Thread	*>	xThreads;
 		uint16	threadCount;
 		Semaphore	*supportSync;
 		CriticalSection	jobCS;

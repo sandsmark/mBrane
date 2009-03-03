@@ -69,10 +69,10 @@ namespace	mBrane{
 		//	MESSAGING
 		void	startReceivingThreads(uint16	NID);
 		//	SHARED MEMORY
-		Array<Array<uint8> >	sharedMemorySegments;	//	FUTURE DEVELOPMENT
+		//	Array<Array<uint8>,65535>	sharedMemorySegments;	//	FUTURE DEVELOPMENT
 		//	NODE
 		uint16	nodeCount;
-		Array<Host::host_name>	nodeNames;
+		Array<Host::host_name,32>	nodeNames;
 		Node();
 		bool	loadApplication(const	char	*fileName);
 		void	unloadApplication();
@@ -96,7 +96,7 @@ namespace	mBrane{
 		void			dump(const	char	*fileName);
 		void			load(const	char	*fileName);
 		void			migrate(uint16	CID,uint16	ID,uint16	NID);
-		Array<uint8>	&sharedMemorySegment(uint8	segment);	//	FUTURE DEVELOPMENT
+		//Array<uint8,65535>	&sharedMemorySegment(uint8	segment);	//	FUTURE DEVELOPMENT
 		_Module			*getModule(uint16	CID,uint16	ID);
 	};
 }

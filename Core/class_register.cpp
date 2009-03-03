@@ -35,18 +35,13 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		Array<ClassRegister>	*ClassRegister::Classes=NULL;
+		Array<ClassRegister,128>	*ClassRegister::Classes=NULL;
 
-		Array<ClassRegister>	*ClassRegister::Get(){
+		Array<ClassRegister,128>	*ClassRegister::Get(){
 
 			if(!Classes)
-				Classes=new	Array<ClassRegister>();
+				Classes=new	Array<ClassRegister,128>();
 			return	Classes;
-		}
-
-		void	ClassRegister::Cleanup(){
-
-			delete	Classes;
 		}
 
 		const	uint16	ClassRegister::NoClass=0xFFFF;
@@ -110,6 +105,11 @@ namespace	mBrane{
 		inline	P<_RPayload>	*ClassRegister::ptr(__Payload	*p,uint8	i){
 
 			return	_ptr(p,i);
+		}
+
+		void	ClassRegister::Cleanup(){
+
+			delete	Classes;
 		}
 	}
 }

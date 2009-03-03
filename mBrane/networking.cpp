@@ -668,7 +668,8 @@ err2:	delete[]	networkID;
 
 	void	Networking::shutdown(){
 
-		Thread::Wait(commThreads.data(),commThreads.count());
+		for(uint32	i=0;i<commThreads.count();i++)
+			Thread::Wait(*commThreads.get(i));
 		stopInterfaces();
 	}
 

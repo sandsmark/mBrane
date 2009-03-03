@@ -47,12 +47,12 @@ namespace	mBrane{
 		float32	_activationThreshold;	//	in [0,1]
 	public:
 		static	Space					*Get(const	char	*name);
-		static	Array<P<Space> >		Main;	//	indexed by space ID; 0 is the root space
+		static	Array<P<Space>,16>		Main;	//	indexed by space ID; 0 is the root space
 		static	Space					*New(XMLNode	&n);
 		static	void					Init();
 		uint32	activationCount;
-		List<P<Projection<ModuleDescriptor> > >	moduleDescriptors;
-		List<P<Projection<Space> > >			spaces;
+		List<P<Projection<ModuleDescriptor> >,16>	moduleDescriptors;
+		List<P<Projection<Space> >,16>				spaces;
 		Space(const	char	*name=NULL);
 		~Space();
 		const	char	*getName();
@@ -60,8 +60,8 @@ namespace	mBrane{
 		float32	getActivationThreshold();
 		void	activate();
 		void	deactivate();		
-		List<P<Projection<ModuleDescriptor> > >::Iterator	project(Projection<ModuleDescriptor>	*p);
-		List<P<Projection<Space> > >::Iterator				project(Projection<Space>	*p);
+		List<P<Projection<ModuleDescriptor> >,16>::Iterator	project(Projection<ModuleDescriptor>	*p);
+		List<P<Projection<Space> >,16>::Iterator			project(Projection<Space>	*p);
 	};
 }
 

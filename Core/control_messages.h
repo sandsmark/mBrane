@@ -102,16 +102,16 @@ namespace	mBrane{
 				uint16	message_cid;
 			};
 
-			class	dll	SubscribeStream:
-			public	Subscribe<SubscribeStream>{
-			public:
-				uint16	stream_id;
-			};
-
 			class	dll	UnsubscribeMessage:
 			public	Subscribe<UnsubscribeMessage>{
 			public:
 				uint16	message_cid;
+			};
+
+			class	dll	SubscribeStream:
+			public	Subscribe<SubscribeStream>{
+			public:
+				uint16	stream_id;
 			};
 
 			class	dll	UnsubscribeStream:
@@ -158,12 +158,12 @@ namespace	mBrane{
 			#define	ActivateModule_CID		6
 			#define	ActivateSpace_CID		7
 			#define	SubscribeMessage_CID	8
-			#define	SubscribeStream_CID		9
-			#define	UnsubscribeMessage_CID	10
+			#define	UnsubscribeMessage_CID	9
+			#define	SubscribeStream_CID		10
 			#define	UnsubscribeStream_CID	11
 			#define	CreateModule_CID		12
-			#define	CreateSpace_CID			13
-			#define	DeleteModule_CID		14
+			#define	DeleteModule_CID		13
+			#define	CreateSpace_CID			14
 			#define	DeleteSpace_CID			15
 		}
 	}

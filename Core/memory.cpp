@@ -39,25 +39,6 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		Memory::MArray::MArray():Array<Memory>(){
-		}
-
-		Memory::MArray::~MArray(){
-		}
-
-		Memory	*Memory::MArray::init(size_t s){
-
-			for(uint32	i=0;i<_count;i++){
-
-				if(_array[i].objectSize==s)
-					return	_array+i;
-			}
-
-			return	new	Memory(s);
-		}
-
-		////////////////////////////////////////////////////////////////////////
-
 		inline	void	*Memory::Block::operator new(size_t	s,size_t	objectSize,uint16	objectCount){
 
 			return	malloc(s+objectCount*objectSize);
@@ -125,23 +106,26 @@ namespace	mBrane{
 
 		////////////////////////////////////////////////////////////////////////
 
-		Memory::MArray	*Memory::Memories=NULL;
+		Array<Memory,128>	*Memory::Memories=NULL;
 
-		Memory::MArray	*Memory::Get(){
+		Array<Memory,128>	*Memory::Get(){
 
 			if(!Memories)
-				Memories=new	Memory::MArray();
+				Memories=new	Array<Memory,128>();
 			return	Memories;
-		}
-
-		void	Memory::Cleanup(){
-
-			delete	Memories;
 		}
 
 		inline	Memory	*Memory::Get(size_t	s){
 
-			return	Get()->init(s);
+			Memory	*m;
+			for(uint32	i=0;i<Get()->count();i++){
+
+				m=&(*Memories)[i];
+				if(m->objectSize==s)
+					return	m;
+			}
+
+			return	new	Memory(s);
 		}
 
 		void	*Memory::operator	new(size_t	s){
@@ -210,6 +194,11 @@ namespace	mBrane{
 					return;
 				}
 			}
+		}
+
+		void	Memory::Cleanup(){
+
+			delete	Memories;
 		}
 	}
 }

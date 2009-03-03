@@ -37,19 +37,34 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		template<typename	T>	class	Array{
-		protected:
-			T		*_array;
+		template<typename	T>	class	StaticArray{
+		private:
 			uint32	_count;
+			T		*_array;
+			bool	_once;
 		public:
-			static	const	uint32	NullIndex;
-			Array(uint32	count=0);
-			~Array();
-			T	*alloc(uint32	count=1);
-			T	*get(uint32	i)	const;
+			StaticArray();
+			~StaticArray();
+			void	alloc(uint32	count);	//	to be called only once
 			uint32	count()	const;
-			T	&operator	[]	(uint32	i);
+			T	&operator	[]	(uint32	i);	//	unprotected, i.e. do not let i>=count()
 			T	*data()	const;
+		};
+
+		//	Dynamic array, i.e. a linked list of Array<T,Size>.
+		template<typename	T,uint16	Size>	class	Array{
+		protected:
+			uint32			local_count;	//	within the block, i.e. a range (does not mean that there is objects in the slots)
+			uint32			total_count;	//	sum of all total counts
+			Array<T,Size>	*next;
+			T				block[Size];	//	storage
+		public:
+			Array();
+			~Array();
+			T	*alloc();	//	allocates room for a new object; returns the allocated address
+			uint32	count()	const;	//	total_count
+			T	*get(uint32	i);	//	returns NULL if i>=total_count
+			T	&operator	[]	(uint32	i);	//	changes counts, i.e. makes sure that there's room. Doesn't mean any object has been assigned to the ith position
 		};
 	}
 }

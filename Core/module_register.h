@@ -38,18 +38,14 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		class	ModuleRegister;
-		template	class	dll	Array<ModuleRegister>;
-
 		//	Allows to retrieve module class data from module class IDs.
 		//	Allows to retrieve module class IDs from module class names.
 		class	dll	ModuleRegister{
-		template<class	Register>	friend	class	Array;
 		public:
 			typedef	module::_Module	*(*ModuleBuilder)();
 		private:
-			static	Array<ModuleRegister>	*Modules;
-			static	Array<ModuleRegister>	*Get();
+			static	Array<ModuleRegister,1024>	*Modules;
+			static	Array<ModuleRegister,1024>	*Get();
 			//	Module class data
 			ModuleBuilder	_builder;
 			char			class_name[255];
@@ -58,11 +54,12 @@ namespace	mBrane{
 			static	ModuleRegister	*Get(uint16	CID);
 			static	const	uint16	GetCID(const	char	*className);
 			static	uint16	Count();
-			static	void	Cleanup();
 			ModuleRegister();
 			~ModuleRegister();
 			module::_Module	*buildModule()	const;
 			const	char	*name()	const;
+
+			static	void	Cleanup();
 		};
 	}
 }

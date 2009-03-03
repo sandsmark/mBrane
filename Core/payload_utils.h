@@ -56,7 +56,7 @@ namespace	mBrane{
 				static	P<_RPayload>	*Ptr(__Payload	*p,uint8	i);
 				size_t	dynamicSize()	const;
 				uint32	count()	const;
-				T	&operator	[](uint32	i);	//	allocs a new block if i>=_count
+				T	&operator	[](uint32	i);	//	propagates to next (building it if needed) if i>=_S
 				void	clear();
 			};
 

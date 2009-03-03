@@ -105,10 +105,10 @@ namespace	mBrane{
 			CommChannels	channels[2];	//	1 for each network
 			NetworkID		*networkID;
 		};
-		CommChannel					*discoveryChannel;	//	bcast
-		Array<CommChannel	*>		controlChannels[2];	//	for each network: 1 (bcast capable) or many (connected)
-		Array<DataCommChannel	*>	dataChannels;
-		CriticalSection				channelsCS;	//	protects controlChannels and dataChannels
+		CommChannel						*discoveryChannel;	//	bcast
+		Array<CommChannel	*,32>		controlChannels[2];	//	for each network: 1 (bcast capable) or many (connected)
+		Array<DataCommChannel	*,32>	dataChannels;
+		CriticalSection					channelsCS;	//	protects controlChannels and dataChannels
 
 		bool	isTimeReference;
 		uint16	referenceNID;
@@ -119,7 +119,7 @@ namespace	mBrane{
 		virtual	void	notifyNodeLeft(uint16	NID)=0;
 		virtual	void	shutdown();
 
-		Array<Thread	*>	commThreads;
+		Array<Thread	*,32>	commThreads;
 
 		static	uint32	thread_function_call	ScanIDs(void	*args);
 		typedef	struct{

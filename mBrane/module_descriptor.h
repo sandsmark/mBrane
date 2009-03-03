@@ -55,19 +55,19 @@ namespace	mBrane{
 
 	class	NodeEntry{
 	public:
-		static	Array<Array<NodeEntry> >	Main[2];	//	0: Data and Control: message class -> nodes -> modules, 1: Streams: stream id -> nodes -> modules
-		static	CriticalSection				CS[2];
+		static	Array<Array<NodeEntry,32>,128>	Main[2];	//	0: Data and Control: message class -> nodes -> modules, 1: Streams: stream id -> nodes -> modules
+		static	CriticalSection					CS[2];
 		NodeEntry();
 		~NodeEntry();
-		uint32					activationCount;
-		List<P<ModuleEntry> >	modules;
+		uint32						activationCount;
+		List<P<ModuleEntry>,1024>	modules;
 	};
 
 	template<>	class	Projection<ModuleDescriptor>:
 	public	_Projection<ModuleDescriptor,Projection<ModuleDescriptor> >{
 	public:
-		Array<typename	List<P<ModuleEntry> >::Iterator>	subscriptions[2];	//	0: indexed by message class ID (MCID), 1: indexed by stream ID (SID)
-		Projection(ModuleDescriptor	*projected,Space	*space);
+		Array<typename	List<P<ModuleEntry>,1024>::Iterator,128>	subscriptions[2];	//	0: indexed by message class ID (MCID), 1: indexed by stream ID (SID)
+		Projection(ModuleDescriptor	*projected,Space				*space);
 		~Projection();
 		void	activate();
 		void	deactivate();
@@ -85,11 +85,11 @@ namespace	mBrane{
 			uint16	MCID;
 			uint16	SID;
 		};
-		Array<Subscription>	initialSubscriptions;
+		Array<Subscription,128>	initialSubscriptions;
 		const	char	*name;
 	public:
 		uint16	CID;
-		static	Array<Array<P<ModuleDescriptor> > >	Main;	//	indexed by module descriptor class ID | ID
+		static	Array<Array<P<ModuleDescriptor>,128>,32>	Main;	//	indexed by module descriptor class ID | ID
 		static	ModuleDescriptor					*New(XMLNode	&n);
 		Host::host_name	hostName;	//	resolved in hostID at Node::run() time
 		uint16	hostID;	//	dynamically assigned; initially set to NoID, then resolved

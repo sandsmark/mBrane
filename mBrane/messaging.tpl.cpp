@@ -74,7 +74,8 @@ namespace	mBrane{
 	template<class	Engine>	void	Messaging<Engine>::shutdown(){
 
 		Thread::Wait(sendThread);
-		Thread::Wait((Thread	**)recvThreads.data(),recvThreads.count());
+		for(uint32	i=0;i<recvThreads.count();i++)
+			Thread::Wait(*recvThreads.get(i));
 		Thread::Wait(jobFeeder);
 		Engine::shutdown();
 	}
@@ -168,8 +169,8 @@ namespace	mBrane{
 		if(e.activationCount){
 
 			Job	j;
-			List<P<ModuleEntry> >			&modules=e.modules;
-			List<P<ModuleEntry> >::Iterator	i;
+			List<P<ModuleEntry>,1024>			&modules=e.modules;
+			List<P<ModuleEntry>,1024>::Iterator	i;
 			for(i=modules.begin();i!=modules.end();++i){
 
 				if(((P<ModuleEntry>)i)->module->module->isReady()	&&	((P<ModuleEntry>)i)->module->activationCount){

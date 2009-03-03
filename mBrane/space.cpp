@@ -31,11 +31,9 @@
 #include	"space.h"
 
 
-#define	INITIAL_LIST_SIZE	32
-
 namespace	mBrane{
 
-	Array<P<Space> >	Space::Main;
+	Array<P<Space>,16>	Space::Main;
 
 	Space	*Space::Get(const	char	*name){
 
@@ -112,9 +110,6 @@ error:	delete	s;
 			this->name=new	char[strlen(name)+1];
 			memcpy((void	*)this->name,name,strlen(name)+1);
 		}
-
-		moduleDescriptors.alloc(INITIAL_LIST_SIZE);
-		spaces.alloc(INITIAL_LIST_SIZE);
 	}
 
 	Space::~Space(){
@@ -129,10 +124,10 @@ error:	delete	s;
 
 	void	Space::setActivationThreshold(float32	thr){
 
-		List<P<Projection<ModuleDescriptor> > >::Iterator	p_module;
+		List<P<Projection<ModuleDescriptor> >,16>::Iterator	p_module;
 		for(p_module=moduleDescriptors.begin();p_module!=moduleDescriptors.end();++p_module)
 			((P<Projection<ModuleDescriptor> >)p_module)->updateActivationCount(thr);
-		List<P<Projection<Space> > >::Iterator	p_space;
+		List<P<Projection<Space> >,16>::Iterator	p_space;
 		for(p_space=spaces.begin();p_space!=spaces.end();++p_space)
 			((P<Projection<Space> >)p_space)->updateActivationCount(thr);
 		_activationThreshold=thr;
@@ -143,13 +138,13 @@ error:	delete	s;
 		return	_activationThreshold;
 	}
 
-	List<P<Projection<ModuleDescriptor> > >::Iterator	Space::project(Projection<ModuleDescriptor>	*p){
+	List<P<Projection<ModuleDescriptor> >,16>::Iterator	Space::project(Projection<ModuleDescriptor>	*p){
 
 		P<Projection<ModuleDescriptor> >	_p=p;
 		return	moduleDescriptors.addElementTail(_p);
 	}
 
-	List<P<Projection<Space> > >::Iterator	Space::project(Projection<Space>	*p){
+	List<P<Projection<Space> >,16>::Iterator	Space::project(Projection<Space>	*p){
 
 		P<Projection<Space> >	_p=p;
 		return	spaces.addElementTail(_p);
@@ -157,20 +152,20 @@ error:	delete	s;
 
 	inline	void	Space::activate(){
 
-		List<P<Projection<Space> > >::Iterator	i;
+		List<P<Projection<Space> >,16>::Iterator	i;
 		for(i=spaces.begin();i!=spaces.end();++i)
 			((P<Projection<Space> >)i)->activate();
-		List<P<Projection<ModuleDescriptor> > >::Iterator	j;
+		List<P<Projection<ModuleDescriptor> >,16>::Iterator	j;
 		for(j=moduleDescriptors.begin();j!=moduleDescriptors.end();++j)
 			((P<Projection<ModuleDescriptor> >)j)->activate();
 	}
 
 	inline	void	Space::deactivate(){
 
-		List<P<Projection<Space> > >::Iterator	i;
+		List<P<Projection<Space> >,16>::Iterator	i;
 		for(i=spaces.begin();i!=spaces.end();++i)
 			((P<Projection<Space> >)i)->deactivate();
-		List<P<Projection<ModuleDescriptor> > >::Iterator	j;
+		List<P<Projection<ModuleDescriptor> >,16>::Iterator	j;
 		for(j=moduleDescriptors.begin();j!=moduleDescriptors.end();++j)
 			((P<Projection<ModuleDescriptor> >)j)->deactivate();
 	}

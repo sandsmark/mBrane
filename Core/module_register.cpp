@@ -35,18 +35,13 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		Array<ModuleRegister>	*ModuleRegister::Modules=NULL;
+		Array<ModuleRegister,1024>	*ModuleRegister::Modules=NULL;
 
-		Array<ModuleRegister>	*ModuleRegister::Get(){
+		Array<ModuleRegister,1024>	*ModuleRegister::Get(){
 
 			if(!Modules)
-				Modules=new	Array<ModuleRegister>();
+				Modules=new	Array<ModuleRegister,1024>();
 			return	Modules;
-		}
-
-		void	ModuleRegister::Cleanup(){
-
-			delete	Modules;
 		}
 
 		inline	ModuleRegister	*ModuleRegister::Get(uint16	CID){
@@ -89,6 +84,11 @@ namespace	mBrane{
 		inline	const	char	*ModuleRegister::name()	const{
 
 			return	class_name;
+		}
+
+		void	ModuleRegister::Cleanup(){
+
+			delete	Modules;
 		}
 	}
 }

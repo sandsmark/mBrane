@@ -31,61 +31,97 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		template<typename	T>	const	uint32	Array<T>::NullIndex=0xFFFFFFFF;
-
-		template<typename	T>	Array<T>::Array(uint32	count):_array(NULL),_count(0){
-
-			if(count)
-				alloc(count);
+		template<typename	T>	StaticArray<T>::StaticArray():_count(0),_array(NULL),_once(false){
 		}
 
-		template<typename	T>	Array<T>::~Array(){
+		template<typename	T>	StaticArray<T>::~StaticArray(){
 
 			if(_array)
 				delete[]	_array;
 		}
 
-		template<typename	T>	T	*Array<T>::alloc(uint32	count){
+		template<typename	T>	inline	T	*StaticArray<T>::data()	const{
 
-			if(!count)
-				return	NULL;
-
-			if(_array){
-
-				T	*newArray=(T	*)malloc((_count+count)*sizeof(T));
-				memset(newArray+_count,0,count*sizeof(T));
-				memcpy(newArray,_array,_count*sizeof(T));
-				_count+=count;
-				_array=newArray;
-			}else{
-
-				_array=(T	*)malloc((_count=count)*sizeof(T));
-				memset(_array,0,_count*sizeof(T));
-			}
-			
-			return	_array+_count-1;
+			return	_array;
 		}
 
-		template<typename	T>	inline	T	*Array<T>::get(uint32	i)	const{
-
-			return	_array+i;
-		}
-
-		template<typename	T>	inline	uint32	Array<T>::count()	const{
+		template<typename	T>	inline	uint32	StaticArray<T>::count()	const{
 
 			return	_count;
 		}
 
-		template<typename	T>	inline	T	&Array<T>::operator	[]	(uint32	i){
+		template<typename	T>	void	StaticArray<T>::alloc(uint32	count){
 
-			if(i>=_count)
-				alloc(i-_count+1);
-			return	_array[i];
+			if(_once)
+				return;
+			_array=new	T[(_count=count)*sizeof(T)];
+			_once=true;
 		}
 
-		template<typename	T>	inline	T	*Array<T>::data()	const{
+		template<typename	T>	inline	T	&StaticArray<T>::operator	[]	(uint32	i){
 
-			return	_array;
+			return	_array[i];
+		}
+		
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		template<typename	T,uint16	Size>	Array<T,Size>::Array():next(NULL),local_count(0),total_count(0){
+		}
+
+		template<typename	T,uint16	Size>	Array<T,Size>::~Array(){
+
+			if(next)
+				delete	next;
+		}
+
+		template<typename	T,uint16	Size>	T	*Array<T,Size>::alloc(){
+
+			if(local_count==Size){
+
+				if(!next)
+					next=new	Array<T,Size>();
+				total_count++;
+				return	next->alloc();
+			}
+
+			local_count++;
+			total_count++;
+			return	block+local_count-1;
+		}
+
+		template<typename	T,uint16	Size>	inline	T	*Array<T,Size>::get(uint32	i){
+
+			if(i<Size)
+				return	block+i;
+			if(next)
+				return	next->get(i);
+			return	NULL;
+		}
+
+		template<typename	T,uint16	Size>	inline	uint32	Array<T,Size>::count()	const{
+
+			return	total_count;
+		}
+
+		template<typename	T,uint16	Size>	inline	T	&Array<T,Size>::operator	[]	(uint32	i){
+
+			if(i<Size){
+
+				int32	delta=i-local_count;
+				if(delta>=0){
+
+					local_count=i+1;
+					total_count+=delta+1;
+				}
+
+				return	block[i];
+			}
+			if(!next)
+				next=new	Array<T,Size>();
+			uint32	tc=next->total_count;
+			T	&r=next->operator	[](i-Size);
+			total_count+=next->total_count-tc;
+			return	r;
 		}
 	}
 }

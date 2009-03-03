@@ -40,8 +40,6 @@
 #define	DC	0	//	Data and Control
 #define	ST	1	//	Streams
 
-#define	INITIAL_LIST_SIZE	32
-
 namespace	mBrane{
 
 	ModuleEntry::ModuleEntry(NodeEntry	*n,ModuleDescriptor	*m):Object<Memory,_Object,ModuleEntry>(),node(n),module(m){
@@ -55,13 +53,11 @@ namespace	mBrane{
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	Array<Array<NodeEntry> >	NodeEntry::Main[2];
+	Array<Array<NodeEntry,32>,128>	NodeEntry::Main[2];
 
 	CriticalSection	NodeEntry::CS[2];
 
 	NodeEntry::NodeEntry(){
-
-		modules.alloc(INITIAL_LIST_SIZE);
 	}
 
 	NodeEntry::~NodeEntry(){
@@ -69,7 +65,7 @@ namespace	mBrane{
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	Array<Array<P<ModuleDescriptor> > >	ModuleDescriptor::Main;
+	Array<Array<P<ModuleDescriptor>,128>,32>	ModuleDescriptor::Main;
 
 	ModuleDescriptor	*ModuleDescriptor::New(XMLNode	&n){
 
@@ -83,7 +79,7 @@ namespace	mBrane{
 		uint16	CID=ModuleRegister::GetCID(_class);
 		if(CID==ClassRegister::NoClass){
 
-			std::cout<<"> Error: class: "<<_class<<" does not exists\n";
+			std::cout<<"> Error: class: "<<_class<<" does not exist\n";
 			return	NULL;
 		}
 
