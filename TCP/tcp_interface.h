@@ -34,6 +34,9 @@
 #include	"..\Core\xml_parser.h"
 #include	"..\Core\network_interface.h"
 
+#ifdef WIN32
+	#define EINPROGRESS WSAEWOULDBLOCK
+#endif
 
 using	namespace	mBrane;
 using	namespace	mBrane::sdk;
@@ -61,6 +64,8 @@ public:
 	void	fillID(uint8	*ID);
 	uint16	newChannel(uint8	*ID,CommChannel	**channel);
 	uint16	acceptConnection(ConnectedCommChannel	**channel,int32	timeout,bool	&timedout);
+	int32 TCPInterface::getLastOSErrorNumber();
+	bool waitForReadability(int32 timeout);
 };
 
 

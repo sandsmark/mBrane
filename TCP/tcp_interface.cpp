@@ -177,6 +177,20 @@ uint16	TCPInterface::start(){
 		return	1;
 	}
 
+	// Set non blocking mode
+	#if defined(WIN32)
+		unsigned long parm = 1;
+		// For Blocking:
+		// unsigned long parm = 0;
+		ioctlsocket(s, FIONBIO, &parm);
+	#else
+		long parm = fcntl(s, F_GETFL);
+		parm |= O_NONBLOCK;
+		// For Blocking:
+		// parm &= (!O_NONBLOCK);
+		fcntl(s, F_SETFL, parm);
+	#endif
+
 	return	0;
 }
 
@@ -229,15 +243,30 @@ uint16	TCPInterface::newChannel(uint8	*ID,CommChannel	**channel){	//	connect to 
 uint16	TCPInterface::acceptConnection(ConnectedCommChannel	**channel,int32	timeout,bool	&timedout){
 
 	if(listen(s,1)==SOCKET_ERROR){
-    
 		closesocket(s);
 		Shutdown();
 		return 1;
 	}
 
-	mBrane::socket	_s;
-	if((_s=accept(s,NULL,NULL))==INVALID_SOCKET){
+	mBrane::socket _s = accept(s,NULL,NULL);
+	if ((int) _s < 0) {
+		int wsaError = getLastOSErrorNumber();
+		if ((wsaError == WSAEWOULDBLOCK) || (wsaError == EINPROGRESS)) {
+			if (!waitForReadability(timeout)) {
+				timedout = true;
+				return 0;
+			}
+		}
+		else {
+			closesocket(s);
+			Shutdown();
+			return 1;
+		}
+	}
 
+	_s = accept(s,NULL,NULL);
+
+	if(_s == INVALID_SOCKET) {
 	    closesocket(s);
 		Shutdown();
 		return 1;
@@ -246,4 +275,45 @@ uint16	TCPInterface::acceptConnection(ConnectedCommChannel	**channel,int32	timeo
 	*channel=new	TCPChannel(_s);
       
 	return	0;
+}
+
+
+bool TCPInterface::waitForReadability(int32 timeout) {
+
+	int maxfd = 0;
+
+	struct timeval tv;
+	tv.tv_sec = 0;
+	tv.tv_usec = 0;
+
+	fd_set rdds;
+	// create a list of sockets to check for activity
+	FD_ZERO(&rdds);
+	// specify mySocket
+	FD_SET(s, &rdds);
+
+	#ifdef WIN32
+	#else
+		maxfd = s + 1;
+	#endif
+
+	if (timeout > 0) {
+		ldiv_t d = ldiv(timeout*1000, 1000000);
+		tv.tv_sec = d.quot;
+		tv.tv_usec = d.rem;
+	}
+
+	// Check for readability
+	int ret = select(maxfd, &rdds, NULL, NULL, &tv);
+	return(ret > 0);
+}
+
+int32 TCPInterface::getLastOSErrorNumber() {
+	#ifdef WIN32
+		int32 err = WSAGetLastError();
+		WSASetLastError(0);
+		return err;
+	#else
+		return (int32) errno;
+	#endif
 }

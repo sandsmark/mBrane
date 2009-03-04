@@ -41,6 +41,7 @@ namespace	mBrane{
 
 	template<class	Engine>	Messaging<Engine>::Messaging():Engine(),sendThread(NULL){
 
+		sendThread = NULL;
 		inputSync=new	Semaphore(0,65535);
 	}
 
@@ -48,12 +49,16 @@ namespace	mBrane{
 
 		for(uint32	i=0;i<recvThreads.count();i++){
 
-			if(recvThreads[i])
+			if(recvThreads[i]) {
 				delete	recvThreads[i];
+				recvThreads[i] = NULL;
+			}
 		}
 		if(sendThread)
 			delete	sendThread;
+		sendThread = NULL;
 		delete	inputSync;
+		inputSync = NULL;
 	}
 
 	template<class	Engine>	inline	void	Messaging<Engine>::send(_Payload	*message,module::Node::Network	network){
