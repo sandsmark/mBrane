@@ -123,5 +123,74 @@ namespace	mBrane{
 			total_count+=next->total_count-tc;
 			return	r;
 		}
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		template<typename	T,uint16	Size>	AArray<T,Size>::AArray():next(NULL),local_count(0),total_count(0){
+
+			memset(block,NULL,Size*sizeof(T	*));
+
+		}
+
+		template<typename	T,uint16	Size>	AArray<T,Size>::~AArray(){
+
+			if(next)
+				delete	next;
+			for(uint32	i=0;i<Size;i++)
+				if(block[i])
+					delete	block[i];
+		}
+
+		template<typename	T,uint16	Size>	T	**AArray<T,Size>::alloc(){
+
+			if(local_count==Size){
+
+				if(!next)
+					next=new	AArray<T,Size>();
+				total_count++;
+				return	next->alloc();
+			}
+
+			local_count++;
+			total_count++;
+			return	block+local_count-1;
+		}
+
+		template<typename	T,uint16	Size>	inline	T	**AArray<T,Size>::get(uint32	i){
+
+			if(i<Size)
+				return	block+i;
+			if(next)
+				return	next->get(i);
+			return	NULL;
+		}
+
+		template<typename	T,uint16	Size>	inline	uint32	AArray<T,Size>::count()	const{
+
+			return	total_count;
+		}
+
+		template<typename	T,uint16	Size>	inline	T	*&AArray<T,Size>::operator	[]	(uint32	i){
+
+			if(i<Size){
+
+				int32	delta=i-local_count;
+				if(delta>=0){
+
+					local_count=i+1;
+					total_count+=delta+1;
+				}
+
+				if(!block[i])
+					block[i]=new	T();
+				return	block[i];
+			}
+			if(!next)
+				next=new	AArray<T,Size>();
+			uint32	tc=next->total_count;
+			T	*&r=next->operator	[](i-Size);
+			total_count+=next->total_count-tc;
+			return	r;
+		}
 	}
 }

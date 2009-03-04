@@ -66,6 +66,25 @@ namespace	mBrane{
 			T	*get(uint32	i);	//	returns NULL if i>=total_count
 			T	&operator	[]	(uint32	i);	//	changes counts, i.e. makes sure that there's room. Doesn't mean any object has been assigned to the ith position
 		};
+
+		//	Version of Array<T,Size> holding pointers.
+		//	AArray instantiates pointed objects (calling T()) whenever needed upon calls to operator [].
+		//	AArray deletes pointed objects (calling ~T()) in the destructor.
+		//	To be used when one doesn't want to manage the allocation of objects.
+		template<typename	T,uint16	Size>	class	AArray{
+		protected:
+			uint32			local_count;	//	within the block, i.e. a range (does not mean that there is objects in the slots)
+			uint32			total_count;	//	sum of all total counts
+			AArray<T,Size>	*next;
+			T				*block[Size];	//	storage
+		public:
+			AArray();
+			~AArray();
+			T	**alloc();	//	allocates room for a new object; returns the allocated address
+			uint32	count()	const;	//	total_count
+			T	**get(uint32	i);	//	returns NULL if i>=total_count
+			T	*&operator	[]	(uint32	i);	//	changes counts, i.e. makes sure that there's room. Doesn't mean any object has been assigned to the ith position
+		};
 	}
 }
 

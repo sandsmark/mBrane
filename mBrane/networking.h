@@ -107,7 +107,7 @@ namespace	mBrane{
 		};
 		CommChannel						*discoveryChannel;	//	bcast
 		Array<CommChannel	*,32>		controlChannels[2];	//	for each network: 1 (bcast capable) or many (connected)
-		Array<DataCommChannel	*,32>	dataChannels;
+		AArray<DataCommChannel,32>		dataChannels;
 		CriticalSection					channelsCS;	//	protects controlChannels and dataChannels
 
 		bool	isTimeReference;
