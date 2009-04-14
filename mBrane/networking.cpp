@@ -790,6 +790,7 @@ err1:	node->shutdown();
 				node->dataChannels[node->referenceNID]->channels[SECONDARY].data->send(probe);
 				break;
 			}
+			delete	probe;
 		}
 		return	0;
 	}

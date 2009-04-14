@@ -59,6 +59,7 @@ namespace	mBrane{
 				echo=new	SyncEcho();
 				echo->time=Time::Get();
 				_this->channel->send(echo);
+				delete	echo;
 				break;
 			default:
 				_this->buffer.push(_p);
