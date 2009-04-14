@@ -631,7 +631,7 @@ err2:	delete[]	networkID;
 
 		channelsCS.enter();
 
-		notifyNodeLeft(entry);
+		notifyNodeLeft(entry);	//	TODO: currently, 2 nodes will be down. Handle things differently.
 
 		if(controlChannels[PRIMARY][entry])
 			delete	controlChannels[PRIMARY][entry];
