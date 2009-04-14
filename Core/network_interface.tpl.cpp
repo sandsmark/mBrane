@@ -49,7 +49,7 @@ namespace	mBrane{
 			for(uint8	i=0;i<ptrCount;i++){
 
 				p=CR->ptr(c,i);
-				if(!p)
+				if(!*p)
 					continue;
 				if(r=_send((_RPayload	*)*p))
 					return	r;
@@ -68,21 +68,30 @@ namespace	mBrane{
 			AllocationScheme	a=(*c)->allocationScheme();
 			if(a>=DYNAMIC){
 
-				if(r=recv((uint8	*)*c,CR->coreSize()))
+				if(r=recv((uint8	*)*c,CR->coreSize())){
+
+					delete	*c;
 					return	r;
-				if(r=recv(((uint8	*)*c)+CR->coreSize(),(*c)->operator	payloads::_DynamicData	*()->dynamicSize()))
+				}
+				if(r=recv(((uint8	*)*c)+CR->coreSize(),(*c)->operator	payloads::_DynamicData	*()->dynamicSize())){
+
+					delete	*c;
 					return	r;
+				}
 				if(a==COMPRESSED)
 					(*c)->operator	payloads::_CompressedData	*()->decompress();
-			}else	if(r=recv((uint8	*)*c,CR->size()))
+			}else	if(r=recv((uint8	*)*c,CR->size())){
+
+				delete	*c;
 				return	r;
+			}
 			uint8	ptrCount=CR->ptrCount();
 			P<_RPayload>	*p;
 			_RPayload		*ptr;
 			for(uint8	i=0;i<ptrCount;i++){
 
 				p=CR->ptr(*c,i);
-				if(!p)
+				if(!*p)
 					continue;
 				if(r=_recv(&ptr)){
 
