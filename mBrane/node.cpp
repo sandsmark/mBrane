@@ -247,7 +247,7 @@ namespace	mBrane{
 
 			SystemReady	*m=new	SystemReady();
 			m->send_ts()=Time::Get();
-			MESSAGING_CLASS::send(m,BOTH);
+			MESSAGING_CLASS::send(m,LOCAL);
 		}
 	}
 

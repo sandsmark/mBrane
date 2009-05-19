@@ -72,7 +72,7 @@ namespace	mBrane{
 
 	template<class	Engine>	void	Messaging<Engine>::start(){
 
-		sendThread=Thread::New<Thread>(SendMessages,this);
+		sendThread=Thread::New<Thread>(SendMessages,(Node*)this);
 		Engine::start();
 	}
 
