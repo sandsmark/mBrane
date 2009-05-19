@@ -198,6 +198,11 @@ namespace	mBrane{
 
 	void	Node::start(uint16	assignedNID,NetworkID	*networkID,bool	isTimeReference){
 
+		static	bool	once=false;
+		if(once)
+			return;
+		once=true;
+
 		Networking::start(assignedNID,networkID,isTimeReference);
 
 		for(uint32	i=0;i<ModuleDescriptor::Main.count();i++)	//	resolve host names into NID
@@ -237,6 +242,13 @@ namespace	mBrane{
 
 		if(bootCallback)
 			bootCallback();
+
+		if(!nodeCount){
+
+			SystemReady	*m=new	SystemReady();
+			m->send_ts()=Time::Get();
+			Messaging::send(m,BOTH);
+		}
 	}
 
 	void	Node::notifyNodeJoined(uint16	NID,NetworkID	*networkID){
