@@ -216,7 +216,7 @@ namespace	mBrane{
 				}
 			}
 
-		Messaging::start();
+		MESSAGING_CLASS::start();
 
 		if(network==PRIMARY	||	network==BOTH){
 
@@ -247,7 +247,7 @@ namespace	mBrane{
 
 			SystemReady	*m=new	SystemReady();
 			m->send_ts()=Time::Get();
-			Messaging::send(m,BOTH);
+			MESSAGING_CLASS::send(m,BOTH);
 		}
 	}
 
@@ -287,20 +287,20 @@ namespace	mBrane{
 
 					SystemReady	*m=new	SystemReady();
 					m->send_ts()=Time::Get();
-					Messaging::send(m,BOTH);
+					MESSAGING_CLASS::send(m,BOTH);
 				}
 			}
 		}else{	//	nodeCount==0
 
 			SystemReady	*m=new	SystemReady();
 			m->send_ts()=Time::Get();
-			Messaging::send(m,BOTH);
+			MESSAGING_CLASS::send(m,BOTH);
 		}
 
 		NodeJoined	*m=new	NodeJoined();
 		m->node_id=NID;
 		m->send_ts()=Time::Get();
-		Messaging::send(m,LOCAL);
+		MESSAGING_CLASS::send(m,LOCAL);
 
 		std::cout<<"> Node joined: "<<networkID->name()<<":"<<NID<<std::endl;
 	}
@@ -319,7 +319,7 @@ namespace	mBrane{
 			NodeLeft	*m=new	NodeLeft();
 			m->node_id=NID;
 			m->send_ts()=Time::Get();
-			Messaging::send(m,LOCAL);
+			MESSAGING_CLASS::send(m,LOCAL);
 
 			std::cout<<"> Node left: "<<dataChannels[NID]->networkID->name()<<":"<<NID<<std::endl;
 		}
@@ -382,7 +382,7 @@ namespace	mBrane{
 			return;
 		_shutdown=true;
 		std::cout<<"> Shutting down...\n";
-		Messaging::shutdown();
+		MESSAGING_CLASS::shutdown();
 		Executing::shutdown();
 		daemon::Node::shutdown();
 		Networking::shutdown();
@@ -405,7 +405,7 @@ namespace	mBrane{
 			_m->senderModule_cid()=sender->descriptor->CID;
 			_m->senderModule_id()=sender->descriptor->ID;
 		}
-		Messaging::send(message,network);
+		MESSAGING_CLASS::send(message,network);
 	}
 
 	void	Node::newSpace(const	_Module	*sender,Network	network){
@@ -413,7 +413,7 @@ namespace	mBrane{
 		CreateSpace	*cs=new	CreateSpace();
 		cs->sender_cid=sender->descriptor->CID;
 		cs->sender_id=sender->descriptor->ID;
-		Messaging::send(cs,network);
+		MESSAGING_CLASS::send(cs,network);
 	}
 
 	void	Node::newModule(const	_Module	*sender,uint16	CID,Network	network,const	char	*hostName){
@@ -424,7 +424,7 @@ namespace	mBrane{
 		if((cm->node_id=getNID(hostName))!=NoID){
 
 			cm->module_cid=CID;
-			Messaging::send(cm,network);
+			MESSAGING_CLASS::send(cm,network);
 		}
 	}
 
@@ -432,7 +432,7 @@ namespace	mBrane{
 
 		DeleteSpace	*ds=new	DeleteSpace();
 		ds->space_id=ID;
-		Messaging::send(ds,network);
+		MESSAGING_CLASS::send(ds,network);
 	}
 
 	void	Node::deleteModule(uint16	CID,uint16	ID,Network	network){
@@ -440,7 +440,7 @@ namespace	mBrane{
 		DeleteModule	*dm=new	DeleteModule();
 		dm->module_cid=CID;
 		dm->module_id=ID;
-		Messaging::send(dm,network);
+		MESSAGING_CLASS::send(dm,network);
 	}
 
 	const	char	*Node::getSpaceName(uint16	ID){
