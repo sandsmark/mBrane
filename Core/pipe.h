@@ -44,8 +44,7 @@ namespace	mBrane{
 			public:
 				T	buffer[_S*sizeof(T)];
 				Block	*next;
-				Block	*prev;
-				Block(Block	*next,Block	*prev):next(next),prev(prev){}
+				Block(Block	*next):next(next){}
 				~Block(){	if(next)	delete	next;	}
 			};
 			static	const	uint32	NullIndex;

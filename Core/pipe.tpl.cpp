@@ -39,7 +39,7 @@ namespace	mBrane{
 		template<typename	T,uint32	_S>	Pipe<T,_S>::Pipe():Semaphore(0,65535){
 
 			_clear();
-			first=last=new	Block(NULL,NULL);
+			first=last=new	Block(NULL);
 			spare=NULL;
 		}
 
@@ -58,22 +58,22 @@ namespace	mBrane{
 		template<typename	T,uint32	_S>	inline	void	Pipe<T,_S>::push(T	&t){
 	
 			if(tail==NullIndex)
-				tail=head=_S-1;
-			first->buffer[tail]=t;
-			if(--tail<0){
+				tail=head=0;
+			last->buffer[tail]=t;
+			if(++tail==_S){
 
 				if(spare){
 
-					spare->next=first;
-					first->prev=spare;
-					first=spare;
+					last->next=spare;
+					last=spare;
 					spare=NULL;
 				}else{
 
-					Block	*b=new	Block(NULL,first);
-					first->prev=b;
-					first=b;
+					Block	*b=new	Block(NULL);
+					last->next=b;
+					last=b;
 				}
+				tail=0;
 			}
 
 			Semaphore::release();
@@ -86,26 +86,24 @@ namespace	mBrane{
 			else	if(Semaphore::acquire(0))
 				return	NULL;
 
-			T	*t=last->buffer+head;
-			if(--head<0){
+			T	*t=first->buffer+head;
+			if(++head=_S){
 
-				if(last->prev){
+				if(first->next){
 
 					if(!spare){
 
-						spare=last;
-						spare->prev=NULL;
-						last=last->prev;
+						spare=first;
+						first=first->next;
 					}else{
 
-						Block	*b=last->prev;
-						delete	last;
-						last=b;
+						Block	*b=first->next;
+						delete	first;
+						first=b;
 					}
-					last->next=NULL;
-					head=_S-1;
+					head=0;
 				}else
-					head=tail=NullIndex;	//	stay in the same block; next push will reset head and tail to _S-1
+					head=tail=NullIndex;	//	stay in the same block; next push will reset head and tail to 0
 			}
 
 			return	t;
