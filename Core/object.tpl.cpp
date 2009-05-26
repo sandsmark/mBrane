@@ -79,8 +79,8 @@ namespace	mBrane{
 				return	*this;
 			if(object)
 				object->decRef();
-			object=c;
-			object->incRef();
+			if(object=c)
+				object->incRef();
 			return	*this;
 		}
 
