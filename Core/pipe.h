@@ -37,30 +37,71 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		template<typename	T,uint32	_S>	class	Pipe:	//	Thread safe
-		public	Semaphore{
+		//	Pipes are thread safe, depending on their control:
+		//	11: 1 writer, 1 reader
+		//	1N:	1 writer, N readers
+		//	N1: N writers, 1 reader
+		//	NN: N writers, N readers
+		template<typename	T,uint32	_S>	class	Pipe11:
+		public	Semaphore,
+		public	CriticalSection{
 		private:
 			class	Block{
 			public:
 				T	buffer[_S*sizeof(T)];
 				Block	*next;
-				Block(Block	*next):next(next){}
+				Block(Block	*prev):next(NULL){	if(prev)prev->next=this;	}
 				~Block(){	if(next)	delete	next;	}
 			};
-			static	const	uint32	NullIndex;
-			uint32	head;
-			uint32	tail;
+			int32	head;
+			int32	tail;
 			Block	*first;
 			Block	*last;
 			Block	*spare;
 		protected:
 			void	_clear();
+			T		*_pop();
 		public:
-			Pipe();
-			~Pipe();
+			Pipe11();
+			~Pipe11();
 			void	clear();
-			void	push(T	&t);	//	increases the total size if necessary
-			T		*pop(bool	blocking=true);	//	return NULL if empty (in non blocking mode)
+			void	push(T	&t);	//	increases the size if necessary
+			T		*pop();			//	decreases the size as necessary
+		};
+
+		template<typename	T,uint32	_S>	class	Pipe1N:
+		public	Pipe11<T,_S>{
+		private:
+			CriticalSection	popCS;
+		public:
+			Pipe1N();
+			~Pipe1N();
+			void	clear();
+			T		*pop();
+		};
+
+		template<typename	T,uint32	_S>	class	PipeN1:
+		public	Pipe11<T,_S>{
+		private:
+			CriticalSection	pushCS;
+		public:
+			PipeN1();
+			~PipeN1();
+			void	clear();
+			void	push(T	&t);
+		};
+
+		template<typename	T,uint32	_S>	class	PipeNN:
+		public	Pipe11<T,_S>{
+		private:
+			CriticalSection	pushCS;
+			CriticalSection	popCS;
+		public:
+			PipeNN();
+			~PipeNN();
+			void	clear();
+			void	push(T	&t);
+			T		*pop();
 		};
 	}
 }

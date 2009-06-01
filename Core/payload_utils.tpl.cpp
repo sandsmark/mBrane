@@ -46,6 +46,7 @@ namespace	mBrane{
 
 				if(i==0)
 					return	(P<_RPayload>	*)&(((Array<T,_S,M>	*)p)->next);
+				return	NULL;
 			}
 
 			template<typename	T,uint32	_S,class	M>	Array<T,_S,M>::Array():RPayload<M,Array<T,_S,M> >(),_DynamicData(),next(NULL),_count(0){
@@ -71,7 +72,6 @@ namespace	mBrane{
 					if(i>=_count){
 
 						_count=i;
-						dynamicSize=_count;
 					}
 					return	block[i];
 				}
@@ -82,7 +82,7 @@ namespace	mBrane{
 
 			template<typename	T,uint32	_S,class	M>	void	Array<T,_S,M>::clear(){
 
-				dynamicSize=_count=0;
+				_count=0;
 				if(next)
 					next->clear();
 				next=NULL;
@@ -94,53 +94,6 @@ namespace	mBrane{
 				if(!next)
 					return	next=new	Array<T,_S,M>();
 				return	next->add(offset);
-			}
-
-			////////////////////////////////////////////////////////////////////////////////////////////////
-
-			template<typename	T,uint32	_S,class	M>	Pipe<T,_S,M>::Pipe():RPayload<M,Pipe<T,_S,M> >(){
-
-				clear();
-			}
-
-			template<typename	T,uint32	_S,class	M>	Pipe<T,_S,M>::~Pipe(){
-			}
-
-			template<typename	T,uint32	_S,class	M>	uint32	Pipe<T,_S,M>::count()	const{
-
-				return	_count;
-			}
-
-			template<typename	T,uint32	_S,class	M>	T	*Pipe<T,_S,M>::push(){
-
-				if(!freeSlots)
-					return	NULL;
-
-				if(_count){
-
-					if(++tail>=_size)
-						tail=0;
-				}
-				freeSlots--;
-				_count++;
-				return	buffer+tail;
-			}
-			
-			template<typename	T,uint32	_S,class	M>	T	*Pipe<T,_S,M>::pop(){
-
-				T	*t=buffer+head;
-				if(++head>=_size)
-					head=0;
-				freeSlots++;
-				_count--;
-				return	t;
-			}
-
-			template<typename	T,uint32	_S,class	M>	void	Pipe<T,_S,M>::clear(){
-
-				head=tail=0;
-				_count=0;
-				freeSlots=_S;
 			}
 
 			////////////////////////////////////////////////////////////////////////////////////////////////

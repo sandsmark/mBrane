@@ -74,21 +74,6 @@ namespace	mBrane{
 				delete	next;
 		}
 
-		template<typename	T,uint16	Size>	T	*Array<T,Size>::alloc(){
-
-			if(local_count==Size){
-
-				if(!next)
-					next=new	Array<T,Size>();
-				total_count++;
-				return	next->alloc();
-			}
-
-			local_count++;
-			total_count++;
-			return	block+local_count-1;
-		}
-
 		template<typename	T,uint16	Size>	inline	T	*Array<T,Size>::get(uint32	i){
 
 			if(i<Size)
@@ -139,21 +124,6 @@ namespace	mBrane{
 			for(uint32	i=0;i<Size;i++)
 				if(block[i])
 					delete	block[i];
-		}
-
-		template<typename	T,uint16	Size>	T	**AArray<T,Size>::alloc(){
-
-			if(local_count==Size){
-
-				if(!next)
-					next=new	AArray<T,Size>();
-				total_count++;
-				return	next->alloc();
-			}
-
-			local_count++;
-			total_count++;
-			return	block+local_count-1;
 		}
 
 		template<typename	T,uint16	Size>	inline	T	**AArray<T,Size>::get(uint32	i){

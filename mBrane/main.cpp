@@ -1,5 +1,5 @@
 #include	<iostream>
-
+#include	<conio.h>
 #include	"node.h"
 
 
@@ -50,17 +50,27 @@ int	main(int	argc,char	**argv){
 
 	mBrane::SignalHandler::Add((signal_handler)Handler);
 
-	if(argc!=3){
+	if(argc!=4){
 	
-		std::cout<<"usage: mBrane <boot delay in ms> <config file name>\n";
+		std::cout<<"usage: mBrane <boot delay in ms> <config file name> <OR-ed trace levels: (msb) application | network | execution (lsb)>\n";
 		return	0;
 	}
 
 	Thread::Sleep(atoi(argv[1]));
 
-	node=mBrane::Node::New(argv[2]);
-	if(node)
-		node->run();
+	node=mBrane::Node::New(argv[2],atoi(argv[3]));
+
+	// We could not initialise everything, bailing out
+	if (!node){
+
+		std::cout<<"Press a key to quit.\n";
+		std::cin.ignore(0,'\n');
+		getch();
+		return 1;
+	}
+
+	node->run();
+
 /*
 	TimeProbe	probe;
 	Timer	_timer;

@@ -36,8 +36,6 @@
 
 #include	"networking.h"
 #include	"messaging.h"
-#include	"unordered_messaging_engine.h"
-#include	"ordered_messaging_engine.h"
 #include	"executing.h"
 
 
@@ -45,20 +43,23 @@ using	namespace	mBrane::sdk;
 using	namespace	mBrane::sdk::module;
 using	namespace	mBrane::sdk::daemon;
 
-#if	defined	ORDERED_MESSAGING_ENGINE
-	#define	MESSAGING_CLASS	Messaging<OrderedMessagingEngine>
-#elif	defined	UNORDERED_MESSAGING_ENGINE
-	#define	MESSAGING_CLASS	Messaging<UnorderedMessagingEngine>
-#endif
 
 namespace	mBrane{
 
 	class	Node:
 	public	Networking,
-	public	MESSAGING_CLASS,
+	public	Messaging,
 	public	Executing{
-	template<class	Engine>	friend	class	Messaging;
+	friend	class	Messaging;
 	private:
+		class	NoStream:
+		public	std::ostream{
+		public:
+			NoStream():std::ostream(NULL){}
+			template<typename	T>	NoStream&	operator	<<(T	&t){
+				return	*this;
+			}
+		};
 		//	CONFIG
 		SharedLibrary	*userLibrary;
 		Node	*loadConfig(const	char	*configFileName);
@@ -73,23 +74,31 @@ namespace	mBrane{
 		//	NODE
 		uint16	nodeCount;
 		Array<Host::host_name,32>	nodeNames;
-		Node();
+		Node(uint8	traceLevels);
 		bool	loadApplication(const	char	*fileName);
 		void	unloadApplication();
 	public:
 		uint16	getNID(const	char	*name);
 		//	main() NODE API
-		static	Node	*New(const	char	*configFileName);
+		static	Node	*New(const	char	*configFileName,uint8	traceLevels);
 		~Node();
 		void	run();
+		void	ready();
 		void	shutdown();
 		//	MODULE NODE API
 		void	send(const	_Module	*sender,_Payload	*message,module::Node::Network	network=module::Node::PRIMARY);
 		int64	time()	const;
 		void	newSpace(const	_Module	*sender,Network	network=PRIMARY);
-		void	newModule(const	_Module	*sender,uint16	CID,Network	network=PRIMARY,const	char	*hostName=NULL);
+		void	newModule(const	_Module	*sender,uint16	CID,Network	network=PRIMARY,const	char	*hostName="local");
 		void	deleteSpace(uint16	ID,Network	network=PRIMARY);
 		void	deleteModule(uint16	CID,uint16	ID,Network	network=PRIMARY);
+		void	activateModule(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,float32	activationLevel,Network	network=PRIMARY);
+		void	activateSpace(const	_Module	*sender,uint16	space_id,uint16	target_sid,float32	activationLevel,Network	network=PRIMARY);
+		void	setSpaceThreshold(const	_Module	*sender,uint16	space_id,float32	threshold,Network	network=PRIMARY);
+		void	subscribeMessage(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,uint16	message_cid,Network	network=PRIMARY);
+		void	unsubscribeMessage(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,uint16	message_cid,Network	network=PRIMARY);
+		void	subscribeStream(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,uint16	stream_id,Network	network=PRIMARY);
+		void	unsubscribeStream(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,uint16	stream_id,Network	network=PRIMARY);
 		const	char	*getSpaceName(uint16	ID);
 		const	char	*getModuleName(uint16	ID);
 		//	DAEMON NODE API

@@ -83,8 +83,8 @@ namespace	mBrane{
 			class	dll	ActivateSpace:
 			public	ControlMessage<ActivateSpace>{
 			public:
-				uint16	space_id;
-				uint16	target_sid;
+				uint16	space_id;	//	the space on which target space is projected onto
+				uint16	target_sid;	//	the space to set the activation for
 				float32	activationLevel;
 			};
 
@@ -149,6 +149,10 @@ namespace	mBrane{
 				uint16	space_id;
 			};
 
+			class	dll	KillModule:	//	internal message issued upon reception of DeleteModule
+			public	ControlMessage<KillModule>{
+			};
+
 			#define	SystemReady_CID			0
 			#define	SyncProbe_CID			1
 			#define	SyncEcho_CID			2
@@ -165,6 +169,7 @@ namespace	mBrane{
 			#define	DeleteModule_CID		13
 			#define	CreateSpace_CID			14
 			#define	DeleteSpace_CID			15
+			#define	KillModule_CID			18
 		}
 	}
 }

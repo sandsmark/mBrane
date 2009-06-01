@@ -67,15 +67,16 @@ namespace	mBrane{
 	public	Object<Memory,_Object,C>{
 	protected:
 		Array<typename	List<P<Projection<C> >,16>::Iterator,32>	projections;	//	indexed by space ID; to speed up space updating when deleting projections
-		void	activate();
-		void	deactivate();
 	public:
 		uint16	ID;
 		uint32	activationCount;
+		bool	reactivated;
 		Projectable(uint16	ID);
 		~Projectable();
 		void	project(uint16	spaceID);
 		void	unproject(uint16	spaceID);
+		void	activate();
+		void	deactivate();
 		void	setActivationLevel(uint16	spaceID,float32	a);	//	projects on space if necessary
 	};
 }

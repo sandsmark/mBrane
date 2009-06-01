@@ -38,9 +38,14 @@ namespace	mBrane{
 		namespace	module{
 
 			_Module::_Module():	_Object(),_priority(0),processor(NULL),_ready(false){
+				
+				sync=new	mBrane::Semaphore(1,1);
 			}
 
 			_Module::~_Module(){
+				
+				delete	sync;
+				Node::Get()->trace(Node::EXECUTION)<<"Module "<<_cid<<"|"<<_id<<" deleted\n";
 			}
 
 			inline	uint8	&_Module::priority(){
@@ -71,16 +76,6 @@ namespace	mBrane{
 			void	_Module::load(_Payload	*chunk){
 			}
 
-			void	_Module::start(){
-
-				_ready=true;
-			}
-
-			void	_Module::stop(){
-
-				_ready=false;
-			}
-
 			inline	void	_Module::migrateOut(){
 
 				_ready=false;
@@ -93,22 +88,16 @@ namespace	mBrane{
 
 			void	_Module::sleep(int64	d){
 
-				if(processor	&&	d)
-					processor->block();
 				Thread::Sleep(d);
 			}
 
 			void	_Module::wait(Thread	**threads,uint32	threadCount){
 
-				if(processor)
-					processor->block();
 				Thread::Wait(threads,threadCount);
 			}
 			
 			void	_Module::wait(Thread	*_thread){
 
-				if(processor)
-					processor->block();
 				Thread::Wait(_thread);
 			}
 		}

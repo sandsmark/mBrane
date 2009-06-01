@@ -55,7 +55,7 @@ namespace	mBrane{
 																			_next(NULL),
 																			freeObjects(objectCount){
 
-			begin=(uint8	*)(((uint8 *)this)+offsetof(Block,end)+sizeof(uint8	*));
+			begin=(uint8	*)(((uint8	**)&end)+1);
 			end=begin+totalSize;
 			firstFree=begin;
 			memset(begin,0xFF,totalSize);
@@ -130,13 +130,13 @@ namespace	mBrane{
 
 		void	*Memory::operator	new(size_t	s){
 
-			return	Memories->alloc();
+			return	&Memories->operator	[](Memories->count());
 		}
 
 		void	Memory::operator	delete(void	*b){
 		}
 
-		Memory::Memory():objectSize(0),firstBlock(NULL),lastBlock(NULL){
+		Memory::Memory():objectSize(0){
 		}
 
 		Memory::Memory(size_t	objectSize):objectSize(objectSize){
@@ -147,8 +147,7 @@ namespace	mBrane{
 
 		Memory::~Memory(){
 
-			if(firstBlock)
-				delete	firstBlock;
+			delete	firstBlock;
 		}
 
 		inline	void	*Memory::alloc(){
@@ -195,11 +194,6 @@ namespace	mBrane{
 					return;
 				}
 			}
-		}
-
-		void	Memory::Cleanup(){
-
-			//delete	Memories;
 		}
 	}
 }

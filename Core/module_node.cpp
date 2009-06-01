@@ -37,9 +37,16 @@ namespace	mBrane{
 
 			Node	*Node::Singleton=NULL;
 
+			std::ostream	*Node::Streams[3];
+
 			inline	Node	*Node::Get(){
 
 				return	Singleton;
+			}
+
+			inline	std::ostream&	Node::trace(TraceLevel	l){
+
+				return	(Streams[l]?*Streams[l]:std::cout);
 			}
 
 			Node::Node(uint16	ID):_ID(ID){

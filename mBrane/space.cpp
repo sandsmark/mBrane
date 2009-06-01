@@ -29,6 +29,7 @@
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include	"space.h"
+#include	"node.h"
 
 
 namespace	mBrane{
@@ -62,59 +63,77 @@ namespace	mBrane{
 		}
 
 		Space	*s=new	Space(name);
-		s->setActivationThreshold((float32)atof(_activationThreshold));
 		Space::Main[Space::Main.count()]=s;
 
 		uint16	projectionCount=n.nChildNode("Projection");
-		if(!projectionCount)
+		if(!projectionCount)	//	when no projection is defined, the space is projected on root at the highest activation level
 			s->setActivationLevel(0,1);
-		else	for(uint16	i=0;i<projectionCount;i++){
+		else{
+			
+			for(uint16	i=0;i<projectionCount;i++){
 
-			XMLNode	projection=n.getChildNode("Projection",i);
-			const	char	*spaceName=projection.getAttribute("space");	//	to be projected on
-			if(!spaceName){
+				XMLNode	projection=n.getChildNode("Projection",i);
+				const	char	*spaceName=projection.getAttribute("space");	//	to be projected on
+				if(!spaceName){
 
-				std::cout<<"> Error: Space: "<<name<<" ::Projection::name is Missing\n";
-				goto	error;
+					std::cout<<"> Error: Space: "<<name<<" ::Projection::name is Missing\n";
+					goto	error;
+				}
+				const	char	*_activationLevel=projection.getAttribute("activation_level");
+				if(!_activationLevel){
+
+					std::cout<<"> Error: Space: "<<name<<" ::Projection::activation_level is Missing\n";
+					goto	error;
+				}
+				Space	*_s=Space::Get(spaceName);
+				if(!_s){
+
+					std::cout<<"> Error: Space "<<spaceName<<" does not exist\n";
+					goto	error;
+				}
+				s->setActivationLevel(_s->ID,(float32)atof(_activationLevel));
 			}
-			const	char	*_activationLevel=projection.getAttribute("activation_level");
-			if(!_activationLevel){
-
-				std::cout<<"> Error: Space: "<<name<<" ::Projection::activation_level is Missing\n";
-				goto	error;
-			}
-			Space	*_s=Space::Get(spaceName);
-			if(!_s){
-
-				std::cout<<"> Error: Space "<<spaceName<<" does not exist\n";
-				goto	error;
-			}
-			s->setActivationLevel(_s->ID,(float32)atof(_activationLevel));
 		}
 
+		s->setActivationThreshold((float32)atof(_activationThreshold));
+
 		return	s;
-error:	delete	s;
+error:	Space::Main[s->ID]=NULL;
 		return	NULL;
 	}
 
 	void	Space::Init(){
 
-		for(uint16	i=0;i<Space::Main.count();i++)
-			Space::Main[i]->setActivationThreshold(Space::Main[i]->getActivationThreshold());
+		Space::Main[0]=new	Space("Root");	//	root space
+		Space::Main[0]->activationCount=1;	//	root is always active
+		Space::Main[0]->setActivationThreshold(1.0);	//	TODO: read initial threshold from config file
 	}
 
-	Space::Space(const	char	*name):Projectable<Space>((uint16)Space::Main.count()),activationCount(0){
+	uint16	Space::GetID(){
+
+		for(uint16	i=0;i<Main.count();i++)
+			if(Main[i]==NULL)
+				return	i;
+		return	Main.count();
+	}
+
+	Space::Space(const	char	*name):Projectable<Space>((uint16)Space::Main.count()){
 
 		if(name){
 
 			this->name=new	char[strlen(name)+1];
 			memcpy((void	*)this->name,name,strlen(name)+1);
 		}
+
+		Node::Get()->trace(Node::EXECUTION)<<"Space "<<ID<<" created\n";
 	}
 
 	Space::~Space(){
 
-		delete[]	name;
+		if(name)
+			delete[]	name;
+
+		Node::Get()->trace(Node::EXECUTION)<<"Space "<<ID<<" deleted\n";
 	}
 
 	const	char	*Space::getName(){
@@ -124,13 +143,10 @@ error:	delete	s;
 
 	void	Space::setActivationThreshold(float32	thr){
 
-		List<P<Projection<ModuleDescriptor> >,16>::Iterator	p_module;
-		for(p_module=moduleDescriptors.begin();p_module!=moduleDescriptors.end();++p_module)
-			((P<Projection<ModuleDescriptor> >)p_module)->updateActivationCount(thr);
-		List<P<Projection<Space> >,16>::Iterator	p_space;
-		for(p_space=spaces.begin();p_space!=spaces.end();++p_space)
-			((P<Projection<Space> >)p_space)->updateActivationCount(thr);
 		_activationThreshold=thr;
+		if(!activationCount)
+			return;
+		_activate();
 	}
 
 	float32	Space::getActivationThreshold(){
@@ -150,23 +166,28 @@ error:	delete	s;
 		return	spaces.addElementTail(_p);
 	}
 
-	inline	void	Space::activate(){
+	inline	void	Space::_activate(){	//	called whenever a check on the children is needed (setThreshold and setActivationLevel)
 
 		List<P<Projection<Space> >,16>::Iterator	i;
-		for(i=spaces.begin();i!=spaces.end();++i)
-			((P<Projection<Space> >)i)->activate();
+		for(i=spaces.begin();i;++i)
+			(*i)->updateActivationCount(_activationThreshold);
 		List<P<Projection<ModuleDescriptor> >,16>::Iterator	j;
-		for(j=moduleDescriptors.begin();j!=moduleDescriptors.end();++j)
-			((P<Projection<ModuleDescriptor> >)j)->activate();
+		for(j=moduleDescriptors.begin();j;++j)
+			(*j)->updateActivationCount(_activationThreshold);
 	}
 
-	inline	void	Space::deactivate(){
+	inline	void	Space::_deactivate(){
 
 		List<P<Projection<Space> >,16>::Iterator	i;
-		for(i=spaces.begin();i!=spaces.end();++i)
-			((P<Projection<Space> >)i)->deactivate();
+		for(i=spaces.begin();i;++i)
+			(*i)->deactivate();
 		List<P<Projection<ModuleDescriptor> >,16>::Iterator	j;
-		for(j=moduleDescriptors.begin();j!=moduleDescriptors.end();++j)
-			((P<Projection<ModuleDescriptor> >)j)->deactivate();
+		for(j=moduleDescriptors.begin();j;++j)
+			(*j)->deactivate();
+	}
+
+	inline	void	Space::trace(){
+
+		Node::Get()->trace(Node::EXECUTION)<<"Space "<<ID;
 	}
 }

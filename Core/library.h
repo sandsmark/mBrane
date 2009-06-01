@@ -32,6 +32,8 @@
 #define	_library_h_
 
 #include	"module_register.h"
+#include	"module_node.h"
+
 
 #define	MBRANE_MESSAGE_CLASSES	"mBrane_message_classes.h"
 
@@ -54,6 +56,16 @@ public:
 	static	const	uint16	CID(){	return	_CID;	}
 	static	module::_Module	*New(){	return	new	U();	}
 	virtual	~LibraryModule(){}
+	void	_start(){
+		_ready=true;
+		module::Node::Get()->trace(module::Node::EXECUTION)<<"Module "<<_cid<<"|"<<_id<<" started\n";
+		((U	*)this)->start();
+	}
+	void	_stop(){
+		((U	*)this)->stop();
+		_ready=false;
+		module::Node::Get()->trace(module::Node::EXECUTION)<<"Module "<<_cid<<"|"<<_id<<" stopped\n";
+	}
 	void	notify(_Payload	*p){
 		switch(p->cid()){
 		#define	MBRANE_MESSAGE_CLASS(C)	case	CLASS_ID(C):	((U	*)this)->react((C	*)p);	return;
@@ -98,7 +110,13 @@ public S{	\
 public:	\
 	static	const	char	*ClassName;	\
 	C():S(){}	\
-	~C(){}
+	~C(){}	\
+	Decision	decide(KillModule	*p){	\
+		return	WAIT;	\
+	}	\
+	void	react(KillModule	*p){	\
+		delete	this;	\
+	}
 
 #define	MODULE_CLASS_END(C)	\
 };	\

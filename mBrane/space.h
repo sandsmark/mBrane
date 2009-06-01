@@ -49,8 +49,8 @@ namespace	mBrane{
 		static	Space					*Get(const	char	*name);
 		static	Array<P<Space>,16>		Main;	//	indexed by space ID; 0 is the root space
 		static	Space					*New(XMLNode	&n);
-		static	void					Init();
-		uint32	activationCount;
+		static	void					Init(); // propagates activation from root
+		static	uint16					GetID();	//	returns the first available slot in Main
 		List<P<Projection<ModuleDescriptor> >,16>	moduleDescriptors;
 		List<P<Projection<Space> >,16>				spaces;
 		Space(const	char	*name=NULL);
@@ -58,10 +58,12 @@ namespace	mBrane{
 		const	char	*getName();
 		void	setActivationThreshold(float32	thr);
 		float32	getActivationThreshold();
-		void	activate();
-		void	deactivate();		
+		void	_activate();	//	update children activation; called upon changing the space threshold or the space activation level
+		void	_deactivate();	//	deactivate children
 		List<P<Projection<ModuleDescriptor> >,16>::Iterator	project(Projection<ModuleDescriptor>	*p);
 		List<P<Projection<Space> >,16>::Iterator			project(Projection<Space>	*p);
+
+		void	trace();
 	};
 }
 

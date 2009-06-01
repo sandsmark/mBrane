@@ -31,9 +31,42 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		template<typename	T,uint16	Size,bool	(*B)(T	&,T	&)>	const	uint32	List<T,Size,B>::NullIndex=0xFFFFFFFF;
+		template<typename	T,uint16	Size,bool	(*B)(T	&,T	&)>	List<T,Size,B>::_List::_List():Array<ListElement<T>,Size>(){
+		}
 
-		template<typename	T,uint16	Size,bool	(*B)(T	&,T	&)>	List<T,Size,B>::List():Array<ListElement<T>,Size>(){
+		template<typename	T,uint16	Size,bool	(*B)(T	&,T	&)>	List<T,Size,B>::_List::~_List(){
+		}
+
+		template<typename	T,uint16	Size,bool	(*B)(T	&,T	&)>	void	List<T,Size,B>::_List::clear(){
+
+			for(uint32	i=0;i<Size;i++){
+
+				if(i>0)
+					block[i].prev=block+i-1;
+				else
+					block[i].prev=NULL;
+				if(i<Size-1)
+					block[i].next=block+i+1;
+				else
+					block[i].next=NULL;
+			}
+
+			if(next)
+				delete	next;
+		}
+
+		template<typename	T,uint16	Size,bool	(*B)(T	&,T	&)>	ListElement<T>	*List<T,Size,B>::_List::expand(){
+
+			if(next)
+				return	((_List	*)next)->expand();
+			next=new	_List();
+			((_List	*)next)->clear();
+			return	next->get(0);
+		}
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		template<typename	T,uint16	Size,bool	(*B)(T	&,T	&)>	List<T,Size,B>::List(){
 
 			clear();
 		}
@@ -46,143 +79,106 @@ namespace	mBrane{
 			return	_elementCount;
 		}
 
-		template<typename	T,uint16	Size,bool	(*B)(T	&,T	&)>	inline	void	List<T,Size,B>::alloc(){
-
-			if(total_count>0)
-				return;
-			Array<ListElement<T>,Size>::alloc();
-			initFreeZone(0);
-		}
-
-		template<typename	T,uint16	Size,bool	(*B)(T	&,T	&)>	inline	void	List<T,Size,B>::initFreeZone(uint32	start){
-
-			if(total_count==0){
-
-				firstFree=0;
-				lastFree=0;
-			}else{
-
-				for(uint32	i=start;i<total_count;i++){
-
-					if(i>start)
-						get(i)->prev=i-1;
-					else
-						get(i)->prev=NullIndex;
-					if(i<total_count-1)
-						get(i)->next=i+1;
-					else
-						get(i)->next=NullIndex;
-				}
-				firstFree=start;
-				lastFree=total_count-1;
-			}
-		}
-
 		template<typename	T,uint16	Size,bool	(*B)(T	&,T	&)>	inline	void	List<T,Size,B>::clear(){
 
-			first=last=NullIndex;
+			first=last=NULL;
 			_elementCount=0;
-			initFreeZone(0);
+			data.clear();
+			firstFree=data.get(0);
+			lastFree=data.get(0)+Size-1;
 		}
 
-		template<typename	T,uint16	Size,bool	(*B)(T	&,T	&)>	inline	void	List<T,Size,B>::remove(uint32	i){
+		template<typename	T,uint16	Size,bool	(*B)(T	&,T	&)>	inline	ListElement<T>	*List<T,Size,B>::getFreeSlot(){
 
-			if(get(i)->prev!=NullIndex)
-				get(get(i)->prev)->next=get(i)->next;
-			if(get(i)->next!=NullIndex)
-				get(get(i)->next)->prev=get(i)->prev;
-			if(first==i)
-				first=get(i)->next;
-			if(last==i)
-				last=get(i)->prev;
-			get(lastFree)->next=i;
-			get(i)->prev=lastFree;
-			get(i)->next=NullIndex;
-			lastFree=i;
+			if(!firstFree)
+				firstFree=data.expand();
+
+			ListElement<T>	*freeSlot=firstFree;
+			firstFree=firstFree->next;
+			_elementCount++;
+
+			if(freeSlot->prev)
+				freeSlot->prev->next=freeSlot->next;
+			if(freeSlot->next)
+				freeSlot->next->prev=freeSlot->prev;
+
+			if(!first){
+
+				first=freeSlot;
+				last=freeSlot;
+			}
+			
+			return	freeSlot;
+		}
+
+		template<typename	T,uint16	Size,bool	(*B)(T	&,T	&)>	inline	void	List<T,Size,B>::remove(ListElement<T>	*o){
+
+			if(o->prev)
+				o->prev->next=o->next;
+			if(o->next)
+				o->next->prev=o->prev;
+			if(first==o)
+				first=o->next;
+			if(last==o)
+				last=o->prev;
+			lastFree->next=o;
+			o->prev=lastFree;
+			o->next=NULL;
+			lastFree=o;
 			_elementCount--;
 		}
 
 		template<typename	T,uint16	Size,bool	(*B)(T	&,T	&)>	inline	void	List<T,Size,B>::removeElement(T	*t){
 
-			ListElement<T>	*e=(ListElement<T>	*)t;
-			remove((e-get(0))/sizeof(ListElement<T>));
+			remove((ListElement<T>	*)t);
 		}
 
-		template<typename	T,uint16	Size,bool	(*B)(T	&,T	&)>	inline	uint32	List<T,Size,B>::removeReturnNext(uint32	i){
+		template<typename	T,uint16	Size,bool	(*B)(T	&,T	&)>	inline	uint32	List<T,Size,B>::removeReturnNext(ListElement<T>	*o){
 
-			remove(i);
-			return	get(i)->next;
+			remove(o);
+			return	o->next;
 		}
 
-		template<typename	T,uint16	Size,bool	(*B)(T	&,T	&)>	inline	uint32	List<T,Size,B>::removeReturnPrevious(uint32	i){
+		template<typename	T,uint16	Size,bool	(*B)(T	&,T	&)>	inline	uint32	List<T,Size,B>::removeReturnPrevious(ListElement<T>	*o){
 
-			remove(i);
-			return	get(i)->prev;
+			remove(o);
+			return	o->prev;
 		}
 
-		template<typename	T,uint16	Size,bool	(*B)(T	&,T	&)>	inline	typename	List<T,Size,B>::Iterator	List<T,Size,B>::insertAfter(uint32	i,T	&t){
+		template<typename	T,uint16	Size,bool	(*B)(T	&,T	&)>	inline	typename	List<T,Size,B>::Iterator	List<T,Size,B>::insertAfter(ListElement<T>	*o,T	&t){
 
-			uint32	target=getFreeSlot();
-			if(i!=NullIndex){
+			ListElement<T>	*target=getFreeSlot();
+			if(o){
 
-				get(target)->next=get(i)->next;
-				if(get(i)->next!=NullIndex)
-					get(get(i)->next)->prev=target;
-				get(i)->next=target;
-			}
-			get(target)->prev=i;
-			get(target)->data=t;
-			if(last==i)
+				target->next=o->next;
+				if(o->next)
+					o->next->prev=target;
+				o->next=target;
+			}else
+				target->next=NULL;
+			target->prev=o;
+			target->data=t;
+			if(last==o)
 				last=target;
-			if(first==i)
-				first=target;
 			return	Iterator(this,target);
 		}
 
-		template<typename	T,uint16	Size,bool	(*B)(T	&,T	&)>	inline	typename	List<T,Size,B>::Iterator	List<T,Size,B>::insertBefore(uint32	i,T	&t){
+		template<typename	T,uint16	Size,bool	(*B)(T	&,T	&)>	inline	typename	List<T,Size,B>::Iterator	List<T,Size,B>::insertBefore(ListElement<T>	*o,T	&t){
 
 			uint32	target=getFreeSlot();
-			if(i!=NullIndex){
+			if(o){
 
-				get(target)->prev=get(i)->prev;
-				if(get(i)->prev!=NullIndex)
-					get(get(i)->prev)->next=target;
-				get(i)->prev=target;
-			}
-			get(target)->next=i;
-			get(target)->data=t;
-			if(last==i)
-				last=target;
-			if(first==i)
+				target->prev=o->prev;
+				if(o->prev)
+					o->prev->next=target;
+				o->prev=target;
+			}else
+				target->prev=NULL;
+			target->next=o;
+			target->data=t;
+			if(first==o)
 				first=target;
 			return	Iterator(this,target);
-		}
-
-		template<typename	T,uint16	Size,bool	(*B)(T	&,T	&)>	inline	uint32	List<T,Size,B>::getFreeSlot(){
-
-			if(_elementCount==total_count){
-
-				uint32	oldCount=total_count;
-				alloc();
-				initFreeZone(oldCount);
-			}
-
-			uint32	freeSlot=firstFree;
-			firstFree=get(firstFree)->next;
-			_elementCount++;
-
-			if(first==NullIndex){
-
-				first=freeSlot;
-				last=freeSlot;
-			}
-
-			if(get(freeSlot)->prev!=NullIndex)
-				get(get(freeSlot)->prev)->next=get(freeSlot)->next;
-			if(get(freeSlot)->next!=NullIndex)
-				get(get(freeSlot)->next)->prev=get(freeSlot)->prev;
-			
-			return	freeSlot;
 		}
 
 		template<typename	T,uint16	Size,bool	(*B)(T	&,T	&)>	inline	typename	List<T,Size,B>::Iterator	List<T,Size,B>::addElementHead(T	&t){
@@ -200,27 +196,13 @@ namespace	mBrane{
 			if(!B)	//	optimization: calls for a partial specialization, i.e. template<typename	T>	List;
 				return	insertBefore(first,t);
 
-			for(uint32	i=first;i!=NullIndex;i=get(i)->next){
+			for(ListElement<T>	*o=first;o;o=o->next){
 
-				if(B(t,get(i)->data)){
-
-					return	insertBefore(i,t);
-				}
+				if(B(t,o->data))
+					return	insertBefore(o,t);
 			}
 
 			return	insertAfter(last,t);
-		}
-		
-		template<typename	T,uint16	Size,bool	(*B)(T	&,T	&)>	inline	void	List<T,Size,B>::removeElement(T	&t){
-
-			for(uint32	i=first;i!=NullIndex;i=get(i)->next){
-
-				if(get(i)->data==t){
-
-					remove(i);
-					return;
-				}
-			}
 		}
 	}
 }

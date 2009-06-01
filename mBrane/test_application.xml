@@ -1,4 +1,4 @@
-<ApplicationConfiguration user_library="C:\eric\work\mBrane\mBrane\Debug\TestModules.dll">
+<ApplicationConfiguration user_library="C:\Work\mBrane\mBrane\Debug\TestModules.dll">
 	<!--first, space definitions-->
 	<Space name="space0" activation_threshold="0.5"/><!--name is mandatory-->
 	<Space name="space1" activation_threshold="0.5">

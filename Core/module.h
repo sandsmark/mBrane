@@ -44,16 +44,6 @@ namespace	mBrane{
 	namespace	sdk{
 		namespace	module{
 
-			//	View on the message processing thread, from _Module.
-			class	XThread{
-			public:
-				virtual	void	block()=0;
-			};
-
-			class	Semaphore;
-			class	Mutex;
-			class	CriticalSection;
-			class	Timer;
 			//	Root class for all modules.
 			//	The actual base class for user-defined modules is defined in application.h and respectively, in library.h for module library vendors
 			//	Migration sequence: migrateOut->dump->payload->send-/ /-receive->load->migrateIn; modules can then launch their own internal threads if any
@@ -62,12 +52,9 @@ namespace	mBrane{
 			friend	class	mBrane::Node;
 			friend	class	mBrane::XThread;
 			friend	class	mBrane::ModuleDescriptor;
-			friend	class	Semaphore;
-			friend	class	Mutex;
-			friend	class	CriticalSection;
-			friend	class	Timer;
 			private:
 				XThread				*processor;
+				mBrane::Semaphore	*sync;
 				ModuleDescriptor	*descriptor;
 			protected:
 				uint16	_cid;
@@ -92,8 +79,8 @@ namespace	mBrane{
 				virtual	uint32		dumpSize();	//	dynamic
 				virtual	_Payload	*dump();	//	dumps the current state; can be called anytime
 				virtual	void		load(_Payload	*chunk);	//	initializes itself from a previously saved state
-				virtual	void		start();	//	called when the module is loaded in a thread for the first time, i.e. at node starting time
-				virtual	void		stop();	//	called just before the module is unloaded from the thread for the last time, i.e. at node shutdown time
+				virtual	void		_start()=0;	//	called when the module is loaded in a thread for the first time, i.e. at node starting time
+				virtual	void		_stop()=0;	//	called just before the module is unloaded from the thread for the last time, i.e. at node shutdown time
 				virtual	void		migrateOut();	//	called when the module is unloaded from its current thread for migration
 				virtual	void		migrateIn();	//	called when the module is loaded in a new thread after having migrated
 				virtual	void		notify(_Payload	*p)=0;	//	called when the module receives a message

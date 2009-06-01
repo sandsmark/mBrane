@@ -38,9 +38,8 @@
 
 namespace	mBrane{
 	class	RecvThread;
+	class	PushThread;
 	class	XThread;
-	class	OrderedMessagingEngine;
-	class	UnorderedMessagingEngine;
 	class	Executing;
 	namespace	sdk{
 		namespace	daemon{
@@ -50,9 +49,8 @@ namespace	mBrane{
 			class	dll	Node:
 			public	module::Node{
 			friend	class	RecvThread;
+			friend	class	PushThread;
 			friend	class	XThread;
-			friend	class	UnorderedMessagingEngine;
-			friend	class	OrderedMessagingEngine;
 			friend	class	Executing;
 			protected:
 				bool	_shutdown;

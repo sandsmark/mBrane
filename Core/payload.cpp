@@ -53,12 +53,12 @@ namespace	mBrane{
 
 		inline	_Payload::Category	_Payload::category()	const{
 
-			return	(_Payload::Category)((_metaData	&&	0x0000000C)>>2);
+			return	(_Payload::Category)((_metaData	&	0x0000000C)>>2);
 		}
 
 		inline	AllocationScheme	_Payload::allocationScheme()	const{
 
-			return	(AllocationScheme)(_metaData	&&	0x00000003);
+			return	(AllocationScheme)(_metaData	&	0x00000003);
 		}
 
 		inline	void	_Payload::init(){

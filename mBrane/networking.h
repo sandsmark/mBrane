@@ -41,7 +41,7 @@ using	namespace	mBrane::sdk::daemon;
 namespace	mBrane{
 
 	class	RecvThread;
-	template<class	Engine>	class	Messaging;
+	class	Messaging;
 	//	Handles network initialization and connection.
 	//	Handles two isolated networks: primary (ex: core computation) and secondary (ex: I/O, signal processing)
 	//	Network IDs carry the primary, secondary or both identifications
@@ -72,7 +72,7 @@ namespace	mBrane{
 	class	Networking:
 	public	daemon::Node{
 	friend	class	RecvThread;
-	template<class	Engine>	friend	class	Messaging;
+	friend	class	Messaging;
 	protected:
 		Host::host_name	hostName;
 		uint8			hostNameSize;

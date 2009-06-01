@@ -39,61 +39,67 @@ namespace	mBrane{
 
 		template<typename	T>	class	ListElement{
 		public:
-			T	data;
-			uint32	next;
-			uint32	prev;
+			T			data;
+			ListElement	*next;
+			ListElement	*prev;
 		};
 
-		template<typename	T,uint16	Size,bool	(*B)(T	&,T	&)=NULL>	class	List:
-		protected	Array<ListElement<T>,Size>{
+		template<typename	T,uint16	Size,bool	(*B)(T	&,T	&)=NULL>	class	List{
 		public:
 			class	Iterator{
 			friend	class	List;
 			private:
-				List	*list;
-				uint32	index;
-				Iterator(List	*l,uint32	index):list(l),index(index){}
+				List			*list;
+				ListElement<T>	*object;
+				Iterator(List	*l,ListElement<T>	*object):list(l),object(object){}
 			public:
-				Iterator():list(NULL),index(NullIndex){}
-				Iterator(Iterator	&i):list(i.list),index(i.index){}
+				Iterator():list(NULL),object(NULL){}
+				Iterator(Iterator	&i):list(i.list),object(i.object){}
 				~Iterator(){}
-				Iterator	&operator	=(Iterator	&i){	list=i.list;	index=i.index;	return	*this;	}
-				Iterator	&operator	++(){	index=list->block[index].next;	return	*this;	}
-				Iterator	&operator	--(){	index=list->block[index].prev;	return	*this;	}
-				bool	operator	==(Iterator	&i)	const{	return	index==i.index;	}
-				bool	operator	!=(Iterator	&i)	const{	return	index!=i.index;	}
-				bool	operator	!()	const{	return	index==NullIndex	||	list==NULL;	}
-				operator	T&()	const{	return	list->block[index].data;	}
-				Iterator	insertAfter(T	&t)	const{	list->insertAfter(index,t);		return	Iterator(list,list->block[index].next);	}
-				Iterator	insertBefore(T	&t)	const{	list->insertBefore(index,t);	return	Iterator(list,list->block[index].prev);	}
-				void		remove(){	list->remove(index);	index=NullIndex;	}
-				void		removeJumpNext(){	index=list->removeReturnNext(index);	}
-				void		removeJumpPrevious(){	index=list->removeReturnPrevious(index);	}
+				Iterator	&operator	=(Iterator	&i){	list=i.list;	object=i.object;	return	*this;	}
+				Iterator	&operator	++(){	object=object->next;	return	*this;	}
+				Iterator	&operator	--(){	object=object->prev;	return	*this;	}
+				bool	operator	==(const	Iterator	&i)	const{	return	object==i.object;	}
+				bool	operator	!=(const	Iterator	&i)	const{	return	object!=i.object;	}
+				operator	ListElement<T>	*(){	return	object;	}
+				T&		operator	*()	const{	return	object->data;	}
+				Iterator	insertAfter(T	&t)	const{	list->insertAfter(object,t);	return	Iterator(list,object->next);	}
+				Iterator	insertBefore(T	&t)	const{	list->insertBefore(object,t);	return	Iterator(list,object->prev);	}
+				void		remove(){	list->remove(object);	object=NULL;	}
+				void		removeJumpNext(){	object=list->removeReturnNext(object);	}
+				void		removeJumpPrevious(){	object=list->removeReturnPrevious(object);	}
 			};
 		protected:
-			static	const	uint32	NullIndex;
-			uint32	first;
-			uint32	last;
-			uint32	_elementCount;
-			uint32	firstFree;
-			uint32	lastFree;
-			void	initFreeZone(uint32	start);
-			uint32	getFreeSlot();
-			void		remove(uint32	i);
-			uint32		removeReturnNext(uint32	i);
-			uint32		removeReturnPrevious(uint32	i);
-			Iterator	insertAfter(uint32	i,T	&t);	//	returns the index of the new element
-			Iterator	insertBefore(uint32	i,T	&t);
+			class	_List:
+			public	Array<ListElement<T>,Size>{
+			public:
+				_List();
+				~_List();
+				void	clear();
+				ListElement<T>	*expand();
+			};
+
+			_List	data;
+
+			ListElement<T>	*first;
+			ListElement<T>	*last;
+			uint32			_elementCount;
+			ListElement<T>	*firstFree;
+			ListElement<T>	*lastFree;
+			ListElement<T>	*getFreeSlot();
+			void		remove(ListElement<T>	*o);
+			uint32		removeReturnNext(ListElement<T>	*o);
+			uint32		removeReturnPrevious(ListElement<T>	*o);
+			Iterator	insertAfter(ListElement<T>	*o,T	&t);	//	returns the index of the new element
+			Iterator	insertBefore(ListElement<T>	*o,T	&t);
 		public:
 			List();
 			~List();
-			void		alloc();
 			uint32		elementCount()	const;
 			void		clear();
 			Iterator	addElementHead(T	&t);	//	returns the index of the new element
 			Iterator	addElementTail(T	&t);
 			Iterator	addElement(T	&t);	//	inserts in order with respect to the B function (i.e. new element "before" current element)
-			void		removeElement(T	&t);
 			void		removeElement(T	*t);
 			Iterator	begin(){	return	Iterator(this,first);	}
 			Iterator	end(){	return	Iterator(this,last);	}

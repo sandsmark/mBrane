@@ -44,26 +44,16 @@ namespace	mBrane{
 	class	Node;
 	//	Message processing thread class.
 	class	XThread:
-	public	Thread,
-	public	module::XThread{
+	public	Thread{
 	public:
 		static	uint32	thread_function_call	Xec(void	*args);
-		Node	*node;
-		_Module	*module;
-		bool	wasBlocked;
-		bool	done;
+		Node		*node;
 		Semaphore	*sync;
-
-		typedef	enum{
-			DONE=0,
-			CONTINUE=1,
-			BLOCKED=2
-		}Status;
+		bool		wasSupporting;
 
 		XThread(Node	*n);
 		~XThread();
-		void	block();
-		Status	work(_Payload	*p,_Module	*c);
+		void	work(_Payload	*p,_Module	*c);
 	};
 
 	//	XThread pool.
@@ -74,7 +64,6 @@ namespace	mBrane{
 		StaticArray<Thread	*>	xThreads;
 		uint16	threadCount;
 		Semaphore	*supportSync;
-		CriticalSection	jobCS;
 
 		Executing();
 		~Executing();

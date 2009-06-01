@@ -60,9 +60,9 @@ namespace	mBrane{
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
 
-			template<class	U>	inline	Message<U>::Message():Payload<Memory,U>(),_Message(){
+			template<class	U>	Message<U>::Message():Payload<Memory,U>(),_Message(){
 
-				_metadata|=(DATA<<2);
+				_metaData|=(DATA<<2);
 			}
 
 			template<class	U>	inline	Message<U>::operator	_Message	*()	const{
@@ -74,7 +74,7 @@ namespace	mBrane{
 
 			template<class	U>	inline	StreamData<U>::StreamData(uint16	sid):Payload<Memory,U>(),_StreamData(sid){
 
-				_metadata|=(STREAM<<2);
+				_metaData|=(STREAM<<2);
 			}
 
 			template<class	U>	inline	StreamData<U>::operator	_StreamData	*()	const{

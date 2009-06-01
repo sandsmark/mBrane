@@ -1,4 +1,4 @@
-<NodeConfiguration application_configuration_file="C:\eric\work\mBrane\mBrane\test_application.xml">
+<NodeConfiguration application_configuration_file="C:\Work\mBrane\mBrane\test_application.xml">
 	<Network sync_period="10000" bcast_timeout="1000" boot_callback="NULL">
 		<!--sync_period:   in ms; period at which sync signals are broadcast from the reference node-->
 		<!--bcast_timeout: in ms; delay after which a node believes it is the reference node; if 0, the node will be the time reference-->
@@ -9,11 +9,12 @@
 			<RM	shared_library="mBrane_rm"/><!--Reliable Multicast-->
 			<IB shared_library="mBrane_mpi_o_ib"/><!--MPI over infiniband, Linux only-->
 		</Interfaces>
-		<Discovery interface="UDP" nic="Broadcom NetXtreme 57xx Gigabit Controller - Packet Scheduler Miniport" port="10000"/>
+    <Discovery interface="UDP" nic="Realtek RTL8168C(P)/8111C(P) Family PCI-E Gigabit Ethernet NIC (NDIS 6.0)" port="10000"/>
+" port="10000"/>
 		<Primary>
-			<Control interface="TCP" nic="Broadcom NetXtreme 57xx Gigabit Controller - Packet Scheduler Miniport" port="10001"/>
-			<Data interface="TCP" nic="Broadcom NetXtreme 57xx Gigabit Controller - Packet Scheduler Miniport" port="10002"/>
-			<Stream interface="TCP" nic="Broadcom NetXtreme 57xx Gigabit Controller - Packet Scheduler Miniport" port="10003"/>
+			<Control interface="TCP" nic="Realtek RTL8168C(P)/8111C(P) Family PCI-E Gigabit Ethernet NIC (NDIS 6.0)" port="10001"/>
+			<Data interface="TCP" nic="Realtek RTL8168C(P)/8111C(P) Family PCI-E Gigabit Ethernet NIC (NDIS 6.0)" port="10002"/>
+			<Stream interface="TCP" nic="Realtek RTL8168C(P)/8111C(P) Family PCI-E Gigabit Ethernet NIC (NDIS 6.0)" port="10003"/>
 		</Primary>
 		<Secondary>
 			<!--same form as primary's-->

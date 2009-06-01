@@ -42,12 +42,12 @@
 
 namespace	mBrane{
 
-	ModuleEntry::ModuleEntry(NodeEntry	*n,ModuleDescriptor	*m):Object<Memory,_Object,ModuleEntry>(),node(n),module(m){
+	ModuleEntry::ModuleEntry(NodeEntry	*n,ModuleDescriptor	*m):Object<Memory,_Object,ModuleEntry>(),node(n),descriptor(m){
 	}
 
 	ModuleEntry::~ModuleEntry(){
 
-		if(module->activationCount)
+		if(descriptor->activationCount)
 			node->activationCount--;
 	}
 
@@ -97,9 +97,10 @@ namespace	mBrane{
 			_m=ModuleRegister::Get(CID)->buildModule();
 
 		ModuleDescriptor	*m=new	ModuleDescriptor(_host,_m,CID,name);
+		ModuleDescriptor::Main[CID][(uint16)ModuleDescriptor::Main[CID].count()]=m;
 
 		uint16	projectionCount=n.nChildNode("Projection");
-		if(!projectionCount)
+		if(!projectionCount)	//	when no projection is defined, the module is projected on root at the highest activation level
 			m->setActivationLevel(0,1);
 		else{
 			
@@ -160,8 +161,27 @@ namespace	mBrane{
 		}
 
 		return	m;
-error:	delete	m;
+error:	ModuleDescriptor::Main[CID][m->ID]=NULL;
 		return	NULL;
+	}
+
+	void	ModuleDescriptor::Init(){
+
+		for(uint32	i=0;i<Main.count();i++)
+			for(uint32	j=0;j<Main[i].count();j++){
+
+				Main[i][j]->applyInitialSubscriptions();
+				if(Main[i][j]->module!=NULL)
+					Main[i][j]->module->_start();
+			}
+	}
+
+	uint16	ModuleDescriptor::GetID(uint16	CID){
+
+		for(uint16	i=0;i<Main[CID].count();i++)
+			if(Main[CID][i]==NULL)
+				return	i;
+		return	Main[CID].count();
 	}
 
 	ModuleDescriptor::ModuleDescriptor(const	char	*hostName,_Module	*m,uint16	CID,const	char	*name):Projectable<ModuleDescriptor>((uint16)ModuleDescriptor::Main[CID].count()),module(m),hostID(module::Node::NoID),CID(CID){
@@ -171,7 +191,6 @@ error:	delete	m;
 			module->descriptor=this;
 			module->_cid=CID;
 			module->_id=ID;
-			module->start();
 		}
 
 		strcpy(this->hostName,hostName);
@@ -183,29 +202,26 @@ error:	delete	m;
 		}
 	}
 
-	ModuleDescriptor::ModuleDescriptor(uint16	hostID,_Module	*m,uint16	CID):Projectable<ModuleDescriptor>((uint16)ModuleDescriptor::Main[CID].count()),module(m),hostID(hostID),CID(CID){
+	ModuleDescriptor::ModuleDescriptor(uint16	hostID,uint16	CID,uint16	ID):Projectable<ModuleDescriptor>(ID),module(NULL),hostID(hostID),CID(CID),name(NULL){
 
-		if(m){
+		if(hostID==Node::Get()->id()){
 
+			module=ModuleRegister::Get(CID)->buildModule();
 			module->descriptor=this;
 			module->_cid=CID;
 			module->_id=ID;
-			module->start();
+			Node::Get()->trace(Node::EXECUTION)<<"Module "<<CID<<"|"<<ID<<" created\n";
+			module->_start();
 		}
-
-		strcpy((char	*)name,"");
 	}
 
 	ModuleDescriptor::~ModuleDescriptor(){
 
-		if(ModuleDescriptor::Main[CID][ID]==NULL)
-			return;
 		if(module!=NULL)
-			module->stop();
-		ModuleDescriptor::Main[CID][ID]=NULL;
-		delete[]	name;
+			module->_stop();
+		if(name)
+			delete[]	name;
 	}
-
 
 	const	char	*ModuleDescriptor::getName(){
 
@@ -217,7 +233,8 @@ error:	delete	m;
 		if(!projections[spaceID])
 			project(spaceID);
 		P<ModuleEntry>	p=new	ModuleEntry(NodeEntry::Main[DC][MCID].get(hostID),this);
-		((P<Projection<ModuleDescriptor> >)projections[spaceID])->subscriptions[DC][MCID]=NodeEntry::Main[DC][MCID][hostID].modules.addElementTail(p);
+		(*projections[spaceID])->addSubscription(DC,MCID,NodeEntry::Main[DC][MCID][hostID].modules.addElementTail(p));
+		p=NULL;
 	}
 
 	void	ModuleDescriptor::addSubscription_stream(uint16	spaceID,uint16	SID){
@@ -225,37 +242,44 @@ error:	delete	m;
 		if(!projections[spaceID])
 			project(spaceID);
 		P<ModuleEntry>	p=new	ModuleEntry(NodeEntry::Main[ST][SID].get(hostID),this);
-		((P<Projection<ModuleDescriptor> >)projections[spaceID])->subscriptions[ST][SID]=NodeEntry::Main[ST][SID][hostID].modules.addElementTail(p);
+		(*projections[spaceID])->addSubscription(ST,SID,NodeEntry::Main[ST][SID][hostID].modules.addElementTail(p));
+		p=NULL;
 	}
 
 	void	ModuleDescriptor::removeSubscription_message(uint16	spaceID,uint16	MCID){
 
-		((P<ModuleEntry>)((P<Projection<ModuleDescriptor> >)projections[spaceID])->subscriptions[DC][MCID])=NULL;
-		((P<Projection<ModuleDescriptor> >)projections[spaceID])->subscriptions[DC][MCID].remove();
+		(*projections[spaceID])->removeSubscription(DC,MCID);
+		if(!(*projections[spaceID])->subscriptionCount[DC]	&&	!(*projections[spaceID])->subscriptionCount[ST])
+			unproject(spaceID);
 	}
 
 	void	ModuleDescriptor::removeSubscription_stream(uint16	spaceID,uint16	SID){
 
-		((P<ModuleEntry>)((P<Projection<ModuleDescriptor> >)projections[spaceID])->subscriptions[ST][SID])=NULL;
-		((P<Projection<ModuleDescriptor> >)projections[spaceID])->subscriptions[ST][SID].remove();
+		(*projections[spaceID])->removeSubscription(ST,SID);
+		if(!(*projections[spaceID])->subscriptionCount[DC]	&&	!(*projections[spaceID])->subscriptionCount[ST])
+			unproject(spaceID);
 	}
 
 	void	ModuleDescriptor::removeSubscriptions_message(uint16	spaceID){
 
 		for(uint16	i=0;i<NodeEntry::Main[DC].count();i++)
 			removeSubscription_message(spaceID,i);
+		if(!(*projections[spaceID])->subscriptionCount[ST])
+			unproject(spaceID);
 	}
 
 	void	ModuleDescriptor::removeSubscriptions_stream(uint16	spaceID){
 
 		for(uint16	i=0;i<NodeEntry::Main[ST].count();i++)
 			removeSubscription_stream(spaceID,i);
+		if(!(*projections[spaceID])->subscriptionCount[DC])
+			unproject(spaceID);
 	}
 
-	void	ModuleDescriptor::activate(){
+	void	ModuleDescriptor::_activate(){
 	}
 
-	void	ModuleDescriptor::deactivate(){
+	void	ModuleDescriptor::_deactivate(){
 	}
 
 	void	ModuleDescriptor::applyInitialSubscriptions(){
@@ -266,56 +290,124 @@ error:	delete	m;
 				addSubscription_stream(initialSubscriptions[i].spaceID,initialSubscriptions[i].SID);
 			else
 				addSubscription_message(initialSubscriptions[i].spaceID,initialSubscriptions[i].MCID);
-		}	
+		}
+	}
+
+	void	ModuleDescriptor::trace(){
+
+		Node::Get()->trace(Node::EXECUTION)<<"Module "<<CID<<"|"<<ID;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
 	Projection<ModuleDescriptor>::Projection(ModuleDescriptor	*projected,Space	*space):_Projection<ModuleDescriptor,Projection<ModuleDescriptor> >(projected,space){
+
+		subscriptionCount[0]=subscriptionCount[1]=0;
 	}
 
 	Projection<ModuleDescriptor>::~Projection(){
 
 		if(activationLevel>=space->getActivationThreshold())
 			deactivate();
-	}
-	
-	void	Projection<ModuleDescriptor>::activate(){
 
-		projected->activate();
-		for(uint32	i=0;i<subscriptions[DC].count();i++)
-			((P<ModuleEntry>)subscriptions[DC][i])->node->activationCount++;
-		for(uint32	i=0;i<subscriptions[ST].count();i++)
-			((P<ModuleEntry>)subscriptions[ST][i])->node->activationCount++;
-	}
+		for(uint32	i=0;i<subscriptions[DC].count();i++){
 
-	void	Projection<ModuleDescriptor>::deactivate(){
+			if(!subscriptions[DC][i])
+				continue;
+			(*subscriptions[DC][i])=NULL;
+			subscriptions[DC][i].remove();
+		}
+		for(uint32	i=0;i<subscriptions[ST].count();i++){
 
-		projected->deactivate();
-		for(uint32	i=0;i<subscriptions[DC].count();i++)
-			((P<ModuleEntry>)subscriptions[DC][i])->node->activationCount--;
-		for(uint32	i=0;i<subscriptions[ST].count();i++)
-			((P<ModuleEntry>)subscriptions[ST][i])->node->activationCount--;
+			if(!subscriptions[ST][i])
+				continue;
+			(*subscriptions[ST][i])=NULL;
+			subscriptions[ST][i].remove();
+		}
 	}
 
-	inline	void	Projection<ModuleDescriptor>::setActivationLevel(float32	a){
+	void	Projection<ModuleDescriptor>::setActivationLevel(float32	a){
+
+		if(!space->activationCount){
+
+			activationLevel=a;
+			return;
+		}
 
 		if(activationLevel<space->getActivationThreshold()){
 
-			if(a>=space->getActivationThreshold())
+			if((activationLevel=a)>=space->getActivationThreshold())
 				activate();
-		}else	if(a<space->getActivationThreshold())
+		}else	if((activationLevel=a)<space->getActivationThreshold())
 			deactivate();
-		activationLevel=a;
 	}
 
 	void	Projection<ModuleDescriptor>::updateActivationCount(float32	t){
 
-		if(activationLevel<space->getActivationThreshold()){
+		if(activationLevel<space->getActivationThreshold()	||	space->reactivated){
 
 			if(activationLevel>=t)
 				activate();
 		}else	if(activationLevel<t)
 			deactivate();
+	}
+
+	void	Projection<ModuleDescriptor>::activate(){
+
+		projected->activate();
+
+		for(uint32	i=0;i<subscriptions[DC].count();i++){
+
+			if(!subscriptions[DC][i])
+				continue;
+			(*subscriptions[DC][i])->node->activationCount++;
+		}
+		for(uint32	i=0;i<subscriptions[ST].count();i++){
+
+			if(!subscriptions[ST][i])
+				continue;
+			(*subscriptions[ST][i])->node->activationCount++;
+		}
+	}
+
+	void	Projection<ModuleDescriptor>::deactivate(){
+
+		projected->deactivate();
+
+		for(uint32	i=0;i<subscriptions[DC].count();i++){
+
+			if(!subscriptions[DC][i])
+				continue;
+			(*subscriptions[DC][i])->node->activationCount--;
+		}
+		for(uint32	i=0;i<subscriptions[ST].count();i++){
+
+			if(!subscriptions[ST][i])
+				continue;
+			(*subscriptions[ST][i])->node->activationCount--;
+		}
+	}
+
+	void	Projection<ModuleDescriptor>::addSubscription(uint8	payloadType,uint16	ID,List<P<ModuleEntry>,1024>::Iterator	i){
+
+		subscriptions[payloadType][ID]=i;
+		if(space->activationCount	&&	activationLevel>=space->getActivationThreshold()){
+
+			projected->activate();
+			(*subscriptions[payloadType][ID])->node->activationCount++;
+		}
+		subscriptionCount[payloadType]++;
+	}
+
+	void	Projection<ModuleDescriptor>::removeSubscription(uint8	payloadType,uint16	ID){
+
+		if(space->activationCount	&&	activationLevel>=space->getActivationThreshold()){
+
+			projected->deactivate();
+			(*subscriptions[payloadType][ID])->node->activationCount--;
+		}
+		*subscriptions[payloadType][ID]=NULL;
+		subscriptions[payloadType][ID].remove();
+		subscriptionCount[payloadType]--;
 	}
 }

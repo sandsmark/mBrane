@@ -52,18 +52,23 @@ namespace	mBrane{
 
 	template<class	C>	inline	void	Projection<C>::setActivationLevel(float32	a){
 
+		if(!space->activationCount){
+
+			activationLevel=a;
+			return;
+		}
+
 		if(activationLevel<space->getActivationThreshold()){
 
-			if(a>=space->getActivationThreshold())
+			if((activationLevel=a)>=space->getActivationThreshold())
 				activate();
-		}else	if(a<space->getActivationThreshold())
+		}else	if((activationLevel=a)<space->getActivationThreshold())
 			deactivate();
-		activationLevel=a;
 	}
 
 	template<class	C>	inline	void	Projection<C>::updateActivationCount(float32	t){
 
-		if(activationLevel<space->getActivationThreshold()){
+		if(activationLevel<space->getActivationThreshold()	||	space->reactivated){
 
 			if(activationLevel>=t)
 				activate();
@@ -83,16 +88,13 @@ namespace	mBrane{
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	template<class	C>	Projectable<C>::Projectable(uint16	ID):Object<Memory,_Object,C>(),activationCount(0),ID(ID){
+	template<class	C>	Projectable<C>::Projectable(uint16	ID):Object<Memory,_Object,C>(),activationCount(0),ID(ID),reactivated(false){
 	}
 
 	template<class	C>	Projectable<C>::~Projectable(){
 
-		for(uint32	i=0;i<projections.count();i++){
-
-			((P<Projection<C> >)projections[i])=NULL;
-			projections[i].remove();
-		}
+		for(uint32	i=0;i<projections.count();i++)
+			unproject(i);
 	}
 
 	template<class	C>	inline	void	Projectable<C>::project(uint16	spaceID){
@@ -102,29 +104,39 @@ namespace	mBrane{
 
 	template<class	C>	inline	void	Projectable<C>::unproject(uint16	spaceID){
 
-		if(projections[spaceID]==Array<typename	List<P<Projection<C> > >::Iterator>::NullIndex)
+		if(!projections[spaceID])
 			return;
-		((P<Projection<C> >)projections[spaceID])=NULL;
+		*projections[spaceID]=NULL;
 		projections[spaceID].remove();
-		projections[spaceID]=Array<typename	List<P<Projection<C> > >::Iterator>::NullIndex;
+		projections[spaceID]=List<P<Projection<C> >,16>::Iterator();
 	}
 
 	template<class	C>	inline	void	Projectable<C>::setActivationLevel(uint16	spaceID,float32	a){
 
 		if(!projections[spaceID])
 			project(spaceID);
-		((P<Projection<C> >)projections[spaceID])->setActivationLevel(a);
+		(*projections[spaceID])->setActivationLevel(a);
 	}
 
 	template<class	C>	inline	void	Projectable<C>::activate(){
 
-		activationCount++;
-		((C	*)this)->activate();
+		if(++activationCount==1){
+
+			((C	*)this)->trace();
+			Node::Get()->trace(Node::EXECUTION)<<" activated\n";
+			reactivated=true;
+			((C	*)this)->_activate();
+			reactivated=false;
+		}
 	}
 
 	template<class	C>	inline	void	Projectable<C>::deactivate(){
 
-		activationCount--;
-		((C	*)this)->deactivate();
+		if(--activationCount==0){
+
+			((C	*)this)->trace();
+			Node::Get()->trace(Node::EXECUTION)<<" deactivated\n";
+			((C	*)this)->_deactivate();
+		}
 	}
 }

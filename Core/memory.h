@@ -80,8 +80,6 @@ namespace	mBrane{
 			void	operator	delete(void	*b);
 			void	*alloc();
 			void	dealloc(void	*o);
-
-			static	void	Cleanup();
 		};
 	}
 }

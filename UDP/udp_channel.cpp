@@ -37,7 +37,7 @@ using	namespace	mBrane::sdk;
 UDPChannel::UDPChannel(mBrane::socket	s,uint32	port):BroadcastCommChannel(),s(s){
 
 	bcast_address.sin_family=AF_INET;
-	bcast_address.sin_port=port;
+	bcast_address.sin_port=htons(port);
 	bcast_address.sin_addr.s_addr=INADDR_BROADCAST;
 }
 

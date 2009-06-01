@@ -32,7 +32,7 @@
 #define	mBrane_sdk_module_node_h
 
 #include	"payload.h"
-
+#include	<iostream>
 
 namespace	mBrane{
 	namespace	sdk{
@@ -44,6 +44,7 @@ namespace	mBrane{
 			private:
 				static	Node	*Singleton;
 			protected:
+				static	std::ostream	*Streams[3];
 				uint16	_ID;	//	max: 0xFFFE
 				Node(uint16	ID);
 				~Node();
@@ -55,14 +56,27 @@ namespace	mBrane{
 					BOTH=2,
 					LOCAL=3
 				}Network;
+				typedef	enum{
+					EXECUTION=0,
+					NETWORK=1,
+					APPLICATION=2
+				}TraceLevel;
 				static	Node	*Get();
+				static	std::ostream&	trace(TraceLevel	l);
 				uint16	id()	const;
 				virtual	void	send(const	_Module	*sender,_Payload	*p,Network	network=PRIMARY)=0;
 				virtual	int64	time()	const=0;	//	in ms since 01/01/70
 				virtual	void	newSpace(const	_Module	*sender,Network	network=PRIMARY)=0;	//	names are meaningless for dynamic instances
-				virtual	void	newModule(const	_Module	*sender,uint16	CID,Network	network=PRIMARY,const	char	*hostName=NULL)=0;
+				virtual	void	newModule(const	_Module	*sender,uint16	CID,Network	network=PRIMARY,const	char	*hostName="local")=0;
 				virtual	void	deleteSpace(uint16	ID,Network	network=PRIMARY)=0;
 				virtual	void	deleteModule(uint16	CID,uint16	ID,Network	network=PRIMARY)=0;
+				virtual	void	activateModule(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,float32	activationLevel,Network	network=PRIMARY)=0;
+				virtual	void	activateSpace(const	_Module	*sender,uint16	space_id,uint16	target_sid,float32	activationLevel,Network	network=PRIMARY)=0;
+				virtual	void	setSpaceThreshold(const	_Module	*sender,uint16	space_id,float32	threshold,Network	network=PRIMARY)=0;
+				virtual	void	subscribeMessage(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,uint16	message_cid,Network	network=PRIMARY)=0;
+				virtual	void	unsubscribeMessage(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,uint16	message_cid,Network	network=PRIMARY)=0;
+				virtual	void	subscribeStream(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,uint16	stream_id,Network	network=PRIMARY)=0;
+				virtual	void	unsubscribeStream(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,uint16	stream_id,Network	network=PRIMARY)=0;
 				virtual	const	char	*getSpaceName(uint16	ID)=0;
 				virtual	const	char	*getModuleName(uint16	ID)=0;
 			};

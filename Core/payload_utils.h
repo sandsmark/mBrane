@@ -52,28 +52,11 @@ namespace	mBrane{
 				static	const	size_t	CoreSize();
 				Array();
 				~Array();
-				static	const	uint8			PtrCount();
+				static	const	uint8	PtrCount();
 				static	P<_RPayload>	*Ptr(__Payload	*p,uint8	i);
 				size_t	dynamicSize()	const;
 				uint32	count()	const;
 				T	&operator	[](uint32	i);	//	propagates to next (building it if needed) if i>=_S
-				void	clear();
-			};
-
-			template<typename	T,uint32	S,class	M>	class	Pipe:
-			public	RPayload<M,Pipe<T,S,M> >{
-			protected:
-				uint32	_count;
-				uint32	head;
-				uint32	tail;
-				uint32	freeSlots;
-				T	buffer[S];
-			public:
-				Pipe();
-				~Pipe();
-				T	*push();	//	returns a pointer to the newly pushed slot in the buffer
-				T	*pop();		//	returns a pointer to the popped slot, still in the buffer (warning: might be overwritten by subsequent pushes)
-				uint32	count()	const;
 				void	clear();
 			};
 

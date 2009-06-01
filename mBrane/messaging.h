@@ -32,6 +32,8 @@
 #define	mBrane_messaging_h
 
 #include	"..\Core\pipe.h"
+#include	"..\Core\list.h"
+#include	"..\Core\payload.h"
 
 #include	"networking.h"
 #include	"module_descriptor.h"
@@ -40,23 +42,25 @@
 using	namespace	mBrane::sdk;
 using	namespace	mBrane::sdk::module;
 
-#define	MESSAGE_INPUT_QUEUE_BLOCK_SIZE	32
-#define	MESSAGE_OUTPUT_QUEUE_BLOCK_SIZE	32
-#define	JOB_QUEUE_BLOCK_SIZE			64
+#define	MESSAGE_INPUT_BLOCK_SIZE	32
+#define	MESSAGE_OUTPUT_BLOCK_SIZE	32
+#define	JOBS_BLOCK_SIZE				64
 
 namespace	mBrane{
 
 	typedef	struct	_Job{
-		P<_Payload>			p;
-		ModuleDescriptor	*m;
+		P<_Payload>	p;
+		_Module		*m;
+		_Job(_Payload	*p=NULL,_Module		*m=NULL):m(m){this->p=p;}
 	}Job;
 
 	class	Node;
+
 	class	RecvThread:
 	public	Thread{
 	public:
 		static	uint32	thread_function_call	ReceiveMessages(void	*args);
-		Pipe<P<_Payload>,MESSAGE_INPUT_QUEUE_BLOCK_SIZE>	buffer;	//	incoming messages from remote nodes
+		Pipe11<P<_Payload>,MESSAGE_INPUT_BLOCK_SIZE>	buffer;	//	incoming messages from remote nodes
 		Node			*node;
 		CommChannel		*channel;
 		uint16			entry;
@@ -64,31 +68,38 @@ namespace	mBrane{
 		~RecvThread();
 	};
 
-	class	UnorderedMessagingEngine;
-	class	OrderedMessagingEngine;
+	class	PushThread:
+	public	Thread{
+	public:
+		static	uint32	thread_function_call	PushJobs(void	*args);
+		Node	*node;
+		Pipe11<P<_Payload>,MESSAGE_OUTPUT_BLOCK_SIZE>	*source;
+		PushThread(Node	*node,Pipe11<P<_Payload>,MESSAGE_OUTPUT_BLOCK_SIZE>	*source);
+		~PushThread();
+	};
+
 	class	Executing;
 	class	XThread;
-	template<class	Engine>	class	Messaging:
-	public	Engine{
+	class	Messaging{
 	friend	class	RecvThread;
+	friend	class	PushThread;
 	friend	class	XThread;
-	friend	class	UnorderedMessagingEngine;
-	friend	class	OrderedMessagingEngine;
 	friend	class	Executing;
 	protected:
 		typedef	struct{
 			module::Node::Network	network;
 			P<_Payload>	p;
 		}MessageSlot;
-		Pipe<P<_Payload>,MESSAGE_INPUT_QUEUE_BLOCK_SIZE>	messageInputQueue;	//	incoming local messages
-		Pipe<MessageSlot,MESSAGE_OUTPUT_QUEUE_BLOCK_SIZE>	messageOutputQueue;
+		Pipe11<P<_Payload>,MESSAGE_INPUT_BLOCK_SIZE>	messageInputQueue;	//	incoming local messages
+		PipeN1<MessageSlot,MESSAGE_OUTPUT_BLOCK_SIZE>	messageOutputQueue;	//	outgoing messages
 
-		Pipe<Job,JOB_QUEUE_BLOCK_SIZE>	jobs;
+		PipeNN<Job,JOBS_BLOCK_SIZE>	jobs;
 
-		Array<RecvThread	*,32>	recvThreads;
-		Thread						*sendThread;
+		Array<RecvThread	*,MESSAGE_INPUT_BLOCK_SIZE>	recvThreads;
+		Thread											*sendThread;
 		static	uint32	thread_function_call	SendMessages(void	*args);
-		Semaphore	*inputSync;	//	sync on the input message count
+
+		Array<PushThread	*,MESSAGE_INPUT_BLOCK_SIZE>	pushThreads;	//	one for each message source (recvThread->buffer plus input queue); push jobs in the job pipe
 				
 		Messaging();
 		~Messaging();
@@ -100,9 +111,6 @@ namespace	mBrane{
 		void	shutdown();
 	};
 }
-
-
-#include	"messaging.tpl.cpp"
 
 
 #endif

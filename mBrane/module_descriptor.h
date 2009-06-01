@@ -48,7 +48,7 @@ namespace	mBrane{
 	public	Object<Memory,_Object,ModuleEntry>{
 	public:
 		NodeEntry			*node;
-		ModuleDescriptor	*module;
+		ModuleDescriptor	*descriptor;
 		ModuleEntry(NodeEntry	*n,ModuleDescriptor	*m);
 		~ModuleEntry();
 	};
@@ -66,13 +66,16 @@ namespace	mBrane{
 	template<>	class	Projection<ModuleDescriptor>:
 	public	_Projection<ModuleDescriptor,Projection<ModuleDescriptor> >{
 	public:
-		Array<typename	List<P<ModuleEntry>,1024>::Iterator,128>	subscriptions[2];	//	0: indexed by message class ID (MCID), 1: indexed by stream ID (SID)
+		Array<typename	List<P<ModuleEntry>,1024>::Iterator,128>	subscriptions[2];		//	0: indexed by message class ID (MCID), 1: indexed by stream ID (SID)
+		uint16														subscriptionCount[2];	//	idem
 		Projection(ModuleDescriptor	*projected,Space				*space);
 		~Projection();
 		void	activate();
 		void	deactivate();
 		void	setActivationLevel(float32	a);
 		void	updateActivationCount(float32	t);
+		void	addSubscription(uint8	payloadType,uint16	ID,List<P<ModuleEntry>,1024>::Iterator	i);
+		void	removeSubscription(uint8	payloadType,uint16	ID);
 	};
 
 	//	Module proxy.
@@ -86,27 +89,31 @@ namespace	mBrane{
 			uint16	SID;
 		};
 		Array<Subscription,128>	initialSubscriptions;
+		void					applyInitialSubscriptions();
 		const	char	*name;
 	public:
 		uint16	CID;
 		static	Array<Array<P<ModuleDescriptor>,128>,32>	Main;	//	indexed by module descriptor class ID | ID
-		static	ModuleDescriptor					*New(XMLNode	&n);
+		static	ModuleDescriptor							*New(XMLNode	&n);
+		static	void										Init();
+		static	uint16										GetID(uint16	CID);	//	returns the first available slot in Main[CID]
 		Host::host_name	hostName;	//	resolved in hostID at Node::run() time
 		uint16	hostID;	//	dynamically assigned; initially set to NoID, then resolved
-		P<_Module>	module;	//	NULL if remote
+		_Module	*module;	//	NULL if remote
 		ModuleDescriptor(const	char	*hostName,_Module	*m,uint16	CID,const	char	*name);	//	invoked at Node::loadApplication() time
-		ModuleDescriptor(uint16	hostID,_Module	*m,uint16	CID);									//	invoked dynamically
+		ModuleDescriptor(uint16	hostID,uint16	CID,uint16	ID);									//	invoked dynamically
 		~ModuleDescriptor();
 		const	char	*getName();
-		void	activate();
-		void	deactivate();
+		void	_activate();
+		void	_deactivate();
 		void	addSubscription_message(uint16	spaceID,uint16	MCID);
 		void	addSubscription_stream(uint16	spaceID,uint16	SID);
 		void	removeSubscription_message(uint16	spaceID,uint16	MCID);
 		void	removeSubscription_stream(uint16	spaceID,uint16	SID);
 		void	removeSubscriptions_message(uint16	spaceID);
 		void	removeSubscriptions_stream(uint16	spaceID);
-		void	applyInitialSubscriptions();
+
+		void	trace();
 	};
 }
 

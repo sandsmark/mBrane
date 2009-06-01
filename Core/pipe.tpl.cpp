@@ -1,4 +1,4 @@
-//	Pipe.tpl.cpp
+//	Pipe1.tpl.cpp
 //
 //	Author: Eric Nivel
 //
@@ -34,87 +34,173 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		template<typename	T,uint32	_S>	const	uint32	Pipe<T,_S>::NullIndex=0xFFFFFFFF;
+		template<typename	T,uint32	_S>	Pipe11<T,_S>::Pipe11():Semaphore(0,65535){
 
-		template<typename	T,uint32	_S>	Pipe<T,_S>::Pipe():Semaphore(0,65535){
-
-			_clear();
+			head=tail=-1;
 			first=last=new	Block(NULL);
 			spare=NULL;
 		}
 
-		template<typename	T,uint32	_S>	Pipe<T,_S>::~Pipe(){
+		template<typename	T,uint32	_S>	Pipe11<T,_S>::~Pipe11(){
 
 			delete	first;
 			if(spare)
 				delete	spare;
 		}
 
-		template<typename	T,uint32	_S>	inline	void	Pipe<T,_S>::_clear(){
+		template<typename	T,uint32	_S>	inline	void	Pipe11<T,_S>::_clear(){	//	leaves spare as is
 
-			head=tail=NullIndex;
+			enter();
+			reset();
+			if(first->next)
+				delete	first->next;
+			first->next=NULL;
+			head=tail=-1;
+			leave();
 		}
 
-		template<typename	T,uint32	_S>	inline	void	Pipe<T,_S>::push(T	&t){
-	
-			if(tail==NullIndex)
-				tail=head=0;
-			last->buffer[tail]=t;
-			if(++tail==_S){
+		template<typename	T,uint32	_S>	inline	T	*Pipe11<T,_S>::_pop(){
+
+			T	*t=first->buffer+head;
+			if(++head==_S){
+
+				enter();
+				if(first==last)
+					head=tail=-1;	//	stay in the same block; next push will reset head and tail to 0
+				else{
+
+					if(!spare){
+
+						spare=first;
+						spare->next=NULL;
+						first=first->next;
+					}else{
+
+						Block	*b=first->next;
+						b->next=NULL;
+						delete	first;
+						first=b;
+					}
+					head=0;
+				}
+				leave();
+			}
+			return	t;
+		}
+
+		template<typename	T,uint32	_S>	inline	void	Pipe11<T,_S>::push(T	&t){
+
+			enter();
+			if(++tail==0)
+				head=0;
+			uint32	index=tail;
+			if(tail==_S){
 
 				if(spare){
 
 					last->next=spare;
 					last=spare;
+					last->next=NULL;
 					spare=NULL;
-				}else{
-
-					Block	*b=new	Block(NULL);
-					last->next=b;
-					last=b;
-				}
+				}else
+					last=new	Block(last);
 				tail=0;
+				index=tail;
 			}
+			leave();
 
-			Semaphore::release();
+			last->buffer[index]=t;
+			release();
 		}
 
-		template<typename	T,uint32	_S>	inline	T	*Pipe<T,_S>::pop(bool	blocking){
+		template<typename	T,uint32	_S>	inline	T	*Pipe11<T,_S>::pop(){
 
-			if(blocking)
-				Semaphore::acquire();
-			else	if(Semaphore::acquire(0))
-				return	NULL;
+			acquire();
+			return	_pop();
+		}
 
-			T	*t=first->buffer+head;
-			if(++head=_S){
+		template<typename	T,uint32	_S>	inline	void	Pipe11<T,_S>::clear(){
 
-				if(first->next){
+			_clear();
+		}
 
-					if(!spare){
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-						spare=first;
-						first=first->next;
-					}else{
+		template<typename	T,uint32	_S>	Pipe1N<T,_S>::Pipe1N():Pipe11(){
+		}
 
-						Block	*b=first->next;
-						delete	first;
-						first=b;
-					}
-					head=0;
-				}else
-					head=tail=NullIndex;	//	stay in the same block; next push will reset head and tail to 0
-			}
+		template<typename	T,uint32	_S>	Pipe1N<T,_S>::~Pipe1N(){
+		}
 
+		template<typename	T,uint32	_S>	void	Pipe1N<T,_S>::clear(){
+
+			popCS.enter();
+			_clear();
+			popCS.leave();
+		}
+
+		template<typename	T,uint32	_S>	T	*Pipe1N<T,_S>::pop(){
+
+			acquire();
+			popCS.enter();
+			T	*t=Pipe11::_pop();
+			popCS.leave();
 			return	t;
 		}
 
-		template<typename	T,uint32	_S>	inline	void	Pipe<T,_S>::clear(){
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-			Semaphore::reset();
-			if(first->next)
-				delete	first->next;
+		template<typename	T,uint32	_S>	PipeN1<T,_S>::PipeN1():Pipe11(){
+		}
+
+		template<typename	T,uint32	_S>	PipeN1<T,_S>::~PipeN1(){
+		}
+
+		template<typename	T,uint32	_S>	void	PipeN1<T,_S>::clear(){
+
+			pushCS.enter();
 			_clear();
+			pushCS.leave();
+		}
+
+		template<typename	T,uint32	_S>	void	PipeN1<T,_S>::push(T	&t){
+
+			pushCS.enter();
+			Pipe11::push(t);
+			pushCS.leave();
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		template<typename	T,uint32	_S>	PipeNN<T,_S>::PipeNN():Pipe11(){
+		}
+
+		template<typename	T,uint32	_S>	PipeNN<T,_S>::~PipeNN(){
+		}
+
+		template<typename	T,uint32	_S>	void	PipeNN<T,_S>::clear(){
+
+			pushCS.enter();
+			popCS.enter();
+			_clear();
+			popCS.leave();
+			pushCS.leave();
+		}
+
+		template<typename	T,uint32	_S>	void	PipeNN<T,_S>::push(T	&t){
+
+			pushCS.enter();
+			Pipe11::push(t);
+			pushCS.leave();
+		}
+
+		template<typename	T,uint32	_S>	T	*PipeNN<T,_S>::pop(){
+
+			acquire();
+			popCS.enter();
+			T	*t=Pipe11::_pop();
+			popCS.leave();
+			return	t;
 		}
 	}
 }
