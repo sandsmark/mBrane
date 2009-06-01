@@ -464,10 +464,6 @@
 					RelativePath=".\module.cpp"
 					>
 				</File>
-				<File
-					RelativePath=".\module_utils.cpp"
-					>
-				</File>
 			</Filter>
 		</Filter>
 		<Filter
@@ -596,10 +592,6 @@
 				>
 				<File
 					RelativePath=".\module.h"
-					>
-				</File>
-				<File
-					RelativePath=".\module_utils.h"
 					>
 				</File>
 			</Filter>
