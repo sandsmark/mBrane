@@ -111,6 +111,9 @@ public:
 };
 template<class	U>	const	uint16	Module<U>::_CID=ModuleRegister::Load(New,U::ClassName);
 
+//	force _MetaData initilization in user dll.
+#define	MBRANE_MESSAGE_CLASS(C)		static	const	uint16	C##_name2=C::_MetaData;
+#include	APPLICATION_CLASSES
 
 //	for retrieving CIDs from names (in specs)
 #define	MBRANE_MESSAGE_CLASS(C)		static	const	uint16	C##_name=ClassRegister::Load(#C);

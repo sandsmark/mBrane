@@ -53,13 +53,17 @@ namespace	mBrane{
 		~ModuleEntry();
 	};
 
-	class	NodeEntry{
+	class	NodeEntry:
+	public	CriticalSection{	//	guards against Messaging::SendMessages.
+	private:
+		uint32	activationCount;
 	public:
 		static	Array<Array<NodeEntry,32>,128>	Main[2];	//	0: Data and Control: message class -> nodes -> modules, 1: Streams: stream id -> nodes -> modules
-		static	CriticalSection					CS[2];
 		NodeEntry();
 		~NodeEntry();
-		uint32						activationCount;
+		void	incActivation(){	enter();activationCount++;leave();	}
+		void	decActivation(){	enter();activationCount--;leave();	}
+		void	getActivation(uint32	&a){	enter();a=activationCount;leave();	}
 		List<P<ModuleEntry>,1024>	modules;
 	};
 
@@ -82,36 +86,41 @@ namespace	mBrane{
 	class	ModuleDescriptor:
 	public	Projectable<ModuleDescriptor>{
 	private:
-		class	Subscription{
+		class	_Subscription{
 		public:
-			uint16	spaceID;
 			uint16	MCID;
 			uint16	SID;
 		};
-		Array<Subscription,128>	initialSubscriptions;
-		void					applyInitialSubscriptions();
+		class	_Projection{
+		public:
+			uint16					spaceID;
+			float32					activationLevel;
+			Array<_Subscription,8>	subscriptions;
+		};
+		Array<_Projection,32>	initialProjections;
 		const	char	*name;
 	public:
 		uint16	CID;
-		static	Array<Array<P<ModuleDescriptor>,128>,32>	Main;	//	indexed by module descriptor class ID | ID
-		static	ModuleDescriptor							*New(XMLNode	&n);
-		static	void										Init();
-		static	uint16										GetID(uint16	CID);	//	returns the first available slot in Main[CID]
+		static	Array<Array<P<ModuleDescriptor>,128>,32>			Config;	//	indexed by module descriptor class ID | ID; temporary: used at config time when node IDs are not known; tranfered in Node::start in Main.
+		static	Array<Array<Array<P<ModuleDescriptor>,128>,32>,8>	Main;	//	indexed by host ID | module descriptor class ID | ID.
+		static	ModuleDescriptor									*New(XMLNode	&n);
+		static	void												Init(uint16	hostID);	//	resolves host name into ID, copies Config in Main, apply initial projections.
+		static	uint16												GetID(uint16	hostID,uint16	CID);	//	returns the first available slot in Main[hostID][CID].
 		Host::host_name	hostName;	//	resolved in hostID at Node::run() time
-		uint16	hostID;	//	dynamically assigned; initially set to NoID, then resolved
 		_Module	*module;	//	NULL if remote
-		ModuleDescriptor(const	char	*hostName,_Module	*m,uint16	CID,const	char	*name);	//	invoked at Node::loadApplication() time
-		ModuleDescriptor(uint16	hostID,uint16	CID,uint16	ID);									//	invoked dynamically
+		ModuleDescriptor(const	char	*hostName,_Module	*m,uint16	CID,const	char	*name);	//	invoked at Node::loadApplication() time.
+		ModuleDescriptor(uint16	hostID,uint16	CID,uint16	ID);									//	invoked dynamically.
 		~ModuleDescriptor();
+		void	applyInitialProjections(uint16	hostID);
 		const	char	*getName();
 		void	_activate();
 		void	_deactivate();
-		void	addSubscription_message(uint16	spaceID,uint16	MCID);
-		void	addSubscription_stream(uint16	spaceID,uint16	SID);
-		void	removeSubscription_message(uint16	spaceID,uint16	MCID);
-		void	removeSubscription_stream(uint16	spaceID,uint16	SID);
-		void	removeSubscriptions_message(uint16	spaceID);
-		void	removeSubscriptions_stream(uint16	spaceID);
+		void	addSubscription_message(uint16	hostID,uint16	spaceID,uint16	MCID);
+		void	addSubscription_stream(uint16	hostID,uint16	spaceID,uint16	SID);
+		void	removeSubscription_message(uint16	hostID,uint16	spaceID,uint16	MCID);
+		void	removeSubscription_stream(uint16	hostID,uint16	spaceID,uint16	SID);
+		void	removeSubscriptions_message(uint16	hostID,uint16	spaceID);
+		void	removeSubscriptions_stream(uint16	hostID,uint16	spaceID);
 
 		void	trace();
 	};

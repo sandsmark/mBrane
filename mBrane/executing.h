@@ -48,8 +48,8 @@ namespace	mBrane{
 	public:
 		static	uint32	thread_function_call	Xec(void	*args);
 		Node		*node;
-		Semaphore	*sync;
 		bool		wasSupporting;
+		Semaphore	*sync;
 
 		XThread(Node	*n);
 		~XThread();
@@ -62,7 +62,7 @@ namespace	mBrane{
 	protected:
 		
 		StaticArray<Thread	*>	xThreads;
-		uint16	threadCount;
+		uint16		threadCount;
 		Semaphore	*supportSync;
 
 		Executing();

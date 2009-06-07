@@ -65,16 +65,16 @@ namespace	mBrane{
 		
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		template<typename	T,uint16	Size>	Array<T,Size>::Array():next(NULL),local_count(0),total_count(0){
+		template<typename	T,uint16	Size,class	Lock>	Array<T,Size,Lock>::Array():next(NULL),local_count(0),total_count(0){
 		}
 
-		template<typename	T,uint16	Size>	Array<T,Size>::~Array(){
+		template<typename	T,uint16	Size,class	Lock>	Array<T,Size,Lock>::~Array(){
 
 			if(next)
 				delete	next;
 		}
 
-		template<typename	T,uint16	Size>	inline	T	*Array<T,Size>::get(uint32	i){
+		template<typename	T,uint16	Size,class	Lock>	inline	T	*Array<T,Size,Lock>::get(uint32	i){
 
 			if(i<Size)
 				return	block+i;
@@ -83,29 +83,33 @@ namespace	mBrane{
 			return	NULL;
 		}
 
-		template<typename	T,uint16	Size>	inline	uint32	Array<T,Size>::count()	const{
+		template<typename	T,uint16	Size,class	Lock>	inline	uint32	Array<T,Size,Lock>::count()	const{
 
 			return	total_count;
 		}
 
-		template<typename	T,uint16	Size>	inline	T	&Array<T,Size>::operator	[]	(uint32	i){
+		template<typename	T,uint16	Size,class	Lock>	inline	T	&Array<T,Size,Lock>::operator	[]	(uint32	i){
 
 			if(i<Size){
 
 				int32	delta=i-local_count;
 				if(delta>=0){
 
+					criticalSection.enter();
 					local_count=i+1;
 					total_count+=delta+1;
+					criticalSection.leave();
 				}
 
 				return	block[i];
 			}
+			criticalSection.enter();
 			if(!next)
 				next=new	Array<T,Size>();
 			uint32	tc=next->total_count;
 			T	&r=next->operator	[](i-Size);
 			total_count+=next->total_count-tc;
+			criticalSection.leave();
 			return	r;
 		}
 

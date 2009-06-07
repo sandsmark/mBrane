@@ -52,12 +52,19 @@ namespace	mBrane{
 		};
 
 		//	Dynamic array, i.e. a linked list of Array<T,Size>.
-		template<typename	T,uint16	Size>	class	Array{
+		//	Depending on Lock, the array expansion is thread-safe (not the access).
+		class	NoLock{
+		public:
+			void	enter(){}
+			void	leave(){}
+		};
+		template<typename	T,uint16	Size,class	Lock=NoLock>	class	Array{
 		protected:
 			uint32			local_count;	//	within the block, i.e. a range (does not mean that there is objects in the slots)
 			uint32			total_count;	//	sum of all total counts
 			Array<T,Size>	*next;
 			T				block[Size];	//	storage
+			Lock			criticalSection;
 		public:
 			Array();
 			~Array();

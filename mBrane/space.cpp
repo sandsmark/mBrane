@@ -34,15 +34,17 @@
 
 namespace	mBrane{
 
-	Array<P<Space>,16>	Space::Main;
+	Array<P<Space>,16>			Space::Config;
+
+	Array<Array<P<Space>,16>,8>	Space::Main;
 
 	Space	*Space::Get(const	char	*name){
 
 		if(strcmp(name,"root")==0)
-			return	Space::Main[0];
-		for(uint16	i=0;i<Space::Main.count();i++)
-			if(strcmp(Space::Main[i]->name,name)==0)
-				return	Space::Main[i];
+			return	Space::Config[0];
+		for(uint16	i=0;i<Space::Config.count();i++)
+			if(strcmp(Space::Config[i]->name,name)==0)
+				return	Space::Config[i];
 		return	NULL;
 	}
 
@@ -62,18 +64,20 @@ namespace	mBrane{
 			return	NULL;
 		}
 
-		Space	*s=new	Space(name);
-		Space::Main[Space::Main.count()]=s;
+		Space	*s=new	Space(module::Node::NoID,name);
+		Space::Config[Space::Config.count()]=s;
 
 		uint16	projectionCount=n.nChildNode("Projection");
-		if(!projectionCount)	//	when no projection is defined, the space is projected on root at the highest activation level
-			s->setActivationLevel(0,1);
-		else{
+		if(!projectionCount){	//	when no projection is defined, the space is projected on root at the highest activation level.
+
+			s->initialProjections[0].spaceID=0;
+			s->initialProjections[0].activationLevel=1.0;
+		}else{
 			
 			for(uint16	i=0;i<projectionCount;i++){
 
 				XMLNode	projection=n.getChildNode("Projection",i);
-				const	char	*spaceName=projection.getAttribute("space");	//	to be projected on
+				const	char	*spaceName=projection.getAttribute("space");	//	to be projected on.
 				if(!spaceName){
 
 					std::cout<<"> Error: Space: "<<name<<" ::Projection::name is Missing\n";
@@ -91,33 +95,46 @@ namespace	mBrane{
 					std::cout<<"> Error: Space "<<spaceName<<" does not exist\n";
 					goto	error;
 				}
-				s->setActivationLevel(_s->ID,(float32)atof(_activationLevel));
+				s->initialProjections[i].spaceID=_s->ID;
+				s->initialProjections[i].activationLevel=(float32)atof(_activationLevel);
 			}
 		}
 
-		s->setActivationThreshold((float32)atof(_activationThreshold));
+		s->initialActivationThreshold=(float32)atof(_activationThreshold);
 
 		return	s;
-error:	Space::Main[s->ID]=NULL;
+error:	Space::Config[s->ID]=NULL;
 		return	NULL;
 	}
 
-	void	Space::Init(){
+	void	Space::InitRoot(){
 
-		Space::Main[0]=new	Space("Root");	//	root space
-		Space::Main[0]->activationCount=1;	//	root is always active
-		Space::Main[0]->setActivationThreshold(1.0);	//	TODO: read initial threshold from config file
+		Space::Config[0]=new	Space(module::Node::NoID,"Root");	//	root space
+		Space::Config[0]->activationCount=1;	//	root is always active
+		Space::Config[0]->initialActivationThreshold=1.0;	//	TODO: read initial threshold from config file
 	}
 
-	uint16	Space::GetID(){
+	void	Space::Init(uint16	hostID){
 
-		for(uint16	i=0;i<Main.count();i++)
-			if(Main[i]==NULL)
+		for(uint32	i=0;i<Space::Config.count();i++){
+
+			Space::Main[hostID][i]=Space::Config[i];
+			Space::Main[hostID][i]->hostID=hostID;
+			Space::Main[hostID][i]->applyInitialProjections(hostID);
+
+			Space::Config[i]=NULL;
+		}		
+	}
+
+	uint16	Space::GetID(uint16	hostID){
+
+		for(uint16	i=0;i<Main[hostID].count();i++)
+			if(Main[hostID][i]==NULL)
 				return	i;
-		return	Main.count();
+		return	Main[hostID].count();
 	}
 
-	Space::Space(const	char	*name):Projectable<Space>((uint16)Space::Main.count()){
+	Space::Space(uint16	hostID,const	char	*name):Projectable<Space>(hostID,Config.count()){
 
 		if(name){
 
@@ -189,5 +206,13 @@ error:	Space::Main[s->ID]=NULL;
 	inline	void	Space::trace(){
 
 		Node::Get()->trace(Node::EXECUTION)<<"Space "<<ID;
+	}
+
+	void	Space::applyInitialProjections(uint16	hostID){
+
+		for(uint32	i=0;i<initialProjections.count();i++)
+			setActivationLevel(hostID,initialProjections[i].spaceID,initialProjections[i].activationLevel);
+		
+		setActivationThreshold(initialActivationThreshold);
 	}
 }

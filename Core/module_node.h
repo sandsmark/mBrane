@@ -64,6 +64,7 @@ namespace	mBrane{
 				static	Node	*Get();
 				static	std::ostream&	trace(TraceLevel	l);
 				uint16	id()	const;
+				virtual	const	char	*name()=0;
 				virtual	void	send(const	_Module	*sender,_Payload	*p,Network	network=PRIMARY)=0;
 				virtual	int64	time()	const=0;	//	in ms since 01/01/70
 				virtual	void	newSpace(const	_Module	*sender,Network	network=PRIMARY)=0;	//	names are meaningless for dynamic instances
@@ -77,8 +78,8 @@ namespace	mBrane{
 				virtual	void	unsubscribeMessage(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,uint16	message_cid,Network	network=PRIMARY)=0;
 				virtual	void	subscribeStream(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,uint16	stream_id,Network	network=PRIMARY)=0;
 				virtual	void	unsubscribeStream(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,uint16	stream_id,Network	network=PRIMARY)=0;
-				virtual	const	char	*getSpaceName(uint16	ID)=0;
-				virtual	const	char	*getModuleName(uint16	ID)=0;
+				virtual	const	char	*getSpaceName(uint16	hostID,uint16	ID)=0;
+				virtual	const	char	*getModuleName(uint16	CID)=0;
 			};
 		}
 	}

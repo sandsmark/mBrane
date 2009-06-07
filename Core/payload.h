@@ -96,7 +96,7 @@ namespace	mBrane{
 		//			NB: Memory can be any Allocator class
 		template<class	M,class	U>	class	Payload:
 		public	Object<M,_Payload,U>{
-		private:
+		public:
 			static	const	uint32	_MetaData;
 		protected:
 			Payload();

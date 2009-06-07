@@ -65,12 +65,13 @@ namespace	mBrane{
 				echo=new	SyncEcho();
 				echo->time=Time::Get();
 				_this->channel->send(echo);
+				delete	echo;
 				break;
 			default:
 				_this->buffer.push(_p);
-				_p=NULL;
 				break;
 			}
+			_p=NULL;
 		}
 
 		return	0;
@@ -168,94 +169,11 @@ namespace	mBrane{
 			Thread::Wait(*pushThreads.get(i));
 	}
 
-	void	Messaging::processControlMessage(_Payload	*p){
-
-		switch(p->cid()){
-		case	SetThreshold_CID:
-			NodeEntry::CS[DC].enter();
-			NodeEntry::CS[ST].enter();
-			Space::Main[((SetThreshold	*)p)->space_id]->setActivationThreshold(((SetThreshold	*)p)->threshold);
-			NodeEntry::CS[DC].leave();
-			NodeEntry::CS[ST].leave();
-			break;
-		case	ActivateModule_CID:
-			NodeEntry::CS[DC].enter();
-			NodeEntry::CS[ST].enter();
-			ModuleDescriptor::Main[((ActivateModule	*)p)->module_cid][((ActivateModule	*)p)->module_id]->setActivationLevel(((ActivateModule	*)p)->space_id,((ActivateModule	*)p)->activationLevel);
-			NodeEntry::CS[DC].leave();
-			NodeEntry::CS[ST].leave();
-			break;
-		case	ActivateSpace_CID:
-			NodeEntry::CS[DC].enter();
-			NodeEntry::CS[ST].enter();
-			Space::Main[((ActivateSpace	*)p)->target_sid]->setActivationLevel(((ActivateSpace	*)p)->space_id,((ActivateSpace	*)p)->activationLevel);
-			NodeEntry::CS[DC].leave();
-			NodeEntry::CS[ST].leave();
-			break;
-		case	SubscribeMessage_CID:
-			NodeEntry::CS[DC].enter();
-			ModuleDescriptor::Main[((SubscribeMessage	*)p)->module_cid][((SubscribeMessage	*)p)->module_id]->addSubscription_message(((SubscribeMessage	*)p)->space_id,((SubscribeMessage	*)p)->message_cid);
-			NodeEntry::CS[DC].leave();
-			break;
-		case	SubscribeStream_CID:
-			NodeEntry::CS[ST].enter();
-			ModuleDescriptor::Main[((SubscribeMessage	*)p)->module_cid][((SubscribeMessage	*)p)->module_id]->addSubscription_stream(((SubscribeStream	*)p)->space_id,((SubscribeStream	*)p)->stream_id);
-			NodeEntry::CS[ST].leave();
-			break;
-		case	UnsubscribeMessage_CID:
-			NodeEntry::CS[DC].enter();
-			ModuleDescriptor::Main[((UnsubscribeMessage	*)p)->module_cid][((UnsubscribeMessage	*)p)->module_id]->removeSubscription_message(((SubscribeMessage	*)p)->space_id,((SubscribeMessage	*)p)->message_cid);
-			NodeEntry::CS[DC].leave();
-			break;
-		case	UnsubscribeStream_CID:
-			NodeEntry::CS[ST].enter();
-			ModuleDescriptor::Main[((UnsubscribeStream	*)p)->module_cid][((UnsubscribeStream	*)p)->module_id]->removeSubscription_stream(((SubscribeStream	*)p)->space_id,((SubscribeStream	*)p)->stream_id);
-			NodeEntry::CS[ST].leave();
-			break;
-		case	CreateModule_CID:{
-			NodeEntry::CS[DC].enter();
-			NodeEntry::CS[ST].enter();
-			uint16	module_cid=((CreateModule	*)p)->module_cid;
-			uint16	module_id=ModuleDescriptor::GetID(module_cid);
-			ModuleDescriptor::Main[module_cid][module_id]=new	ModuleDescriptor(((CreateModule	*)p)->node_id,module_cid,module_id);
-			NodeEntry::CS[DC].leave();
-			NodeEntry::CS[ST].leave();
-			break;
-		}case	DeleteModule_CID:{
-			NodeEntry::CS[DC].enter();
-			NodeEntry::CS[ST].enter();
-			uint16	module_cid=((DeleteModule	*)p)->module_cid;
-			uint16	module_id=((DeleteModule	*)p)->module_id;
-			_Module	*m=ModuleDescriptor::Main[module_cid][module_id]->module;
-			if(m)
-				jobs.push(Job(new	KillModule(),m));
-			ModuleDescriptor::Main[module_cid][module_id]=NULL;
-			NodeEntry::CS[DC].leave();
-			NodeEntry::CS[ST].leave();
-			break;
-		}case	CreateSpace_CID:{
-			NodeEntry::CS[DC].enter();
-			NodeEntry::CS[ST].enter();
-			Space::Main[Space::GetID()]=new	Space();
-			NodeEntry::CS[DC].leave();
-			NodeEntry::CS[ST].leave();
-			break;
-		}case	DeleteSpace_CID:{
-			NodeEntry::CS[DC].enter();
-			NodeEntry::CS[ST].enter();
-			uint16	space_id=((DeleteSpace	*)p)->space_id;
-			Space::Main[space_id]=NULL;
-			NodeEntry::CS[DC].leave();
-			NodeEntry::CS[ST].leave();
-			break;
-		}default:
-			break;
-		}
-	}
-
 	inline	void	Messaging::pushJobs(_Payload	*p,NodeEntry	&e){
 
-		if(e.activationCount){
+		uint32	act;
+		e.getActivation(act);
+		if(act){
 
 			List<P<ModuleEntry>,1024>			&modules=e.modules;
 			List<P<ModuleEntry>,1024>::Iterator	i;
@@ -276,14 +194,82 @@ namespace	mBrane{
 		switch(p->category()){
 		case	_Payload::CONTROL:
 		case	_Payload::DATA:
-			NodeEntry::CS[DC].enter();
 			pushJobs(p,NodeEntry::Main[DC][p->cid()][((Node	*)this)->_ID]);
-			NodeEntry::CS[DC].leave();
 			break;
 		case	_Payload::STREAM:
-			NodeEntry::CS[ST].enter();
 			pushJobs(p,NodeEntry::Main[ST][p->operator	_StreamData	*()->sid()][((Node	*)this)->_ID]);
-			NodeEntry::CS[ST].leave();
+			break;
+		}
+	}
+
+	void	Messaging::processControlMessage(_Payload	*p){
+
+		switch(p->cid()){
+		case	SetThreshold_CID:
+			projectionCS.enter();
+			Space::Main[((SetThreshold	*)p)->host_id][((SetThreshold	*)p)->space_id]->setActivationThreshold(((SetThreshold	*)p)->threshold);
+			projectionCS.leave();
+			break;
+		case	ActivateModule_CID:
+			projectionCS.enter();
+			ModuleDescriptor::Main[((ActivateModule	*)p)->host_id][((ActivateModule	*)p)->module_cid][((ActivateModule	*)p)->module_id]->setActivationLevel(((ActivateModule	*)p)->host_id,((ActivateModule	*)p)->space_id,((ActivateModule	*)p)->activationLevel);
+			projectionCS.leave();
+			break;
+		case	ActivateSpace_CID:
+			projectionCS.enter();
+			Space::Main[((ActivateSpace	*)p)->host_id][((ActivateSpace	*)p)->target_sid]->setActivationLevel(((ActivateSpace	*)p)->host_id,((ActivateSpace	*)p)->space_id,((ActivateSpace	*)p)->activationLevel);
+			projectionCS.leave();
+			break;
+		case	SubscribeMessage_CID:
+			projectionCS.enter();
+			ModuleDescriptor::Main[((SubscribeMessage	*)p)->host_id][((SubscribeMessage	*)p)->module_cid][((SubscribeMessage	*)p)->module_id]->addSubscription_message(((SubscribeMessage	*)p)->host_id,((SubscribeMessage	*)p)->space_id,((SubscribeMessage	*)p)->message_cid);
+			projectionCS.leave();
+			break;
+		case	SubscribeStream_CID:
+			projectionCS.enter();
+			ModuleDescriptor::Main[((SubscribeMessage	*)p)->host_id][((SubscribeMessage	*)p)->module_cid][((SubscribeMessage	*)p)->module_id]->addSubscription_stream(((SubscribeMessage	*)p)->host_id,((SubscribeStream	*)p)->space_id,((SubscribeStream	*)p)->stream_id);
+			projectionCS.leave();
+			break;
+		case	UnsubscribeMessage_CID:
+			projectionCS.enter();
+			ModuleDescriptor::Main[((UnsubscribeMessage	*)p)->host_id][((UnsubscribeMessage	*)p)->module_cid][((UnsubscribeMessage	*)p)->module_id]->removeSubscription_message(((UnsubscribeMessage	*)p)->host_id,((SubscribeMessage	*)p)->space_id,((SubscribeMessage	*)p)->message_cid);
+			projectionCS.leave();
+			break;
+		case	UnsubscribeStream_CID:
+			projectionCS.enter();
+			ModuleDescriptor::Main[((UnsubscribeStream	*)p)->host_id][((UnsubscribeStream	*)p)->module_cid][((UnsubscribeStream	*)p)->module_id]->removeSubscription_stream(((UnsubscribeStream	*)p)->host_id,((SubscribeStream	*)p)->space_id,((SubscribeStream	*)p)->stream_id);
+			projectionCS.leave();
+			break;
+		case	CreateModule_CID:{
+			uint16	module_cid=((CreateModule	*)p)->module_cid;
+			uint16	host_id=((CreateModule	*)p)->host_id;
+			moduleCS.enter();
+			uint16	module_id=ModuleDescriptor::GetID(host_id,module_cid);
+			ModuleDescriptor::Main[host_id][module_cid][module_id]=new	ModuleDescriptor(((CreateModule	*)p)->host_id,module_cid,module_id);
+			moduleCS.leave();
+			break;
+		}case	DeleteModule_CID:{
+			uint16	module_cid=((DeleteModule	*)p)->module_cid;
+			uint16	module_id=((DeleteModule	*)p)->module_id;
+			uint16	host_id=((DeleteModule	*)p)->host_id;
+			projectionCS.enter();
+			_Module	*m=ModuleDescriptor::Main[host_id][module_cid][module_id]->module;
+			if(m)
+				jobs.push(Job(new	KillModule(),m));
+			ModuleDescriptor::Main[host_id][module_cid][module_id]=NULL;
+			projectionCS.leave();
+			break;
+		}case	CreateSpace_CID:
+			spaceCS.enter();
+			Space::Main[((CreateSpace	*)p)->host_id][Space::GetID(((CreateSpace	*)p)->host_id)]=new	Space(((CreateSpace	*)p)->host_id);
+			spaceCS.leave();
+			break;
+		case	DeleteSpace_CID:
+			projectionCS.enter();
+			Space::Main[((DeleteSpace	*)p)->host_id][((DeleteSpace	*)p)->space_id]=NULL;
+			projectionCS.leave();
+			break;
+		default:	//	call the plugin if any (e.g. rMem).
 			break;
 		}
 	}
@@ -306,17 +292,10 @@ namespace	mBrane{
 			if(out->network==module::Node::LOCAL){
 				
 				uint32	act;
-				if(cat==_Payload::STREAM){
-
-					NodeEntry::CS[ST].enter();
-					act=NodeEntry::Main[ST][p->operator	_StreamData	*()->sid()][node->_ID].activationCount;
-					NodeEntry::CS[ST].leave();
-				}else{
-
-					NodeEntry::CS[DC].enter();
-					act=NodeEntry::Main[DC][p->cid()][node->_ID].activationCount;
-					NodeEntry::CS[DC].leave();
-				}
+				if(cat==_Payload::STREAM)
+					NodeEntry::Main[ST][p->operator	_StreamData	*()->sid()][node->_ID].getActivation(act);
+				else
+					NodeEntry::Main[DC][p->cid()][node->_ID].getActivation(act);
 				if(act)
 					node->messageInputQueue.push(_p);
 			}else{
@@ -327,11 +306,12 @@ namespace	mBrane{
 					node->messageInputQueue.push(_p);
 				}else	if(cat==_Payload::STREAM){	//	find target remote nodes; send on data/stream channels; push in messageInputQueue if the local node is a target
 
+					uint32	act;
 					uint16	sid=p->operator	_StreamData	*()->sid();
-					NodeEntry::CS[ST].enter();
 					for(uint16	i=0;i<NodeEntry::Main[ST][sid].count();i++){
 
-						if(NodeEntry::Main[DC][sid][i].activationCount){
+						NodeEntry::Main[ST][sid][i].getActivation(act);
+						if(act){
 
 							if(i==node->_ID)
 								node->messageInputQueue.push(_p);
@@ -339,14 +319,14 @@ namespace	mBrane{
 								node->sendStreamData(i,p,out->network);
 						}
 					}
-					NodeEntry::CS[ST].leave();
 				}else{
 
+					uint32	act;
 					uint16	cid=p->cid();
-					NodeEntry::CS[DC].enter();
 					for(uint16	i=0;i<NodeEntry::Main[DC][cid].count();i++){
 
-						if(NodeEntry::Main[DC][cid][i].activationCount){
+						NodeEntry::Main[DC][cid][i].getActivation(act);
+						if(act){
 
 							if(i==node->_ID)
 								node->messageInputQueue.push(_p);
@@ -354,7 +334,6 @@ namespace	mBrane{
 								node->sendData(i,p,out->network);
 						}
 					}
-					NodeEntry::CS[DC].leave();
 				}
 			}
 

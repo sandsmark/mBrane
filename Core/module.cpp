@@ -38,8 +38,8 @@ namespace	mBrane{
 		namespace	module{
 
 			_Module::_Module():	_Object(),_priority(0),processor(NULL),_ready(false){
-				
-				sync=new	mBrane::Semaphore(1,1);
+
+				sync=new	Semaphore(1,1);
 			}
 
 			_Module::~_Module(){

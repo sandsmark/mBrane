@@ -48,13 +48,14 @@ namespace	mBrane{
 			//	The actual base class for user-defined modules is defined in application.h and respectively, in library.h for module library vendors
 			//	Migration sequence: migrateOut->dump->payload->send-/ /-receive->load->migrateIn; modules can then launch their own internal threads if any
 			class	dll	_Module:
-			public	_Object{
+			public	_Object,
+			public	CriticalSection{
 			friend	class	mBrane::Node;
 			friend	class	mBrane::XThread;
 			friend	class	mBrane::ModuleDescriptor;
 			private:
 				XThread				*processor;
-				mBrane::Semaphore	*sync;
+				Semaphore			*sync;
 				ModuleDescriptor	*descriptor;
 			protected:
 				uint16	_cid;

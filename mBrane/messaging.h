@@ -33,7 +33,7 @@
 
 #include	"..\Core\pipe.h"
 #include	"..\Core\list.h"
-#include	"..\Core\payload.h"
+#include	"..\Core\control_messages.h"
 
 #include	"networking.h"
 #include	"module_descriptor.h"
@@ -85,6 +85,10 @@ namespace	mBrane{
 	friend	class	PushThread;
 	friend	class	XThread;
 	friend	class	Executing;
+	private:
+		CriticalSection	moduleCS;	//	control access to spaces, modules descriptors and projections in processControlMessages.
+		CriticalSection	spaceCS;
+		CriticalSection	projectionCS;
 	protected:
 		typedef	struct{
 			module::Node::Network	network;
@@ -97,18 +101,19 @@ namespace	mBrane{
 
 		Array<RecvThread	*,MESSAGE_INPUT_BLOCK_SIZE>	recvThreads;
 		Thread											*sendThread;
-		static	uint32	thread_function_call	SendMessages(void	*args);
-
+		static	uint32	thread_function_call			SendMessages(void	*args);
 		Array<PushThread	*,MESSAGE_INPUT_BLOCK_SIZE>	pushThreads;	//	one for each message source (recvThread->buffer plus input queue); push jobs in the job pipe
-				
+		
+		//TODO: add a pointer to processControlMessage plugin here.
+
 		Messaging();
 		~Messaging();
-		void	send(_Payload	*message,module::Node::Network	network);
-		void	processControlMessage(_Payload	*p);
-		void	pushJobs(_Payload	*p,NodeEntry	&e);
-		void	pushJobs(_Payload	*p);
 		void	start();
 		void	shutdown();
+		void	send(_Payload	*message,module::Node::Network	network);
+		void	pushJobs(_Payload	*p,NodeEntry	&e);
+		void	pushJobs(_Payload	*p);
+		void	processControlMessage(_Payload	*p);
 	};
 }
 

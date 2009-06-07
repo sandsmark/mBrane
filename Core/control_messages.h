@@ -67,6 +67,7 @@ namespace	mBrane{
 			class	dll	SetThreshold:
 			public	ControlMessage<SetThreshold>{
 			public:
+				uint16	host_id;
 				uint16	space_id;
 				float32	threshold;
 			};
@@ -74,6 +75,7 @@ namespace	mBrane{
 			class	dll	ActivateModule:
 			public	ControlMessage<ActivateModule>{
 			public:
+				uint16	host_id;
 				uint16	module_cid;
 				uint16	module_id;
 				uint16	space_id;
@@ -83,6 +85,7 @@ namespace	mBrane{
 			class	dll	ActivateSpace:
 			public	ControlMessage<ActivateSpace>{
 			public:
+				uint16	host_id;
 				uint16	space_id;	//	the space on which target space is projected onto
 				uint16	target_sid;	//	the space to set the activation for
 				float32	activationLevel;
@@ -91,6 +94,7 @@ namespace	mBrane{
 			template<class	U>	class	Subscribe:
 			public	ControlMessage<U>{
 			public:
+				uint16	host_id;
 				uint16	module_cid;
 				uint16	module_id;
 				uint16	space_id;
@@ -125,13 +129,14 @@ namespace	mBrane{
 			public:
 				uint16	sender_cid;
 				uint16	sender_id;
+				uint16	host_id;
 				uint16	module_cid;
-				uint16	node_id;
 			};
 
 			class	dll	DeleteModule:
 			public	ControlMessage<DeleteModule>{
 			public:
+				uint16	host_id;
 				uint16	module_cid;
 				uint16	module_id;
 			};
@@ -141,11 +146,13 @@ namespace	mBrane{
 			public:
 				uint16	sender_cid;
 				uint16	sender_id;
+				uint16	host_id;
 			};
 
 			class	dll	DeleteSpace:
 			public	ControlMessage<DeleteSpace>{
 			public:
+				uint16	host_id;
 				uint16	space_id;
 			};
 

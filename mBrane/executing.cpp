@@ -144,7 +144,7 @@ check_in:	_this->node->supportSync->acquire();
 					m->notify(p);
 				if(m->processor=currentProcessor)		// could be NULL if currentProcessor just finished.
 					currentProcessor->resume();
-				sync->release();
+				sync->release();						// release a potential waiting thread.
 				return;
 			case	_Module::DISCARD:
 				return;

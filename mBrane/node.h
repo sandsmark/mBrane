@@ -79,6 +79,7 @@ namespace	mBrane{
 		void	unloadApplication();
 	public:
 		uint16	getNID(const	char	*name);
+		const	char	*name();
 		//	main() NODE API
 		static	Node	*New(const	char	*configFileName,uint8	traceLevels);
 		~Node();
@@ -99,14 +100,14 @@ namespace	mBrane{
 		void	unsubscribeMessage(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,uint16	message_cid,Network	network=PRIMARY);
 		void	subscribeStream(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,uint16	stream_id,Network	network=PRIMARY);
 		void	unsubscribeStream(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,uint16	stream_id,Network	network=PRIMARY);
-		const	char	*getSpaceName(uint16	ID);
-		const	char	*getModuleName(uint16	ID);
+		const	char	*getSpaceName(uint16	hostID,uint16	ID);
+		const	char	*getModuleName(uint16	CID);
 		//	DAEMON NODE API
 		void			dump(const	char	*fileName);
 		void			load(const	char	*fileName);
 		void			migrate(uint16	CID,uint16	ID,uint16	NID);
 		//Array<uint8,65535>	&sharedMemorySegment(uint8	segment);	//	FUTURE DEVELOPMENT
-		_Module			*getModule(uint16	CID,uint16	ID);
+		_Module			*getModule(uint16	hostID,uint16	CID,uint16	ID);
 	};
 }
 

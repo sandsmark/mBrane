@@ -88,34 +88,35 @@ namespace	mBrane{
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	template<class	C>	Projectable<C>::Projectable(uint16	ID):Object<Memory,_Object,C>(),activationCount(0),ID(ID),reactivated(false){
+	template<class	C>	Projectable<C>::Projectable(uint16	hostID,uint16	ID):Object<Memory,_Object,C>(),activationCount(0),hostID(hostID),ID(ID),reactivated(false){
 	}
 
 	template<class	C>	Projectable<C>::~Projectable(){
 
-		for(uint32	i=0;i<projections.count();i++)
-			unproject(i);
+		for(uint16	i=0;i<projections.count();i++)
+			for(uint16	j=0;j<projections[i].count();j++)
+				unproject(i,j);
 	}
 
-	template<class	C>	inline	void	Projectable<C>::project(uint16	spaceID){
+	template<class	C>	inline	void	Projectable<C>::project(uint16	hostID,uint16	spaceID){
 
-		projections[spaceID]=Space::Main[spaceID]->project(new	Projection<C>((C	*)this,Space::Main[spaceID]));
+		projections[hostID][spaceID]=Space::Main[hostID][spaceID]->project(new	Projection<C>((C	*)this,Space::Main[hostID][spaceID]));
 	}
 
-	template<class	C>	inline	void	Projectable<C>::unproject(uint16	spaceID){
+	template<class	C>	inline	void	Projectable<C>::unproject(uint16	hostID,uint16	spaceID){
 
-		if(!projections[spaceID])
+		if(!projections[hostID][spaceID])
 			return;
-		*projections[spaceID]=NULL;
-		projections[spaceID].remove();
-		projections[spaceID]=List<P<Projection<C> >,16>::Iterator();
+		*projections[hostID][spaceID]=NULL;
+		projections[hostID][spaceID].remove();
+		projections[hostID][spaceID]=List<P<Projection<C> >,16>::Iterator();
 	}
 
-	template<class	C>	inline	void	Projectable<C>::setActivationLevel(uint16	spaceID,float32	a){
+	template<class	C>	inline	void	Projectable<C>::setActivationLevel(uint16	hostID,uint16	spaceID,float32	a){
 
-		if(!projections[spaceID])
-			project(spaceID);
-		(*projections[spaceID])->setActivationLevel(a);
+		if(!projections[hostID][spaceID])
+			project(hostID,spaceID);
+		(*projections[hostID][spaceID])->setActivationLevel(a);
 	}
 
 	template<class	C>	inline	void	Projectable<C>::activate(){
