@@ -5,7 +5,7 @@
 #endif
 
 #include	"node.h"
-#include	"..\Core\payload_utils.h"
+#include	"payload_utils.h"
 
 using	namespace	mBrane;
 using	namespace	mBrane::sdk;
