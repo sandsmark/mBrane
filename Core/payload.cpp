@@ -65,7 +65,7 @@ namespace	mBrane{
 		_Payload::~_Payload(){
 		}
 
-		inline	_Payload::Category	_Payload::category()	const{
+		_Payload::Category	_Payload::category()	const{
 
 			return	(_Payload::Category)((_metaData	&	0x0000000C)>>2);
 		}
@@ -80,12 +80,12 @@ namespace	mBrane{
 			return	_node_recv_ts;
 		}
 
-		inline	int64	&_Payload::send_ts(){
+		int64	&_Payload::send_ts(){
 
 			return	_send_ts;
 		}
 				
-		inline	int64	&_Payload::recv_ts(){
+		int64	&_Payload::recv_ts(){
 
 			return	_recv_ts;
 		}

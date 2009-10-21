@@ -46,7 +46,7 @@ namespace	mBrane{
 			//	Specialize for any particular T holding pointers: redefine ptrCount, getPtr and setPtr
 			template<typename	T>	class	Storage:
 			public	RPayload<Storage<T>,RawStorage,Memory>{
-			template<typename	T>	friend	class	Array;
+			template<typename	TA>	friend	class	Array;
 			private:
 				uint32	size;	//	currently allocated size, in bytes; normalized, i.e. _size = 64*s where s is a power of 2
 				uint32	count;	//	current max index; maintained by Array<T>
@@ -67,7 +67,7 @@ namespace	mBrane{
 			//	T must be a subclass of __Payload
 			template<typename	T>	class	Storage<P<T> >:
 			public	RPayload<Storage<T>,RawStorage,Memory>{
-			template<typename	T>	friend	class	Array;
+			template<typename	TA>	friend	class	Array;
 			private:
 				uint32	size;
 				uint32	count;

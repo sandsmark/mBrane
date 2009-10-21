@@ -32,6 +32,7 @@
 #define mBrane_sdk_array_h
 
 #include	"types.h"
+#include	<string.h>
 
 
 namespace	mBrane{

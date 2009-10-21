@@ -41,7 +41,7 @@ namespace	mBrane{
 			_StreamData::~_StreamData(){
 			}
 
-			inline	uint16	&_StreamData::sid(){
+			uint16	&_StreamData::sid(){
 
 				return	_sid;
 			}

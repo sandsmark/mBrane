@@ -43,7 +43,7 @@ namespace	mBrane{
 	template<typename	T>	T	SharedLibrary::getFunction(const	char	*functionName){
 		T	function=NULL;
 #if defined	WINDOWS
-		if(library){ 
+		if(library){
 
 			function=(T)GetProcAddress(library,functionName);
 			if(!function){
