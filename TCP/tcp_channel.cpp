@@ -108,7 +108,7 @@ int16	TCPChannel::recv(uint8	*b,size_t	s,bool	peek){
 	if (bufferContentLen - bufferContentPos < s) {
 		// if not, we give up
 		tcpCS.leave();
-		std::cout<<"Error: Not enough data in buffer, have "<<bufferContentLen-bufferContentPos<<" bytes, need "<<s<<" bytes..."<<std::endl;
+		std::cout<<"TCP Error: Not enough data in buffer, have "<<bufferContentLen-bufferContentPos<<" bytes, need "<<s<<" bytes..."<<std::endl;
 		return	1;
 	}
 

@@ -615,7 +615,7 @@ err2:	delete	networkID;
 
 		for(uint32	i=0;i<controlChannels[network].count();i++)
 			if((i != _ID) && controlChannels[network][i]	&&	controlChannels[network][i]->send(p))
-				processError(i);
+				processError((uint16)i);
 	}
 
 	void	Networking::broadcastControlMessage(_Payload	*p,Network	network){
@@ -813,20 +813,24 @@ err1:	node->shutdown();
 		while(!node->_shutdown){
 
 			if(r=node->recvID(node->discoveryChannel,networkID)){
-
-				node->shutdown();
-				thread_ret_val(r);
-			}
-			char* recName = networkID->name();
-			// Did we just receive our own broadcast
-			if (stricmp(recName, node->hostName) == 0) {
-				// ignore...
-				// std::cout<<"Info: Received my own network greeting, ignoring..."<<std::endl;
+				std::cout<<"Info: Received non-mBrane traffic on network, ignoring..."<<std::endl;
+				Thread::Sleep(100);
+			//	node->shutdown();
+			//	thread_ret_val(r);
 			}
 			else {
-				std::cout<<"Info: Received network greeting from Node "<<recName<<", connecting..."<<std::endl;
-				node->connect(networkID);
+				char* recName = networkID->name();
+				// Did we just receive our own broadcast
+				if (stricmp(recName, node->hostName) == 0) {
+					// ignore...
+					// std::cout<<"Info: Received my own network greeting, ignoring..."<<std::endl;
+				}
+				else {
+					std::cout<<"Info: Received network greeting from Node "<<recName<<", connecting..."<<std::endl;
+					node->connect(networkID);
+				}
 			}
+			
 		}
 		thread_ret_val(0);
 	}
