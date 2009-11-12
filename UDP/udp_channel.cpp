@@ -107,7 +107,7 @@ int16	UDPChannel::recv(uint8	*b,size_t	s,bool	peek){
 	if (bufferContentLen - bufferContentPos < s) {
 		// if not, we give up
 		udpCS.leave();
-		std::cout<<"UDP Error: Not enough data in buffer, have "<<bufferContentLen-bufferContentPos<<" bytes, need "<<s<<" bytes..."<<std::endl;
+		// std::cout<<"UDP Error: Not enough data in buffer, have "<<bufferContentLen-bufferContentPos<<" bytes, need "<<s<<" bytes..."<<std::endl;
 		return	1;
 	}
 

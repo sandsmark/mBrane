@@ -288,6 +288,46 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="App"
+			>
+			<File
+				RelativePath="..\App\cm_app.xml"
+				>
+			</File>
+			<File
+				RelativePath="..\App\cm_node.xml"
+				>
+			</File>
+			<File
+				RelativePath="..\App\perf.xml"
+				>
+			</File>
+			<File
+				RelativePath="..\App\perfapp.xml"
+				>
+			</File>
+			<File
+				RelativePath="..\App\pingpong_app.xml"
+				>
+			</File>
+			<File
+				RelativePath="..\App\pingpong_node.xml"
+				>
+			</File>
+			<File
+				RelativePath="..\App\test_2node.xml"
+				>
+			</File>
+			<File
+				RelativePath="..\App\test_application.xml"
+				>
+			</File>
+			<File
+				RelativePath="..\App\test_node.xml"
+				>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>

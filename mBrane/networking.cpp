@@ -813,7 +813,7 @@ err1:	node->shutdown();
 		while(!node->_shutdown){
 
 			if(r=node->recvID(node->discoveryChannel,networkID)){
-				std::cout<<"Info: Received non-mBrane traffic on network, ignoring..."<<std::endl;
+				// std::cout<<"Info: Received non-mBrane traffic on network, ignoring..."<<std::endl;
 				Thread::Sleep(100);
 			//	node->shutdown();
 			//	thread_ret_val(r);
