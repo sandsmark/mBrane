@@ -193,16 +193,13 @@ namespace	mBrane{
 	}
 
 	Thread::~Thread(){
-		if (_thread == NULL)
-			return;
 #if defined	WINDOWS
 //		ExitThread(0);
 		CloseHandle(_thread);
 #elif defined LINUX
-		delete(_thread);
+//		delete(_thread);
 #elif defined OSX
 #endif
-	_thread = NULL;
 	}
 
 	void	Thread::start(thread_function	f){

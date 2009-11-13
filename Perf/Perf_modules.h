@@ -34,12 +34,14 @@ MODULE_CLASS_BEGIN(ping,Module<ping>)
 		//OUTPUT<<"Test got to '"<<counter<<"' so far..."<<std::endl;
 		if (counter == 500) {
 			runCount++;
-			if (runCount > 2000) {
+			if (runCount >= 200) {
 				endTime = Time::Get();
-				OUTPUT<<"PingPong test took "<<endTime-startTime<<"us, "<<((double)p->id)/(endTime-startTime)<<"us per msg"<<std::endl;
+				uint32 t = (uint32)(endTime-startTime);
+				uint32 c = (uint32)(counter*runCount);
+				OUTPUT<<"PingPong test took "<<t<<"us for "<<c<<" msgs, "<<((double)t)/((double)c)<<"us per msg"<<std::endl;
 			}
 			else {
-			//	OUTPUT<<"Test got to '"<<counter*runCount<<"' so far..."<<std::endl;
+				//OUTPUT<<"Test got to '"<<counter*runCount<<"' so far..."<<std::endl;
 				counter = 0;
 				NODE->send(this,new Ball(counter),N::LOCAL);
 			}

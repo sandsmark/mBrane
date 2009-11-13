@@ -64,7 +64,7 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.cpp
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 	@echo Compiling $(<F)
 	@gcc $(DEBUG) $(INCLUDES) $(LIBCOPT) -Wall -w -Wstrict-prototypes -Wmissing-prototypes -O2 -o $@ -c $<
-	
+
 ############# Linking #############
 
 $(BINLIBRARY): $(OBJFILES)
@@ -75,7 +75,7 @@ $(BINLIBRARY): $(OBJFILES)
 
 clean:
 	@echo Removing build and binary files
-	@$(RMALL) $(BINDIR)
+	@$(RMALL) $(BINLIBRARY)
 	@$(RMALL) $(BUILDDIR)
 
 totalclean : clean
