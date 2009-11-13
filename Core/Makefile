@@ -62,7 +62,7 @@ endif
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.cpp
 	@echo Compiling $(<F)
-	$(CC) $(DEBUG) $(INCLUDES) $(STANDARD) $(LIBCOPT) $(NOTLINK) $(OUTPUT_OPTION) $<
+	@$(CC) $(DEBUG) $(INCLUDES) $(STANDARD) $(LIBCOPT) $(NOTLINK) $(OUTPUT_OPTION) $<
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 	@echo Compiling $(<F)
@@ -72,7 +72,7 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 
 $(BINLIBRARY): $(OBJFILES)
 	@echo Linking $(BINLIBRARY) $(SYSTEM)...
-	$(CC) $(DEBUG) $(STANDARD) $(LIBOPT) $(OBJFILES) $(LIBPATHS) -o $(BINLIBRARY) $(LIBS) $(OTHERLIBS)
+	@$(CC) $(DEBUG) $(STANDARD) $(LIBOPT) $(OBJFILES) $(LIBPATHS) -o $(BINLIBRARY) $(LIBS) $(OTHERLIBS)
 
 ############# Cleaning #############
 

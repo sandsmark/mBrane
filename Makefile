@@ -1,6 +1,6 @@
 ############# Names and dirs #############
 
-BINDIRS  = Core TCP UDP mBrane
+BINDIRS  = Core TCP UDP mBrane pingpong Perf
 
 BINDIR = bin
 
