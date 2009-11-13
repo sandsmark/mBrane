@@ -127,6 +127,22 @@ namespace	mBrane{
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
+	void	Thread::TerminateAndWait(Thread	**threads,uint32	threadCount){
+		if(!threads)
+			return;
+		for(uint32	i=0;i<threadCount;i++) {
+			threads[i]->terminate();
+			Thread::Wait(threads[i]);
+		}
+	}
+
+	void	Thread::TerminateAndWait(Thread	*_thread){
+		if(!_thread)
+			return;
+		_thread->terminate();
+		Thread::Wait(_thread);
+	}
+
 	void	Thread::Wait(Thread	**threads,uint32	threadCount){
 
 		if(!threads)
@@ -177,12 +193,16 @@ namespace	mBrane{
 	}
 
 	Thread::~Thread(){
+		if (_thread == NULL)
+			return;
 #if defined	WINDOWS
-		ExitThread(0);
+//		ExitThread(0);
+		CloseHandle(_thread);
 #elif defined LINUX
-		pthread_exit(0);
+		delete(_thread);
 #elif defined OSX
 #endif
+	_thread = NULL;
 	}
 
 	void	Thread::start(thread_function	f){
@@ -208,6 +228,15 @@ namespace	mBrane{
 		ResumeThread(_thread);
 #elif defined LINUX
 		pthread_kill(_thread, SIGCONT);
+#elif defined OSX
+#endif
+	}
+
+	void	Thread::terminate(){
+#if defined	WINDOWS
+		TerminateThread(_thread, 0);
+#elif defined LINUX
+		pthread_cancel(_thread);
 #elif defined OSX
 #endif
 	}

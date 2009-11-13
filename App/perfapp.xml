@@ -8,7 +8,7 @@
 	<Module class="ping" name="first_module" host="local"><!--name optional-->
 		<Projection space="space1" activation_level="1">
 			<Subscription message_class="SystemReady"/>
-      <Subscription message_class="Ball"/>
+      <Subscription message_class="ReturnBall"/>
 			<Subscription stream="0"/>
 		</Projection>
 	</Module>

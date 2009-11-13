@@ -399,10 +399,15 @@ namespace	mBrane{
 			return;
 		_shutdown=true;
 		std::cout<<"> Shutting down..."<<std::endl;
+		std::cout<<"> Shutting down Messaging..."<<std::endl;
 		Messaging::shutdown();
+		std::cout<<"> Shutting down Executing..."<<std::endl;
 		Executing::shutdown();
+		std::cout<<"> Shutting down Node..."<<std::endl;
 		mdaemon::Node::shutdown();
+		std::cout<<"> Shutting down Networking..."<<std::endl;
 		Networking::shutdown();
+		std::cout<<"> Shutting down Application..."<<std::endl;
 		unloadApplication();
 	}
 

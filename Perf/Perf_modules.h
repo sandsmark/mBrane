@@ -8,6 +8,10 @@
 #define	NODE	module::Node::Get()
 #define	OUTPUT	NODE->trace(N::APPLICATION)
 
+int64 startTime = 0;
+int64 endTime = 0;
+int32 runCount = 0;
+
 class	pong;
 MODULE_CLASS_BEGIN(ping,Module<ping>)
 	void	start(){
@@ -18,55 +22,31 @@ MODULE_CLASS_BEGIN(ping,Module<ping>)
 		return	WAIT;
 	}
 	template<class	T>	void	react(T	*p){	//	to messages
-		OUTPUT<<"ping got a message..."<<std::endl;
+		OUTPUT<<"ping "<<_id<<" got another message..."<<std::endl;
 	}
 	void	react(SystemReady	*p){
-		OUTPUT<<"ping got SystemReady"<<std::endl;
+		OUTPUT<<"ping starting PingPong test, please wait..."<<std::endl;
+		startTime = Time::Get();
 		NODE->send(this,new Ball(0),N::LOCAL);
-/*		NODE->deleteModule(1,0);
-		NODE->send(this,new Ball(1),N::LOCAL);
-		NODE->newModule(this,Module<pong>::CID());							//	module_id=0; ping does not catch notifications on new modules, so we have to know the new module's id, see below.
-		NODE->activateModule(this,Module<pong>::CID(),0,1,1.0);				//	the correct way to do that is to have it done in the new module: this solves the issue above, at the expense of removing the initial subscriptions in the configuration file.
-		NODE->subscribeMessage(this,Module<pong>::CID(),0,1,CLASS_ID(Ball));//	idem.
-		NODE->activateSpace(this,0,1,0);
-		NODE->activateSpace(this,0,1,1);
-		NODE->send(this,new Ball(2),N::LOCAL);
-		NODE->newSpace(this);												//	space_id=3.
-		NODE->activateSpace(this,0,3,1);
-		NODE->setSpaceThreshold(this,3,0.5);
-		NODE->newModule(this,Module<pong>::CID());							//	module_id=1.
-		NODE->send(this,new Ball(3),N::LOCAL);
-		NODE->subscribeMessage(this,Module<pong>::CID(),1,3,CLASS_ID(Ball));
-		NODE->unsubscribeMessage(this,Module<pong>::CID(),1,3,CLASS_ID(Ball));
-		NODE->subscribeMessage(this,Module<pong>::CID(),1,3,CLASS_ID(Ball));
-		NODE->activateModule(this,Module<pong>::CID(),1,3,1.0);
-		NODE->send(this,new Ball(4),N::LOCAL);
-		NODE->deleteSpace(3);
-		NODE->send(this,new Ball(5),N::LOCAL);
-		NODE->unsubscribeMessage(this,Module<pong>::CID(),0,1,CLASS_ID(Ball));
-*/
-		NODE->send(this,new Type2(),N::LOCAL);
 	}
-	void	react(Ball	*p){
-		OUTPUT<<"ping got the ball "<<p->id<<std::endl;
-	}
-	void	react(Type1	*p){
-		static	uint32	i=0;
-		static	uint64	_begin=Time::Get();
-		if(++i==1000){
-			uint64	delta=Time::Get()-_begin;
-			float32	t=((float32)delta)/1000000;
-			std::cout<<"------------ "<<t<<std::endl;
-			return;
+	void	react(ReturnBall	*p){
+		int counter = p->id;
+		//OUTPUT<<"Test got to '"<<counter<<"' so far..."<<std::endl;
+		if (counter == 500) {
+			runCount++;
+			if (runCount > 2000) {
+				endTime = Time::Get();
+				OUTPUT<<"PingPong test took "<<endTime-startTime<<"us, "<<((double)p->id)/(endTime-startTime)<<"us per msg"<<std::endl;
+			}
+			else {
+			//	OUTPUT<<"Test got to '"<<counter*runCount<<"' so far..."<<std::endl;
+				counter = 0;
+				NODE->send(this,new Ball(counter),N::LOCAL);
+			}
 		}
-		OUTPUT<<"ping got Type1"<<std::endl;
-		NODE->send(this,new Type2(),N::LOCAL);
-	}
-	void	react(Type2	*p){
-		OUTPUT<<"ping got Type2"<<std::endl;
-	}
-	template<class	T>	void	react(uint16	sid,T	*p){	//	to stream data
-		OUTPUT<<"ping got data on stream "<<sid<<std::endl;
+		else {
+			NODE->send(this,new Ball(counter+1),N::LOCAL);
+		}
 	}
 MODULE_CLASS_END(ping)
 
@@ -79,23 +59,14 @@ MODULE_CLASS_BEGIN(pong,Module<pong>)
 		return	WAIT;
 	}
 	template<class	T>	void	react(T	*p){	//	to messages
-		OUTPUT<<"pong "<<_id<<" got a message..."<<std::endl;
+		OUTPUT<<"pong "<<_id<<" got another message..."<<std::endl;
 	}
 	void	react(SystemReady	*p){
-		OUTPUT<<"pong got SystemReady"<<std::endl;
+	//	OUTPUT<<"pong got SystemReady"<<std::endl;
 	}
 	void	react(Ball	*p){
-		OUTPUT<<"pong "<<_id<<" got the ball "<<p->id<<std::endl;
-	}
-	void	react(Type1	*p){
-		OUTPUT<<"pong got Type1"<<std::endl;
-	}
-	void	react(Type2	*p){
-		OUTPUT<<"pong got Type2"<<std::endl;
-		NODE->send(this,new Type1(),N::LOCAL);
-	}
-	template<class	T>	void	react(uint16	sid,T	*p){	//	to stream data
-		OUTPUT<<"pong got data on stream "<<sid<<std::endl;
+	//	OUTPUT<<"pong "<<_id<<" got the ball '"<<p->id<<"'"<<std::endl;
+		NODE->send(this,new ReturnBall(p->id),N::LOCAL);
 	}
 MODULE_CLASS_END(pong)
 

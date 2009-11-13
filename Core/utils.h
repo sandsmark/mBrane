@@ -57,6 +57,8 @@ namespace	mBrane{
 		Thread();
 	public:
 		template<class	T>	static	T	*New(thread_function	f,void	*args);
+		static	void	TerminateAndWait(Thread	**threads,uint32	threadCount);
+		static	void	TerminateAndWait(Thread	*_thread);
 		static	void	Wait(Thread	**threads,uint32	threadCount);
 		static	void	Wait(Thread	*_thread);
 		static	void	Sleep(int64	d);
@@ -65,6 +67,7 @@ namespace	mBrane{
 		void	start(thread_function	f);
 		void	suspend();
 		void	resume();
+		void	terminate();
 	};
 
 	class	dll	TimeProbe{	//	requires Time::Init()

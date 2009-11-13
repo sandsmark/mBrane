@@ -71,8 +71,9 @@ namespace	mBrane{
 		if(callbackLibrary)
 			delete	callbackLibrary;
 
-		if(discoveryChannel)
-			delete	discoveryChannel;
+	// has already been deleted above
+	//	if(discoveryChannel)
+	//		delete	discoveryChannel;
 
 		for(uint32	i=0;i<commThreads.count();i++){
 
@@ -700,7 +701,7 @@ err2:	delete	networkID;
 	void	Networking::shutdown(){
 
 		for(uint32	i=0;i<commThreads.count();i++)
-			Thread::Wait(*commThreads.get(i));
+			Thread::TerminateAndWait(*commThreads.get(i));
 		stopInterfaces();
 	}
 
@@ -879,7 +880,8 @@ err1:	node->shutdown();
 			delete	channels[SECONDARY].data;
 		if(channels[SECONDARY].stream)
 			delete	channels[SECONDARY].stream;
-		if(networkID)
-			delete	networkID;
+	// Deleted elsewhere
+	//	if(networkID)
+	//		delete	networkID;
 	}
 }

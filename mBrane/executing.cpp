@@ -81,7 +81,7 @@ namespace	mBrane{
 
 	void	Executing::shutdown(){
 
-		Thread::Wait(xThreads.data(),xThreads.count());
+		Thread::TerminateAndWait(xThreads.data(),xThreads.count());
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////

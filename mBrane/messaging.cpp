@@ -164,12 +164,11 @@ namespace	mBrane{
 	}
 
 	void	Messaging::shutdown(){
-
-		Thread::Wait(sendThread);
+		Thread::TerminateAndWait(sendThread);
 		for(uint32	i=0;i<recvThreads.count();i++)
-			Thread::Wait(*recvThreads.get(i));
+			Thread::TerminateAndWait(*recvThreads.get(i));
 		for(uint32	i=0;i<pushThreads.count();i++)
-			Thread::Wait(*pushThreads.get(i));
+			Thread::TerminateAndWait(*pushThreads.get(i));
 	}
 
 	inline	void	Messaging::pushJobs(_Payload	*p,NodeEntry	&e){
@@ -293,6 +292,8 @@ namespace	mBrane{
 		while(!node->_shutdown){
 
 			out=node->messageOutputQueue.pop();
+			// printf("POP\n");
+			fflush(stdout);
 			p=out->p;
 			_p=p;
 			_Payload::Category	cat=p->category();

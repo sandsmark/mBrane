@@ -49,13 +49,13 @@ bool	signal_handler_function_call	Handler(uint32	event){
     case	CTRL_CLOSE_EVENT:
       	node->shutdown();
 		delete	node;
-		return	true;
+		exit(0);
     case	CTRL_BREAK_EVENT:
     case	CTRL_LOGOFF_EVENT:
     case	CTRL_SHUTDOWN_EVENT:
 		node->shutdown();
 		delete	node;
-		return	false;
+		exit(0);
     default:
 		return false; 
 	}

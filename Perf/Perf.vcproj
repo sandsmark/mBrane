@@ -212,6 +212,14 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath="..\App\perf.xml"
+			>
+		</File>
+		<File
+			RelativePath="..\App\perfapp.xml"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
