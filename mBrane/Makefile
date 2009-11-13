@@ -2,13 +2,13 @@
 
 PROGNAME = mBrane
 
-BINDIR = bin
+BINDIR = ../bin
 SRCDIR = .
 BUILDDIR = build
 
 INCLUDEDIRS = . ../Core
 
-LIBRARIES = ../Core/lib/arch/Core.a
+LIBRARIES = ../bin/arch/libCore.so
 
 ############# Include system stuff #############
 
@@ -61,7 +61,7 @@ endif
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.cpp
 	@echo Compiling $(<F)
-	@$(CC) $(DEBUG) $(INCLUDES) $(STANDARD) $(NOTLINK) $(OUTPUT_OPTION) $<
+	$(CC) $(DEBUG) $(INCLUDES) $(STANDARD) $(NOTLINK) $(OUTPUT_OPTION) $<
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 	@echo Compiling $(<F)
@@ -71,7 +71,7 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 
 $(PROGRAM): $(OBJFILES)
 	@echo Linking $(PROGNAME) $(SYSTEM)...
-	@$(CC) $(DEBUG) $(STANDARD) $(OBJFILES) $(LIBRARY) $(LIBPATHS) -o $(PROGRAM) $(LIBS) $(OTHERLIBS)
+	$(CC) $(DEBUG) $(STANDARD) $(OBJFILES) $(LIBRARY) $(LIBPATHS) -o $(PROGRAM) $(LIBS) $(OTHERLIBS)
 
 ############# Cleaning #############
 

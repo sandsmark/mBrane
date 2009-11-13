@@ -1,8 +1,8 @@
 ############# Names and dirs #############
 
-LIBNAME = Core.a
+BINLIBNAME = Core
 
-LIBDIR = lib
+BINDIR = ../bin
 SRCDIR = .
 BUILDDIR = build
 
@@ -23,7 +23,7 @@ CPPFILES += xml_parser.cpp
 
 ############# Setup dirs #############
 
-LIBRARY = $(LIBDESTDIR)/$(LIBNAME)
+BINLIBRARY = $(BINDESTDIR)/lib$(BINLIBNAME).so
 
 SRCFILES = $(patsubst %.cpp,$(SRCDIR)/%.cpp,$(CPPFILES))
 OBJFILES = $(patsubst %.cpp,$(BUILDDIR)/%.o,$(CPPFILES))
@@ -31,15 +31,14 @@ OBJFILES = $(patsubst %.cpp,$(BUILDDIR)/%.o,$(CPPFILES))
 INCLUDES = $(patsubst %,-I% ,$(INCLUDEDIRS))
 LIBS = $(subst /arch/,/$(ARCH)/,$(LIBRARIES))
 
-RESULT := $(shell if [ ! -d $(LIBDIR) ]; then mkdir $(LIBDIR); fi)
-RESULT := $(shell if [ ! -d $(LIBDESTDIR) ]; then mkdir $(LIBDESTDIR); fi)
+RESULT := $(shell if [ ! -d $(BINDIR) ]; then mkdir $(BINDIR); fi)
+RESULT := $(shell if [ ! -d $(BINDESTDIR) ]; then mkdir $(BINDESTDIR); fi)
 RESULT := $(shell if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi)
-RESULT := $(shell if [ ! -d $(BUILDDIR)/thirdparty ]; then mkdir $(BUILDDIR)/thirdparty; fi)
 
 ############# Overall commands #############
 
-all : $(LIBRARY)
-	@echo $(LIBRARY) ready
+all : $(BINLIBRARY)
+	@echo $(BINLIBRARY) ready
 
 debug: all
 
@@ -63,26 +62,24 @@ endif
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.cpp
 	@echo Compiling $(<F)
-	@$(CC) $(DEBUG) $(INCLUDES) $(STANDARD) $(NOTLINK) $(OUTPUT_OPTION) $<
+	$(CC) $(DEBUG) $(INCLUDES) $(STANDARD) $(LIBCOPT) $(NOTLINK) $(OUTPUT_OPTION) $<
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 	@echo Compiling $(<F)
-	@gcc $(DEBUG) $(INCLUDES) -Wall -w -Wstrict-prototypes -Wmissing-prototypes -O2 -o $@ -c $<
-	
+	@gcc $(DEBUG) $(INCLUDES) $(LIBCOPT) -Wall -w -Wstrict-prototypes -Wmissing-prototypes -O2 -o $@ -c $<
+
 ############# Linking #############
 
-$(LIBRARY): $(OBJFILES)
-	@echo Creating $(LIBRARY)...
-	@$(RM) -f $(LIBRARY)
-	@$(AR) $(ARFLAGS) $(LIBRARY) $(OBJFILES)
-	@$(RANLIB) $(LIBRARY)
+$(BINLIBRARY): $(OBJFILES)
+	@echo Linking $(BINLIBRARY) $(SYSTEM)...
+	$(CC) $(DEBUG) $(STANDARD) $(LIBOPT) $(OBJFILES) $(LIBPATHS) -o $(BINLIBRARY) $(LIBS) $(OTHERLIBS)
 
 ############# Cleaning #############
 
 clean:
 	@echo Removing build and binary files
 	@$(RMALL) $(BUILDDIR)
-	@$(RMALL) $(LIBDIR)
+	@$(RMALL) $(BINDIR)
 
 totalclean : clean
 	@echo Removing Visual Studio temporary files

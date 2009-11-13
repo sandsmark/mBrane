@@ -1,6 +1,6 @@
 ############# Names and dirs #############
 
-BINLIBNAME = udp
+BINLIBNAME = pingpong
 
 BINDIR = ../bin
 SRCDIR = .
@@ -16,7 +16,7 @@ include ../Makefile.sys
 
 ############# Files to compile #############
 
-CPPFILES = udp.cpp udp_channel.cpp udp_interface.cpp
+CPPFILES = pingpong.cpp modules.cpp
 
 ############# Setup dirs #############
 

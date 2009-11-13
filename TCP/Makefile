@@ -2,7 +2,7 @@
 
 BINLIBNAME = tcp
 
-BINDIR = bin
+BINDIR = ../bin
 SRCDIR = .
 BUILDDIR = build
 
@@ -20,7 +20,7 @@ CPPFILES = tcp.cpp tcp_channel.cpp tcp_interface.cpp
 
 ############# Setup dirs #############
 
-BINLIBRARY = $(BINDESTDIR)/$(BINLIBNAME).so
+BINLIBRARY = $(BINDESTDIR)/lib$(BINLIBNAME).so
 
 SRCFILES = $(patsubst %.cpp,$(SRCDIR)/%.cpp,$(CPPFILES))
 OBJFILES = $(patsubst %.cpp,$(BUILDDIR)/%.o,$(CPPFILES))
