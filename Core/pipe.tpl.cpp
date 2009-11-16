@@ -72,12 +72,12 @@ namespace	mBrane{
 					if(!spare){
 
 						spare=first;
-						spare->next=NULL;
 						first=first->next;
+						spare->next=NULL;
 					}else{
 
 						Block	*b=first->next;
-						b->next=NULL;
+						first->next=NULL;
 						delete	first;
 						first=b;
 					}

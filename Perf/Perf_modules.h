@@ -8,6 +8,8 @@
 #define	NODE	module::Node::Get()
 #define	OUTPUT	NODE->trace(N::APPLICATION)
 
+#include	"RR.h"
+
 int64 startTime = 0;
 int64 endTime = 0;
 int32 runCount = 0;
@@ -30,7 +32,7 @@ MODULE_CLASS_BEGIN(ping,Module<ping>)
 		NODE->send(this,new Ball(0),N::LOCAL);
 	}
 	void	react(ReturnBall	*p){
-		int counter = p->id;
+		int32 counter = p->id;
 		//OUTPUT<<"Test got to '"<<counter<<"' so far..."<<std::endl;
 		if (counter == 500) {
 			runCount++;

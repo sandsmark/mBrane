@@ -220,6 +220,14 @@
 			RelativePath="..\App\perfapp.xml"
 			>
 		</File>
+		<File
+			RelativePath="..\App\rr.xml"
+			>
+		</File>
+		<File
+			RelativePath="..\App\rrapp.xml"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

@@ -8,3 +8,5 @@
 
 LOAD_MODULE(ping)
 LOAD_MODULE(pong)
+LOAD_MODULE(RRMaster)
+LOAD_MODULE(RRModule)
