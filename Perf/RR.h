@@ -19,19 +19,22 @@ MODULE_CLASS_BEGIN(RRMaster,Module<RRMaster>)
 	}
 
 	void	react(Ball9 *p){
-		int32 counter = p->num;
+		Ball9 *ball = p;
+		int32 counter = ball->num;
 		if (counter == 10000) {
 			tEnd = Time::Get();
 			uint32 t = (uint32)(tEnd-tStart);
 			OUTPUT<<"RR[" << cRun << "] test took "<<t<<"us for "<<counter<<" msgs, "<<((double)t)/((double)counter)<<"us per msg"<<std::endl;
 			//OUTPUT<<"Test got to '"<<counter*runCount<<"' so far..."<<std::endl;
 			cRun++;
-			counter = 0;
 			NODE->send(this,new Ball1(0),N::LOCAL);
 		}
 		else {
+			if (counter % 100 == 0)
+				OUTPUT<<"RR[" << cRun << "] "<<counter<<" msgs so far..."<<std::endl;
 			NODE->send(this,new Ball1(counter+1),N::LOCAL);
 		}
+		ball = NULL;
 	}
 MODULE_CLASS_END(RRMaster)
 
@@ -42,36 +45,52 @@ MODULE_CLASS_BEGIN(RRModule,Module<RRModule>)
 	template<class	T>	void	react(T	*p){}
 
 	void	react(Ball1 *p){
-		int32 counter = p->num;
+		Ball1 *ball = p;
+		int32 counter = ball->num;
 		NODE->send(this,new Ball2(counter),N::LOCAL);
+		ball = NULL;
 	}
 	void	react(Ball2 *p){
-		int32 counter = p->num;
+		Ball2 *ball = p;
+		int32 counter = ball->num;
 		NODE->send(this,new Ball3(counter),N::LOCAL);
+		ball = NULL;
 	}
 	void	react(Ball3 *p){
-		int32 counter = p->num;
+		Ball3 *ball = p;
+		int32 counter = ball->num;
 		NODE->send(this,new Ball4(counter),N::LOCAL);
+		ball = NULL;
 	}
 	void	react(Ball4 *p){
-		int32 counter = p->num;
+		Ball4 *ball = p;
+		int32 counter = ball->num;
 		NODE->send(this,new Ball5(counter),N::LOCAL);
+		ball = NULL;
 	}
 	void	react(Ball5 *p){
-		int32 counter = p->num;
+		Ball5 *ball = p;
+		int32 counter = ball->num;
 		NODE->send(this,new Ball6(counter),N::LOCAL);
+		ball = NULL;
 	}
 	void	react(Ball6 *p){
-		int32 counter = p->num;
+		Ball6 *ball = p;
+		int32 counter = ball->num;
 		NODE->send(this,new Ball7(counter),N::LOCAL);
+		ball = NULL;
 	}
 	void	react(Ball7 *p){
-		int32 counter = p->num;
+		Ball7 *ball = p;
+		int32 counter = ball->num;
 		NODE->send(this,new Ball8(counter),N::LOCAL);
+		ball = NULL;
 	}
 	void	react(Ball8 *p){
-		int32 counter = p->num;
+		Ball8 *ball = p;
+		int32 counter = ball->num;
 		NODE->send(this,new Ball9(counter),N::LOCAL);
+		ball = NULL;
 	}
 MODULE_CLASS_END(RRModule)
 
