@@ -596,6 +596,16 @@ bool CalcTimeout(struct timespec &timeout, struct timeval &now, uint32 ms) {
 			return;
 		}
 #elif defined LINUX
+   signal(SIGABRT, SIG_IGN);
+   signal(SIGPIPE, SIG_IGN);
+   signal(SIGBUS, SIG_IGN);
+//   signal(SIGHUP, h);
+   signal(SIGTERM, h);
+   signal(SIGINT, h);
+   signal(SIGABRT, h);
+//   signal(SIGFPE, h);
+//   signal(SIGILL, h);
+//   signal(SIGSEGV, h);
 #elif defined OSX
 #endif
 	}
@@ -604,6 +614,16 @@ bool CalcTimeout(struct timespec &timeout, struct timeval &now, uint32 ms) {
 #if defined	WINDOWS
 		SetConsoleCtrlHandler(h,false);
 #elif defined LINUX
+   signal(SIGABRT, SIG_IGN);
+   signal(SIGPIPE, SIG_IGN);
+   signal(SIGBUS, SIG_IGN);
+//   signal(SIGHUP, SIG_DFL);
+   signal(SIGTERM, SIG_DFL);
+   signal(SIGINT, SIG_DFL);
+   signal(SIGABRT, SIG_DFL);
+//   signal(SIGFPE, SIG_DFL);
+//   signal(SIGILL, SIG_DFL);
+//   signal(SIGSEGV, SIG_DFL);
 #elif defined OSX
 #endif
 	}

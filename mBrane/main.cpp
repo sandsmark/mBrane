@@ -59,6 +59,21 @@ bool	signal_handler_function_call	Handler(uint32	event){
     default:
 		return false; 
 	}
+#else
+	switch(event){
+	case	SIGTERM:
+	case	SIGINT:
+	case	SIGABRT:
+      	node->shutdown();
+		delete	node;
+		exit(0);
+	case	SIGHUP:
+	case	SIGFPE:
+	case	SIGILL:
+	case	SIGSEGV:
+    default:
+		return false; 
+	}
 #endif
 
 }

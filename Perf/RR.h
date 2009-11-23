@@ -24,14 +24,19 @@ MODULE_CLASS_BEGIN(RRMaster,Module<RRMaster>)
 		if (counter == 10000) {
 			tEnd = Time::Get();
 			uint32 t = (uint32)(tEnd-tStart);
-			OUTPUT<<"RR[" << cRun << "] test took "<<t<<"us for "<<counter<<" msgs, "<<((double)t)/((double)counter)<<"us per msg"<<std::endl;
+			printf("RR[%u] test took %uus for %d msgs, %.3fus per msg (%p)\n",
+				cRun, t, counter, ((double)t)/((double)counter), ball);
+			// OUTPUT<<"RR[" << cRun << "] test took "<<t<<"us for "<<counter<<" msgs, "<<((double)t)/((double)counter)<<"us per msg ("<<<<")"<<std::endl;
 			//OUTPUT<<"Test got to '"<<counter*runCount<<"' so far..."<<std::endl;
 			cRun++;
 			NODE->send(this,new Ball1(0),N::LOCAL);
 		}
 		else {
-			if (counter % 100 == 0)
-				OUTPUT<<"RR[" << cRun << "] "<<counter<<" msgs so far..."<<std::endl;
+			if (counter % 1000 == 0)
+				printf("RR[%u] %d msgs so far (%p)\n",
+					cRun, counter, ball);
+		//	if (counter % 100 == 0)
+		//		OUTPUT<<"RR[" << cRun << "] "<<counter<<" msgs so far..."<<std::endl;
 			NODE->send(this,new Ball1(counter+1),N::LOCAL);
 		}
 		ball = NULL;
@@ -47,6 +52,9 @@ MODULE_CLASS_BEGIN(RRModule,Module<RRModule>)
 	void	react(Ball1 *p){
 		Ball1 *ball = p;
 		int32 counter = ball->num;
+		//	if (counter % 1000 == 0)
+		//		printf("RR5 %d msgs so far (%p)\n",
+		//			counter, ball);
 		NODE->send(this,new Ball2(counter),N::LOCAL);
 		ball = NULL;
 	}

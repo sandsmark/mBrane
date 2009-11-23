@@ -101,7 +101,12 @@ check_in:	_this->node->supportSync->acquire();
 
 			Job	*j=_this->node->jobs.pop();
 			j->m->sync->acquire();	//	forces threads processing the same module to run in the order of message arrival, until reaching a preemption point (see work).
-			_this->work(j->p,j->m);
+			if (j->p == NULL) {
+				printf("Xec Payload NULL!!!\n");
+				fflush(stdout);
+			}
+			else
+				_this->work(j->p,j->m);
 			j->p=NULL;
 
 			if(_this->wasSupporting)
@@ -122,9 +127,17 @@ check_in:	_this->node->supportSync->acquire();
 
 	inline	void	XThread::work(_Payload	*p,_Module	*m){
 		
+		if (p == NULL) {
+			printf("Work 1 Payload NULL!!!\n");
+			fflush(stdout);
+		}
 		XThread	*currentProcessor=(XThread	*)m->processor;
 		if(currentProcessor){
 
+			if (p == NULL) {
+				printf("Work 2 Payload NULL!!!\n");
+				fflush(stdout);
+			}
 			switch(m->dispatch(p)){
 			case	_Module::WAIT:
 				node->supportSync->release();			// before waiting, unlock a supporting thread to run instead of this.
@@ -152,6 +165,10 @@ check_in:	_this->node->supportSync->acquire();
 		
 		m->processor=this;
 		m->sync->release();	// preemption point.
+		if (p == NULL) {
+			printf("Work 3 Payload NULL!!!\n");
+			fflush(stdout);
+		}
 		if(p->category()==_Payload::STREAM)
 			m->notify(((_StreamData	*)p)->sid(),p);
 		else

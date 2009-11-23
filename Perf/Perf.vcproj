@@ -211,6 +211,10 @@
 				RelativePath=".\Perf_modules.h"
 				>
 			</File>
+			<File
+				RelativePath=".\RR.h"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath="..\App\perf.xml"
