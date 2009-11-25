@@ -69,7 +69,7 @@ namespace	mBrane{
 		inline	void	_Object::decRef(){
 
 			//if(--refCount==0)
-			if(Atomic::Increment(&refCount)==0)
+			if(Atomic::Decrement(&refCount)==0)
 				delete	this;
 		}
 	}
