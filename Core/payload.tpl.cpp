@@ -47,6 +47,27 @@ namespace	mBrane{
 
 		////////////////////////////////////////////////////////////////////////////////////
 
+		template<class	S>	_DynamicData	*DynamicData<S>::as_DynamicData(){
+
+			return	(_DynamicData	*)(((uint8	*)this)+sizeof(PayloadAlloc<S,DYNAMIC>));
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////
+
+		template<class	S>	_CompressedData	*CompressedData<S>::as_CompressedData(){
+
+			return	(_CompressedData	*)(((uint8	*)this)+sizeof(PayloadAlloc<S,COMPRESSED>));
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////
+
+		template<class	S>	_RawStorage	*RawStorage<S>::as_RawStorage(){
+
+			return	(_RawStorage	*)(((uint8	*)this)+sizeof(PayloadAlloc<S,RAW>));
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////
+
 		template<template<class>	class	A,	class	P,class	U,class	M>	const	uint32	___Payload<A,P,U,M>::_MetaData=ClassRegister::Load<U,M>();
 
 		template<template<class>	class	A,	class	P,class	U,class	M>	inline	void	*___Payload<A,P,U,M>::New(uint32	size){

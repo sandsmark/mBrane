@@ -50,7 +50,7 @@ MODULE_CLASS_BEGIN(RRModule,Module<RRModule>)
 	template<class	T>	void	react(T	*p){}
 
 	void	react(Ball1 *p){
-		Ball1 *ball = p;
+		P<Ball1>	ball = p;
 		int32 counter = ball->num;
 		//	if (counter % 1000 == 0)
 		//		printf("RR5 %d msgs so far (%p)\n",
@@ -59,43 +59,43 @@ MODULE_CLASS_BEGIN(RRModule,Module<RRModule>)
 		ball = NULL;
 	}
 	void	react(Ball2 *p){
-		Ball2 *ball = p;
+		P<Ball2>	ball = p;
 		int32 counter = ball->num;
 		NODE->send(this,new Ball3(counter),N::LOCAL);
 		ball = NULL;
 	}
 	void	react(Ball3 *p){
-		Ball3 *ball = p;
+		P<Ball3>	ball = p;
 		int32 counter = ball->num;
 		NODE->send(this,new Ball4(counter),N::LOCAL);
 		ball = NULL;
 	}
 	void	react(Ball4 *p){
-		Ball4 *ball = p;
+		P<Ball4>	ball = p;
 		int32 counter = ball->num;
 		NODE->send(this,new Ball5(counter),N::LOCAL);
 		ball = NULL;
 	}
 	void	react(Ball5 *p){
-		Ball5 *ball = p;
+		P<Ball5>	ball = p;
 		int32 counter = ball->num;
 		NODE->send(this,new Ball6(counter),N::LOCAL);
 		ball = NULL;
 	}
 	void	react(Ball6 *p){
-		Ball6 *ball = p;
+		P<Ball6>	ball = p;
 		int32 counter = ball->num;
 		NODE->send(this,new Ball7(counter),N::LOCAL);
 		ball = NULL;
 	}
 	void	react(Ball7 *p){
-		Ball7 *ball = p;
+		P<Ball7>	ball = p;
 		int32 counter = ball->num;
 		NODE->send(this,new Ball8(counter),N::LOCAL);
 		ball = NULL;
 	}
 	void	react(Ball8 *p){
-		Ball8 *ball = p;
+		P<Ball8>	ball = p;
 		int32 counter = ball->num;
 		NODE->send(this,new Ball9(counter),N::LOCAL);
 		ball = NULL;

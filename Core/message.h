@@ -81,6 +81,7 @@ namespace	mBrane{
 				StreamData(uint16	sid=0);
 			public:
 				virtual	~StreamData();
+				_StreamData	*as_StreamData();
 			};
 
 			class	dll	_Message{
@@ -101,6 +102,7 @@ namespace	mBrane{
 				Message();
 			public:
 				virtual	~Message();
+				_Message	*as_Message();
 			};
 		}
 	}

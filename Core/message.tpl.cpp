@@ -65,6 +65,11 @@ namespace	mBrane{
 			template<class	U,template<class>	class	A,class	M>	inline	StreamData<U,A,M>::~StreamData(){
 			}
 
+			template<class	U,template<class>	class	A,class	M>	_StreamData	*StreamData<U,A,M>::as_StreamData(){
+
+				return	(_StreamData	*)(((uint8	*)this)+sizeof(Payload<U,A,M>));
+			}
+
 			////////////////////////////////////////////////////////////////////////////////////////////////
 
 			template<class	U,template<class>	class	A,class	M>	Message<U,A,M>::Message():Payload<U,A,M>(),_Message(){
@@ -74,6 +79,11 @@ namespace	mBrane{
 			}
 
 			template<class	U,template<class>	class	A,class	M>	Message<U,A,M>::~Message(){
+			}
+
+			template<class	U,template<class>	class	A,class	M>	_Message	*Message<U,A,M>::as_Message(){
+
+				return	(_Message	*)(((uint8	*)this)+sizeof(Payload<U,A,M>));
 			}
 		}
 	}

@@ -57,6 +57,21 @@ namespace	mBrane{
 		void	__Payload::setPtr(uint16	i,__Payload	*p){
 		}
 
+		_DynamicData	*__Payload::as_DynamicData(){
+
+			return	NULL;
+		}
+
+		_CompressedData	*__Payload::as_CompressedData(){
+
+			return	NULL;
+		}
+
+		_RawStorage		*__Payload::as_RawStorage(){
+
+			return	NULL;
+		}
+
 		////////////////////////////////////////////////////////////////////////////////////
 
 		_Payload::_Payload():__Payload(){
@@ -88,6 +103,16 @@ namespace	mBrane{
 		int64	&_Payload::recv_ts(){
 
 			return	_recv_ts;
+		}
+
+		payloads::_Message	*_Payload::as_Message(){
+
+			return	NULL;
+		}
+
+		payloads::_StreamData	*_Payload::as_StreamData(){
+
+			return	NULL;
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////

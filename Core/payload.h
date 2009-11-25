@@ -52,6 +52,10 @@ namespace	mBrane{
 			RAW=3
 		}AllocationScheme;
 
+		class	_DynamicData;
+		class	_CompressedData;
+		class	_RawStorage;
+
 		//	Base interface for payloads
 		class	dll	__Payload:
 		public	_Object{
@@ -65,10 +69,17 @@ namespace	mBrane{
 			virtual	uint16				ptrCount()	const;					//	number of pointers to payloads
 			virtual	__Payload			*getPtr(uint16	i)	const;			//	iterates the pointers to payloads
 			virtual	void				setPtr(uint16	i,__Payload	*p);	//	iterates the pointers to payloads
+			//	down-casting, return NULL by default
+			virtual	_DynamicData		*as_DynamicData();
+			virtual	_CompressedData		*as_CompressedData();
+			virtual	_RawStorage			*as_RawStorage();
 		};
 
 		//	Convenience for writing getPtr and setPtr
 		#define	PTR(Class,Member)	(__Payload	*)(((uint8	*)this)+offsetof(Class,Member));
+
+		class	payloads::_StreamData;
+		class	payloads::_Message;
 
 		class	dll	_Payload:
 		public	__Payload{
@@ -92,6 +103,9 @@ namespace	mBrane{
 			int64		&node_recv_ts();	//	recv timestamp: time of reception by a node
 			int64		&send_ts();			//	send timestamp: time of emission from a module (< than node_send_ts)
 			int64		&recv_ts();			//	recv timestamp: time of reception by a module (> than node_recv_ts)
+			//	down_casting; return NULL by default
+			virtual	payloads::_Message	*as_Message();
+			virtual	payloads::_StreamData	*as_StreamData();
 		};
 
 		class	dll	_RPayload:
@@ -103,7 +117,7 @@ namespace	mBrane{
 			virtual	~_RPayload();
 		};
 
-		template<class	S,AllocationScheme	AS>	class	PayloadAlloc:	//	S:superclass
+		template<class	S,AllocationScheme	AS>	class	PayloadAlloc:	//	S:superclass, either _Payload or _RPayload
 		public	S{
 		protected:
 			PayloadAlloc();
@@ -123,7 +137,10 @@ namespace	mBrane{
 
 		template<class	S>	class	DynamicData:
 		public	PayloadAlloc<S,DYNAMIC>,
-		public	_DynamicData{};
+		public	_DynamicData{
+		public:
+			_DynamicData		*as_DynamicData();
+		};
 
 		class	dll	_CompressedData:
 		public	_DynamicData{
@@ -139,11 +156,17 @@ namespace	mBrane{
 
 		template<class	S>	class	CompressedData:
 		public	PayloadAlloc<S,COMPRESSED>,
-		public	_CompressedData{};
+		public	_CompressedData{
+		public:
+			_CompressedData		*as_CompressedData();
+		};
 
 		template<class	S>	class	RawStorage:
 		public	PayloadAlloc<S,RAW>,
-		public	_DynamicData{};
+		public	_DynamicData{
+		public:
+			_RawStorage			*as_RawStorage();
+		};
 
 		//	Base class for all payloads.
 		template<template<class>	class	A,	class	P,class	U,class	M>	class	___Payload:	//	A: subclass of PayloadAlloc, P: payload class, U: final class, M: memory

@@ -53,9 +53,9 @@ MODULE_CLASS_BEGIN(ping,Module<ping>)
 	void	react(Type1	*p){
 		static	uint32	i=0;
 		static	uint64	_begin=Time::Get();
-		if(++i==1000){
+		if(++i==10){
 			uint64	delta=Time::Get()-_begin;
-			float32	t=((float32)delta)/1000000;
+			float32	t=((float32)delta)/1000000; // convert from us to ms (1000) per message (1000)
 			std::cout<<"------------ "<<t<<std::endl;
 			return;
 		}

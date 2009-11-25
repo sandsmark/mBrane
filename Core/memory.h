@@ -46,7 +46,7 @@ namespace	mBrane{
 		//	are linked together. ObjectSize is the smallest power of two minus one greater or equal than the object's size. ObjectSize start at 64 bytes.
 		//	Free segments in Blocks are linked together (starting with firstFree).
 		//	Memory holds statically as many instances of Memory as there is instance sizes (in 64 times a power of 2) to provide allocation for.
-		class	dll	Memory{
+/*		class	dll	Memory{
 		private:
 			static	Array<Memory,16>	*Memories;
 			static	Array<Memory,16>	*Get();
@@ -85,6 +85,20 @@ namespace	mBrane{
 			void	*alloc();
 			void	*alloc(uint32	&normalizedSize);	//	same as alloc; returns the allocated size as a power of 2
 			void	dealloc(void	*o);
+		};
+*/
+		class	dll	Memory{
+		private:
+			size_t	s;
+			Memory(size_t	s):s(s){}
+		public:
+			static	Memory	*Get(size_t	s){	return	new	Memory(s);	}
+			//Memory(){}
+			~Memory(){}
+			//uint32	getObjectSize()	const;
+			void	*alloc(){	return	malloc(s);	}
+			//void	*alloc(uint32	&normalizedSize);	//	same as alloc; returns the allocated size as a power of 2
+			void	dealloc(void	*o){	free(o);	}
 		};
 	}
 }

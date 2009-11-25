@@ -177,6 +177,8 @@ error:	ModuleDescriptor::Config[CID][m->ID]=NULL;
 
 					ModuleDescriptor::Main[hostID][i][j]=ModuleDescriptor::Config[i][j];
 					ModuleDescriptor::Main[hostID][i][j]->hostID=hostID;
+					ModuleDescriptor::Main[hostID][i][j]->module->_id=j;
+					ModuleDescriptor::Main[hostID][i][j]->ID=j;
 					ModuleDescriptor::Main[hostID][i][j]->applyInitialProjections(hostID);
 					if(ModuleDescriptor::Main[hostID][i][j]->module!=NULL)
 						ModuleDescriptor::Main[hostID][i][j]->module->_start();
@@ -194,7 +196,7 @@ error:	ModuleDescriptor::Config[CID][m->ID]=NULL;
 		return	(uint16)Main[hostID][CID].count();
 	}
 
-	ModuleDescriptor::ModuleDescriptor(const	char	*hostName,_Module	*m,uint16	CID,const	char	*name):Projectable<ModuleDescriptor>(module::Node::NoID,(uint16)ModuleDescriptor::Main[CID].count()),module(m),CID(CID){
+	ModuleDescriptor::ModuleDescriptor(const	char	*hostName,_Module	*m,uint16	CID,const	char	*name):Projectable<ModuleDescriptor>(module::Node::NoID,0/*(uint16)ModuleDescriptor::Main[CID].count()*/),module(m),CID(CID){
 
 		if(m){
 
