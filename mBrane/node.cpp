@@ -424,7 +424,6 @@ namespace	mBrane{
 		_Payload::Category	cc= message->category();
 		if(message->category()==_Payload::DATA){
 
-			//_Message	*_m=(_Message	*)message;
 			_Message	*_m=message->as_Message();
 			_m->senderModule_cid()=sender->descriptor->CID;
 			_m->senderModule_id()=sender->descriptor->ID;
