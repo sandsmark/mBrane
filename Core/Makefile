@@ -1,6 +1,7 @@
 ############# Names and dirs #############
 
 BINLIBNAME = Core
+PROGNAME = CoreTest
 
 BINDIR = ../bin
 SRCDIR = .
@@ -17,16 +18,22 @@ include ../Makefile.sys
 ############# Files to compile #############
 
 CPPFILES = class_register.cpp control_messages.cpp mdaemon_node.cpp
-CPPFILES += memory.cpp message.cpp module.cpp module_node.cpp module_register.cpp
+CPPFILES += message.cpp module.cpp module_node.cpp module_register.cpp
 CPPFILES += network_interface.cpp object.cpp payload.cpp utils.cpp
 CPPFILES += xml_parser.cpp
 
+PROG_CPPFILES = CoreTest.cpp
+
 ############# Setup dirs #############
 
+PROGRAM = $(BINDESTDIR)/$(PROGNAME)
 BINLIBRARY = $(BINDESTDIR)/lib$(BINLIBNAME).so
 
 SRCFILES = $(patsubst %.cpp,$(SRCDIR)/%.cpp,$(CPPFILES))
 OBJFILES = $(patsubst %.cpp,$(BUILDDIR)/%.o,$(CPPFILES))
+
+PROG_SRCFILES = $(patsubst %.cpp,$(SRCDIR)/%.cpp,$(PROG_CPPFILES))
+PROG_OBJFILES = $(patsubst %.cpp,$(BUILDDIR)/%.o,$(PROG_CPPFILES))
 
 INCLUDES = $(patsubst %,-I% ,$(INCLUDEDIRS))
 LIBS = $(subst /arch/,/$(ARCH)/,$(LIBRARIES))
@@ -37,8 +44,8 @@ RESULT := $(shell if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi)
 
 ############# Overall commands #############
 
-all : $(BINLIBRARY)
-	@echo $(BINLIBRARY) ready
+all : $(BINLIBRARY) $(PROGRAM)
+	@echo $(BINLIBRARY) and $(PROGRAM) ready
 
 debug: all
 
@@ -70,6 +77,10 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 
 ############# Linking #############
 
+$(PROGRAM): $(LIBRARY) $(PROG_OBJFILES)
+	@echo Linking $(PROGNAME) $(SYSTEM)...
+	@$(CC) $(DEBUG) $(STANDARD) $(PROG_OBJFILES) $(LIBRARY) $(LIBPATHS) -o $(PROGRAM) $(LIBS) $(BINLIBRARY) $(OTHERLIBS)
+	
 $(BINLIBRARY): $(OBJFILES)
 	@echo Linking $(BINLIBRARY) $(SYSTEM)...
 	@$(CC) $(DEBUG) $(STANDARD) $(LIBOPT) $(OBJFILES) $(LIBPATHS) -o $(BINLIBRARY) $(LIBS) $(OTHERLIBS)
@@ -79,7 +90,7 @@ $(BINLIBRARY): $(OBJFILES)
 clean:
 	@echo Removing build and binary files
 	@$(RMALL) $(BUILDDIR)
-	@$(RMALL) $(BINDIR)
+	@$(RMALL) $(BINLIBRARY) $(PROGRAM)
 
 totalclean : clean
 	@echo Removing Visual Studio temporary files

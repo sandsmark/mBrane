@@ -89,7 +89,7 @@ else
   else
     SYSTEM=Linux
     STANDARD= -D_GNU_SOURCE -D_REENTRANT -D_THREAD_SAFE -DCore_EXPORTS -D_LIB -DBUILD_DLL -D $(SYSTEM)
-    OTHERLIBS=-pthread -ldl
+    OTHERLIBS=-pthread -ldl -lrt
     LIBPATHS=-Wl,--rpath -Wl,$(TOP_DIR)/$(BINDESTDIR)
     LIBCOPT=
     LIBOPT=-shared -rdynamic -Wl,-soname,lib$(BINLIBNAME).so

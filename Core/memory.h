@@ -97,7 +97,7 @@ namespace	mBrane{
 			~Memory(){}
 			//uint32	getObjectSize()	const;
 			void	*alloc(){	return	malloc(s);	}
-			//void	*alloc(uint32	&normalizedSize);	//	same as alloc; returns the allocated size as a power of 2
+			void	*alloc(uint32	&normalizedSize){	return	malloc(s);	} // temporary fix to let Linux compile
 			void	dealloc(void	*o){	free(o);	}
 		};
 	}

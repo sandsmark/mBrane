@@ -28,23 +28,11 @@
 //	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+// All inline functions removed for now due to GCC. Once everything is finished,
+// these functions can be moved to the header file as any function implemented
+// within the class structure is by definition inline.
+
 #include	"utils.h"
-
-#include	<iostream>
-
-#if defined	WINDOWS
-	#include <sys/timeb.h>
-	#include <time.h>
-#elif defined LINUX
-	#include <dlfcn.h>
-	#include <errno.h>
-	#include <sys/utsname.h>
-	#include <sys/time.h>
-	#include <cstring>
-	#include <cstdlib>
-#elif defined OSX
-#endif
-
 
 namespace	mBrane{
 
@@ -240,12 +228,12 @@ namespace	mBrane{
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	inline	void	TimeProbe::set(){
+	void	TimeProbe::set(){
 		
 		cpu_counts=getCounts();
 	}
 
-	inline	int64	TimeProbe::getCounts(){
+	int64	TimeProbe::getCounts(){
 #if defined	WINDOWS
 		LARGE_INTEGER	counter;
 		QueryPerformanceCounter(&counter);
@@ -256,12 +244,12 @@ namespace	mBrane{
 #endif
 	}
 
-	inline	void	TimeProbe::check(){
+	void	TimeProbe::check(){
 
 		cpu_counts=getCounts()-cpu_counts;
 	}
 
-	inline	int64	TimeProbe::us(){
+	int64	TimeProbe::us(){
 
 		return	(int64)(cpu_counts*Time::Period);
 	}
@@ -432,6 +420,13 @@ bool CalcTimeout(struct timespec &timeout, struct timeval &now, uint32 ms) {
 	timeout.tv_nsec = x * 1000;
 	return true;
 }
+
+uint64 GetTime() {
+	struct timeval tv; 
+	if ( gettimeofday(&tv, NULL))
+		return 0; 
+	return (tv.tv_usec + tv.tv_sec * 1000000LL);
+}
 #endif
 
 #if defined	WINDOWS
@@ -535,6 +530,7 @@ bool CalcTimeout(struct timespec &timeout, struct timeval &now, uint32 ms) {
 #if defined	WINDOWS
 	const	uint32	Timer::Infinite=INFINITE;
 #elif defined LINUX
+	const	uint32	Timer::Infinite=INT_MAX;
 #elif defined OSX
 #endif
 
@@ -542,6 +538,8 @@ bool CalcTimeout(struct timespec &timeout, struct timeval &now, uint32 ms) {
 #if defined	WINDOWS
 		t=CreateWaitableTimer(NULL,true,NULL);
 #elif defined LINUX
+	pthread_cond_init(&sematex.semaphore, NULL);
+	pthread_mutex_init(&sematex.mutex, NULL);
 #elif defined OSX
 #endif
 	}
@@ -550,32 +548,123 @@ bool CalcTimeout(struct timespec &timeout, struct timeval &now, uint32 ms) {
 #if defined	WINDOWS
 		CloseHandle(t);
 #elif defined LINUX
+	pthread_cond_destroy(&sematex.semaphore);
+	pthread_mutex_destroy(&sematex.mutex);
 #elif defined OSX
 #endif
 	}
 
-	inline	void	Timer::start(uint32	deadline,uint32	period){
-#if defined	WINDOWS
-	LARGE_INTEGER	_deadline;	//	in 100 ns intervals
-    _deadline.QuadPart=-10LL*deadline;	//	negative means relative
-    bool	r=SetWaitableTimer(t,&_deadline,period,NULL,NULL,0);
-#elif defined LINUX
-#elif defined OSX
+#if defined LINUX
+	static void timer_signal_handler(int sig, siginfo_t *siginfo, void *context) { 
+		SemaTex* sematex = (SemaTex*) siginfo->si_value.sival_ptr;
+		if (sematex == NULL)
+			return;
+		pthread_mutex_lock(&sematex->mutex);
+		pthread_cond_broadcast(&sematex->semaphore);
+		pthread_mutex_unlock(&sematex->mutex);
+
+	}
 #endif
+
+	void	Timer::start(uint32	deadline,uint32	period){
+	#if defined	WINDOWS
+		LARGE_INTEGER	_deadline;	//	in 100 ns intervals
+		_deadline.QuadPart=-10LL*deadline;	//	negative means relative
+		bool	r=SetWaitableTimer(t,&_deadline,period,NULL,NULL,0);
+	#elif defined LINUX
+		struct sigaction sa;
+		struct itimerspec newtv;
+		sigset_t allsigs;
+		struct sigevent timer_event;
+
+		uint64 t = GetTime() + (deadline*1000);
+		uint64 p = period * 1000;
+		newtv.it_interval.tv_sec = p / 1000000; 
+		newtv.it_interval.tv_nsec = (p % 1000000)*1000; 
+		newtv.it_value.tv_sec = t / 1000000; 
+		newtv.it_value.tv_nsec = (t % 1000000)*1000; 
+		
+		sigemptyset(&sa.sa_mask);
+		sa.sa_flags = SA_SIGINFO;   /* Real-Time signal */
+		sa.sa_sigaction = timer_signal_handler;
+		sigaction(SIGRTMIN, &sa, NULL);
+
+		timer_event.sigev_notify = SIGEV_SIGNAL;
+		timer_event.sigev_signo = SIGRTMIN;
+		timer_event.sigev_value.sival_ptr = (void *)&sematex;
+		timer_create(CLOCK_REALTIME, &timer_event, &timer);
+
+		pthread_mutex_lock(&sematex.mutex);
+
+		timer_settime(timer, 0, &newtv, NULL);
+		sigemptyset(&allsigs);
+
+		///* block SIGALRM */ 
+		//sigemptyset(&sigset); 
+		//sigaddset(&sigset, SIGALRM); 
+		//sigprocmask(SIG_BLOCK, &sigset, NULL); 
+
+		///* set up our handler */ 
+		//sigact.sa_sigaction = timer_signal_handler;
+		//sigemptyset(&sigact.sa_mask); 
+		//sigact.sa_flags = SA_SIGINFO; 
+		//sigaction (SIGALRM, &sigact, NULL); 
+
+
+		//if ( setitimer(ITIMER_REAL,&newtv,NULL) < 0 ) { 
+		//perror("setitimer(set)"); 
+		//return 1; 
+		//} 
+		
+		//struct sigaction sa;
+		//struct itimerval timer;
+		//struct timespec timeout;
+
+
+		///* Install timer_handler as the signal handler for SIGVTALRM. */
+		//memset (&sa, 0, sizeof (sa));
+		//sa.sa_handler = &timer_handler;
+		//sigaction (SIGVTALRM, &sa, NULL);
+
+		///* Configure the timer to expire after 250 msec... */
+		//timer.it_value.tv_sec = 0;
+		//timer.it_value.tv_usec = 250000;
+		///* ... and every 250 msec after that. */
+		//timer.it_interval.tv_sec = 0;
+		//timer.it_interval.tv_usec = 250000;
+		///* Start a virtual timer. It counts down whenever this process is
+		//executing. */
+		//setitimer (ITIMER_VIRTUAL, &timer, NULL);
+
+		pthread_mutex_unlock(&sematex.mutex);
+	#elif defined OSX
+	#endif
 	}
 
-	inline	bool	Timer::wait(uint32	timeout){
-#if defined	WINDOWS
+	bool	Timer::wait(uint32	timeout){
+	#if defined	WINDOWS
 		uint32	r=WaitForSingleObject(t,timeout);
 		return	r==WAIT_TIMEOUT;
-#elif defined LINUX
-		//TODO
-		return	false;
-#elif defined OSX
-#endif
+	#elif defined LINUX
+		bool res;
+		struct timeval now;
+		struct timespec ttimeout;
+
+		pthread_mutex_lock(&sematex.mutex);
+		if (timeout == INT_MAX) {
+			res = (pthread_cond_wait(&sematex.semaphore, &sematex.mutex) == 0);
+		}
+		else {
+			CalcTimeout(ttimeout, now, timeout);
+			res = (pthread_cond_timedwait(&sematex.semaphore, &sematex.mutex, &ttimeout) == 0);
+		}
+		pthread_mutex_unlock(&sematex.mutex);
+		return res;
+	#elif defined OSX
+	#endif
 	}
 
-	inline	bool	Timer::wait(uint64	&us,uint32	timeout){
+	bool	Timer::wait(uint64	&us,uint32	timeout){
 
 		TimeProbe	probe;
 		probe.set();

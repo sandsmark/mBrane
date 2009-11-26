@@ -78,7 +78,7 @@ $(PROGRAM): $(OBJFILES)
 clean:
 	@echo Removing build and binary files
 	@$(RMALL) $(BUILDDIR)
-	@$(RMALL) $(BINDIR)
+	@$(RMALL) $(PROGRAM)
 
 totalclean : clean
 	@echo Removing Visual Studio temporary files

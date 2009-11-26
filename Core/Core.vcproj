@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="Core"
 	ProjectGUID="{458D8636-9459-4345-A5A6-E14B4F30F8EF}"
 	RootNamespace="Core"
@@ -267,10 +267,6 @@
 			</File>
 			<File
 				RelativePath=".\mdaemon_node.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\memory.cpp"
 				>
 			</File>
 			<File

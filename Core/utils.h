@@ -34,8 +34,39 @@
 #include	"types.h"
 #include	<stdio.h>
 
+#include	<iostream>
+
+#if defined	WINDOWS
+	#include <sys/timeb.h>
+	#include <time.h>
+#elif defined LINUX
+	#include <dlfcn.h>
+	#include <errno.h>
+	#include <sys/utsname.h>
+	#include <sys/time.h>
+	#include <cstring>
+	#include <cstdlib>
+	#include <pthread.h>
+	#include <signal.h>
+	#include <sys/time.h>
+	#include <unistd.h>
+	#include <time.h>
+//	#undef HANDLE
+//	#define HANDLE pthread_cond_t*
+#elif defined OSX
+#endif
+
 //	Wrapping of OS-dependent functions
 namespace	mBrane{
+
+	#if defined	WINDOWS
+	#elif defined LINUX
+		struct SemaTex {
+			pthread_mutex_t mutex;
+			pthread_cond_t semaphore;
+		};
+	#elif defined OSX
+	#endif
 
 	void PrintBinary(void* p, uint32 size, bool asInt, const char* title = NULL);
 
@@ -133,7 +164,12 @@ namespace	mBrane{
 
 	class	dll	Timer{
 	private:
-		timer	t;
+		#if defined WINDOWS
+			timer	t;
+		#elif defined LINUX
+			timer_t timer;
+			struct SemaTex sematex;
+		#endif
 	protected:
 		static	const	uint32	Infinite;
 	public:

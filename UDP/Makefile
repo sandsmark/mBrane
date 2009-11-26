@@ -75,7 +75,7 @@ $(BINLIBRARY): $(OBJFILES)
 
 clean:
 	@echo Removing build and binary files
-	@$(RMALL) $(BINDIR)
+	@$(RMALL) $(BINLIBRARY)
 	@$(RMALL) $(BUILDDIR)
 
 totalclean : clean
