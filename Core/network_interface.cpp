@@ -66,11 +66,11 @@ namespace	mBrane{
 					return	r;
 				break;
 			case	COMPRESSED:
-				if(((_CompressedData	*)c)->needsCompression())
-					((_CompressedData	*)c)->compress();
+				if(c->as_CompressedData()->needsCompression())
+					c->as_CompressedData()->compress();
 			case	RAW:
 			case	DYNAMIC:
-				if(r=send(((uint8	*)c)+CR->offset(),CR->coreSize()+((_DynamicData	*)c)->dynamicSize()))
+				if(r=send(((uint8	*)c)+CR->offset(),CR->coreSize()+c->as_DynamicData()->dynamicSize()))
 					return	r;
 				break;
 			}
@@ -112,12 +112,12 @@ namespace	mBrane{
 				break;
 			case	COMPRESSED:
 			case	DYNAMIC:
-				if(r=recv(((uint8	*)*c)+CR->offset(),CR->coreSize()+((_DynamicData	*)*c)->dynamicSize()))
+				if(r=recv(((uint8	*)*c)+CR->offset(),CR->coreSize()+(*c)->as_DynamicData()->dynamicSize()))
 					return	r;
 				break;
 			}
 			if(a==COMPRESSED)
-				((_CompressedData	*)*c)->decompress();
+				(*c)->as_CompressedData()->decompress();
 
 			uint8		ptrCount=(*c)->ptrCount();
 			__Payload	*p;
