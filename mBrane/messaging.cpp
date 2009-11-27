@@ -201,7 +201,7 @@ namespace	mBrane{
 			pushJobs(p,NodeEntry::Main[DC][p->cid()][((Node	*)this)->_ID]);
 			break;
 		case	_Payload::STREAM:
-			pushJobs(p,NodeEntry::Main[ST][((_StreamData	*)p)->sid()][((Node	*)this)->_ID]);
+			pushJobs(p,NodeEntry::Main[ST][p->as_StreamData()->sid()][((Node	*)this)->_ID]);
 			break;
 		}
 	}
@@ -289,34 +289,34 @@ namespace	mBrane{
 		MessageSlot	*out;
 		_Payload	*p;
 		P<_Payload>	_p;
+		uint32		act;
+		uint32		nodeCount;
 		while(!node->_shutdown){
 
 			out=node->messageOutputQueue.pop();
-			// printf("POP\n");
-			fflush(stdout);
 			p=out->p;
 			_p=p;
 			_Payload::Category	cat=p->category();
 			if(out->network==module::Node::LOCAL){
 				
-				uint32	act;
 				if(cat==_Payload::STREAM)
-					NodeEntry::Main[ST][((_StreamData	*)p)->sid()][node->_ID].getActivation(act);
+					NodeEntry::Main[ST][p->as_StreamData()->sid()][node->_ID].getActivation(act);
 				else
 					NodeEntry::Main[DC][p->cid()][node->_ID].getActivation(act);
 				if(act)
 					node->messageInputQueue.push(_p);
 			}else{
 
-				if(cat==_Payload::CONTROL){
-
+				switch(cat){
+				case	_Payload::CONTROL:
 					node->broadcastControlMessage(p,out->network);
 					node->messageInputQueue.push(_p);
-				}else	if(cat==_Payload::STREAM){	//	find target remote nodes; send on data/stream channels; push in messageInputQueue if the local node is a target
-
-					uint32	act;
-					uint16	sid=((_StreamData	*)p)->sid();
-					for(uint16	i=0;i<NodeEntry::Main[ST][sid].count();i++){
+					break;
+				case	_Payload::STREAM:	//	find target remote nodes; send on data/stream channels; push in messageInputQueue if the local node is a target
+					{
+					uint16	sid=p->as_StreamData()->sid();
+					nodeCount=NodeEntry::Main[ST][sid].count();
+					for(uint16	i=0;i<nodeCount;i++){
 
 						NodeEntry::Main[ST][sid][i].getActivation(act);
 						if(act){
@@ -327,11 +327,12 @@ namespace	mBrane{
 								node->sendStreamData(i,p,out->network);
 						}
 					}
-				}else{
-
-					uint32	act;
+					}break;
+				case	_Payload::DATA:
+					{
 					uint16	cid=p->cid();
-					for(uint16	i=0;i<NodeEntry::Main[DC][cid].count();i++){
+					nodeCount=NodeEntry::Main[DC][cid].count();
+					for(uint16	i=0;i<nodeCount;i++){
 
 						NodeEntry::Main[DC][cid][i].getActivation(act);
 						if(act){
@@ -341,6 +342,7 @@ namespace	mBrane{
 							else	
 								node->sendData(i,p,out->network);
 						}
+					}
 					}
 				}
 			}

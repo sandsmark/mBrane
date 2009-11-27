@@ -195,6 +195,8 @@ namespace	mBrane{
 				this->_count=i+1;
 			if(!this->current->data[i-this->minIndex])
 				return	this->current->data[i-this->minIndex]=new	T();
+			else
+				return	this->current->data[i-this->minIndex];
 		}
 	}
 }
