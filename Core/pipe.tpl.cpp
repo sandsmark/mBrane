@@ -62,6 +62,7 @@ namespace	mBrane{
 		template<typename	T,uint32	_S>	inline	T	*Pipe11<T,_S>::_pop(){
 
 			T	*t=first->buffer+head;
+			T	tmp;
 			if(++head==_S){
 
 				enter();
@@ -78,6 +79,8 @@ namespace	mBrane{
 
 						Block	*b=first->next;
 						first->next=NULL;
+						tmp=*t;	//	copy the content to be returned before deallocating the buffer
+						t=&tmp;
 						delete	first;
 						first=b;
 					}
