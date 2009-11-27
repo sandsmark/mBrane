@@ -30,6 +30,7 @@ public:
 		if (counter == 10000) {
 			tEnd = Time::Get();
 			uint32 t = (uint32)(tEnd-tStart);
+			tStart=tEnd;
 			printf("RR[%u] test took %uus for %d msgs, %.3fus per msg (%p)\n",cRun, t, counter, ((double)t)/((double)counter), p);
 			// OUTPUT<<"RR[" << cRun << "] test took "<<t<<"us for "<<counter<<" msgs, "<<((double)t)/((double)counter)<<"us per msg ("<<<<")"<<std::endl;
 			//OUTPUT<<"Test got to '"<<counter*runCount<<"' so far..."<<std::endl;
@@ -37,8 +38,8 @@ public:
 			NODE->send(this,new Ball1(0),N::LOCAL);
 		}
 		else {
-			if (counter % 1000 == 0)
-				printf("RR[%u] %d msgs so far (%p)\n",cRun,counter, p);
+		//	if (counter % 1000 == 0)
+		//		printf("RR[%u] %d msgs so far (%p)\n",cRun,counter, p);
 		//	if (counter % 100 == 0)
 		//		OUTPUT<<"RR[" << cRun << "] "<<counter<<" msgs so far..."<<std::endl;
 			NODE->send(this,new Ball1(counter+1),N::LOCAL);
