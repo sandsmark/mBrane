@@ -41,12 +41,12 @@ namespace	mBrane{
 			
 			template<typename	T>	void	*Storage<T>::operator	new(size_t	s,uint32	size,uint32	&normalizedSize){
 
-				return	Memory::Get(size)->alloc(normalizedSize);
+				return	Memory::GetDynamic(size)->alloc(normalizedSize);
 			}
 			
 			template<typename	T>	void	Storage<T>::operator	delete(void	*storage){
 
-				Memory::Get(((Storage<T>	*)storage)->getSize())->dealloc(storage);
+				Memory::GetDynamic(((Storage<T>	*)storage)->getSize())->dealloc(storage);
 			}
 			
 			template<typename	T>	inline	Storage<T>::Storage():/*RPayload<Storage<T>,RawStorage,Memory>(),*/size(0),count(0){	

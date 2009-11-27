@@ -98,8 +98,9 @@ namespace	mBrane{
 		if(strcmp(_host,"local")==0)
 			_m=ModuleRegister::Get(CID)->buildModule();
 
+		uint16	ID=(uint16)ModuleDescriptor::Config[CID].count();
 		ModuleDescriptor	*m=new	ModuleDescriptor(_host,_m,CID,name);
-		ModuleDescriptor::Config[CID][(uint16)ModuleDescriptor::Config[CID].count()]=m;
+		ModuleDescriptor::Config[CID][ID]=m;
 
 		uint16	projectionCount=n.nChildNode("Projection");
 		if(!projectionCount){	//	when no projection is defined, the module is projected on root at the highest activation level.
@@ -169,19 +170,19 @@ error:	ModuleDescriptor::Config[CID][m->ID]=NULL;
 
 	void	ModuleDescriptor::Init(uint16	hostID){
 
+		ModuleDescriptor	*md;
 		for(uint32	i=0;i<ModuleDescriptor::Config.count();i++)	//	resolve host names into NID
 			for(uint32	j=0;j<ModuleDescriptor::Config[i].count();j++){
 
 				if(	strcmp(ModuleDescriptor::Config[i][j]->hostName,Node::Get()->name())==0	||
 					strcmp(ModuleDescriptor::Config[i][j]->hostName,"local")==0){
 
-					ModuleDescriptor::Main[hostID][i][j]=ModuleDescriptor::Config[i][j];
-					ModuleDescriptor::Main[hostID][i][j]->hostID=hostID;
-					ModuleDescriptor::Main[hostID][i][j]->module->_id=j;
-					ModuleDescriptor::Main[hostID][i][j]->ID=j;
-					ModuleDescriptor::Main[hostID][i][j]->applyInitialProjections(hostID);
-					if(ModuleDescriptor::Main[hostID][i][j]->module!=NULL)
-						ModuleDescriptor::Main[hostID][i][j]->module->_start();
+					md=ModuleDescriptor::Config[i][j];
+					ModuleDescriptor::Main[hostID][i][j]=md;
+					md->hostID=hostID;
+					md->applyInitialProjections(hostID);
+					if(md->module!=NULL)
+						md->module->_start();
 
 					ModuleDescriptor::Config[i][j]=NULL;
 				}
@@ -196,7 +197,7 @@ error:	ModuleDescriptor::Config[CID][m->ID]=NULL;
 		return	(uint16)Main[hostID][CID].count();
 	}
 
-	ModuleDescriptor::ModuleDescriptor(const	char	*hostName,_Module	*m,uint16	CID,const	char	*name):Projectable<ModuleDescriptor>(module::Node::NoID,0/*(uint16)ModuleDescriptor::Main[CID].count()*/),module(m),CID(CID){
+	ModuleDescriptor::ModuleDescriptor(const	char	*hostName,_Module	*m,uint16	CID,const	char	*name):Projectable<ModuleDescriptor>(module::Node::NoID,(uint16)ModuleDescriptor::Config[CID].count()),module(m),CID(CID){
 
 		if(m){
 

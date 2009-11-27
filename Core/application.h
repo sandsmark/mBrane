@@ -50,10 +50,10 @@
 #define	CLASS_ID(C)	C##_class
 
 template<class	U>	class	Module:
-public	Object<Memory,module::_Module,Module<U> >{
+public	Object<Memory,module::_Module,U>{
 protected:
 	static	const	uint16	_CID;
-	Module(bool	canMigrate=true):Object<Memory,module::_Module,Module<U> >(){
+	Module(bool	canMigrate=true):Object<Memory,module::_Module,U>(){
 		this->_canMigrate=canMigrate;
 	}
 public:

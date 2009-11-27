@@ -34,15 +34,18 @@
 #include	"memory.h"
 
 
-#define	BLOCK_SIZE		1024	//	power of 2 >=64
-#define	BLOCK_SIZE_x_2	2048
+#define	BLOCK_OBJECT_COUNT	2048	//	number of objects in a block
+
+#ifndef	MEMORY_MALLOC
 
 namespace	mBrane{
 	namespace	sdk{
 
 		inline	void	*Memory::Block::operator new(size_t	s,size_t	objectSize,uint16	objectCount){
 
-			return	malloc(s+objectCount*objectSize);
+			void	*a=malloc(s+objectCount*objectSize);	//	NEEDED OPTIMIZATION: allocate from a private heap
+			memset(a,0x0,objectCount*objectSize);
+			return	a;
 		}				
 
 		inline	void	Memory::Block::operator	delete(void	*b){
@@ -54,77 +57,66 @@ namespace	mBrane{
 																			objectSize(objectSize),
 																			totalSize(objectCount*objectSize),
 																			_next(NULL),
+																			_prev(NULL),
 																			freeObjects(objectCount){
 
-			begin=(uint8	*)(((uint8	**)&end)+1);
-			end=begin+totalSize;
-			firstFree=begin;
-			memset(begin,0xFF,totalSize);
+			firstFree=((uint8	*)this)+sizeof(Block);
+			uint8	*p=firstFree;
+			uint8	*next_p;
+			for(uint16	i=0;i<objectCount-1;i++){	//	initializes the pointers from each segment to the next free one; this loop can be eliminated (see Block::alloc): but some basic preliminary tests show that what we gain here is lost in the extra tests in Block::alloc
+
+				next_p=p+objectSize;
+				*(uint8	**)p=next_p;
+				p=next_p;
+			}
+			*(uint8	**)p=NULL;
 		}
 
 		inline	Memory::Block::~Block(){
 
-			_next = NULL;
+			if(_next)
+				delete	_next;
 		}
 
-		inline	Memory::Block	*Memory::Block::next()	const{
+		inline	void	*Memory::Block::alloc(){	//	called only if freeObjects>0
 			
-			return	_next;
+			uint8	*segment=firstFree;
+			if(--freeObjects){	//	make firstFree the next free segment if any
+				/* alternative: allows removing the loop in Block::Block()
+				if(!*(uint8	**)segment)	//	if no link to the next free block, jump to the next segment in the array; it is safe to do so since (a) allocations are made from the beginning of the block and (b) deallocations move the firstFree to the deallocated block
+					firstFree=segment+objectSize;
+				else*/
+					firstFree=*(uint8	**)segment;
+			}else
+				firstFree=NULL;
+			//memset(segment,0x0,objectSize);
+			*(Block	**)segment=this;
+			return	(void	*)(segment+sizeof(Block	*));
 		}
 
-		inline	Memory::Block	*Memory::Block::link(Block	*b){
+		inline	void	Memory::Block::dealloc(void	*s){
 			
-			return	_next=b;
-		}
-
-		inline	void	*Memory::Block::alloc(){
-			
-			if(!freeObjects)
-				return	NULL;
-			void	*p=firstFree;
-			freeObjects--;
-			if(freeObjects>1){
-
-				if(*(uint32	*)firstFree==WORD32_MASK) {
-					firstFree+=objectSize;
-				}
-				else {
-					firstFree=*(uint8	**)firstFree;
-				}
-			}
-			memset(p,0x0,objectSize);
-			return	p;
-		}
-
-		inline	uint8	Memory::Block::dealloc(void	*o){
-
-			if(o<begin	||	o>=end)
-				return	0;
-
-			*(uint8	**)o=firstFree;
-			firstFree=(uint8 *)o;
-			return	(++freeObjects==objectCount?2:1);
+			//	have s point to firstFree and make s the firstFree segment
+			*(uint8	**)s=firstFree;
+			firstFree=(uint8	*)s;
+			++freeObjects;
 		}
 
 		////////////////////////////////////////////////////////////////////////
 
-		Array<Memory,16>	*Memory::Memories=NULL;
+		Array<Memory,16>	*Memory::Memories=NULL;	//	indexed by exponents of 2
 
-		inline	Array<Memory,16>	*Memory::Get(){
+		CriticalSection		*Memory::CS=NULL;
 
-			if(!Memories)
-				Memories=new	Array<Memory,16>();
-			return	Memories;
-		}
+		inline	size_t	Memory::GetNormalizedSize(size_t	s,uint16	&pow2){
 
-		Memory	*Memory::Get(size_t	s){	//	s>0; called early, once per class, at static member init time; called anytime, once per raw storage instance
-			
-			size_t	objectSize=64;	//	smallest i such as 2^i>= s
-			uint16	i=0;
-			if(s>64){
+			size_t	segmentSize=s+sizeof(Block	*);	//	makes room for a pointer to the block
+			size_t	objectSize=64;
+			pow2=0;	//	smallest pow2 such as (objectSize=2^pow2) >= s
+			if(segmentSize>64){
 
-				i=BSR(s)-5;
-				objectSize=s-1;
+				pow2=BSR(segmentSize)-5;
+				objectSize=segmentSize-1;
 				objectSize|=objectSize>>1;
 				objectSize|=objectSize>>2;
 				objectSize|=objectSize>>4;
@@ -132,19 +124,44 @@ namespace	mBrane{
 				objectSize|=objectSize>>16;
 				++objectSize;
 			}
+			return	objectSize;
+		}
 
-			Memory	*m=&Get()->operator [](i);
+		Memory	*Memory::Get(size_t	s){	//	s>0; called early, once per class, at static member init time
+			
+			uint16	i;
+			size_t	objectSize=GetNormalizedSize(s,i);
+
+			if(!CS){	//	entered once early at class loading time; TODO: dealloc when the app terminates
+
+				CS=new	CriticalSection();
+				Memories=new	Array<Memory,16>();
+			}
+			Memory	*m=Memories->get(i);
 			if(m->objectSize==0)
-				return	new(i)	Memory(objectSize);
+				m=new(i)	Memory(objectSize);
 			return	m;
 		}
 
-		inline	void	*Memory::operator	new(size_t	s,uint16	index){
+		inline	Memory	*Memory::GetDynamic(size_t	s){	//	s>0; called anytime, for raw storage
+			
+			uint16	i;
+			size_t	objectSize=GetNormalizedSize(s,i);
 
-			return	&Memories->operator	[](index);
+			CS->enter();	//	concurrent access for raw storage requests
+			Memory	*m=Memories->get(i);
+			if(m->objectSize==0)
+				m=new(i)	Memory(objectSize);
+			CS->leave();
+			return	m;
 		}
 
-		inline	void	Memory::operator	delete(void	*b){
+		inline	void	*Memory::operator	new(size_t	s,uint16	index){	//	already allocated in Memories
+
+			return	&Memories->operator [](index);
+		}
+
+		inline	void	Memory::operator	delete(void	*b){	//	will be deallocated when Memories is
 		}
 
 		Memory::Memory():objectSize(0){	//	uninitialized (object size == 0); called at Array<Memory,16> construction time
@@ -152,13 +169,13 @@ namespace	mBrane{
 
 		inline	Memory::Memory(size_t	objectSize):objectSize(objectSize){	//	initialized; explicit call in Memory::Get(size_t	s)
 
-			firstBlock=lastBlock=new(objectSize,BLOCK_SIZE)	Block(objectSize,BLOCK_SIZE);
-			freeObjects=BLOCK_SIZE;
+			emptyBlock=firstBlock=lastBlock=new(objectSize,BLOCK_OBJECT_COUNT)	Block(objectSize,BLOCK_OBJECT_COUNT);
+			freeObjects=BLOCK_OBJECT_COUNT;
 		}
 
 		inline	Memory::~Memory(){
 
-			delete	firstBlock;
+			delete	firstBlock;	//	blocks propagate deletion: careful when deleting just one block
 		}
 
 		inline	uint32	Memory::getObjectSize()	const{
@@ -174,55 +191,63 @@ namespace	mBrane{
 
 		void	*Memory::alloc(){	//	concurrent access
 
+			void	*allocated;
+			Block	*b;
 			cs.enter();
-			for(Block	*b=firstBlock;b;b=b->next()){
+			if(freeObjects){	//	get the first block with a free segment
 
-				void	*p=b->alloc();
-				if(p){
+				for(b=firstBlock;!b->freeObjects;b=b->_next);	//	NEEDED OPTIMIZATION: either reduce the number of blocks, or keep track of the blocks that still have some room - or both
+				--freeObjects;
+				if(b==emptyBlock)
+					emptyBlock=NULL;
+			}else{	//	appends one block to the block list
 
-					if(--freeObjects<BLOCK_SIZE-1){
-
-						lastBlock=lastBlock->link(new(objectSize,BLOCK_SIZE)	Block(objectSize,BLOCK_SIZE));
-						freeObjects+=BLOCK_SIZE;
-					}
-					cs.leave();
-					return	p;
-				}
+				b=new(objectSize,BLOCK_OBJECT_COUNT)	Block(objectSize,BLOCK_OBJECT_COUNT);
+				lastBlock->_next=b;
+				b->_prev=lastBlock;
+				lastBlock=b;
+				freeObjects+=BLOCK_OBJECT_COUNT-1;	//	+BLOCK_OBJECT_COUNT for the new block, -1 for the allocated object
 			}
-
-			lastBlock=lastBlock->link(new(objectSize,BLOCK_SIZE)	Block(objectSize,BLOCK_SIZE));
-			freeObjects+=BLOCK_SIZE-1;
-			void	*allocated=lastBlock->alloc();
+			allocated=b->alloc();
 			cs.leave();
 			return	allocated;
 		}
 
 		void	Memory::dealloc(void	*o){	//	concurrent access
 
-			Block	*_b=NULL;
+			Block	*b;
 			cs.enter();
-			for(Block	*b=firstBlock;b;_b=b,b=b->next()){
+			//	find the block holding o
+			uint8	*segment=(uint8	*)(((uint8	**)o)-1);
+			b=*(Block	**)segment;	//	o was allocated from a segment in which the first 4 bytes are the address of the block
+			//	dealloc the segment in that block
+			b->dealloc(segment);
+			//	if the block is empty and if there is already an empty block, delete the block
+			if(b->freeObjects==b->objectCount){
 
-				uint8	r=b->dealloc(o);
-				if(r>0){
-			
-					if(++freeObjects>=BLOCK_SIZE_x_2	&&	r==2){	//	ensure there is always an empty block ready for use
+				if(emptyBlock){
 
-						if(_b)
-							_b->link(b->next());
-						else{
+					if(b->_prev)
+						b->_prev->_next=b->_next;
+					else	//	b was first
+						firstBlock=b->_next;
+					if(b->_next)
+						b->_next->_prev=b->_prev;
+					else	//	b was last
+						lastBlock=b->_prev;
+					freeObjects+=1-BLOCK_OBJECT_COUNT;	//	+1 for the deallocated object, -BLOCK_OBJECT_COUNT for the deallocated block
+					b->_next=NULL;	//	to prevent deletion cascade in ~Block()
+					delete	b;
+				}else{
 
-							firstBlock=b->next();
-							if(b==lastBlock)
-								lastBlock=_b;
-						}
-						delete   b;
-						freeObjects -= BLOCK_SIZE;
-					}
-					cs.leave();
-					return;
+					emptyBlock=b;
+					++freeObjects;
 				}
-			}
+			}else
+				++freeObjects;
+			cs.leave();
 		}
 	}
 }
+
+#endif
