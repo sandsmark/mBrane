@@ -31,7 +31,7 @@ public:
 			tEnd = Time::Get();
 			uint32 t = (uint32)(tEnd-tStart);
 			tStart=tEnd;
-			printf("RR[%u] test took %uus for %d msgs, %.3fus per msg (%p)\n",cRun, t, counter, ((double)t)/((double)counter), p);
+			printf("RR[%u] test took %uus for %d cycle, %.3fus per cycle, %.3fus per msg (%p)\n",cRun, t, counter, ((double)t)/((double)counter), ((double)t)/((double)counter*9), p);
 			// OUTPUT<<"RR[" << cRun << "] test took "<<t<<"us for "<<counter<<" msgs, "<<((double)t)/((double)counter)<<"us per msg ("<<<<")"<<std::endl;
 			//OUTPUT<<"Test got to '"<<counter*runCount<<"' so far..."<<std::endl;
 			cRun++;

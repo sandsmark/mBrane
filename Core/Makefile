@@ -20,7 +20,7 @@ include ../Makefile.sys
 CPPFILES = class_register.cpp control_messages.cpp mdaemon_node.cpp
 CPPFILES += message.cpp module.cpp module_node.cpp module_register.cpp
 CPPFILES += network_interface.cpp object.cpp payload.cpp utils.cpp
-CPPFILES += xml_parser.cpp
+CPPFILES += xml_parser.cpp memory.cpp
 
 PROG_CPPFILES = CoreTest.cpp
 
