@@ -116,9 +116,6 @@ namespace	mBrane{
 			if(segmentSize>64){
 
 				pow2=BSR(segmentSize)-5;
-				#if defined	ARCH_64
-					pow2 -= 32;
-				#endif
 				objectSize=segmentSize-1;
 				objectSize|=objectSize>>1;
 				objectSize|=objectSize>>2;

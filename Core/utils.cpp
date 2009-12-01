@@ -755,9 +755,9 @@ uint64 GetTime() {
 #endif
 #elif defined LINUX
 #if defined	ARCH_32
-		return	(uint8)(31-__builtin_clz(data));
+		return	(uint8)(31-__builtin_clz((uint32_t)data));
 #elif defined	ARCH_64
-		return	(uint8)(63-__builtin_clz(data));
+		return	(uint8)(63-__builtin_clzll((uint64_t)data));
 #endif
 #elif defined OSX
 #endif
