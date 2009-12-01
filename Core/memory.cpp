@@ -116,6 +116,9 @@ namespace	mBrane{
 			if(segmentSize>64){
 
 				pow2=BSR(segmentSize)-5;
+				#if defined	ARCH_64
+					pow2 -= 32;
+				#endif
 				objectSize=segmentSize-1;
 				objectSize|=objectSize>>1;
 				objectSize|=objectSize>>2;
@@ -133,13 +136,21 @@ namespace	mBrane{
 			size_t	objectSize=GetNormalizedSize(s,i);
 
 			if(!CS){	//	entered once early at class loading time; TODO: dealloc when the app terminates
-
+				printf("New CS[%u]!\n", s);
+				fflush(stdout);
 				CS=new	CriticalSection();
 				Memories=new	Array<Memory,16>();
 			}
 			Memory	*m=Memories->get(i);
-			if(m->objectSize==0)
+			if (m==NULL) {
+				printf("Use CS[%u/%u]!\n", s, objectSize);
+				fflush(stdout);
+			}
+			//if ( (m == NULL) || (m->objectSize==0) )
+			if (m->objectSize==0)
 				m=new(i)	Memory(objectSize);
+			printf("Done CS[%u]!\n", s);
+			fflush(stdout);
 			return	m;
 		}
 

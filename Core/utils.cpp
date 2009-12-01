@@ -724,7 +724,8 @@ uint64 GetTime() {
 		return	InterlockedIncrement(v);
 #elif defined LINUX
 		//	TODO
-		return	++(*v);
+		__sync_add_and_fetch(v, 1);
+		return	*v;
 #elif defined OSX
 #endif
 	};
@@ -733,8 +734,8 @@ uint64 GetTime() {
 #if defined	WINDOWS
 		return	InterlockedDecrement(v);
 #elif defined LINUX
-		//	TODO
-		return	--(*v);
+		__sync_sub_and_fetch(v, 1);
+		return	*v;
 #elif defined OSX
 #endif
 	};
