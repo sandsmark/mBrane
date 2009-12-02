@@ -239,7 +239,10 @@ namespace	mBrane{
 		QueryPerformanceCounter(&counter);
 		return	counter.QuadPart;
 #elif defined LINUX
-		return 0;
+		static struct timeval tv;
+		static struct timezone tz;
+		gettimeofday(&tv, &tz);
+		return (((int64)tv.tv_sec)*1000000) + (int64)tv.tv_usec;
 #elif defined OSX
 #endif
 	}
@@ -288,11 +291,12 @@ namespace	mBrane{
 	_ftime(&local_time);
 	InitTime=(int64)(local_time.time*1000+local_time.millitm)*1000;	//	in us
 #elif defined LINUX
-		// we are actually setup a timer resolution of 1ms
-		// we can simulate this by performing a gettimeofday call
-		struct timeval tv;
-		gettimeofday(&tv, NULL);
-		InitTime = ((int64)tv.tv_sec * 1000000) + (tv.tv_usec);
+	// we are actually setup a timer resolution of 1ms
+	// we can simulate this by performing a gettimeofday call
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	InitTime = (((int64)tv.tv_sec) * 1000000) + (int64)tv.tv_usec;
+	Period=1;	//	we measure all time in us anyway, so conversion is 1-to-1
 #elif defined OSX
 #endif
 	}
@@ -306,7 +310,7 @@ namespace	mBrane{
 		timeval perfCount;
 		struct timezone tmzone;
 		gettimeofday(&perfCount, &tmzone);
-		int64 r = ((int64)perfCount.tv_sec * 1000000) + perfCount.tv_usec;
+		int64 r = (((int64)perfCount.tv_sec) * 1000000) + (int64)perfCount.tv_usec;
 		return	r;
 #elif defined OSX
 #endif
@@ -368,8 +372,8 @@ namespace	mBrane{
 		struct timespec t;
 		int r;
 		
-		t.tv_sec = timeout;
-		t.tv_nsec = 0;
+		t.tv_sec = timeout / 1000;
+		t.tv_nsec = (timeout % 1000) * 1000;
 		
 		r = sem_timedwait(&s, &t);
 		return r == ETIMEDOUT;
@@ -531,30 +535,7 @@ uint64 GetTime() {
 	const	uint32	Timer::Infinite=INFINITE;
 #elif defined LINUX
 	const	uint32	Timer::Infinite=INT_MAX;
-#elif defined OSX
-#endif
 
-	Timer::Timer(){
-#if defined	WINDOWS
-		t=CreateWaitableTimer(NULL,true,NULL);
-#elif defined LINUX
-	pthread_cond_init(&sematex.semaphore, NULL);
-	pthread_mutex_init(&sematex.mutex, NULL);
-#elif defined OSX
-#endif
-	}
-
-	Timer::~Timer(){
-#if defined	WINDOWS
-		CloseHandle(t);
-#elif defined LINUX
-	pthread_cond_destroy(&sematex.semaphore);
-	pthread_mutex_destroy(&sematex.mutex);
-#elif defined OSX
-#endif
-	}
-
-#if defined LINUX
 	static void timer_signal_handler(int sig, siginfo_t *siginfo, void *context) { 
 		SemaTex* sematex = (SemaTex*) siginfo->si_value.sival_ptr;
 		if (sematex == NULL)
@@ -562,28 +543,23 @@ uint64 GetTime() {
 		pthread_mutex_lock(&sematex->mutex);
 		pthread_cond_broadcast(&sematex->semaphore);
 		pthread_mutex_unlock(&sematex->mutex);
-
 	}
+#elif defined OSX
 #endif
 
-	void	Timer::start(uint32	deadline,uint32	period){
+	Timer::Timer(){
 	#if defined	WINDOWS
-		LARGE_INTEGER	_deadline;	//	in 100 ns intervals
-		_deadline.QuadPart=-10LL*deadline;	//	negative means relative
-		bool	r=SetWaitableTimer(t,&_deadline,period,NULL,NULL,0);
+		t=CreateWaitableTimer(NULL,false,NULL);
+		if (t == NULL) {
+			printf("Error creating timer\n");
+		}
 	#elif defined LINUX
+		pthread_cond_init(&sematex.semaphore, NULL);
+		pthread_mutex_init(&sematex.mutex, NULL);
+
 		struct sigaction sa;
-		struct itimerspec newtv;
-		sigset_t allsigs;
 		struct sigevent timer_event;
 
-		uint64 t = GetTime() + (deadline*1000);
-		uint64 p = period * 1000;
-		newtv.it_interval.tv_sec = p / 1000000; 
-		newtv.it_interval.tv_nsec = (p % 1000000)*1000; 
-		newtv.it_value.tv_sec = t / 1000000; 
-		newtv.it_value.tv_nsec = (t % 1000000)*1000; 
-		
 		sigemptyset(&sa.sa_mask);
 		sa.sa_flags = SA_SIGINFO;   /* Real-Time signal */
 		sa.sa_sigaction = timer_signal_handler;
@@ -592,49 +568,51 @@ uint64 GetTime() {
 		timer_event.sigev_notify = SIGEV_SIGNAL;
 		timer_event.sigev_signo = SIGRTMIN;
 		timer_event.sigev_value.sival_ptr = (void *)&sematex;
-		timer_create(CLOCK_REALTIME, &timer_event, &timer);
+		int ret = timer_create(CLOCK_REALTIME, &timer_event, &timer);
+		if (ret != 0) {
+			printf("Error creating timer: %d\n", ret);
+		}
+#elif defined OSX
+#endif
+	}
 
+	Timer::~Timer(){
+#if defined	WINDOWS
+		CloseHandle(t);
+#elif defined LINUX
+		pthread_cond_destroy(&sematex.semaphore);
+		pthread_mutex_destroy(&sematex.mutex);
+		timer_delete(timer);
+#elif defined OSX
+#endif
+	}
+
+	void	Timer::start(uint32	deadline,uint32	period){
+	#if defined	WINDOWS
+		LARGE_INTEGER	_deadline;	//	in 100 ns intervals
+		_deadline.QuadPart=-10000LL*deadline;	//	negative means relative
+		bool	r=SetWaitableTimer(t,&_deadline,(long)period,NULL,NULL,0);
+		if (!r) {
+			printf("Error arming timer\n");
+		}
+	#elif defined LINUX
+		struct itimerspec newtv;
+		sigset_t allsigs;
+
+		uint64 t = deadline*1000;
+		uint64 p = period * 1000;
+		newtv.it_interval.tv_sec = p / 1000000; 
+		newtv.it_interval.tv_nsec = (p % 1000000)*1000; 
+		newtv.it_value.tv_sec = t / 1000000; 
+		newtv.it_value.tv_nsec = (t % 1000000)*1000; 
+		
 		pthread_mutex_lock(&sematex.mutex);
 
-		timer_settime(timer, 0, &newtv, NULL);
+		int ret = timer_settime(timer, 0, &newtv, NULL);
+		if (ret != 0) {
+			printf("Error arming timer: %d\n", ret);
+		}
 		sigemptyset(&allsigs);
-
-		///* block SIGALRM */ 
-		//sigemptyset(&sigset); 
-		//sigaddset(&sigset, SIGALRM); 
-		//sigprocmask(SIG_BLOCK, &sigset, NULL); 
-
-		///* set up our handler */ 
-		//sigact.sa_sigaction = timer_signal_handler;
-		//sigemptyset(&sigact.sa_mask); 
-		//sigact.sa_flags = SA_SIGINFO; 
-		//sigaction (SIGALRM, &sigact, NULL); 
-
-
-		//if ( setitimer(ITIMER_REAL,&newtv,NULL) < 0 ) { 
-		//perror("setitimer(set)"); 
-		//return 1; 
-		//} 
-		
-		//struct sigaction sa;
-		//struct itimerval timer;
-		//struct timespec timeout;
-
-
-		///* Install timer_handler as the signal handler for SIGVTALRM. */
-		//memset (&sa, 0, sizeof (sa));
-		//sa.sa_handler = &timer_handler;
-		//sigaction (SIGVTALRM, &sa, NULL);
-
-		///* Configure the timer to expire after 250 msec... */
-		//timer.it_value.tv_sec = 0;
-		//timer.it_value.tv_usec = 250000;
-		///* ... and every 250 msec after that. */
-		//timer.it_interval.tv_sec = 0;
-		//timer.it_interval.tv_usec = 250000;
-		///* Start a virtual timer. It counts down whenever this process is
-		//executing. */
-		//setitimer (ITIMER_VIRTUAL, &timer, NULL);
 
 		pthread_mutex_unlock(&sematex.mutex);
 	#elif defined OSX
@@ -723,7 +701,6 @@ uint64 GetTime() {
 #if defined	WINDOWS
 		return	InterlockedIncrement(v);
 #elif defined LINUX
-		//	TODO
 		__sync_add_and_fetch(v, 1);
 		return	*v;
 #elif defined OSX

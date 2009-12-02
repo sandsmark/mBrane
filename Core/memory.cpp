@@ -133,20 +133,20 @@ namespace	mBrane{
 			size_t	objectSize=GetNormalizedSize(s,i);
 
 			if(!CS){	//	entered once early at class loading time; TODO: dealloc when the app terminates
-				printf("New CS[%u]!\n", s);
-				fflush(stdout);
+		//		printf("New CS[%u]!\n", s);
+		//		fflush(stdout);
 				CS=new	CriticalSection();
 				Memories=new	Array<Memory,16>();
 			}
 			Memory	*m=Memories->get(i);
-			if (m==NULL) {
-				printf("Use CS[%u/%u]!\n", s, objectSize);
-				fflush(stdout);
-			}
+		//	if (m==NULL) {
+		//		printf("Use CS[%u/%u]!\n", s, objectSize);
+		//		fflush(stdout);
+		//	}
 			//if ( (m == NULL) || (m->objectSize==0) )
 			if (m->objectSize==0)
 				m=new(i)	Memory(objectSize);
-			printf("Done CS[%u]!\n", s);
+		//	printf("Done CS[%u]!\n", s);
 			fflush(stdout);
 			return	m;
 		}
