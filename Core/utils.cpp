@@ -34,6 +34,20 @@
 
 #include	"utils.h"
 
+#if defined	WINDOWS
+#include	<intrin.h>
+#pragma	intrinsic (_InterlockedDecrement)
+#pragma	intrinsic (_InterlockedIncrement)
+#pragma	intrinsic (_InterlockedExchange)
+#pragma	intrinsic (_InterlockedExchange64)
+#pragma	intrinsic (_InterlockedCompareExchange)
+#pragma	intrinsic (_InterlockedCompareExchange64)
+#elif defined LINUX
+	
+#elif defined OSX
+#endif
+
+
 namespace	mBrane{
 
 	void PrintBinary(void* p, uint32 size, bool asInt, const char* title) {
@@ -697,7 +711,7 @@ uint64 GetTime() {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	int32	Atomic::Increment(int32	*v){
+	int32	Atomic::Increment32(int32	volatile	*v){
 #if defined	WINDOWS
 		return	InterlockedIncrement(v);
 #elif defined LINUX
@@ -707,7 +721,7 @@ uint64 GetTime() {
 #endif
 	};
 
-	int32	Atomic::Decrement(int32	*v){
+	int32	Atomic::Decrement32(int32	volatile	*v){
 #if defined	WINDOWS
 		return	InterlockedDecrement(v);
 #elif defined LINUX
@@ -716,6 +730,59 @@ uint64 GetTime() {
 #elif defined OSX
 #endif
 	};
+
+	int32	CompareAndSwap32(int32	volatile	*target,int32	v1,int32	v2){
+#if defined	WINDOWS
+		return	_InterlockedCompareExchange(target,v1,v2);
+#elif defined LINUX
+		//	TODO
+#elif defined OSX
+#endif
+	}
+
+	int64	CompareAndSwap64(int64	volatile	*target,int64	v1,int64	v2){
+#if defined	WINDOWS
+		return	_InterlockedCompareExchange64(target,v1,v2);
+#elif defined LINUX
+		//	TODO
+#elif defined OSX
+#endif
+	}
+
+	word	CompareAndSwap(word	volatile	*target,word	v1,word	v2){
+#if defined	ARCH_32
+		return	CompareAndSwap32(target,v1,v2);
+#elif defined ARCH_64
+		return	CompareAndSwap64(target,v1,v2);
+#endif
+	}
+
+	int32	Swap32(int32	volatile	*target,int32	v){
+#if defined	WINDOWS
+		return	_InterlockedExchange(target,v);
+#elif defined LINUX
+		//	TODO
+#elif defined OSX
+#endif
+	}
+
+	int64	Swap64(int64	volatile	*target,int64	v){
+#if defined	WINDOWS
+		return	CompareAndSwap64(target,v,v);
+#elif defined LINUX
+		//	TODO
+#elif defined OSX
+#endif
+	}
+
+	word	Swap(word	volatile	*target,word	v){
+#if defined	ARCH_32
+		return	Swap32(target,v);
+#elif defined ARCH_64
+		return	Swap64(target,v);
+#elif defined OSX
+#endif
+	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
