@@ -97,7 +97,7 @@ namespace	mBrane{
 
 		////////////////////////////////////////////////////////////////////////////////////
 
-		template<class	M,class	S,class	U>	M	*Object<M,S,U>::_Allocator=M::Get(U::Size());
+		template<class	M,class	S,class	U>	M	*Object<M,S,U>::_Allocator=M::GetStatic(U::Size());
 
 		template<class	M,class	S,class	U>	inline	size_t	Object<M,S,U>::Size(){
 

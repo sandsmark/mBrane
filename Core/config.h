@@ -59,5 +59,13 @@
 
 #define	MBRANE_VERSION	0.0
 
+//	class version selectors
+
+//#define	MEMORY_MALLOC
+#define	MEMORY_1
+//#define	MEMORY_2
+
+#define	PIPE_1
+//#define	PIPE_2
 
 #endif

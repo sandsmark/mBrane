@@ -54,7 +54,7 @@ namespace	mBrane{
 			friend	class	XThread;
 			friend	class	Executing;
 			protected:
-				bool	_shutdown;
+				bool	volatile	_shutdown;
 				StaticArray<DynamicClassLoader<Daemon>	*>	daemonLoaders;
 				StaticArray<Daemon	*>						daemons;
 				StaticArray<Thread	*>						daemonThreads;

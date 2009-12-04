@@ -63,13 +63,13 @@ namespace	mBrane{
 		void	_Object::incRef(){
 
 			//refCount++;
-			Atomic::Increment(&refCount);
+			Atomic::Increment32(&refCount);
 		}
 
 		inline	void	_Object::decRef(){
 
 			//if(--refCount==0)
-			if(Atomic::Decrement(&refCount)==0)
+			if(Atomic::Decrement32(&refCount)==0)
 				delete	this;
 		}
 	}

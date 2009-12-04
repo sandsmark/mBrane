@@ -35,7 +35,7 @@ namespace	mBrane{
 
 			ClassRegister	*r=&Get()->operator [](Get()->count());
 			uint32	metaData=((Classes->count()-1)<<16)	|	C::_AllocationScheme();
-			C::_Allocator=M::Get(C::Size());
+			C::_Allocator=M::GetStatic(C::Size());
 			r->_allocator=C::New;
 			r->_size=C::Size()-C::Offset();
 			r->_size=C::CoreSize()-C::Offset();

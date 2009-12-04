@@ -107,7 +107,7 @@ namespace	mBrane{
 		template<class	C>	friend	class	P;
 		friend	class	_P;
 		private:
-			int32	refCount;
+			int32	volatile	refCount;
 			void	incRef();	//	atomic operation
 			void	decRef();	//	atomic operation
 		protected:

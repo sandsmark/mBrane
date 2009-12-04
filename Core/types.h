@@ -83,8 +83,8 @@ namespace	mBrane{
 
 #if defined	ARCH_32
 
-	typedef	unsigned	int				word32;
-	typedef	unsigned	short			word16;
+	typedef	long						word32;
+	typedef	short						word16;
 
 	typedef	char						int8;
 	typedef	unsigned	char			uint8;
@@ -107,8 +107,8 @@ namespace	mBrane{
 
 #elif defined	ARCH_64
 
-	typedef	unsigned	int				word32;
-	typedef	unsigned	long			word64;
+	typedef	int							word32;
+	typedef	long						word64;
 
 	typedef	char						int8;
 	typedef	unsigned	char			uint8;
