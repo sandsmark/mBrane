@@ -59,15 +59,17 @@ bool	signal_handler_function_call	Handler(uint32	event){
 
 #ifdef	MEMORY_PERF_TEST
 
-#define	LOAD_COUNT	1000
+#define	LOAD_COUNT	10000
 
 class	Load{
 public:
-	uint8	data[200];
+	uint32	id;
+	uint8	data[400];
 };
 
 class	LoadM:public	Load{
 public:
+	LoadM(uint32	i){id=i;}
 	void	*operator	new(size_t	s){	return	malloc(s);	}
 	void	operator	delete(void	*o){	free(o);	}
 };
@@ -76,11 +78,12 @@ class	LoadC:public	Load{
 private:
 	static	Memory	*Allocator;
 public:
+	LoadC(uint32	i){id=i;}
 	void	*operator	new(size_t	s){	return	Allocator->alloc();	}
 	void	operator	delete(void	*o){	Allocator->dealloc(o);	}
 };
 
-Memory	*LoadC::Allocator=Memory::Get(sizeof(LoadC));
+Memory	*LoadC::Allocator=Memory::GetStatic(sizeof(LoadC));
 
 template<class	L>	int64	RAM_perf_probe(){	//	the real test is to allocate/deallocate randomly, using different sizes
 
@@ -92,14 +95,16 @@ template<class	L>	int64	RAM_perf_probe(){	//	the real test is to allocate/deallo
 	start=Time::Get();
 	for(uint32	i=0;i<LOAD_COUNT;i++){
 
-		store[i]=new	L();
-		//delete	store[i];
-	}
-	for(uint32	i=0;i<LOAD_COUNT;i++){
-
-		//store[i]=new	L();
+		store[i]=new	L(i);
 		delete	store[i];
 	}
+	//for(uint32	i=0;i<LOAD_COUNT;i++)
+	//	std::cout<<store[i]->id<<std::endl;
+	//for(uint32	i=0;i<LOAD_COUNT;i++){
+
+		//store[i]=new	L();
+	//	delete	store[i];
+	//}
 	end=Time::Get();
 
 	return	end-start;
@@ -150,8 +155,9 @@ int	main(int	argc,char	**argv){
 	std::cout<<"c perf: "<<c_perf<<std::endl;
 	std::cout<<"speedup: x "<<m_perf/c_perf<<std::endl;
 
-	int	i;std::cin>>i;
 #endif
+
+	int	i;std::cin>>i;
 
 #endif
 

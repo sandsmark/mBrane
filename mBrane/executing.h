@@ -44,13 +44,13 @@ namespace	mBrane{
 	class	Node;
 	//	Message processing thread class.
 	class	XThread:
-	public	Thread{
+	public	Thread,
+	public	FastSemaphore{
 	public:
 		static	thread_ret thread_function_call	Xec(void	*args);
-		Node		*node;
-		bool		wasSupporting;
-		Semaphore	*sync;
-
+		Node	*node;
+		bool	wasSupporting;
+		
 		XThread(Node	*n);
 		~XThread();
 		void	work(_Payload	*p,_Module	*c);

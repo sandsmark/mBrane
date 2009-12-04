@@ -42,9 +42,9 @@
 using	namespace	mBrane::sdk;
 using	namespace	mBrane::sdk::module;
 
-#define	MESSAGE_INPUT_BLOCK_SIZE	32
-#define	MESSAGE_OUTPUT_BLOCK_SIZE	32
-#define	JOBS_BLOCK_SIZE				64
+#define	MESSAGE_INPUT_BLOCK_SIZE	64
+#define	MESSAGE_OUTPUT_BLOCK_SIZE	64
+#define	JOBS_BLOCK_SIZE				128
 
 namespace	mBrane{
 

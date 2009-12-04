@@ -806,4 +806,26 @@ uint64 GetTime() {
 #elif defined OSX
 #endif
 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+
+	FastSemaphore::FastSemaphore(uint32	initialCount):Semaphore(initialCount,1),count(initialCount){
+	}
+
+	FastSemaphore::~FastSemaphore(){
+	}
+
+	void	FastSemaphore::acquire(){
+
+		int32	c=Atomic::Decrement32(&count);
+		if(c<0)
+			Semaphore::acquire();
+	}
+
+	void	FastSemaphore::release(){
+
+		int32	c=Atomic::Increment32(&count);
+		if(c==0)
+			Semaphore::release();
+	}
 }

@@ -91,14 +91,15 @@ namespace	mBrane{
 
 		PushThread	*_this=(PushThread	*)args;
 
-		P<_Payload>	*_p;
+		P<_Payload>	_p;
 		while(_this->node->isRunning()){
 
 			_p=_this->source->pop();
-			if((*_p)->category()==_Payload::CONTROL)
-				_this->node->processControlMessage(*_p);
-			_this->node->pushJobs(*_p);
-			*_p=NULL;
+			if(_p->category()==_Payload::CONTROL)
+				_this->node->processControlMessage(_p);
+			_this->node->pushJobs(_p);
+			//std::cout<<"pushing job: "<<_p->cid()<<std::endl;fflush(stdout);
+			_p=NULL;
 		}
 
 		thread_ret_val(0);
@@ -146,6 +147,7 @@ namespace	mBrane{
 		o.p=message;
 		o.network=network;
 		message->send_ts()=Time::Get();
+		//std::cout<<std::endl<<"sent: "<<message->cid()<<std::endl;fflush(stdout);
 		messageOutputQueue.push(o);
 	}
 
@@ -164,6 +166,7 @@ namespace	mBrane{
 	}
 
 	void	Messaging::shutdown(){
+
 		Thread::TerminateAndWait(sendThread);
 		for(uint32	i=0;i<recvThreads.count();i++)
 			Thread::TerminateAndWait(*recvThreads.get(i));
@@ -286,31 +289,29 @@ namespace	mBrane{
 
 		Node	*node=(Node	*)args;
 
-		MessageSlot	*out;
+		MessageSlot	out;
 		_Payload	*p;
-		P<_Payload>	_p;
 		uint32		act;
 		uint32		nodeCount;
 		while(!node->_shutdown){
 
 			out=node->messageOutputQueue.pop();
-			p=out->p;
-			_p=p;
+			p=out.p;
 			_Payload::Category	cat=p->category();
-			if(out->network==module::Node::LOCAL){
+			if(out.network==module::Node::LOCAL){
 				
 				if(cat==_Payload::STREAM)
 					NodeEntry::Main[ST][p->as_StreamData()->sid()][node->_ID].getActivation(act);
 				else
 					NodeEntry::Main[DC][p->cid()][node->_ID].getActivation(act);
 				if(act)
-					node->messageInputQueue.push(_p);
+					node->messageInputQueue.push(out.p);
 			}else{
 
 				switch(cat){
 				case	_Payload::CONTROL:
-					node->broadcastControlMessage(p,out->network);
-					node->messageInputQueue.push(_p);
+					node->broadcastControlMessage(p,out.network);
+					node->messageInputQueue.push(out.p);
 					break;
 				case	_Payload::STREAM:	//	find target remote nodes; send on data/stream channels; push in messageInputQueue if the local node is a target
 					{
@@ -322,9 +323,9 @@ namespace	mBrane{
 						if(act){
 
 							if(i==node->_ID)
-								node->messageInputQueue.push(_p);
+								node->messageInputQueue.push(out.p);
 							else	
-								node->sendStreamData(i,p,out->network);
+								node->sendStreamData(i,p,out.network);
 						}
 					}
 					}break;
@@ -338,17 +339,16 @@ namespace	mBrane{
 						if(act){
 
 							if(i==node->_ID)
-								node->messageInputQueue.push(_p);
+								node->messageInputQueue.push(out.p);
 							else	
-								node->sendData(i,p,out->network);
+								node->sendData(i,p,out.network);
 						}
 					}
 					}
 				}
 			}
 
-			out->p=NULL;
-			_p=NULL;
+			out.p=NULL;
 		}
 
 		thread_ret_val(0);

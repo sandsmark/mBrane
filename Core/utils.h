@@ -206,6 +206,17 @@ namespace	mBrane{
 	};
 
 	uint8	dll	BSR(word	data);	//	BitScanReverse
+
+	class	dll	FastSemaphore:	//	lock-free under no contention
+	public	Semaphore{	//	max count:1
+	private:
+		int32	volatile	count;	//	minus the number of waiting threads
+	public:
+		FastSemaphore(uint32	initialCount);	//	initialCount in {0,1}
+		~FastSemaphore();
+		void	acquire();
+		void	release();
+	};
 }
 
 

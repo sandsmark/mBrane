@@ -99,15 +99,15 @@ check_in:	_this->node->supportSync->acquire();
 
 		while(_this->node->isRunning()){
 
-			Job	*j=_this->node->jobs.pop();
-			j->m->sync->acquire();	//	forces threads processing the same module to run in the order of message arrival, until reaching a preemption point (see work).
-			if (j->p == NULL) {
-				printf("Xec Payload NULL!!!\n");
-				fflush(stdout);
-			}
-			else
-				_this->work(j->p,j->m);
-			j->p=NULL;
+			Job	j=_this->node->jobs.pop();
+			j.m->sync->acquire();	//	forces threads processing the same module to run in the order of message arrival, until reaching a preemption point (see work).
+			if (j.p == NULL){
+				printf("Xec Payload NULL!!!\n");fflush(stdout);
+			}else{
+				//std::cout<<"xec got job: "<<j.p->cid()<<" "<<std::hex<<_this<<std::dec<<std::endl;fflush(stdout);
+				_this->work(j.p,j.m);
+				}
+			j.p=NULL;
 
 			if(_this->wasSupporting)
 				goto	check_in;
@@ -115,34 +115,22 @@ check_in:	_this->node->supportSync->acquire();
 		thread_ret_val(0);
 	}
 
-	XThread::XThread(Node	*n):Thread(),node(n),wasSupporting(false){
-
-		sync=new	Semaphore(0,1);
+	XThread::XThread(Node	*n):Thread(),FastSemaphore(0),node(n),wasSupporting(false){
 	}
 
 	XThread::~XThread(){
-
-		delete	sync;
 	}
 
 	inline	void	XThread::work(_Payload	*p,_Module	*m){
 		
-		if (p == NULL) {
-			printf("Work 1 Payload NULL!!!\n");
-			fflush(stdout);
-		}
 		XThread	*currentProcessor=(XThread	*)m->processor;
 		if(currentProcessor){
 
-			if (p == NULL) {
-				printf("Work 2 Payload NULL!!!\n");
-				fflush(stdout);
-			}
 			switch(m->dispatch(p)){
 			case	_Module::WAIT:
 				node->supportSync->release();			// before waiting, unlock a supporting thread to run instead of this.
 				if(currentProcessor)					// could be NULL if currentProcessor just finished.
-					currentProcessor->sync->acquire();	// wait for the currentProcessor to finish; will be unlocked by currentProcessor (see sync->release() below).
+					currentProcessor->acquire();	// wait for the currentProcessor to finish; will be unlocked by currentProcessor (see sync->release() below).
 				work(p,m);								// recurse to ask again what to do with p (ex: in case currentProcessor was preempting yet another one).
 				return;
 			case	_Module::PREEMPT:
@@ -151,12 +139,12 @@ check_in:	_this->node->supportSync->acquire();
 				m->processor=this;
 				m->sync->release();						// preemption point.
 				if(p->category()==_Payload::STREAM)
-					m->notify(((_StreamData	*)p)->sid(),p);
+					m->notify(p->as_StreamData()->sid(),p);
 				else
 					m->notify(p);
 				if(m->processor=currentProcessor)		// could be NULL if currentProcessor just finished.
 					currentProcessor->resume();
-				sync->release();						// release a potential waiting thread.
+				release();								// release a potential waiting thread.
 				return;
 			case	_Module::DISCARD:
 				return;
@@ -165,16 +153,15 @@ check_in:	_this->node->supportSync->acquire();
 		
 		m->processor=this;
 		m->sync->release();	// preemption point.
-		if (p == NULL) {
-			printf("Work 3 Payload NULL!!!\n");
-			fflush(stdout);
-		}
 		if(p->category()==_Payload::STREAM)
-			m->notify(((_StreamData	*)p)->sid(),p);
-		else
+			m->notify(p->as_StreamData()->sid(),p);
+		else{
+
+			//std::cout<<"xec notified job: "<<p->cid()<<" "<<std::hex<<this<<std::dec<<std::endl;fflush(stdout);
 			m->notify(p);
+		}
 		m->processor=NULL;
-		sync->release();	// release a potential waiting thread.
+		release();	// release a potential waiting thread.
 		return;
 	}
 }
