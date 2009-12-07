@@ -81,7 +81,7 @@ namespace	mBrane{
 
 			class	dll	Daemon{
 			protected:
-				Node	*node;
+				Node	*const	node;
 				Daemon(Node	*node);
 			public:
 				typedef	Daemon	*(*Load)(XMLNode	&,Node	*);	//	function exported by the shared library

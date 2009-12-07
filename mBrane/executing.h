@@ -48,7 +48,7 @@ namespace	mBrane{
 	public	FastSemaphore{
 	public:
 		static	thread_ret thread_function_call	Xec(void	*args);
-		Node	*node;
+		Node	*const	node;
 		bool	wasSupporting;
 		
 		XThread(Node	*n);

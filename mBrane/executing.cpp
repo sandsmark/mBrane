@@ -115,7 +115,7 @@ check_in:	_this->node->supportSync->acquire();
 		thread_ret_val(0);
 	}
 
-	XThread::XThread(Node	*n):Thread(),FastSemaphore(0),node(n),wasSupporting(false){
+	XThread::XThread(Node	*n):Thread(),FastSemaphore(0,1),node(n),wasSupporting(false){
 	}
 
 	XThread::~XThread(){
@@ -130,7 +130,7 @@ check_in:	_this->node->supportSync->acquire();
 			case	_Module::WAIT:
 				node->supportSync->release();			// before waiting, unlock a supporting thread to run instead of this.
 				if(currentProcessor)					// could be NULL if currentProcessor just finished.
-					currentProcessor->acquire();	// wait for the currentProcessor to finish; will be unlocked by currentProcessor (see sync->release() below).
+					currentProcessor->acquire();		// wait for the currentProcessor to finish; will be unlocked by currentProcessor (see release() below).
 				work(p,m);								// recurse to ask again what to do with p (ex: in case currentProcessor was preempting yet another one).
 				return;
 			case	_Module::PREEMPT:

@@ -72,7 +72,7 @@ namespace	mBrane{
 	public	Thread{
 	public:
 		static	thread_ret thread_function_call	PushJobs(void	*args);
-		Node	*node;
+		Node	*const	node;
 		Pipe11<P<_Payload>,MESSAGE_OUTPUT_BLOCK_SIZE>	*source;
 		PushThread(Node	*node,Pipe11<P<_Payload>,MESSAGE_OUTPUT_BLOCK_SIZE>	*source);
 		~PushThread();

@@ -731,25 +731,25 @@ uint64 GetTime() {
 #endif
 	};
 
-	int32	CompareAndSwap32(int32	volatile	*target,int32	v1,int32	v2){
+	int32	Atomic::CompareAndSwap32(int32	volatile	*target,int32	v1,int32	v2){
 #if defined	WINDOWS
-		return	_InterlockedCompareExchange(target,v1,v2);
+		return	_InterlockedCompareExchange(target,v2,v1);
 #elif defined LINUX
 		//	TODO
 #elif defined OSX
 #endif
 	}
 
-	int64	CompareAndSwap64(int64	volatile	*target,int64	v1,int64	v2){
+	int64	Atomic::CompareAndSwap64(int64	volatile	*target,int64	v1,int64	v2){
 #if defined	WINDOWS
-		return	_InterlockedCompareExchange64(target,v1,v2);
+		return	_InterlockedCompareExchange64(target,v2,v1);
 #elif defined LINUX
 		//	TODO
 #elif defined OSX
 #endif
 	}
 
-	word	CompareAndSwap(word	volatile	*target,word	v1,word	v2){
+	word	Atomic::CompareAndSwap(word	volatile	*target,word	v1,word	v2){
 #if defined	ARCH_32
 		return	CompareAndSwap32(target,v1,v2);
 #elif defined ARCH_64
@@ -757,7 +757,7 @@ uint64 GetTime() {
 #endif
 	}
 
-	int32	Swap32(int32	volatile	*target,int32	v){
+	int32	Atomic::Swap32(int32	volatile	*target,int32	v){
 #if defined	WINDOWS
 		return	_InterlockedExchange(target,v);
 #elif defined LINUX
@@ -766,7 +766,7 @@ uint64 GetTime() {
 #endif
 	}
 
-	int64	Swap64(int64	volatile	*target,int64	v){
+	int64	Atomic::Swap64(int64	volatile	*target,int64	v){
 #if defined	WINDOWS
 		return	CompareAndSwap64(target,v,v);
 #elif defined LINUX
@@ -775,7 +775,7 @@ uint64 GetTime() {
 #endif
 	}
 
-	word	Swap(word	volatile	*target,word	v){
+	word	Atomic::Swap(word	volatile	*target,word	v){
 #if defined	ARCH_32
 		return	Swap32(target,v);
 #elif defined ARCH_64
@@ -809,7 +809,7 @@ uint64 GetTime() {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	FastSemaphore::FastSemaphore(uint32	initialCount):Semaphore(initialCount,1),count(initialCount){
+	FastSemaphore::FastSemaphore(uint32	initialCount,uint32	maxCount):Semaphore(initialCount,maxCount),count(initialCount),maxCount(maxCount){
 	}
 
 	FastSemaphore::~FastSemaphore(){
@@ -817,7 +817,8 @@ uint64 GetTime() {
 
 	void	FastSemaphore::acquire(){
 
-		int32	c=Atomic::Decrement32(&count);
+		int32	c;
+		while((c=Atomic::Decrement32(&count))>=maxCount);	//	release calls can bring count over maxCount: acquire has to exhaust these extras
 		if(c<0)
 			Semaphore::acquire();
 	}
@@ -825,7 +826,30 @@ uint64 GetTime() {
 	void	FastSemaphore::release(){
 
 		int32	c=Atomic::Increment32(&count);
-		if(c==0)
+		if(c<=maxCount)
 			Semaphore::release();
 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+	FastMutex::FastMutex(uint32	initialCount):Semaphore(initialCount,1),count(initialCount){
+	}
+
+	FastMutex::~FastMutex(){
+	}
+
+	void	FastMutex::acquire(){
+
+		int32	former=Atomic::Swap32(&count,0);
+		if(former==0)
+			Semaphore::acquire();
+	}
+
+	void	FastMutex::release(){
+
+		int32	former=Atomic::Swap32(&count,1);
+		if(former==0)
+			Semaphore::release();
+	}
+	*/
 }
