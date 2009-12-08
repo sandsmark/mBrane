@@ -50,6 +50,31 @@
 
 namespace	mBrane{
 
+	#if defined LINUX
+		bool CalcTimeout(struct timespec &timeout, uint32 ms) {
+
+			struct timeval now;
+			if (gettimeofday(&now, NULL) != 0)
+				return false;
+
+			timeout.tv_sec = now.tv_sec + ms / 1000;
+			long us = now.tv_usec + ms % 1000;
+			if (us >= 1000000) {
+				timeout.tv_sec++;
+				us -= 1000000;
+			}
+			timeout.tv_nsec = us * 1000; // usec -> nsec
+			return true;
+		}
+
+		uint64 GetTime() {
+			struct timeval tv; 
+			if ( gettimeofday(&tv, NULL))
+				return 0; 
+			return (tv.tv_usec + tv.tv_sec * 1000000LL);
+		}
+	#endif
+
 	void PrintBinary(void* p, uint32 size, bool asInt, const char* title) {
 		if (title != NULL)
 			printf("--- %s %u ---\n", title, size);
@@ -386,11 +411,9 @@ namespace	mBrane{
 		struct timespec t;
 		int r;
 		
-		t.tv_sec = timeout / 1000;
-		t.tv_nsec = (timeout % 1000) * 1000;
-		
+		CalcTimeout(t, timeout);
 		r = sem_timedwait(&s, &t);
-		return r == ETIMEDOUT;
+		return r == 0;
 #elif defined OSX
 #endif
 	}
@@ -421,31 +444,6 @@ namespace	mBrane{
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
-
-#if defined LINUX
-bool CalcTimeout(struct timespec &timeout, struct timeval &now, uint32 ms) {
-
-	if (gettimeofday(&now, NULL) != 0)
-		return false;
-	ldiv_t div_result;
-	div_result = ldiv( ms, 1000 );
-	timeout.tv_sec = now.tv_sec + div_result.quot;
-	long x = now.tv_usec + (div_result.rem * 1000);
-	if (x >= 1000000) {
-		timeout.tv_sec++;
-		x -= 1000000;
-	}
-	timeout.tv_nsec = x * 1000;
-	return true;
-}
-
-uint64 GetTime() {
-	struct timeval tv; 
-	if ( gettimeofday(&tv, NULL))
-		return 0; 
-	return (tv.tv_usec + tv.tv_sec * 1000000LL);
-}
-#endif
 
 #if defined	WINDOWS
 	const	uint32	Mutex::Infinite=INFINITE;
@@ -639,7 +637,6 @@ uint64 GetTime() {
 		return	r==WAIT_TIMEOUT;
 	#elif defined LINUX
 		bool res;
-		struct timeval now;
 		struct timespec ttimeout;
 
 		pthread_mutex_lock(&sematex.mutex);
@@ -647,7 +644,7 @@ uint64 GetTime() {
 			res = (pthread_cond_wait(&sematex.semaphore, &sematex.mutex) == 0);
 		}
 		else {
-			CalcTimeout(ttimeout, now, timeout);
+			CalcTimeout(ttimeout, timeout);
 			res = (pthread_cond_timedwait(&sematex.semaphore, &sematex.mutex, &ttimeout) == 0);
 		}
 		pthread_mutex_unlock(&sematex.mutex);
@@ -725,7 +722,7 @@ uint64 GetTime() {
 #if defined	WINDOWS
 		return	InterlockedDecrement(v);
 #elif defined LINUX
-		__sync_sub_and_fetch(v, 1);
+		__sync_add_and_fetch(v, -1);
 		return	*v;
 #elif defined OSX
 #endif
@@ -735,7 +732,8 @@ uint64 GetTime() {
 #if defined	WINDOWS
 		return	_InterlockedCompareExchange(target,v2,v1);
 #elif defined LINUX
-		//	TODO
+		// note that v1 and v2 are swapped for Linux!!!
+		return __sync_val_compare_and_swap(target, v1, v2);
 #elif defined OSX
 #endif
 	}
@@ -744,7 +742,8 @@ uint64 GetTime() {
 #if defined	WINDOWS
 		return	_InterlockedCompareExchange64(target,v2,v1);
 #elif defined LINUX
-		//	TODO
+		// note that v1 and v2 are swapped for Linux!!!
+		return __sync_val_compare_and_swap(target, v1, v2);
 #elif defined OSX
 #endif
 	}
@@ -761,7 +760,7 @@ uint64 GetTime() {
 #if defined	WINDOWS
 		return	_InterlockedExchange(target,v);
 #elif defined LINUX
-		//	TODO
+		return __sync_fetch_and_sub(target,v);
 #elif defined OSX
 #endif
 	}
@@ -770,7 +769,7 @@ uint64 GetTime() {
 #if defined	WINDOWS
 		return	CompareAndSwap64(target,v,v);
 #elif defined LINUX
-		//	TODO
+		return __sync_fetch_and_sub(target,v);
 #elif defined OSX
 #endif
 	}
