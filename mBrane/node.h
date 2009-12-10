@@ -76,12 +76,11 @@ namespace	mBrane{
 		Array<Host::host_name,32>	nodeNames;
 		Node(uint8	traceLevels);
 		bool	loadApplication(const	char	*fileName);
-		void	unloadApplication();
 	public:
 		uint16	getNID(const	char	*name);
 		const	char	*name();
 		//	main() NODE API
-		static	Node	*New(const	char	*configFileName,uint8	traceLevels);
+		static	Node	*New(const	char	*configFileName,SharedLibrary	&userLibrary,uint8	traceLevels);
 		~Node();
 		void	run();
 		void	ready();

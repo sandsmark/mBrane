@@ -11,6 +11,8 @@ using	namespace	mBrane;
 
 mBrane::Node	*node=NULL;
 
+SharedLibrary	SL;	//	will be initialized with the library loaded by the node; this ensures SL is deleted last, and thus that all user-defined adresses (e.g. __vfptr) are still valid until the very end
+
 bool	signal_handler_function_call	Handler(uint32	event){
 
 	if(!node)
@@ -19,7 +21,7 @@ bool	signal_handler_function_call	Handler(uint32	event){
 #if defined(WINDOWS)
 	switch(event){
 	case	CTRL_C_EVENT:
-    case	CTRL_CLOSE_EVENT:
+	case	CTRL_CLOSE_EVENT:
       	node->shutdown();
 		delete	node;
 		exit(0);
@@ -131,7 +133,7 @@ int	main(int	argc,char	**argv){
 
 	Thread::Sleep(atoi(argv[1]));
 
-	node=mBrane::Node::New(argv[2],atoi(argv[3]));
+	node=mBrane::Node::New(argv[2],SL,atoi(argv[3]));
 
 	// We could not initialise everything, bailing out
 	if (!node){

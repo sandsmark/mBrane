@@ -41,11 +41,14 @@ using	namespace	mBrane::sdk::payloads;
 
 namespace	mBrane{
 
-	Node	*Node::New(const	char	*configFileName,uint8	traceLevels){
+	Node	*Node::New(const	char	*configFileName,SharedLibrary	&userLibrary,uint8	traceLevels){
 
 		Node	*n=new	Node(traceLevels);
-		if(n->loadConfig(configFileName))
+		if(n->loadConfig(configFileName)){
+
+			userLibrary=*n->userLibrary;
 			return	n;
+		}
 		return	NULL;
 	}
 
@@ -174,11 +177,6 @@ namespace	mBrane{
 		}
 
 		return	true;
-	}
-
-	void	Node::unloadApplication(){
-
-		delete	userLibrary;
 	}
 
 	uint16	Node::getNID(const	char	*name){
@@ -408,7 +406,7 @@ namespace	mBrane{
 		std::cout<<"> Shutting down Networking..."<<std::endl;
 		Networking::shutdown();
 		std::cout<<"> Shutting down Application..."<<std::endl;
-		unloadApplication();
+//		unloadApplication();
 	}
 
 	inline	int64	Node::time()	const{

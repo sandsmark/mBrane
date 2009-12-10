@@ -73,11 +73,11 @@ namespace	mBrane{
 	class	dll	SharedLibrary{
 	private:
 		shared_object	library;
-		SharedLibrary();
-		SharedLibrary	*load(const	char	*fileName);
 	public:
 		static	SharedLibrary	*New(const	char	*fileName);
+		SharedLibrary();
 		~SharedLibrary();
+		SharedLibrary	*load(const	char	*fileName);
 		template<typename	T>	T	getFunction(const	char	*functionName);
 	};
 
