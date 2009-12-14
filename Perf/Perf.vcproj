@@ -232,6 +232,14 @@
 			RelativePath="..\App\rrapp.xml"
 			>
 		</File>
+		<File
+			RelativePath="..\App\rrcob2node.xml"
+			>
+		</File>
+		<File
+			RelativePath="..\App\rrlin2node.xml"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
