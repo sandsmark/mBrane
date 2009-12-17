@@ -209,6 +209,20 @@ uint16	TCPInterface::start(){
 		return	1;
 	}
   
+	#ifndef WINDOWS
+		/*
+			This socket option tells the kernel that even if this port is busy (in
+			the TIME_WAIT state), go ahead and reuse it anyway.  If it is busy,
+			but with another state, you will still get an address already in use
+			error.  It is useful if your server has been shut down, and then
+			restarted right away while sockets are still active on its port.  You
+			should be aware that if any unexpected data comes in, it may confuse
+			your server, but while this is possible, it is not likely.
+		*/
+		int one = 1;
+		setsockopt(s,SOL_SOCKET,SO_REUSEADDR,&one,sizeof(one));
+	#endif
+
 	struct	sockaddr_in	addr;
 	addr.sin_family= AF_INET;
 	addr.sin_addr.s_addr=address.s_addr;
@@ -227,6 +241,7 @@ uint16	TCPInterface::start(){
 
 uint16	TCPInterface::stop(){
 
+	std::cout<<"> Info: Closing TCP bound to port " << port << std::endl;
 	closesocket(s);
 	Shutdown();
 	return	0;
@@ -247,7 +262,8 @@ uint16	TCPInterface::newChannel(uint8	*ID,CommChannel	**channel){	//	connect to 
 
 	mBrane::socket	s;
 	if((s=::socket(AF_INET,SOCK_STREAM,IPPROTO_TCP))==INVALID_SOCKET){
-
+		std::cout<<"> Error: Could not create TCP socket to "<<inet_ntoa(*(struct in_addr *)ID)<<
+			":" << (unsigned short)*((uint32 *)(ID+sizeof(struct in_addr))) << std::endl;
 		Shutdown();
 		return	1;
 	}
@@ -258,22 +274,30 @@ uint16	TCPInterface::newChannel(uint8	*ID,CommChannel	**channel){	//	connect to 
 	char delay = 1;
 	setsockopt(s, IPPROTO_TCP, TCP_NODELAY, (char*) &delay, sizeof(delay));
 
+	char errbuf[1024];
 	struct sockaddr_in	addr;
 	addr.sin_family=AF_INET;
 	addr.sin_addr=*((struct	in_addr	*)ID);
 	addr.sin_port=htons((unsigned short)*((uint32 *)(ID+sizeof(struct in_addr))));
 	if(connect(s,(SOCKADDR	*)&addr,sizeof(struct sockaddr_in))==SOCKET_ERROR){
+		getOSErrorMessage(errbuf, 1024);
+		std::cout<<"> Error: Could not connect TCP socket to "<<inet_ntoa(*(struct in_addr *)ID)<<
+			":" << (unsigned short)*((uint32 *)(ID+sizeof(struct in_addr))) << " - " << errbuf << std::endl;
 		closesocket(s);
 		Shutdown();
 		return	1;
 	}
 
+	std::cout<<"> Info: Opened TCP connection to "<<inet_ntoa(*(struct in_addr *)ID)<<
+		":" << (unsigned short)*((uint32 *)(ID+sizeof(struct in_addr))) << std::endl;
 	*channel=new	TCPChannel(s);
 	
 	return	0;
 }
 
 uint16	TCPInterface::acceptConnection(ConnectedCommChannel	**channel,int32	timeout,bool	&timedout){
+
+	std::cout<<"> Info: Listening for TCP connection on port " << port << std::endl;
 
 	// Set blocking mode
 	#if defined(WINDOWS)
@@ -295,24 +319,41 @@ uint16	TCPInterface::acceptConnection(ConnectedCommChannel	**channel,int32	timeo
 	}
 
 	mBrane::socket _s = accept(s,NULL,NULL);
-	if ((int) _s < 0) {
+
+	if ( ((int) _s < 0) && (timeout > 0) ) {
 		int wsaError = getLastOSErrorNumber();
 		if ((wsaError == WSAEWOULDBLOCK) || (wsaError == EINPROGRESS)) {
 			if (!waitForReadability(timeout)) {
 				timedout = true;
 				return 0;
 			}
-		}
-		else {
-			closesocket(s);
-			Shutdown();
-			return 1;
+			// Try again...
+			_s = accept(s,NULL,NULL);
+			if ((int) _s < 0) {
+				timedout = true;
+				return 0;
+			}
 		}
 	}
+
+	if ((int) _s < 0) {
+		closesocket(s);
+		Shutdown();
+		return 1;
+	}
+
+	//char buffer[1024];
+	//int count = ::recv(_s,buffer,1,0);
+	//if(count==SOCKET_ERROR) {
+	//	std::cout<<"Error: TCPChannel::recv ["<<(int)_s<<"] code "<< getLastOSErrorNumber()<<std::endl;
+	//	return	1;
+	//}
 
 	timedout = false;
 	*channel=new	TCPChannel(_s);
       
+	std::cout<<"> Info: Accepted TCP connection ["<<(int)_s<<"] to port " << port << std::endl;
+
 	return	0;
 }
 
@@ -347,12 +388,3 @@ bool TCPInterface::waitForReadability(int32 timeout) {
 	return(ret > 0);
 }
 
-int32 TCPInterface::getLastOSErrorNumber() {
-	#ifdef WINDOWS
-		int32 err = WSAGetLastError();
-		WSASetLastError(0);
-		return err;
-	#else
-		return (int32) errno;
-	#endif
-}

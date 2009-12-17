@@ -38,6 +38,8 @@ using	namespace	mBrane::sdk::module;
 
 namespace	mBrane{
 
+	#define MBRANETOKEN 0xABCD
+
 	typedef	enum{
 		CONTROL_PRIMARY=0,
 		DATA_PRIMARY=1,

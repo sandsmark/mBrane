@@ -233,6 +233,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\App\rrapp2node.xml"
+			>
+		</File>
+		<File
 			RelativePath="..\App\rrcob2node.xml"
 			>
 		</File>

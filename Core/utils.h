@@ -59,6 +59,10 @@
 //	Wrapping of OS-dependent functions
 namespace	mBrane{
 
+	int32 dll	getLastOSErrorNumber();
+	bool dll	getOSErrorMessage(char* buffer, uint32 buflen, int32 err = -1);
+	bool dll	printLastOSErrorMessage(const char* title);
+
 	#if defined	WINDOWS
 	#elif defined LINUX
 		struct SemaTex {
@@ -219,7 +223,6 @@ namespace	mBrane{
 		void	release();
 	};
 }
-
 
 #include	"utils.tpl.cpp"
 

@@ -34,6 +34,7 @@
 #include	"../Core/network_interface.h"
 #include <errno.h>
 #include <string.h>
+#include <fcntl.h>
 
 using	namespace	mBrane;
 using	namespace	mBrane::sdk;
@@ -41,22 +42,19 @@ using	namespace	mBrane::sdk;
 class	TCPChannel:
 public	ConnectedCommChannel{
 private:
-	mBrane::socket	s;
+	CriticalSection	tcpCS;
 	uint32 bufferLen;
 	char* buffer;
 	uint32 bufferContentLen;
 	uint32 bufferContentPos;
-	CriticalSection	tcpCS;
+	mBrane::socket	s;
 	bool	initialiseBuffer(uint32 len);
 public:
 	TCPChannel(mBrane::socket	s);
 	~TCPChannel();
 	int16	send(uint8	*b,size_t	s);
 	int16	recv(uint8	*b,size_t	s,bool	peek=false);
-	int32 getLastOSErrorNumber();
 };
-
-void TCPPrintBinary(void* p, uint32 size, bool asInt, const char* title = NULL);
 
 
 #endif

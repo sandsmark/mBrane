@@ -95,7 +95,7 @@ int16	UDPChannel::recv(uint8	*b,size_t	s,bool	peek){
 		// and read from the socket
 		int count = ::recvfrom(this->s,buffer,bufferLen,0,NULL,0);
 		if(count==SOCKET_ERROR) {
-			std::cout<<"Error: UDPChannel::recv "<< getLastOSErrorNumber() <<std::endl;
+			printLastOSErrorMessage("Error: UDPChannel::recv");
 			udpCS.leave();
 			return	1;
 		}
@@ -120,12 +120,3 @@ int16	UDPChannel::recv(uint8	*b,size_t	s,bool	peek){
 	return 0;
 }
 
-int32 UDPChannel::getLastOSErrorNumber() {
-	#ifdef WINDOWS
-		int32 err = WSAGetLastError();
-		WSASetLastError(0);
-		return err;
-	#else
-		return (int32) errno;
-	#endif
-}

@@ -851,4 +851,128 @@ namespace	mBrane{
 			Semaphore::release();
 	}
 	*/
+
+bool printLastOSErrorMessage(const char* title) {
+	int32 err = getLastOSErrorNumber();
+	char buf[1024];
+	if (!getOSErrorMessage(buf, 1024, err))
+		printf("%s: [%d] (could not get error message)\n", title, err);
+	else
+		printf("%s: [%d] %s\n", title, err, buf);
+	return true;
+}
+
+int32 getLastOSErrorNumber() {
+	#ifdef WINDOWS
+		int32 err = WSAGetLastError();
+		WSASetLastError(0);
+		return err;
+	#else
+		return (int32) errno;
+	#endif
+}
+
+bool getOSErrorMessage(char* buffer, uint32 buflen, int32 err) {
+	if (buffer == NULL)
+		return false;
+	if (buflen < 512) {
+		strcpy(buffer, "String buffer not large enough");
+		return false;
+	}
+	if (err < 0)
+		err = getLastOSErrorNumber();
+
+	#ifdef WINDOWS
+		if (err == WSANOTINITIALISED) {
+			strcpy(buffer, "Cannot initialize WinSock!");
+		}
+		else if (err == WSAENETDOWN) {
+			strcpy(buffer, "The network subsystem or the associated service provider has failed");
+		}
+		else if (err == WSAEAFNOSUPPORT) {
+			strcpy(buffer, "The specified address family is not supported");
+		}
+		else if (err == WSAEINPROGRESS) {
+			strcpy(buffer, "A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function");
+		}
+		else if (err == WSAEMFILE) {
+			strcpy(buffer, "No more socket descriptors are available");
+		}
+		else if (err == WSAENOBUFS) {
+			strcpy(buffer, "No buffer space is available. The socket cannot be created");
+		}
+		else if (err == WSAEPROTONOSUPPORT) {
+			strcpy(buffer, "The specified protocol is not supported");
+		}
+		else if (err == WSAEPROTOTYPE) {
+			strcpy(buffer, "The specified protocol is the wrong type for this socket");
+		}
+		else if (err == WSAESOCKTNOSUPPORT) {
+			strcpy(buffer, "The specified socket type is not supported in this address family");
+		}
+		else if (err == WSAEADDRINUSE) {
+			strcpy(buffer, "The socket's local address is already in use and the socket was not marked to allow address reuse with SO_REUSEADDR. This error usually occurs during execution of the bind function, but could be delayed until this function if the bind was to a partially wildcard address (involving ADDR_ANY) and if a specific address needs to be committed at the time of this function");
+		}
+		else if (err == WSAEINVAL) {
+			strcpy(buffer, "The socket has not been bound with bind");
+		}
+		else if (err == WSAEISCONN) {
+			strcpy(buffer, "The socket is already connected");
+		}
+		else if (err == WSAENOTSOCK) {
+			strcpy(buffer, "The descriptor is not a socket");
+		}
+		else if (err == WSAEOPNOTSUPP) {
+			strcpy(buffer, "The referenced socket is not of a type that supports the listen operation");
+		}
+		else if (err == WSAEADDRNOTAVAIL) {
+			strcpy(buffer, "The specified address is not a valid address for this machine");
+		}
+		else if (err == WSAEFAULT) {
+			strcpy(buffer, "The name or namelen parameter is not a valid part of the user address space, the namelen parameter is too small, the name parameter contains an incorrect address format for the associated address family, or the first two bytes of the memory block specified by name does not match the address family associated with the socket descriptor s");
+		}
+		else if (err == WSAEMFILE) {
+			strcpy(buffer, "The queue is nonempty upon entry to accept and there are no descriptors available");
+		}
+		else if (err == WSAEWOULDBLOCK) {
+			strcpy(buffer, "The socket is marked as nonblocking and no connections are present to be accepted");
+		}
+		else if (err == WSAETIMEDOUT) {
+			strcpy(buffer, "Attempt to connect timed out without establishing a connection");
+		}
+		else if (err == WSAENETUNREACH) {
+			strcpy(buffer, "The network cannot be reached from this host at this time");
+		}
+		else if (err == WSAEISCONN) {
+			strcpy(buffer, "The socket is already connected (connection-oriented sockets only)");
+		}
+		else if (err == WSAECONNREFUSED) {
+			strcpy(buffer, "The attempt to connect was forcefully rejected");
+		}
+		else if (err == WSAEAFNOSUPPORT) {
+			strcpy(buffer, "Addresses in the specified family cannot be used with this socket");
+		}
+		else if (err == WSAEADDRNOTAVAIL) {
+			strcpy(buffer, "The remote address is not a valid address (such as ADDR_ANY)");
+		}
+		else if (err == WSAEALREADY) {
+			strcpy(buffer, "A nonblocking connect call is in progress on the specified socket");
+		}
+		else if (err == WSAECONNRESET) {
+			strcpy(buffer, "Connection was reset");
+		}
+		else if (err == WSAECONNABORTED) {
+			strcpy(buffer, "Software caused connection abort");
+		}
+		else {
+			strcpy(buffer, "Socket error with no description");
+		}
+
+	#else
+		strcpy(buffer, strerror(err));
+	#endif
+
+	return true;
+}
+
 }

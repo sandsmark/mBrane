@@ -40,6 +40,15 @@ TCPChannel::TCPChannel(mBrane::socket	s):ConnectedCommChannel(),s(s){
 	bufferContentLen = 0;
 	bufferContentPos = 0;
 	initialiseBuffer(4096);
+	#if defined(WINDOWS)
+		unsigned long parm = 0; // 1 = Non-blocking, 0 = Blocking
+		ioctlsocket(s, FIONBIO, &parm);
+	#else
+		long parm = fcntl(s, F_GETFL);
+		//parm |= O_NONBLOCK;
+		parm &= (!O_NONBLOCK);
+		fcntl(s, F_SETFL, parm);
+	#endif
 }
 
 TCPChannel::~TCPChannel(){
@@ -69,7 +78,7 @@ bool	TCPChannel::initialiseBuffer(uint32 len) {
 
 int16	TCPChannel::send(uint8	*b,size_t	s){
 
-//	TCPPrintBinary(b, s, true, "TCP Sending");
+//	PrintBinary(b, s, true, "TCP Sending");
 	if(::send(this->s,(char	*)b,(int)s,0)==SOCKET_ERROR) {
 //		int err = WSAGetLastError();
 		return	1;
@@ -95,12 +104,12 @@ int16	TCPChannel::recv(uint8	*b,size_t	s,bool	peek){
 		// and read from the socket
 		int count = ::recv(this->s,buffer,bufferLen,0);
 		if(count==SOCKET_ERROR) {
-			std::cout<<"Error: TCPChannel::recv "<< getLastOSErrorNumber()<<std::endl;
+			printLastOSErrorMessage("Error: TCPChannel::recv");
 			tcpCS.leave();
 			return	1;
 		}
 		bufferContentLen = count;
-//		TCPPrintBinary(buffer, bufferContentLen, true, "TCP Received");
+//		PrintBinary(buffer, bufferContentLen, true, "TCP Received");
 		// std::cout<<"Info: Not enough data in buffer, received "<<count<<" bytes from socket..."<<std::endl;
 	}
 
@@ -122,28 +131,3 @@ int16	TCPChannel::recv(uint8	*b,size_t	s,bool	peek){
 
 }
 
-int32 TCPChannel::getLastOSErrorNumber() {
-	#ifdef WINDOWS
-		int32 err = WSAGetLastError();
-		WSASetLastError(0);
-		return err;
-	#else
-		return (int32) errno;
-	#endif
-}
-
-void TCPPrintBinary(void* p, uint32 size, bool asInt, const char* title) {
-	if (title != NULL)
-		printf("--- %s %u ---\n", title, size);
-	unsigned char c;
-	for (uint32 n=0; n<size; n++) {
-		c = *(((unsigned char*)p)+n);
-		if (asInt)
-			printf("[%u] ", (unsigned int)c);
-		else
-			printf("[%c] ", c);
-		if ( (n > 0) && ((n+1)%10 == 0) )
-			printf("\n");
-	}
-	printf("\n");
-}
