@@ -320,7 +320,7 @@ uint16	TCPInterface::acceptConnection(ConnectedCommChannel	**channel,int32	timeo
 
 	mBrane::socket _s = accept(s,NULL,NULL);
 
-	if ( ((int) _s < 0) && (timeout > 0) ) {
+	if ((int) _s < 0) {
 		int wsaError = getLastOSErrorNumber();
 		if ((wsaError == WSAEWOULDBLOCK) || (wsaError == EINPROGRESS)) {
 			if (!waitForReadability(timeout)) {
@@ -334,12 +334,11 @@ uint16	TCPInterface::acceptConnection(ConnectedCommChannel	**channel,int32	timeo
 				return 0;
 			}
 		}
-	}
-
-	if ((int) _s < 0) {
-		closesocket(s);
-		Shutdown();
-		return 1;
+		else {
+			closesocket(s);
+			Shutdown();
+			return 1;
+		}
 	}
 
 	//char buffer[1024];

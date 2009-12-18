@@ -62,6 +62,7 @@ namespace	mBrane{
 	int32 dll	getLastOSErrorNumber();
 	bool dll	getOSErrorMessage(char* buffer, uint32 buflen, int32 err = -1);
 	bool dll	printLastOSErrorMessage(const char* title);
+	void dll	PrintBinary(void* p, uint32 size, bool asInt, const char* title = NULL);
 
 	#if defined	WINDOWS
 	#elif defined LINUX
@@ -71,8 +72,6 @@ namespace	mBrane{
 		};
 	#elif defined OSX
 	#endif
-
-	void PrintBinary(void* p, uint32 size, bool asInt, const char* title = NULL);
 
 	class	dll	SharedLibrary{
 	private:

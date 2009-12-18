@@ -471,6 +471,7 @@ namespace	mBrane{
 		uint16	mapElementCount;
 		if(r=c->recv((uint8	*)&mapElementCount,sizeof(uint16)))
 			return	r;
+		std::cout<<"Info: Receiving network map containing "<<mapElementCount<<" other nodes..."<<std::endl;
 		NetworkID	*networkID;
 		for(uint16	i=0;i<mapElementCount;i++){
 
@@ -488,16 +489,18 @@ namespace	mBrane{
 		uint16	i;
 		uint16	mapElementCount = 0;
 		for(i=0;i<dataChannels.count();i++){
-			if ( (i!=_ID) && (dataChannels[i]->networkID) )
+		//	if ( (i!=_ID) && (dataChannels[i]->networkID) )
+			if (dataChannels[i]->networkID)
 				mapElementCount++;
 		}
 
+		std::cout<<"Info: Sending network map containing "<<mapElementCount<<" nodes..."<<std::endl;
 		if(r=c->send((uint8	*)&mapElementCount,sizeof(uint16)))
 			return	r;
 
 		for(uint16	i=0;i<dataChannels.count();i++){
-			if(i==_ID)
-				continue;
+		//	if(i==_ID)
+		//		continue;
 			if(!dataChannels[i]->networkID)
 				continue;
 			if(r=sendID(c,dataChannels[i]->networkID))
@@ -515,10 +518,13 @@ namespace	mBrane{
 		CommChannel	*stream_c;
 		uint16	assignedNID;
 
-		if(isTimeReference)
-			assignedNID=addNodeEntry();
-		else
-			assignedNID=NoID;
+		assignedNID = networkID->NID();
+		if (assignedNID == NoID) {
+			if(isTimeReference)
+				assignedNID=addNodeEntry();
+			else
+				assignedNID=NoID;
+		}
 
 		if(!networkInterfaces[offset+_Payload::CONTROL]->canBroadcast()){
 
@@ -764,6 +770,7 @@ err2:	delete	networkID;
 		NetworkID	*networkID;
 		uint16	assignedNID;
 		bool	timedout;
+		bool decidedRefNode = false;
 		while(!node->_shutdown){
 
 			if(r=networkInterface->acceptConnection(&c,timeout,timedout)) {
@@ -775,7 +782,7 @@ err2:	delete	networkID;
 
 			node->acceptConnectionCS.enter();
 
-			if ( (category==_Payload::CONTROL) && (timedout) ) {	//	reference node
+			if ( (!decidedRefNode) && (category==_Payload::CONTROL) && (timedout) ) {	//	reference node
 				std::cout<<"Info: Starting up as Reference Node..."<<std::endl;
 				node->start(0,0,true);
 				node->acceptConnectionCS.leave();
@@ -784,6 +791,7 @@ err2:	delete	networkID;
 			//std::cout<<"Info: Processing acceptConnection for protocol "<< (uint32)networkInterface->protocol()<<"..."<<std::endl;
 			
 			//	non reference nodes
+			decidedRefNode = true;
 			if(category==_Payload::CONTROL	||	(category==_Payload::DATA	&&	node->networkInterfaces[offset+_Payload::CONTROL]->canBroadcast())){
 
 				// uint16	assignedNID;
@@ -796,9 +804,10 @@ err2:	delete	networkID;
 				if(assignedNID!=NoID){
 
 					std::cout<<"Info: Got assigned NodeID ["<<assignedNID<<"]..."<<std::endl;
+					node->start(assignedNID,networkID,false);
+					std::cout<<"Info: My NodeID is now ["<<networkID->NID()<<"]..."<<std::endl;
 					if(r=node->recvMap(c))
 						goto	err0;
-					node->start(assignedNID,networkID,false);
 				}
 			}
 			else if ( (category==_Payload::DATA) || (category==_Payload::STREAM) ) {

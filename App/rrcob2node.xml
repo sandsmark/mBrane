@@ -1,5 +1,5 @@
 <NodeConfiguration application_configuration_file="../App/rrapp2node.xml">
-	<Network sync_period="10000" bcast_timeout="1000" boot_callback="NULL">
+	<Network sync_period="10000" bcast_timeout="0" boot_callback="NULL">
 		<!--sync_period:   in ms; period at which sync signals are broadcast from the reference node-->
 		<!--bcast_timeout: in ms; delay after which a node believes it is the reference node; if 0, the node will be the time reference-->
 		<!--boot_callback: path to shared library defining a function to be called when the reference node is ready (use it to boot the other nodes)-->

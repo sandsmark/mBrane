@@ -60,6 +60,9 @@ namespace	mBrane{
 
 			ClassRegister	*CR=ClassRegister::Get(c->cid());
 			int16	r;
+
+			std::cout<<"Info: Sending payload type '"<<CR->class_name<<"' size '"<<CR->size()<<"'..."<<std::endl;
+
 			switch(c->allocationScheme()){
 			case	STATIC:
 				if(r=send(((uint8	*)c)+CR->offset(),CR->size()))
@@ -98,12 +101,16 @@ namespace	mBrane{
 			AllocationScheme	a=(AllocationScheme)(metaData	&	0x00000003);
 			ClassRegister		*CR=ClassRegister::Get(metaData>>16);
 			uint32	size;
-			if(a==RAW)
+			if(a==RAW) {
 				size=metaData>>2;
-			else
+				std::cout<<"Info: Receiving payload type '"<<CR->class_name<<"' (RAW) size '"<<size<<"'..."<<std::endl;
+			}
+			else {
 				size=CR->size();
+				std::cout<<"Info: Receiving payload type '"<<CR->class_name<<"' size '"<<size<<"'..."<<std::endl;
+			}
 			*c=(__Payload*)(*CR->allocator())(size);
-			
+
 			switch(a){
 			case	STATIC:
 			case	RAW:

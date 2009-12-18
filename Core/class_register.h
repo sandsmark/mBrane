@@ -54,8 +54,8 @@ namespace	mBrane{
 			size_t		_size;		//	transmission size for non-variable instances
 			size_t		_coreSize;	//	transmission size for the non-variable part of instances
 			size_t		_offset;	//	from this
-			char		class_name[255];
 		public:
+			char		class_name[255];
 			static	const	uint16	NoClass;	//	max: 0xFFFE classes
 			template<class	C,class	M>	static	uint32	Load();	//	returns class meta data (Cf payload.h)
 			static	uint16	Load(const	char	*className);
