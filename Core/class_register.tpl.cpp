@@ -31,10 +31,10 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		template<class	C,class	M>	uint32	ClassRegister::Load(){
+		template<class	C,class	M>	uint64	ClassRegister::Load(){
 
 			ClassRegister	*r=&Get()->operator [](Get()->count());
-			uint32	metaData=((Classes->count()-1)<<16)	|	C::_AllocationScheme();
+			uint64	metaData=((Classes->count()-1)<<16)	|	C::_AllocationScheme();
 			C::_Allocator=M::GetStatic(C::Size());
 			r->_allocator=C::New;
 			r->_size=C::Size()-C::Offset();

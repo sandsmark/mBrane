@@ -82,7 +82,7 @@ namespace	mBrane{
 
 		_Payload::Category	_Payload::category()	const{
 
-			return	(_Payload::Category)((_metaData	&	0x0000000C)>>2);
+			return	(_Payload::Category)((((uint32)_metaData)	&	0x0000000C)>>2);
 		}
 
 		int64	&_Payload::node_send_ts(){

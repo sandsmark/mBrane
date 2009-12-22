@@ -903,6 +903,7 @@ err1:	node->shutdown();
 			Thread::Sleep(node->syncPeriod);
 			if (node->dataChannels[node->referenceNID] != NULL) {
 				probe=new	SyncProbe();
+				std::cout<<"Info: Sending SyncProbe type '"<<probe->CID()<<"' ["<<probe->cid()<<"] size '"<<probe->Size()<<"'..."<<std::endl;
 				switch(node->network){
 				case	PRIMARY:
 				case	BOTH:

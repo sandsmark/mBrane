@@ -61,7 +61,7 @@ namespace	mBrane{
 			ClassRegister	*CR=ClassRegister::Get(c->cid());
 			int16	r;
 
-			std::cout<<"Info: Sending payload type '"<<CR->class_name<<"' size '"<<CR->size()<<"'..."<<std::endl;
+			std::cout<<"Info: Sending payload type '"<<CR->class_name<<"' ["<<c->cid()<<"] size '"<<CR->size()<<"'..."<<std::endl;
 
 			switch(c->allocationScheme()){
 			case	STATIC:
@@ -93,21 +93,21 @@ namespace	mBrane{
 
 		inline int16	CommChannel::_recv(__Payload	**c){
 
-			uint32	metaData;
+			uint64	metaData;
 			int16	r;
-			if(r=recv((uint8	*)&metaData,sizeof(uint32),true))	//	receive __Payload::_metaData
+			if(r=recv((uint8	*)&metaData,sizeof(uint64),true))	//	receive __Payload::_metaData
 				return	r;
 			//	allocate and initialize the payload (default ctor is called)
-			AllocationScheme	a=(AllocationScheme)(metaData	&	0x00000003);
-			ClassRegister		*CR=ClassRegister::Get(metaData>>16);
+			AllocationScheme	a=(AllocationScheme)(((uint32)metaData)	&	0x00000003);
+			ClassRegister		*CR=ClassRegister::Get(((uint32)metaData)>>16);
 			uint32	size;
 			if(a==RAW) {
-				size=metaData>>2;
-				std::cout<<"Info: Receiving payload type '"<<CR->class_name<<"' (RAW) size '"<<size<<"'..."<<std::endl;
+				size=((uint32)metaData)>>2;
+				std::cout<<"Info: Receiving payload type '"<<CR->class_name<<"' ["<<(((uint32)metaData)>>16)<<"] (RAW) size '"<<size<<"'..."<<std::endl;
 			}
 			else {
 				size=CR->size();
-				std::cout<<"Info: Receiving payload type '"<<CR->class_name<<"' size '"<<size<<"'..."<<std::endl;
+				std::cout<<"Info: Receiving payload type '"<<CR->class_name<<"' ["<<(((uint32)metaData)>>16)<<"] size '"<<size<<"'..."<<std::endl;
 			}
 			*c=(__Payload*)(*CR->allocator())(size);
 
