@@ -34,12 +34,18 @@ namespace	mBrane{
 		template<class	C,class	M>	uint64	ClassRegister::Load(){
 
 			ClassRegister	*r=&Get()->operator [](Get()->count());
-			uint64	metaData=((Classes->count()-1)<<16)	|	C::_AllocationScheme();
 			C::_Allocator=M::GetStatic(C::Size());
 			r->_allocator=C::New;
 			r->_size=C::Size()-C::Offset();
 			r->_size=C::CoreSize()-C::Offset();
 			r->_offset=C::Offset();
+			return	0;
+		}
+
+		template<class	C>	uint64	ClassRegister::Load(uint16	CID){
+
+			uint64	metaData=(CID<<16)	|	C::_AllocationScheme();
+			C::_MetaData=metaData;
 			return	metaData;
 		}
 	}

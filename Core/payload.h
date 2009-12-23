@@ -92,7 +92,7 @@ namespace	mBrane{
 		protected:
 			int64	_node_recv_ts;	//	not transmitted
 			int64	_recv_ts;		//	not transmitted
-			uint64	_metaData;		//	[cid(16)|reserved(12)|category(2)|allocation scheme(2)]
+			uint64	_metaData;		//	[reserved(32)|cid(16)|reserved(12)|category(2)|allocation scheme(2)]
 			int64	_node_send_ts;
 			int64	_send_ts;
 			_Payload();
@@ -111,7 +111,7 @@ namespace	mBrane{
 		class	dll	_RPayload:
 		public	__Payload{
 		protected:
-			uint64	_metaData;	//	[cid(16)|reserved(14)|allocation scheme(2)]
+			uint64	_metaData;	//	[reserved(32)|cid(16)|reserved(14)|allocation scheme(2)]
 			_RPayload();
 		public:
 			virtual	~_RPayload();
@@ -174,10 +174,10 @@ namespace	mBrane{
 		protected:
 			___Payload();
 		public:
-			static	const	uint64	_MetaData;
-			static	void			*New(uint32	size);	//	to initialize the _vftable on recv(); size used for non-standard cases (like Storage<T>), i.e. when the actual size is not sizeof the class
-			static	uint16			CID();
-			static	size_t			Offset();	//	to metadata from this
+			static	uint64		_MetaData;
+			static	void		*New(uint32	size);	//	to initialize the _vftable on recv(); size used for non-standard cases (like Storage<T>), i.e. when the actual size is not sizeof the class
+			static	uint16		CID();
+			static	size_t		Offset();	//	to metadata from this
 			void	*operator	new(size_t	s);
 			void	operator	delete(void	*o);
 			virtual	~___Payload();

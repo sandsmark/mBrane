@@ -68,7 +68,7 @@ namespace	mBrane{
 
 		////////////////////////////////////////////////////////////////////////////////////
 
-		template<template<class>	class	A,	class	P,class	U,class	M>	const	uint64	___Payload<A,P,U,M>::_MetaData=ClassRegister::Load<U,M>();
+		template<template<class>	class	A,	class	P,class	U,class	M>	uint64	___Payload<A,P,U,M>::_MetaData=ClassRegister::Load<U,M>();
 
 		template<template<class>	class	A,	class	P,class	U,class	M>	inline	void	*___Payload<A,P,U,M>::New(uint32	size){
 
@@ -112,7 +112,7 @@ namespace	mBrane{
 
 		template<template<class>	class	A,	class	P,class	U,class	M>	inline	AllocationScheme	___Payload<A,P,U,M>::allocationScheme()	const{
 
-			return	(AllocationScheme)(((uint32)this->_metaData)	&	0x00000003);
+			return	(AllocationScheme)(this->_metaData	&	0x0000000000000003);
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////

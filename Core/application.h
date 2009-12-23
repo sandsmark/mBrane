@@ -39,15 +39,14 @@
 
 #define	MBRANE_MESSAGE_CLASSES	"mBrane_message_classes.h"
 
-#define	MBRANE_MESSAGE_CLASS(C)		static	const	uint16	C##_class=(uint16)__COUNTER__;
-#define	MBRANE_STREAM_DATA_CLASS(C)	static	const	uint16	C##_class=(uint16)__COUNTER__;
-#ifndef	LIBRARY_CLASSES
-	#include	MBRANE_MESSAGE_CLASSES
-#endif
+//	C##_CID needed for use in switches (instead of the non constant expression user_class::CID())
+//	C##_metaData forces the intialization of  C::_MetaData
+#define	MBRANE_MESSAGE_CLASS(C)		static	const	uint16	C##_CID=(uint16)__COUNTER__;static	const	uint64	C##_metaData=ClassRegister::Load<C>(C##_CID);
+#define	MBRANE_STREAM_DATA_CLASS(C)	static	const	uint16	C##_CID=(uint16)__COUNTER__;static	const	uint64	C##_metaData=ClassRegister::Load<C>(C##_CID);
 #include	APPLICATION_CLASSES
 
-//	for use in switches (instead of the non constant expression user_class::CID())
-#define	CLASS_ID(C)	C##_class
+#define	CLASS_ID(C)	C##_CID
+
 
 template<class	U>	class	Module:
 public	Object<Memory,module::_Module,U>{
@@ -108,7 +107,7 @@ template<class	U>	const	uint16	Module<U>::_CID=ModuleRegister::Load(New,U::Class
 
 //	force _MetaData initilization in user dll.
 #undef MBRANE_MESSAGE_CLASS
-#define	MBRANE_MESSAGE_CLASS(C)		static	const	uint16	C##_name2=(uint16)C::_MetaData;
+#define	MBRANE_MESSAGE_CLASS(C)		static	const	uint64	C##_force_init=C::_MetaData;
 #include	APPLICATION_CLASSES
 
 //	for retrieving CIDs from names (in specs)

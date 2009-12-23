@@ -39,13 +39,14 @@
 
 #define	MBRANE_MESSAGE_CLASSES	"mBrane_message_classes.h"
 
-#define	MBRANE_MESSAGE_CLASS(C)		static	const	uint16	C##_class=__COUNTER__;
-#define	MBRANE_STREAM_DATA_CLASS(C)	static	const	uint16	C##_class=__COUNTER__;
-#include	MBRANE_MESSAGE_CLASSES
+//	C##_CID needed for use in switches (instead of the non constant expression user_class::CID())
+//	C##_metaData forces the intialization of  C::_MetaData
+#define	MBRANE_MESSAGE_CLASS(C)		static	const	uint16	C##_CID=(uint16)__COUNTER__;static	const	uint64	C##_metaData=ClassRegister::Load<C>(C##_CID);
+#define	MBRANE_STREAM_DATA_CLASS(C)	static	const	uint16	C##_CID=(uint16)__COUNTER__;static	const	uint64	C##_metaData=ClassRegister::Load<C>(C##_CID);
 #include	LIBRARY_CLASSES
 
-//	for use in switches (instead of the non constant expression user_class::CID())
-#define	CLASS_ID(C)	C##_class
+#define	CLASS_ID(C)	C##_CID
+
 
 template<class	U>	class	LibraryModule:
 public	Object<Memory,module::_Module,U>{
@@ -72,7 +73,7 @@ public:
 		switch(p->cid()){
 		#undef MBRANE_MESSAGE_CLASS
 		#undef MBRANE_STREAM_DATA_CLASS
-		#define	MBRANE_MESSAGE_CLASS(C)	case	CLASS_ID(C):	((U	*)this)->react((C	*)p);	return;
+		#define	MBRANE_MESSAGE_CLASS(C)	case	C##_CID:	((U	*)this)->react((C	*)p);	return;
 		#define	MBRANE_STREAM_DATA_CLASS(C)
 		#include "classes.h"
 		default:	return;
@@ -92,8 +93,8 @@ public:
 		switch(p->cid()){
 		#undef MBRANE_MESSAGE_CLASS
 		#undef MBRANE_STREAM_DATA_CLASS
-		#define	MBRANE_MESSAGE_CLASS(C)		case	CLASS_ID(C):	return	((U	*)this)->decide((C	*)p);
-		#define	MBRANE_STREAM_DATA_CLASS(C)	case	CLASS_ID(C):	return	((U	*)this)->decide((C	*)p);
+		#define	MBRANE_MESSAGE_CLASS(C)		case	C##_CID:	return	((U	*)this)->decide((C	*)p);
+		#define	MBRANE_STREAM_DATA_CLASS(C)	case	C##_CID:	return	((U	*)this)->decide((C	*)p);
 		#include "classes.h"
 		default:	return	module::_Module::DISCARD;
 		}

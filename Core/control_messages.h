@@ -160,43 +160,8 @@ namespace	mBrane{
 			public	ControlMessage<KillModule>{
 			};
 
-			#if defined(WINDOWS)
-				#define	SystemReady_CID			0
-				#define	SyncProbe_CID			1
-				#define	SyncEcho_CID			2
-				#define	NodeJoined_CID			3
-				#define	NodeLeft_CID			4
-				#define	SetThreshold_CID		5
-				#define	ActivateModule_CID		6
-				#define	ActivateSpace_CID		7
-				#define	SubscribeMessage_CID	8
-				#define	UnsubscribeMessage_CID	9
-				#define	SubscribeStream_CID		10
-				#define	UnsubscribeStream_CID	11
-				#define	CreateModule_CID		12
-				#define	DeleteModule_CID		13
-				#define	CreateSpace_CID			14
-				#define	DeleteSpace_CID			15
-				#define	KillModule_CID			18
-			#else
-				#define SystemReady_CID			0
-				#define SyncProbe_CID			14
-				#define SyncEcho_CID			15
-				#define NodeJoined_CID			1
-				#define NodeLeft_CID			2
-				#define SetThreshold_CID		9
-				#define ActivateModule_CID		7
-				#define ActivateSpace_CID		8
-				#define SubscribeMessage_CID	10
-				#define UnsubscribeMessage_CID	11
-				#define SubscribeStream_CID		12
-				#define UnsubscribeStream_CID	13
-				#define CreateModule_CID		4
-				#define DeleteModule_CID		6
-				#define CreateSpace_CID			3
-				#define DeleteSpace_CID			5
-				#define KillModule_CID			16
-			#endif
+			#define	MBRANE_MESSAGE_CLASS(C)	static	const	uint16	C##_CID=(uint16)__COUNTER__;
+			#include	"mBrane_message_classes.h"
 		}
 	}
 }

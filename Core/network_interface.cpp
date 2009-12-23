@@ -109,17 +109,18 @@ namespace	mBrane{
 				size=CR->size();
 				std::cout<<"Info: Receiving payload type '"<<CR->class_name<<"' ["<<(((uint32)metaData)>>16)<<"] size '"<<size<<"'..."<<std::endl;
 			}
+			
 			*c=(__Payload*)(*CR->allocator())(size);
 
 			switch(a){
 			case	STATIC:
 			case	RAW:
-				if(r=recv(((uint8	*)*c)+CR->offset(),size))
+				if(r=recv(((uint8	*)*c)+CR->offset(),size-sizeof(uint64)))	//	metadata already received, hence -sizeof(uint64)
 					return	r;
 				break;
 			case	COMPRESSED:
 			case	DYNAMIC:
-				if(r=recv(((uint8	*)*c)+CR->offset(),CR->coreSize()+(*c)->as_DynamicData()->dynamicSize()))
+				if(r=recv(((uint8	*)*c)+CR->offset(),CR->coreSize()+(*c)->as_DynamicData()->dynamicSize()-sizeof(uint64)))
 					return	r;
 				break;
 			}
