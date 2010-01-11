@@ -98,16 +98,16 @@ namespace	mBrane{
 			if(r=recv((uint8	*)&metaData,sizeof(uint64),true))	//	receive __Payload::_metaData
 				return	r;
 			//	allocate and initialize the payload (default ctor is called)
-			AllocationScheme	a=(AllocationScheme)(((uint32)metaData)	&	0x00000003);
-			ClassRegister		*CR=ClassRegister::Get(((uint32)metaData)>>16);
+			AllocationScheme	a=(AllocationScheme)(metaData	&	0x0000000000000003);
+			ClassRegister		*CR=ClassRegister::Get(metaData >> 16);
 			uint32	size;
 			if(a==RAW) {
 				size=((uint32)metaData)>>2;
-				std::cout<<"Info: Receiving payload type '"<<CR->class_name<<"' ["<<(((uint32)metaData)>>16)<<"] (RAW) size '"<<size<<"'..."<<std::endl;
+				std::cout<<"Info: Receiving payload type '"<<CR->class_name<<"' ["<<(metaData>>16)<<"] (RAW) size '"<<size<<"'..."<<std::endl;
 			}
 			else {
 				size=CR->size();
-				std::cout<<"Info: Receiving payload type '"<<CR->class_name<<"' ["<<(((uint32)metaData)>>16)<<"] size '"<<size<<"'..."<<std::endl;
+				std::cout<<"Info: Receiving payload type '"<<CR->class_name<<"' ["<<(metaData>>16)<<"] size '"<<size<<"'..."<<std::endl;
 			}
 			
 			*c=(__Payload*)(*CR->allocator())(size);
@@ -115,12 +115,12 @@ namespace	mBrane{
 			switch(a){
 			case	STATIC:
 			case	RAW:
-				if(r=recv(((uint8	*)*c)+CR->offset(),size-sizeof(uint64)))	//	metadata already received, hence -sizeof(uint64)
+				if(r=recv(((uint8	*)*c)+CR->offset(),size))	//	metadata only peeked
 					return	r;
 				break;
 			case	COMPRESSED:
 			case	DYNAMIC:
-				if(r=recv(((uint8	*)*c)+CR->offset(),CR->coreSize()+(*c)->as_DynamicData()->dynamicSize()-sizeof(uint64)))
+				if(r=recv(((uint8	*)*c)+CR->offset(),CR->coreSize()+(*c)->as_DynamicData()->dynamicSize()))
 					return	r;
 				break;
 			}
