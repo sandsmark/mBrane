@@ -162,6 +162,11 @@ namespace	mBrane{
 
 			#define	MBRANE_MESSAGE_CLASS(C)	static	const	uint16	C##_CID=(uint16)__COUNTER__;
 			#include	"mBrane_message_classes.h"
+
+			void	dll	LoadControlMessageMetaData();	//	overwrites C::_MetaData with actual values (i.e. C_CID dependent) - where C is a Core-defined control message;
+														//	Core, mBrane and the user lib have different copies of C::_MetaData (initialized to 0xFFFFFFFFFFFFFFF) at Core loading time;
+														//	called by mBrane in main();
+														//	C::_MetaData is not used by the user lib (no instances of mBrane control messages are created: the user lib only reacts to their occurrences).
 		}
 	}
 }

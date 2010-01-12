@@ -39,7 +39,7 @@ namespace	mBrane{
 			r->_size=C::Size()-C::Offset();
 			r->_size=C::CoreSize()-C::Offset();
 			r->_offset=C::Offset();
-			return	0;
+			return	0xFFFFFFFFFFFFFFFF;
 		}
 
 		template<class	C>	uint64	ClassRegister::Load(uint16	CID){

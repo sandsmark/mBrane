@@ -119,6 +119,8 @@ template<class	L>	int64	RAM_perf_probe(){	//	the real test is to allocate/deallo
 
 int	main(int	argc,char	**argv){
 
+	LoadControlMessageMetaData();
+
 	Time::Init(1000);
 
 #ifndef	SAND_BOX

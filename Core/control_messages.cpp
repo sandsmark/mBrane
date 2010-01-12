@@ -35,8 +35,11 @@ namespace	mBrane{
 	namespace	sdk{
 		namespace	payloads{
 
-			#define	MBRANE_MESSAGE_CLASS(C)	static	const	uint64	C##_metaData=ClassRegister::Load<C>(C##_CID);
-			#include	"mBrane_message_classes.h"
+			void	LoadControlMessageMetaData(){
+
+				#define	MBRANE_MESSAGE_CLASS(C)	ClassRegister::Load<C>(C##_CID);
+				#include	"mBrane_message_classes.h"
+			}
 		}
 	}
 }

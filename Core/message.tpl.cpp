@@ -48,7 +48,6 @@ namespace	mBrane{
 			template<class	U>	ControlMessage<U>::ControlMessage()/*:Payload<U,StaticData,Memory>()*/{
 
 				this->_metaData = ControlMessage<U>::_MetaData | ControlMessage<U>::CONTROL<<2;
-				//ControlMessage<U>::_metaData|=(ControlMessage<U>::CONTROL<<2);
 			}
 
 			template<class	U>	ControlMessage<U>::~ControlMessage(){
@@ -59,7 +58,6 @@ namespace	mBrane{
 			template<class	U,template<class>	class	A,class	M>	inline	StreamData<U,A,M>::StreamData(uint16	sid):Payload<U,A,M>(),_StreamData(sid){
 
 				this->_metaData = StreamData<U,A,M>::_MetaData | StreamData<U,A,M>::STREAM<<2;
-				// StreamData<U>::_metaData|=(StreamData<U>::STREAM<<2);
 			}
 
 			template<class	U,template<class>	class	A,class	M>	inline	StreamData<U,A,M>::~StreamData(){
@@ -73,9 +71,8 @@ namespace	mBrane{
 			////////////////////////////////////////////////////////////////////////////////////////////////
 
 			template<class	U,template<class>	class	A,class	M>	Message<U,A,M>::Message():Payload<U,A,M>(),_Message(){
-
+				
 				this->_metaData = Message<U,A,M>::_MetaData | Message<U,A,M>::DATA<<2;
-				//Message<U>::_metaData|=(Message<U>::DATA<<2);
 			}
 
 			template<class	U,template<class>	class	A,class	M>	Message<U,A,M>::~Message(){
