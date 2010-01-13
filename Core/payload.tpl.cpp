@@ -34,100 +34,115 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		template<class	M,class	U>	const	uint32	Payload<M,U>::_MetaData=ClassRegister::Load<U,M>();
+		template<class	S,AllocationScheme	AS>	inline	const	AllocationScheme	PayloadAlloc<S,AS>::_AllocationScheme(){
 
-		template<class	M,class	U>	inline	void	*Payload<M,U>::New(){	//	to initialize the _vftable
+			return	AS;
+		}
+
+		template<class	S,AllocationScheme	AS>	PayloadAlloc<S,AS>::PayloadAlloc():S(){
+		}
+
+		template<class	S,AllocationScheme	AS>	PayloadAlloc<S,AS>::~PayloadAlloc(){
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////
+
+		template<class	S>	_DynamicData	*DynamicData<S>::as_DynamicData(){
+
+			return	(_DynamicData	*)(((uint8	*)this)+sizeof(PayloadAlloc<S,DYNAMIC>));
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////
+
+		template<class	S>	_CompressedData	*CompressedData<S>::as_CompressedData(){
+
+			return	(_CompressedData	*)(((uint8	*)this)+sizeof(PayloadAlloc<S,COMPRESSED>));
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////
+
+		template<class	S>	_RawStorage	*RawStorage<S>::as_RawStorage(){
+
+			return	(_RawStorage	*)(((uint8	*)this)+sizeof(PayloadAlloc<S,RAW>));
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////
+
+		template<template<class>	class	A,	class	P,class	U,class	M>	uint64	___Payload<A,P,U,M>::_MetaData=ClassRegister::Load<U,M>();
+
+		template<template<class>	class	A,	class	P,class	U,class	M>	inline	void	*___Payload<A,P,U,M>::New(uint32	size){
 
 			return	new	U();
 		}
 
-		template<class	M,class	U>	inline	const	uint16	Payload<M,U>::CID(){
+		template<template<class>	class	A,	class	P,class	U,class	M>	inline	uint16	___Payload<A,P,U,M>::CID(){
 
 			return	(uint16)(_MetaData>>16);
 		}
 
-		template<class	M,class	U>	const	AllocationScheme	Payload<M,U>::_AllocationScheme(){
+		template<template<class>	class	A,	class	P,class	U,class	M>	inline	void	*___Payload<A,P,U,M>::operator	new(size_t	s){
 
-			return	STATIC;
-		}
-
-		template<class	M,class	U>	const	uint8	Payload<M,U>::PtrCount(){
-
-			return	0;
-		}
-
-		template<class	M,class	U>	P<_RPayload>	*Payload<M,U>::Ptr(__Payload	*p,uint8	i){
-
-			return	NULL;
-		}
-
-		template<class	M,class	U>	inline	Payload<M,U>::Payload():Object<M,_Payload,U>(){
-		}
-
-		template<class	M,class	U>	inline	void	*Payload<M,U>::operator	new(size_t	s){
-
-			U	*p=(U	*)Object<M,_Payload,U>::operator	new(s);
-			p->_metaData=_MetaData;
-			return	p;
+			return	Object<M,A<P>,U>::operator	new(s);
 		}
 		
-		template<class	M,class	U>	inline	void	Payload<M,U>::operator	delete(void	*o){
+		template<template<class>	class	A,	class	P,class	U,class	M>	inline	void	___Payload<A,P,U,M>::operator	delete(void	*o){
 
-			Object<M,_Payload,U>::operator	delete(o);
+			Object<M,A<P>,U>::operator	delete(o);
+		}
+
+		template<template<class>	class	A,	class	P,class	U,class	M>	inline	size_t	___Payload<A,P,U,M>::Offset(){
+
+			return	offsetof(U,_metaData);
+		}
+
+		template<template<class>	class	A,	class	P,class	U,class	M>	inline	___Payload<A,P,U,M>::___Payload():Object<M,A<P>,U>(){
+
+			this->_metaData = ___Payload<A,P,U,M>::_MetaData;
+		}
+
+		template<template<class>	class	A,	class	P,class	U,class	M>	inline	___Payload<A,P,U,M>::~___Payload(){
+		}
+
+		template<template<class>	class	A,	class	P,class	U,class	M>	uint16	___Payload<A,P,U,M>::cid()	const{
+			
+			return	(uint16)(this->_metaData>>16);
+		}
+
+		template<template<class>	class	A,	class	P,class	U,class	M>	inline	AllocationScheme	___Payload<A,P,U,M>::allocationScheme()	const{
+
+			return	(AllocationScheme)(this->_metaData	&	0x0000000000000003);
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////
 
-		template<class	C,class	M,class	U>	inline	PayloadAdapter<C,M,U>::PayloadAdapter():Payload<M,U>(),C(){
+		template<class	U,template<class>	class	A,class	M>	inline	Payload<U,A,M>::Payload():___Payload<A,_Payload,U,M>(){
+		}
+
+		template<class	U,template<class>	class	A,class	M>	inline	Payload<U,A,M>::~Payload(){
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////
 
-		template<class	M,class	U>	const	uint16	RPayload<M,U>::_MetaData=ClassRegister::Load<U,M>();
-
-		template<class	M,class	U>	inline	void	*RPayload<M,U>::New(){	//	to initialize the _vftable
-
-			return	new	U();
+		template<class	U,template<class>	class	A,class	M>	inline	RPayload<U,A,M>::RPayload():___Payload<A,_RPayload,U,M>(){
 		}
 
-		template<class	M,class	U>	inline	const	uint16	RPayload<M,U>::CID(){
-
-			return	_MetaData>>16;
-		}
-
-		template<class	M,class	U>	const	AllocationScheme	RPayload<M,U>::_AllocationScheme(){
-
-			return	STATIC;
-		}
-
-		template<class	M,class	U>	const	uint8	RPayload<M,U>::PtrCount(){
-
-			return	0;
-		}
-
-		template<class	M,class	U>	P<_RPayload>	*RPayload<M,U>::Ptr(__Payload	*p,uint8	i){
-
-			return	NULL;
-		}
-		
-		template<class	M,class	U>	inline	RPayload<M,U>::RPayload():Object<M,_RPayload,U>(){
-		}
-
-		template<class	M,class	U>	inline	void	*RPayload<M,U>::operator	new(size_t	s){
-
-			U	*p=(U	*)Object<M,_RPayload,U>::operator	new(s);
-			p->_metaData=_MetaData;
-			return	p;
-		}
-		
-		template<class	M,class	U>	inline	void	RPayload<M,U>::operator	delete(void	*o){
-
-			Object<M,_RPayload,U>::operator	delete(o);
+		template<class	U,template<class>	class	A,class	M>	inline	RPayload<U,A,M>::~RPayload(){
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////
 
-		template<class	C,class	M,class	U>	inline	RPayloadAdapter<C,M,U>::RPayloadAdapter():RPayload<M,U>(),C(){
+		template<class	C,class	U,template<class>	class	A,class	M>	inline	PayloadAdapter<C,U,A,M>::PayloadAdapter():Payload<U,A,M>(),C(){
+		}
+
+		template<class	C,class	U,template<class>	class	A,class	M>	inline	PayloadAdapter<C,U,A,M>::~PayloadAdapter(){
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////
+
+		template<class	C,class	U,template<class>	class	A,class	M>	inline	RPayloadAdapter<C,U,A,M>::RPayloadAdapter():RPayload<U,A,M>(),C(){
+		}
+
+		template<class	C,class	U,template<class>	class	A,class	M>	inline	RPayloadAdapter<C,U,A,M>::~RPayloadAdapter(){
 		}
 	}
 }

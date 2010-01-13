@@ -78,7 +78,7 @@ namespace	mBrane{
 				break;
 			}
 
-			uint8		ptrCount=c->ptrCount();
+			uint8		ptrCount=(uint8)c->ptrCount();
 			__Payload	*p;
 			for(uint8	i=0;i<ptrCount;i++){
 
@@ -99,7 +99,7 @@ namespace	mBrane{
 				return	r;
 			//	allocate and initialize the payload (default ctor is called)
 			AllocationScheme	a=(AllocationScheme)(metaData	&	0x0000000000000003);
-			ClassRegister		*CR=ClassRegister::Get(metaData >> 16);
+			ClassRegister		*CR=ClassRegister::Get((uint16)(metaData >> 16));
 			uint32	size;
 			if(a==RAW) {
 				size=((uint32)metaData)>>2;
@@ -127,7 +127,7 @@ namespace	mBrane{
 			if(a==COMPRESSED)
 				(*c)->as_CompressedData()->decompress();
 
-			uint8		ptrCount=(*c)->ptrCount();
+			uint8		ptrCount=(uint8)(*c)->ptrCount();
 			__Payload	*p;
 			for(uint8	i=0;i<ptrCount;i++){
 

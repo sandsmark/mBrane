@@ -39,7 +39,7 @@ namespace	mBrane{
 
 			_Module::_Module():	_Object(),_priority(0),processor(NULL),_ready(false){
 
-				sync=new	Semaphore(1,1);
+				sync=new	FastSemaphore(1,1);
 			}
 
 			_Module::~_Module(){
