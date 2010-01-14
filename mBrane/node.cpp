@@ -289,6 +289,8 @@ namespace	mBrane{
 					break;
 				}
 
+			Space::Init(NID);
+
 			for(uint32	i=0;i<ModuleDescriptor::Config.count();i++)	//	resolve host names into NID
 				for(uint32	j=0;j<ModuleDescriptor::Config[i].count();j++){
 
@@ -305,6 +307,7 @@ namespace	mBrane{
 				Node::ready();
 
 			}
+
 		}else{	//	nodeCount==0
 
 			Node::ready();

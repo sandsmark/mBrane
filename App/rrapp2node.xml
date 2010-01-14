@@ -1,20 +1,20 @@
 <ApplicationConfiguration user_library="Perf">
-<!--
+
   <Space name="space1" activation_threshold="0.5"/>
-	
+  <!--	
   <Module class="RRMaster" name="RRMaster" host="thorlist">
 		<Projection space="space1" activation_level="1">
 			<Subscription message_class="SystemReady"/>
       <Subscription message_class="Ball9"/>
 		</Projection>
 	</Module>
-
-  <Module class="RRModule" name="RR1" host="thorlist">
+-->
+  <Module class="RRModule" name="RR1" host="thorlinux">
     <Projection space="space1" activation_level="1">
       <Subscription message_class="Ball1"/>
     </Projection>
   </Module>
-
+  <!--	
   <Module class="RRModule" name="RR2" host="thorlist">
     <Projection space="space1" activation_level="1">
       <Subscription message_class="Ball2"/>
