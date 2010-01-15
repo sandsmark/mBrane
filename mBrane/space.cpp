@@ -41,10 +41,10 @@ namespace	mBrane{
 
 	Space	*Space::Get(const	char	*name){
 
-		if(strcmp(name,"root")==0)
+		if(stricmp(name,"root")==0)
 			return	Space::Config[0];
 		for(uint16	i=0;i<Space::Config.count();i++)
-			if(strcmp(Space::Config[i]->name,name)==0)
+			if(stricmp(Space::Config[i]->name,name)==0)
 				return	Space::Config[i];
 		return	NULL;
 	}
@@ -123,7 +123,7 @@ error:	Space::Config[s->ID]=NULL;
 			Space::Main[hostID][i]->hostID=hostID;
 			Space::Main[hostID][i]->applyInitialProjections(hostID);
 
-			Space::Config[i]=NULL;
+		//	Space::Config[i]=NULL;
 		}		
 	}
 

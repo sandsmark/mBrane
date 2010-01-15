@@ -22,7 +22,7 @@ public:
 	void	react(SystemReady	*p){
 		OUTPUT<<"RRMaster starting RoundRobin test, please wait..."<<std::endl;
 		tStart = Time::Get();
-		NODE->send(this,new Ball1(0),N::LOCAL);
+		NODE->send(this,new Ball1(0),N::PRIMARY);
 	}
 
 	void	react(Ball9 *p){
@@ -35,14 +35,14 @@ public:
 			//OUTPUT<<"Test got to '"<<counter*runCount<<"' so far..."<<std::endl;
 			cRun++;
 			tStart=tEnd;
-			NODE->send(this,new Ball1(0),N::LOCAL);
+			NODE->send(this,new Ball1(0),N::PRIMARY);
 		}
 		else {
 		//	if (counter % 1000 == 0)
 		//		printf("RR[%u] %d msgs so far (%p)\n",cRun,counter, p);
 		//	if (counter % 100 == 0)
 		//		OUTPUT<<"RR[" << cRun << "] "<<counter<<" msgs so far..."<<std::endl;
-			NODE->send(this,new Ball1(counter+1),N::LOCAL);
+			NODE->send(this,new Ball1(counter+1),N::PRIMARY);
 		}
 	}
 MODULE_CLASS_END(RRMaster)
@@ -58,35 +58,35 @@ MODULE_CLASS_BEGIN(RRModule,Module<RRModule>)
 		//	if (counter % 1000 == 0)
 		//		printf("RR5 %d msgs so far (%p)\n",
 		//			counter, ball);
-		NODE->send(this,new Ball2(counter),N::LOCAL);
+		NODE->send(this,new Ball2(counter),N::PRIMARY);
 	}
 	void	react(Ball2 *p){
 		int32 counter = p->num;
-		NODE->send(this,new Ball3(counter),N::LOCAL);
+		NODE->send(this,new Ball3(counter),N::PRIMARY);
 	}
 	void	react(Ball3 *p){
 		int32 counter = p->num;
-		NODE->send(this,new Ball4(counter),N::LOCAL);
+		NODE->send(this,new Ball4(counter),N::PRIMARY);
 	}
 	void	react(Ball4 *p){
 		int32 counter = p->num;
-		NODE->send(this,new Ball5(counter),N::LOCAL);
+		NODE->send(this,new Ball5(counter),N::PRIMARY);
 	}
 	void	react(Ball5 *p){
 		int32 counter = p->num;
-		NODE->send(this,new Ball6(counter),N::LOCAL);
+		NODE->send(this,new Ball6(counter),N::PRIMARY);
 	}
 	void	react(Ball6 *p){
 		int32 counter = p->num;
-		NODE->send(this,new Ball7(counter),N::LOCAL);
+		NODE->send(this,new Ball7(counter),N::PRIMARY);
 	}
 	void	react(Ball7 *p){
 		int32 counter = p->num;
-		NODE->send(this,new Ball8(counter),N::LOCAL);
+		NODE->send(this,new Ball8(counter),N::PRIMARY);
 	}
 	void	react(Ball8 *p){
 		int32 counter = p->num;
-		NODE->send(this,new Ball9(counter),N::LOCAL);
+		NODE->send(this,new Ball9(counter),N::PRIMARY);
 	}
 MODULE_CLASS_END(RRModule)
 

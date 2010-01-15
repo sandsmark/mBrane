@@ -95,7 +95,8 @@ namespace	mBrane{
 		}
 
 		_Module	*_m=NULL;
-		if(strcmp(_host,"local")==0)
+		if(	stricmp(_host,Node::Get()->name())==0	||
+			stricmp(_host,"local")==0)
 			_m=ModuleRegister::Get(CID)->buildModule();
 
 		uint16	ID=(uint16)ModuleDescriptor::Config[CID].count();
@@ -174,8 +175,8 @@ error:	ModuleDescriptor::Config[CID][m->ID]=NULL;
 		for(uint32	i=0;i<ModuleDescriptor::Config.count();i++)	//	resolve host names into NID
 			for(uint32	j=0;j<ModuleDescriptor::Config[i].count();j++){
 
-				if(	strcmp(ModuleDescriptor::Config[i][j]->hostName,Node::Get()->name())==0	||
-					strcmp(ModuleDescriptor::Config[i][j]->hostName,"local")==0){
+				if(	stricmp(ModuleDescriptor::Config[i][j]->hostName,Node::Get()->name())==0	||
+					stricmp(ModuleDescriptor::Config[i][j]->hostName,"local")==0){
 
 					md=ModuleDescriptor::Config[i][j];
 					ModuleDescriptor::Main[hostID][i][j]=md;
