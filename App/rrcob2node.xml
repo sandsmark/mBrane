@@ -1,5 +1,5 @@
 <NodeConfiguration application_configuration_file="../App/rrapp2node.xml">
-	<Network sync_period="10000" bcast_timeout="100" boot_callback="NULL">
+	<Network sync_period="10000" bcast_timeout="1000" boot_callback="NULL">
 		<!--sync_period:   in ms; period at which sync signals are broadcast from the reference node-->
 		<!--bcast_timeout: in ms; delay after which a node believes it is the reference node; if 0, the node will be the time reference-->
 		<!--boot_callback: path to shared library defining a function to be called when the reference node is ready (use it to boot the other nodes)-->
@@ -9,11 +9,11 @@
 			<RM	shared_library="mBrane_rm"/><!--Reliable Multicast-->
 			<IB shared_library="mBrane_mpi_o_ib"/><!--MPI over infiniband, Linux only-->
 		</Interfaces>
-    <Discovery interface="UDP" nic="Intel(R) 82567LM Gigabit Network Connection - Packet Scheduler Miniport" port="10000"/>
+    <Discovery interface="UDP" nic="Intel(R) 82567LM Gigabit Network Connection" port="10000"/>
     <Primary>
-      <Control interface="TCP" nic="Intel(R) 82567LM Gigabit Network Connection - Packet Scheduler Miniport" port="10001"/>
-      <Data interface="TCP" nic="Intel(R) 82567LM Gigabit Network Connection - Packet Scheduler Miniport" port="10002"/>
-      <Stream interface="TCP" nic="Intel(R) 82567LM Gigabit Network Connection - Packet Scheduler Miniport" port="10003"/>
+      <Control interface="TCP" nic="Intel(R) 82567LM Gigabit Network Connection" port="10001"/>
+      <Data interface="TCP" nic="Intel(R) 82567LM Gigabit Network Connection" port="10002"/>
+      <Stream interface="TCP" nic="Intel(R) 82567LM Gigabit Network Connection" port="10003"/>
     </Primary>
     <Secondary>
 			<!--same form as primary's-->
