@@ -222,22 +222,29 @@ namespace	mBrane{
 
 		Networking::start(assignedNID,networkID,isTimeReference);
 
+		uint32 recThreadCount = 0;
 		if(network==PRIMARY	||	network==BOTH){
 
 			if(networkInterfaces[CONTROL_PRIMARY]->canBroadcast()){
 
+				recThreadCount = recvThreads.count();
 				RecvThread	*t=new	RecvThread(this,controlChannels[PRIMARY][0],0);
-				recvThreads[recvThreads.count()]=t;
+				recvThreads[recThreadCount]=t;
 				t->start(RecvThread::ReceiveMessages);
+				pushThreads[recThreadCount+1]=new	PushThread((Node*)this,&t->buffer);
+				pushThreads[recThreadCount+1]->start(PushThread::PushJobs);
 			}
 		}
 		if(network==SECONDARY	||	network==BOTH){
 
 			if(networkInterfaces[CONTROL_SECONDARY]->canBroadcast()){
 
+				recThreadCount = recvThreads.count();
 				RecvThread	*t=new	RecvThread(this,controlChannels[SECONDARY][0],0);
-				recvThreads[recvThreads.count()]=t;
+				recvThreads[recThreadCount]=t;
 				t->start(RecvThread::ReceiveMessages);
+				pushThreads[recThreadCount+1]=new	PushThread((Node*)this,&t->buffer);
+				pushThreads[recThreadCount+1]->start(PushThread::PushJobs);
 			}
 		}
 
@@ -345,27 +352,37 @@ namespace	mBrane{
 
 	void	Node::startReceivingThreads(uint16	NID){
 
+		uint32 recThreadCount = 0;
 		if(network==PRIMARY	||	network==BOTH){
 
 			if(!networkInterfaces[CONTROL_PRIMARY]->canBroadcast()){
 
+				recThreadCount = recvThreads.count();
 				RecvThread	*t=new	RecvThread(this,controlChannels[PRIMARY][NID],NID);
-				recvThreads[recvThreads.count()]=t;
+				recvThreads[recThreadCount]=t;
 				t->start(RecvThread::ReceiveMessages);
+				pushThreads[recThreadCount+1]=new	PushThread((Node*)this,&t->buffer);
+				pushThreads[recThreadCount+1]->start(PushThread::PushJobs);
 			}
 
 			if(networkInterfaces[DATA_PRIMARY]!=networkInterfaces[CONTROL_PRIMARY]){
 
+				recThreadCount = recvThreads.count();
 				RecvThread	*t=new	RecvThread(this,dataChannels[NID]->channels[PRIMARY].data,NID);
-				recvThreads[recvThreads.count()]=t;
+				recvThreads[recThreadCount]=t;
 				t->start(RecvThread::ReceiveMessages);
+				pushThreads[recThreadCount+1]=new	PushThread((Node*)this,&t->buffer);
+				pushThreads[recThreadCount+1]->start(PushThread::PushJobs);
 			}
 
 			if(networkInterfaces[STREAM_PRIMARY]!=networkInterfaces[DATA_PRIMARY]){
 
+				recThreadCount = recvThreads.count();
 				RecvThread	*t=new	RecvThread(this,dataChannels[NID]->channels[PRIMARY].stream,NID);
-				recvThreads[recvThreads.count()]=t;
+				recvThreads[recThreadCount]=t;
 				t->start(RecvThread::ReceiveMessages);
+				pushThreads[recThreadCount+1]=new	PushThread((Node*)this,&t->buffer);
+				pushThreads[recThreadCount+1]->start(PushThread::PushJobs);
 			}
 		}
 
@@ -373,23 +390,32 @@ namespace	mBrane{
 
 			if(!networkInterfaces[CONTROL_SECONDARY]->canBroadcast()){
 
+				recThreadCount = recvThreads.count();
 				RecvThread	*t=new	RecvThread(this,controlChannels[SECONDARY][NID],NID);
-				recvThreads[recvThreads.count()]=t;
+				recvThreads[recThreadCount]=t;
 				t->start(RecvThread::ReceiveMessages);
+				pushThreads[recThreadCount+1]=new	PushThread((Node*)this,&t->buffer);
+				pushThreads[recThreadCount+1]->start(PushThread::PushJobs);
 			}
 
 			if(networkInterfaces[DATA_SECONDARY]!=networkInterfaces[CONTROL_SECONDARY]){
 
+				recThreadCount = recvThreads.count();
 				RecvThread	*t=new	RecvThread(this,dataChannels[NID]->channels[SECONDARY].data,NID);
-				recvThreads[recvThreads.count()]=t;
+				recvThreads[recThreadCount]=t;
 				t->start(RecvThread::ReceiveMessages);
+				pushThreads[recThreadCount+1]=new	PushThread((Node*)this,&t->buffer);
+				pushThreads[recThreadCount+1]->start(PushThread::PushJobs);
 			}
 
 			if(networkInterfaces[STREAM_SECONDARY]!=networkInterfaces[DATA_SECONDARY]){
 
+				recThreadCount = recvThreads.count();
 				RecvThread	*t=new	RecvThread(this,dataChannels[NID]->channels[SECONDARY].stream,NID);
-				recvThreads[recvThreads.count()]=t;
+				recvThreads[recThreadCount]=t;
 				t->start(RecvThread::ReceiveMessages);
+				pushThreads[recThreadCount+1]=new	PushThread((Node*)this,&t->buffer);
+				pushThreads[recThreadCount+1]->start(PushThread::PushJobs);
 			}
 		}
 	}

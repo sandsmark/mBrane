@@ -198,6 +198,16 @@ error:	ModuleDescriptor::Config[CID][m->ID]=NULL;
 		return	(uint16)Main[hostID][CID].count();
 	}
 
+	char noname[1];
+	const char*	ModuleDescriptor::GetName(uint16	cid, uint16 id){
+		noname[0] = 0;
+		ModuleDescriptor	*m=ModuleDescriptor::Config[cid][id];
+		if (m == NULL)
+			return noname;
+		else
+			return m->getName();
+	}
+
 	ModuleDescriptor::ModuleDescriptor(const	char	*hostName,_Module	*m,uint16	CID,const	char	*name):Projectable<ModuleDescriptor>(module::Node::NoID,(uint16)ModuleDescriptor::Config[CID].count()),module(m),CID(CID){
 
 		if(m){
@@ -418,4 +428,5 @@ error:	ModuleDescriptor::Config[CID][m->ID]=NULL;
 		subscriptions[payloadType][ID].remove();
 		subscriptionCount[payloadType]--;
 	}
+
 }

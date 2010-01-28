@@ -20,7 +20,7 @@ public:
 	template<class	T>	void	react(T	*p){}
 
 	void	react(SystemReady	*p){
-		OUTPUT<<"RRMaster starting RoundRobin test, please wait..."<<std::endl;
+		printf("RRMaster starting RoundRobin test, please wait...\n");
 		tStart = Time::Get();
 		NODE->send(this,new Ball1(0),N::PRIMARY);
 	}
@@ -54,6 +54,7 @@ MODULE_CLASS_BEGIN(RRModule,Module<RRModule>)
 	template<class	T>	void	react(T	*p){}
 
 	void	react(Ball1 *p){
+//		printf( "Ball1 triggered...\n");
 		int32 counter = p->num;
 		//	if (counter % 1000 == 0)
 		//		printf("RR5 %d msgs so far (%p)\n",
@@ -61,30 +62,37 @@ MODULE_CLASS_BEGIN(RRModule,Module<RRModule>)
 		NODE->send(this,new Ball2(counter),N::PRIMARY);
 	}
 	void	react(Ball2 *p){
+//		printf( "Ball2 triggered...\n");
 		int32 counter = p->num;
 		NODE->send(this,new Ball3(counter),N::PRIMARY);
 	}
 	void	react(Ball3 *p){
+//		printf( "Ball3 triggered...\n");
 		int32 counter = p->num;
 		NODE->send(this,new Ball4(counter),N::PRIMARY);
 	}
 	void	react(Ball4 *p){
+//		printf( "Ball4 triggered...\n");
 		int32 counter = p->num;
 		NODE->send(this,new Ball5(counter),N::PRIMARY);
 	}
 	void	react(Ball5 *p){
+//		printf( "Ball5 triggered...\n");
 		int32 counter = p->num;
 		NODE->send(this,new Ball6(counter),N::PRIMARY);
 	}
 	void	react(Ball6 *p){
+//		printf( "Ball6 triggered...\n");
 		int32 counter = p->num;
 		NODE->send(this,new Ball7(counter),N::PRIMARY);
 	}
 	void	react(Ball7 *p){
+//		printf( "Ball7 triggered...\n");
 		int32 counter = p->num;
 		NODE->send(this,new Ball8(counter),N::PRIMARY);
 	}
 	void	react(Ball8 *p){
+//		printf( "Ball8 triggered...\n");
 		int32 counter = p->num;
 		NODE->send(this,new Ball9(counter),N::PRIMARY);
 	}

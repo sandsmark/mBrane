@@ -106,6 +106,7 @@ namespace	mBrane{
 		static	ModuleDescriptor									*New(XMLNode	&n);
 		static	void												Init(uint16	hostID);	//	resolves host name into ID, copies Config in Main, apply initial projections.
 		static	uint16												GetID(uint16	hostID,uint16	CID);	//	returns the first available slot in Main[hostID][CID].
+		static	const char*											GetName(uint16	cid, uint16 id);	//	returns the name of CID.
 		Host::host_name	hostName;	//	resolved in hostID at Node::run() time
 		P<_Module>	module;	//	NULL if remote
 		//_Module	*module;

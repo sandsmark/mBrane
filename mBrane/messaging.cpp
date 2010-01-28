@@ -70,6 +70,7 @@ namespace	mBrane{
 				delete	echo;
 				break;
 			default:
+//				 std::cout<<"Pushing buffer["<< (unsigned int)(&_this->buffer) <<"]: "<<_p->cid()<<std::endl;fflush(stdout);
 				_this->buffer.push(_p);
 				break;
 			}
@@ -91,14 +92,16 @@ namespace	mBrane{
 
 		PushThread	*_this=(PushThread	*)args;
 
+//		std::cout<<"Starting to look for jobs ["<< (unsigned int)(&_this->source) <<"]..."<<std::endl;
 		P<_Payload>	_p;
 		while(_this->node->isRunning()){
 
+//			std::cout<<"Looking for jobs ["<< (unsigned int)(&_this->source) <<"]..."<<std::endl;
 			_p=_this->source->pop();
+//			std::cout<<"Pushing job: "<<_p->cid()<<std::endl;
 			if(_p->category()==_Payload::CONTROL)
 				_this->node->processControlMessage(_p);
 			_this->node->pushJobs(_p);
-			//std::cout<<"pushing job: "<<_p->cid()<<std::endl;fflush(stdout);
 			_p=NULL;
 		}
 
@@ -158,11 +161,11 @@ namespace	mBrane{
 		pushThreads[0]=new	PushThread((Node*)this,&messageInputQueue);
 		pushThreads[0]->start(PushThread::PushJobs);
 
-		for(uint32	i=0;i<recvThreads.count();i++){
+		//for(uint32	i=0;i<recvThreads.count();i++){
 
-			pushThreads[i+1]=new	PushThread((Node*)this,&recvThreads[i]->buffer);
-			pushThreads[i+1]->start(PushThread::PushJobs);
-		}
+		//	pushThreads[i+1]=new	PushThread((Node*)this,&recvThreads[i]->buffer);
+		//	pushThreads[i+1]->start(PushThread::PushJobs);
+		//}
 	}
 
 	void	Messaging::shutdown(){
