@@ -54,6 +54,7 @@ namespace	mBrane{
 		}
 
 		CommChannel::~CommChannel(){
+			int t=0;
 		}
 
 		inline int16	CommChannel::_send(__Payload	*c){
@@ -61,7 +62,7 @@ namespace	mBrane{
 			ClassRegister	*CR=ClassRegister::Get(c->cid());
 			int16	r;
 
-		//	std::cout<<"Info: Sending payload type '"<<CR->class_name<<"' ["<<c->cid()<<"] size '"<<CR->size()<<"'..."<<std::endl;
+			std::cout<<"Info: Sending payload type '"<<CR->class_name<<"' ["<<c->cid()<<"] size '"<<CR->size()<<"'..."<<std::endl;
 
 			switch(c->allocationScheme()){
 			case	STATIC:
@@ -107,7 +108,7 @@ namespace	mBrane{
 			}
 			else {
 				size=CR->size();
-			//	std::cout<<"Info: Receiving payload type '"<<CR->class_name<<"' ["<<(metaData>>16)<<"] size '"<<size<<"'..."<<std::endl;
+				std::cout<<"Info: Receiving payload type '"<<CR->class_name<<"' ["<<(metaData>>16)<<"] size '"<<size<<"'..."<<std::endl;
 			}
 			
 			*c=(__Payload*)(*CR->allocator())(size);

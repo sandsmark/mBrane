@@ -72,18 +72,24 @@ namespace	mBrane{
 		//	SHARED MEMORY
 		//	Array<Array<uint8>,65535>	sharedMemorySegments;	//	FUTURE DEVELOPMENT
 		//	NODE
-		uint16	nodeCount;
 		Array<Host::host_name,32>	nodeNames;
+		Array<int32,32>	nodeStatus;
 		Node(uint8	traceLevels);
 		bool	loadApplication(const	char	*fileName);
 	public:
+		uint16	nodeCount;
+		uint16	nodeJoined;
 		uint16	getNID(const	char	*name);
+		bool allNodesJoined();
+		bool allNodesReady();
+		bool checkSyncProbe(uint16 syncNodeID);
 		const	char	*name();
 		//	main() NODE API
 		static	Node	*New(const	char	*configFileName,SharedLibrary	&userLibrary,uint8	traceLevels);
 		~Node();
 		void	run();
 		void	ready();
+		void	systemReady();
 		void	shutdown();
 		//	MODULE NODE API
 		void	send(const	_Module	*sender,_Payload	*message,module::Node::Network	network=module::Node::PRIMARY);

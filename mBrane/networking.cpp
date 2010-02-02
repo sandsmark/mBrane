@@ -411,8 +411,14 @@ namespace	mBrane{
 
 		if(isTimeReference)
 			commThreads[commThreads.count()]=Thread::New<Thread>(ScanIDs,this);
-		else
+	//	else
+	//		commThreads[commThreads.count()]=Thread::New<Thread>(Sync,this);
+	}
+
+	bool	Networking::startSync() {
+		if(!isTimeReference)
 			commThreads[commThreads.count()]=Thread::New<Thread>(Sync,this);
+		return true;
 	}
 
 	uint16	Networking::sendID(CommChannel	*c,NetworkID	*networkID){
@@ -583,7 +589,7 @@ namespace	mBrane{
 		dataChannels[assignedNID]->channels[network].data=data_c;
 		dataChannels[assignedNID]->channels[network].stream=stream_c;
 		dataChannels[assignedNID]->networkID=networkID;
-		connectedNodeCount++;
+		//connectedNodeCount++;
 		startReceivingThreads(assignedNID);
 		notifyNodeJoined(assignedNID,networkID);
 
@@ -705,11 +711,15 @@ err2:	delete	networkID;
 				delete	controlChannels[PRIMARY][entry];
 			controlChannels[PRIMARY][entry]=NULL;
 		}
-		if(dataChannels[entry]->channels[PRIMARY].data)
+		if(dataChannels[entry]->channels[PRIMARY].data) {
 			delete	dataChannels[entry]->channels[PRIMARY].data;
+			dataChannels[entry]->channels[PRIMARY].data = NULL;
+		}
 		dataChannels[entry]->channels[PRIMARY].data=NULL;
-		if(dataChannels[entry]->channels[PRIMARY].stream)
+		if(dataChannels[entry]->channels[PRIMARY].stream) {
 			delete	dataChannels[entry]->channels[PRIMARY].stream;
+			dataChannels[entry]->channels[PRIMARY].stream = NULL;
+		}
 		dataChannels[entry]->channels[PRIMARY].stream=NULL;
 
 		if (controlChannels[SECONDARY].count() > entry) {
@@ -718,11 +728,15 @@ err2:	delete	networkID;
 				delete	controlChannels[SECONDARY][entry];
 			controlChannels[SECONDARY][entry]=NULL;
 		}
-		if(dataChannels[entry]->channels[SECONDARY].data)
+		if(dataChannels[entry]->channels[SECONDARY].data) {
 			delete	dataChannels[entry]->channels[SECONDARY].data;
+			dataChannels[entry]->channels[SECONDARY].data = NULL;
+		}
 		dataChannels[entry]->channels[SECONDARY].data=NULL;
-		if(dataChannels[entry]->channels[SECONDARY].stream)
+		if(dataChannels[entry]->channels[SECONDARY].stream) {
 			delete	dataChannels[entry]->channels[SECONDARY].stream;
+			dataChannels[entry]->channels[SECONDARY].stream = NULL;
+		}
 		dataChannels[entry]->channels[SECONDARY].stream=NULL;
 
 
@@ -824,24 +838,26 @@ err2:	delete	networkID;
 			switch(category){
 			case	_Payload::CONTROL:
 				node->controlChannels[network][remoteNID]=c;
-				if(node->dataChannels[remoteNID]->channels[network].data	&&	node->dataChannels[remoteNID]->channels[network].stream)
+				if(node->dataChannels[remoteNID]->channels[network].data	&&	node->dataChannels[remoteNID]->channels[network].stream) {
 					start=true;
+				}
 				break;
 			case	_Payload::DATA:
 				node->dataChannels[remoteNID]->channels[network].data=c;
-				if(node->dataChannels[remoteNID]->channels[network].stream	&&	(node->networkInterfaces[offset+_Payload::CONTROL]->canBroadcast()	||	(!node->networkInterfaces[offset+_Payload::CONTROL]->canBroadcast()	&&	node->controlChannels[network][remoteNID])))
+				if(node->dataChannels[remoteNID]->channels[network].stream	&&	(node->networkInterfaces[offset+_Payload::CONTROL]->canBroadcast()	||	(!node->networkInterfaces[offset+_Payload::CONTROL]->canBroadcast()	&&	node->controlChannels[network][remoteNID]))) {
 					start=true;
+				}
 				break;
 			case	_Payload::STREAM:
 				node->dataChannels[remoteNID]->channels[network].stream=c;
-				if(node->dataChannels[remoteNID]->channels[network].data	&&	(node->networkInterfaces[offset+_Payload::CONTROL]->canBroadcast()	||	(!node->networkInterfaces[offset+_Payload::CONTROL]->canBroadcast()	&&	node->controlChannels[network][remoteNID])))
-					start=true;
+				if(node->dataChannels[remoteNID]->channels[network].data	&&	(node->networkInterfaces[offset+_Payload::CONTROL]->canBroadcast()	||	(!node->networkInterfaces[offset+_Payload::CONTROL]->canBroadcast()	&&	node->controlChannels[network][remoteNID]))) {
+					//start=true;
+				}
 				break;
 			default:
 				break;
 			}
 			if(start){
-
 				node->connectedNodeCount++;
 				node->startReceivingThreads(remoteNID);
 				node->notifyNodeJoined(remoteNID,node->dataChannels[remoteNID]->networkID);
@@ -900,10 +916,10 @@ err1:	node->shutdown();
 		SyncProbe	*probe;
 		while(!node->_shutdown){
 
-			Thread::Sleep(node->syncPeriod);
 			if (node->dataChannels[node->referenceNID] != NULL) {
 				probe=new	SyncProbe();
-				std::cout<<"Info: Sending SyncProbe type '"<<probe->CID()<<"' ["<<probe->cid()<<"] size '"<<probe->Size()<<"'..."<<std::endl;
+				probe->node_id=node->networkID->NID();
+				std::cout<<"Info: Sending SyncProbe type '"<<probe->CID()<<"' ("<<probe->node_id<<")..."<<std::endl;
 				switch(node->network){
 				case	PRIMARY:
 				case	BOTH:
@@ -916,6 +932,7 @@ err1:	node->shutdown();
 					break;
 				}
 			}
+			Thread::Sleep(node->syncPeriod);
 		}
 		return	0;
 	}
@@ -930,15 +947,23 @@ err1:	node->shutdown();
 
 	Networking::DataCommChannel::~DataCommChannel(){
 
-		if(channels[PRIMARY].data)
-			delete	channels[PRIMARY].data;
-		if(channels[PRIMARY].stream)
-			delete	channels[PRIMARY].stream;
-		if(channels[SECONDARY].data)
-			delete	channels[SECONDARY].data;
-		if(channels[SECONDARY].stream)
-			delete	channels[SECONDARY].stream;
 	// Deleted elsewhere
+		//if(channels[PRIMARY].data) {
+		//	delete	channels[PRIMARY].data;
+		//	channels[PRIMARY].data = NULL;
+		//}
+		//if(channels[PRIMARY].stream) {
+		//	delete	channels[PRIMARY].stream;
+		//	channels[PRIMARY].stream = NULL;
+		//}
+		//if(channels[SECONDARY].data) {
+		//	delete	channels[SECONDARY].data;
+		//	channels[SECONDARY].data = NULL;
+		//}
+		//if(channels[SECONDARY].stream) {
+		//	delete	channels[SECONDARY].stream;
+		//	channels[SECONDARY].stream = NULL;
+		//}
 	//	if(networkID)
 	//		delete	networkID;
 	}

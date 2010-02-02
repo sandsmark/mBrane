@@ -196,12 +196,12 @@ namespace	mBrane{
 #endif
 	}
 
-	void	Thread::Sleep(int64	d){
+	void	Thread::Sleep(int64	ms){
 #if defined	WINDOWS
-		::Sleep((uint32)d);
+		::Sleep((uint32)ms);
 #elif defined LINUX
 		// we are actually being passed millisecond, so multiply up
-		usleep(d*1000);
+		usleep(ms*1000);
 #elif defined OSX
 #endif
 	}

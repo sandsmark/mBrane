@@ -150,6 +150,7 @@ namespace	mBrane{
 
 		bool	init();
 		virtual	void	start(uint16	assignedNID,NetworkID	*networkNID,bool	isTimeReference);
+		bool	startSync();
 
 		Networking();
 		~Networking();

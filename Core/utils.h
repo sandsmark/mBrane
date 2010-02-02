@@ -95,7 +95,7 @@ namespace	mBrane{
 		static	void	TerminateAndWait(Thread	*_thread);
 		static	void	Wait(Thread	**threads,uint32	threadCount);
 		static	void	Wait(Thread	*_thread);
-		static	void	Sleep(int64	d);
+		static	void	Sleep(int64	ms);
 		static	void	Sleep();	//	inifnite
 		virtual	~Thread();
 		void	start(thread_function	f);

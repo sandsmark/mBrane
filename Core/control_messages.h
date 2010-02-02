@@ -44,6 +44,8 @@ namespace	mBrane{
 
 			class	dll	SyncProbe:
 			public	ControlMessage<SyncProbe>{
+			public:
+				uint16	node_id;
 			};
 
 			class	dll	SyncEcho:

@@ -1,3 +1,4 @@
+
 //	node.cpp
 //
 //	Author: Eric Nivel
@@ -52,7 +53,7 @@ namespace	mBrane{
 		return	NULL;
 	}
 
-	Node::Node(uint8	traceLevels):Networking(),Messaging(),Executing(),nodeCount(0){
+	Node::Node(uint8	traceLevels):Networking(),Messaging(),Executing(),nodeCount(0),nodeJoined(0){
 
 		if(!(traceLevels	&	0x01))
 			Streams[0]=new	NoStream();
@@ -111,9 +112,14 @@ namespace	mBrane{
 
 					std::cout<<"> Error: NodeConfiguration::Nodes::node_"<<i<<"::hostname is missing"<<std::endl;
 					strcpy(nodeNames[i],"");
+					nodeStatus[i] = -1;
 					return	NULL;
 				}
 				strcpy(nodeNames[i],_n);
+				if(	stricmp(_n, hostName) == 0)
+					nodeStatus[i] = 2; // local node is ready...
+				else
+					nodeStatus[i] = 0; // awaiting joining...
 			}
 		}
 
@@ -189,6 +195,34 @@ namespace	mBrane{
 		return	NoID;
 	}
 
+	bool	Node::allNodesJoined() {
+		// don't check reference node = 0
+		for(uint16	i=1;i<nodeNames.count();i++) {
+			if (nodeStatus[i] < 1)
+				return false;
+		}
+		return	true;
+	}
+
+	bool	Node::allNodesReady() {
+		// don't check reference node = 0
+		for(uint16	i=1;i<nodeNames.count();i++) {
+			if (nodeStatus[i] != 2)
+				return false;
+		}
+		return	true;
+	}
+
+	bool	Node::checkSyncProbe(uint16 syncNodeID) {
+		if (nodeStatus[syncNodeID] != 2) {
+			nodeStatus[syncNodeID] = 2;
+			if (allNodesReady()) {
+				Node::systemReady();
+			}
+		}
+		return	true;
+	}
+
 	const	char	*Node::name(){
 
 		return	hostName;
@@ -261,16 +295,30 @@ namespace	mBrane{
 		 */
 		if (nodeCount == 0) {
 			Node::ready();
+			Node::systemReady();
 		}
 
 	}
 
 	void	Node::ready(void) {
 
+		static bool initialised = false;
+
+		if (initialised)
+			return;
+
+		printf("\n\n*** NODE READY ***\n\n");
 		Space::Init(_ID);
 		ModuleDescriptor::Init(_ID);
+		Networking::startSync();
+		initialised = true;
+	}
+
+	void	Node::systemReady(void) {
 
 		if ( isTimeReference ) {
+
+			printf("\n\n*** SYSTEM READY ***\n\n");
 
 			SystemReady	*m = new SystemReady();
 
@@ -282,43 +330,45 @@ namespace	mBrane{
 
 	void	Node::notifyNodeJoined(uint16	NID,NetworkID	*networkID){
 
-		static	uint16	ToJoin=nodeCount;
+		// static	uint16	ToJoin=nodeCount; // using nodeJoined instead
 
-		if(!ToJoin	&&	nodeCount){	//	a node is joining after startup
+		// if(nodeCount && (nodeJoined == nodeCount)){	//	a node is joining after startup
+		if (allNodesJoined()) {
 
 			//	TODO: update NodeEntries. See Node::notifyNodeLeft()
-		}else	if(ToJoin){	//	a node is joining during startup
+		}else {	//	a node is joining during startup
 
-			for(uint16	i=0;i<nodeNames.count();i++)
+			bool alreadyJoined = false;
+			for(uint16	i=0;i<nodeNames.count();i++) {
 				if(stricmp(nodeNames[i],networkID->name())==0){
-
-					ToJoin--;
+					if (nodeStatus[i] >= 1)
+						alreadyJoined = true;
+					else
+						nodeStatus[i] = 1; // now joined
 					break;
 				}
+			}
 
-			Space::Init(NID);
+			if (!alreadyJoined) {
+				Space::Init(NID);
 
-			for(uint32	i=0;i<ModuleDescriptor::Config.count();i++)	//	resolve host names into NID
-				for(uint32	j=0;j<ModuleDescriptor::Config[i].count();j++){
+				for(uint32	i=0;i<ModuleDescriptor::Config.count();i++)	{ //	resolve host names into NID
+					for(uint32	j=0;j<ModuleDescriptor::Config[i].count();j++){
 
-					if(stricmp(ModuleDescriptor::Config[i][j]->hostName,networkID->name())==0){
+						if(stricmp(ModuleDescriptor::Config[i][j]->hostName,networkID->name())==0){
 
-						ModuleDescriptor::Main[NID][i][j]=ModuleDescriptor::Config[i][j];
-						ModuleDescriptor::Main[NID][i][j]->hostID=NID;
-						ModuleDescriptor::Main[NID][i][j]->applyInitialProjections(NID);
+							ModuleDescriptor::Main[NID][i][j]=ModuleDescriptor::Config[i][j];
+							ModuleDescriptor::Main[NID][i][j]->hostID=NID;
+							ModuleDescriptor::Main[NID][i][j]->applyInitialProjections(NID);
+						}
 					}
 				}
 
-			if(!ToJoin){	//	startup time initialization
-
-				Node::ready();
-
 			}
+		}
 
-		}else{	//	nodeCount==0
-
+		if (allNodesJoined()) {
 			Node::ready();
-
 		}
 
 		NodeJoined	*m=new	NodeJoined();
@@ -326,7 +376,7 @@ namespace	mBrane{
 		m->send_ts()=Time::Get();
 		Messaging::send(m,LOCAL);
 
-		Node::Get()->trace(Node::NETWORK)<<"> Node joined: "<<networkID->name()<<":"<<NID<<std::endl;
+		Node::Get()->trace(Node::NETWORK)<<"> Node joined: "<<networkID->name()<<":"<<NID<<"("<<connectedNodeCount<<" of "<<nodeCount<<" - "<<nodeJoined<<")"<<std::endl;
 	}
 
 	void	Node::notifyNodeLeft(uint16	NID){
