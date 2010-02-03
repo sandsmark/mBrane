@@ -30,8 +30,7 @@
 	<Daemons>
 		<!--ex: <Daemon shared_library="..." parameter0="..." ... parameterN="..."/>-->	   
 	</Daemons>
-	<Nodes><!--SystemReady will be sent when all the nodes listed here are up and running; you have to list the local node too-->
-    <Node hostname="thorlist"/>
+  <Nodes><!--SystemReady will be sent when all the nodes listed here are up and running; no need to list the local node (implicit)-->
     <Node hostname="thorlinux"/>
 	</Nodes>
 	<Threads thread_count="16"/><!--in [1,512]-->

@@ -20,7 +20,7 @@
       <Subscription message_class="Ball2"/>
     </Projection>
   </Module>
-  <!--    	
+
   <Module class="RRModule" name="RR3" host="thorlinux">
     <Projection space="space1" activation_level="1">
       <Subscription message_class="Ball3"/>
@@ -62,5 +62,6 @@
       <Subscription message_class="Ball9"/>
     </Projection>
   </Module>
+  <!--    	
   -->
 </ApplicationConfiguration>

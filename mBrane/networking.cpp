@@ -384,7 +384,7 @@ namespace	mBrane{
 
 		Thread::Sleep(50);
 
-		std::cout<<"Info: Sending network greeting ["<<networkID->name()<<","<<(*(uint16*)networkID->data)<<"]..."<<std::endl;
+		std::cout<<"> Info: Sending network greeting ["<<networkID->name()<<","<<(*(uint16*)networkID->data)<<"]..."<<std::endl;
 		uint16 mBraneToken = MBRANETOKEN;
 		if(discoveryChannel->send((uint8*)&mBraneToken,sizeof(uint16))) {
 			std::cout<<"Error: Networking Discovery Token could not be sent"<<std::endl;
@@ -423,7 +423,7 @@ namespace	mBrane{
 
 	uint16	Networking::sendID(CommChannel	*c,NetworkID	*networkID){
 
-		std::cout<<"Info: SendID network greeting ["<<networkID->name()<<","<<(*(uint16*)networkID->data)<<"]..."<<std::endl;
+		std::cout<<"> Info: SendID network greeting ["<<networkID->name()<<","<<(*(uint16*)networkID->data)<<"]..."<<std::endl;
 		uint16	r;
 		uint16 mBraneToken = MBRANETOKEN;
 		if(r=c->send((uint8*)&mBraneToken,sizeof(uint16)))
@@ -477,7 +477,7 @@ namespace	mBrane{
 		uint16	mapElementCount;
 		if(r=c->recv((uint8	*)&mapElementCount,sizeof(uint16)))
 			return	r;
-		std::cout<<"Info: Receiving network map containing "<<mapElementCount<<" other nodes..."<<std::endl;
+		std::cout<<"> Info: Receiving network map containing "<<mapElementCount<<" other nodes..."<<std::endl;
 		NetworkID	*networkID;
 		for(uint16	i=0;i<mapElementCount;i++){
 
@@ -500,7 +500,7 @@ namespace	mBrane{
 				mapElementCount++;
 		}
 
-		std::cout<<"Info: Sending network map containing "<<mapElementCount<<" nodes..."<<std::endl;
+		std::cout<<"> Info: Sending network map containing "<<mapElementCount<<" nodes..."<<std::endl;
 		if(r=c->send((uint8	*)&mapElementCount,sizeof(uint16)))
 			return	r;
 
@@ -545,7 +545,7 @@ namespace	mBrane{
 			if(isTimeReference)
 				if(r=sendMap(ctrl_c))
 					goto	err1;
-			std::cout<<"Info: Opened control connection to '"<< networkID->name() <<"'..."<<std::endl;
+			// std::cout<<"Info: Opened control connection to '"<< networkID->name() <<"'..."<<std::endl;
 		}
 			
 		if(*networkInterfaces[offset+_Payload::DATA]!=*networkInterfaces[offset+_Payload::CONTROL]){
@@ -564,9 +564,9 @@ namespace	mBrane{
 					if(r=sendMap(data_c))
 						goto	err0;
 			}
-			std::cout<<"Info: Opened data connection to '"<< networkID->name() <<"'..."<<std::endl;
+			// std::cout<<"Info: Opened data connection to '"<< networkID->name() <<"'..."<<std::endl;
 		}else {
-			std::cout<<"Info: Reusing control connection for data connection to '"<< networkID->name() <<"'..."<<std::endl;
+		//	std::cout<<"Info: Reusing control connection for data connection to '"<< networkID->name() <<"'..."<<std::endl;
 			data_c=ctrl_c;
 		}
 
@@ -579,9 +579,9 @@ namespace	mBrane{
 			// In all cases we need to send our networkID
 			if(r=sendID(stream_c,this->networkID))
 				goto	err0;
-			std::cout<<"Info: Opened stream connection to '"<< networkID->name() <<"'..."<<std::endl;
+			// std::cout<<"Info: Opened stream connection to '"<< networkID->name() <<"'..."<<std::endl;
 		}else {
-			std::cout<<"Info: Reusing control connection for stream connection to '"<< networkID->name() <<"'..."<<std::endl;
+		//	std::cout<<"Info: Reusing control connection for stream connection to '"<< networkID->name() <<"'..."<<std::endl;
 			stream_c=data_c;
 		}
 
@@ -773,12 +773,12 @@ err2:	delete	networkID;
 
 		uint16	r;
 
-		if (category == _Payload::CONTROL)
-			std::cout<<"Info: Waiting for "<< (uint32)networkInterface->protocol()<<" control connection..."<<std::endl;
-		else if (category == _Payload::DATA)
-			std::cout<<"Info: Waiting for "<< (uint32)networkInterface->protocol()<<" data connection..."<<std::endl;
-		else if (category == _Payload::STREAM)
-			std::cout<<"Info: Waiting for "<< (uint32)networkInterface->protocol()<<" stream connection..."<<std::endl;
+	//	if (category == _Payload::CONTROL)
+	//		std::cout<<"Info: Waiting for "<< (uint32)networkInterface->protocol()<<" control connection..."<<std::endl;
+	//	else if (category == _Payload::DATA)
+	//		std::cout<<"Info: Waiting for "<< (uint32)networkInterface->protocol()<<" data connection..."<<std::endl;
+	//	else if (category == _Payload::STREAM)
+	//		std::cout<<"Info: Waiting for "<< (uint32)networkInterface->protocol()<<" stream connection..."<<std::endl;
 
 		ConnectedCommChannel	*c;
 		NetworkID	*networkID;
@@ -797,7 +797,7 @@ err2:	delete	networkID;
 			node->acceptConnectionCS.enter();
 
 			if ( (!decidedRefNode) && (category==_Payload::CONTROL) && (timedout) ) {	//	reference node
-				std::cout<<"Info: Starting up as Reference Node..."<<std::endl;
+				std::cout<<"> Info: Starting up as Reference Node..."<<std::endl;
 				node->start(0,0,true);
 				node->acceptConnectionCS.leave();
 				thread_ret_val(0);
@@ -809,17 +809,17 @@ err2:	delete	networkID;
 			if(category==_Payload::CONTROL	||	(category==_Payload::DATA	&&	node->networkInterfaces[offset+_Payload::CONTROL]->canBroadcast())){
 
 				// uint16	assignedNID;
-				std::cout<<"Info: Receiving incoming control connection..."<<std::endl;
+			//	std::cout<<"Info: Receiving incoming control connection..."<<std::endl;
 				if(r=node->recvID(c,networkID))
 					goto	err0;
-				std::cout<<"Info: Preparing to receive assigned NodeID..."<<std::endl;
+			//	std::cout<<"Info: Preparing to receive assigned NodeID..."<<std::endl;
 				if(r=c->recv((uint8	*)&assignedNID,sizeof(uint16)))
 					goto	err0;
 				if(assignedNID!=NoID){
 
-					std::cout<<"Info: Got assigned NodeID ["<<assignedNID<<"]..."<<std::endl;
+			//		std::cout<<"Info: Got assigned NodeID ["<<assignedNID<<"]..."<<std::endl;
 					node->start(assignedNID,networkID,false);
-					std::cout<<"Info: My NodeID is now ["<<networkID->NID()<<"]..."<<std::endl;
+					std::cout<<"> Info: My NodeID is now ["<<networkID->NID()<<"]..."<<std::endl;
 					if(r=node->recvMap(c))
 						goto	err0;
 				}
@@ -893,14 +893,14 @@ err1:	node->shutdown();
 				// Did we just receive our own broadcast
 				if (stricmp(recName, node->hostName) == 0) {
 					// ignore...
-					std::cout<<"Info: Received my own network greeting, ignoring..."<<std::endl;
+				//	std::cout<<"Info: Received my own network greeting, ignoring..."<<std::endl;
 				}
 				else if (strlen(recName) == 0) {
 					// ignore...
-					std::cout<<"Info: Received invalid network greeting with empty name, ignoring..."<<std::endl;
+					std::cout<<"> Info: Received invalid network greeting with empty name, ignoring..."<<std::endl;
 				}
 				else {
-					std::cout<<"Info: Received network greeting from ["<<recName<<","<<*(uint16*)networkID->data<<"], connecting..."<<std::endl;
+					std::cout<<"> Info: Received network greeting from ["<<recName<<","<<*(uint16*)networkID->data<<"], connecting..."<<std::endl;
 					node->connect(networkID);
 				}
 			}
@@ -919,7 +919,7 @@ err1:	node->shutdown();
 			if (node->dataChannels[node->referenceNID] != NULL) {
 				probe=new	SyncProbe();
 				probe->node_id=node->networkID->NID();
-				std::cout<<"Info: Sending SyncProbe type '"<<probe->CID()<<"' ("<<probe->node_id<<")..."<<std::endl;
+				std::cout<<"> Info: Sending SyncProbe type '"<<probe->CID()<<"' ("<<probe->node_id<<")..."<<std::endl;
 				switch(node->network){
 				case	PRIMARY:
 				case	BOTH:

@@ -146,7 +146,7 @@ int	main(int	argc,char	**argv){
 		return 1;
 	}
 
-	std::cout<<"Running\n";
+	// std::cout<<"Running\n";
 
 	node->run();
 #else

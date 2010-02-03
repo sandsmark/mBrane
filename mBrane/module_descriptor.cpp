@@ -223,10 +223,10 @@ error:	ModuleDescriptor::Config[CID][m->ID]=NULL;
 
 			this->name=new	char[strlen(name)+1];
 			memcpy((void	*)this->name,name,strlen(name)+1);
-			Node::Get()->trace(Node::EXECUTION)<<"Module "<<CID<<"|"<<ID<<" ("<<name<<") created"<<std::endl;
+			Node::Get()->trace(Node::EXECUTION)<<"> Info: Module "<<CID<<"|"<<ID<<" ("<<name<<") created"<<std::endl;
 		}
 		else
-			Node::Get()->trace(Node::EXECUTION)<<"Module "<<CID<<"|"<<ID<<" created"<<std::endl;
+			Node::Get()->trace(Node::EXECUTION)<<"> Info: Module "<<CID<<"|"<<ID<<" created"<<std::endl;
 	}
 
 	ModuleDescriptor::ModuleDescriptor(uint16	hostID,uint16	CID,uint16	ID):Projectable<ModuleDescriptor>(hostID,ID),module(NULL),CID(CID),name(NULL){
@@ -237,7 +237,7 @@ error:	ModuleDescriptor::Config[CID][m->ID]=NULL;
 			module->descriptor=this;
 			module->_cid=CID;
 			module->_id=ID;
-			Node::Get()->trace(Node::EXECUTION)<<"Module "<<CID<<"|"<<ID<<" created"<<std::endl;
+			Node::Get()->trace(Node::EXECUTION)<<"> Info: Module "<<CID<<"|"<<ID<<" created"<<std::endl;
 			module->_start();
 		}
 	}

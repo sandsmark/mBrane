@@ -79,8 +79,7 @@ namespace	mBrane{
 
 		hostNameSize=Host::Name(hostName);
 
-		std::cout<<"---------------- mBrane V"<<MBRANE_VERSION<<" ----------------"<<std::endl;
-		std::cout<<"> Started on "<<hostName<<std::endl;
+		std::cout<<std::endl<<"--------- mBrane v"<<MBRANE_VERSION<<" Node: "<<hostName<<" ---------"<<std::endl<<std::endl;
 
 		XMLNode	mainNode=XMLNode::openFileHelper(configFileName,"NodeConfiguration");
 		if(!mainNode){
@@ -98,11 +97,16 @@ namespace	mBrane{
 		if(!mdaemon::Node::loadConfig(mainNode))
 			return	NULL;
 
+		uint16 entry = 0;
 		XMLNode	nodeList=mainNode.getChildNode("Nodes");
 		if(!nodeList)
 			nodeCount=0;
 		else{
 
+			// First, add yourself to the list, in case it is not in the list
+			strcpy(nodeNames[0],hostName);
+			nodeStatus[0] = 2; // Do not wait for connection...
+		//	printf("--- Node 0: '%s' ---\n", hostName);
 			nodeCount=nodeList.nChildNode("Node");
 			for(uint16	i=0;i<nodeCount;i++){
 
@@ -115,11 +119,12 @@ namespace	mBrane{
 					nodeStatus[i] = -1;
 					return	NULL;
 				}
-				strcpy(nodeNames[i],_n);
-				if(	stricmp(_n, hostName) == 0)
-					nodeStatus[i] = 2; // local node is ready...
-				else
-					nodeStatus[i] = 0; // awaiting joining...
+				if(	!stricmp(_n, hostName) == 0) {
+					entry++;
+					strcpy(nodeNames[entry],_n);
+				//	printf("--- Node %u: '%s' ---\n", entry, _n);
+					nodeStatus[entry] = 0; // awaiting joining...
+				}
 			}
 		}
 
@@ -236,7 +241,7 @@ namespace	mBrane{
 			return;
 		}
 
-		std::cout<<"> Running"<<std::endl;
+		// std::cout<<"> Running"<<std::endl;
 
 		Thread::Sleep();
 	}
@@ -252,7 +257,7 @@ namespace	mBrane{
 
 		started = true;
 
-		std::cout << "Debug: node starting up ... " << std::endl;
+		// std::cout << "Debug: node starting up ... " << std::endl;
 
 		Networking::start(assignedNID,networkID,isTimeReference);
 

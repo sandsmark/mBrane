@@ -143,7 +143,7 @@ error:	Space::Config[s->ID]=NULL;
 			memcpy((void	*)this->name,name,strlen(name)+1);
 		}
 
-		Node::Get()->trace(Node::EXECUTION)<<"Space "<<ID<<" created"<<std::endl;
+		Node::Get()->trace(Node::EXECUTION)<<"> Info: Space "<<ID<<" created"<<std::endl;
 	}
 
 	Space::~Space(){

@@ -61,13 +61,13 @@ public:
 	virtual	~LibraryModule(){}
 	void	_start(){
 		this->_ready=true;
-		module::Node::Get()->trace(module::Node::EXECUTION)<<"Module "<<this->_cid<<"|"<<this->_id<<" started"<<std::endl;
+		module::Node::Get()->trace(module::Node::EXECUTION)<<"> Info: Module "<<this->_cid<<"|"<<this->_id<<" started"<<std::endl;
 		((U	*)this)->start();
 	}
 	void	_stop(){
 		((U	*)this)->stop();
 		this->_ready=false;
-		module::Node::Get()->trace(module::Node::EXECUTION)<<"Module "<<this->_cid<<"|"<<this->_id<<" stopped"<<std::endl;
+		module::Node::Get()->trace(module::Node::EXECUTION)<<"> Info: Module "<<this->_cid<<"|"<<this->_id<<" stopped"<<std::endl;
 	}
 	void	notify(_Payload	*p){
 		switch(p->cid()){

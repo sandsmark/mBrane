@@ -66,7 +66,7 @@ namespace	mBrane{
 			case	SyncProbe_CID:	//	ref node, echo
 				// Now the sending Node is definitely up and running...
 				_this->node->checkSyncProbe(((SyncProbe*)p)->node_id);
-				std::cout<<"Receiving SyncProbe from "<< ((SyncProbe*)p)->node_id <<" "<<std::endl;
+				std::cout<<"> Info: Receiving SyncProbe from "<< ((SyncProbe*)p)->node_id <<" "<<std::endl;
 				echo=new	SyncEcho();
 				echo->time=Time::Get();
 				_this->channel->send(echo);
@@ -153,7 +153,7 @@ namespace	mBrane{
 		o.p=message;
 		o.network=network;
 		message->send_ts()=Time::Get();
-		printf("Scheduling message (%u) for sending...\n", message->cid());
+		// printf("Scheduling message (%u) for sending...\n", message->cid());
 		messageOutputQueue.push(o);
 	}
 
@@ -306,7 +306,7 @@ namespace	mBrane{
 			_Payload::Category	cat=p->category();
 			if(out.network==module::Node::LOCAL){
 				
-				printf("Sending message (%u) locally...\n", p->cid());
+			//	printf("Sending message (%u) locally...\n", p->cid());
 				if(cat==_Payload::STREAM)
 					NodeEntry::Main[ST][p->as_StreamData()->sid()][node->_ID].getActivation(act);
 				else
@@ -315,10 +315,10 @@ namespace	mBrane{
 					node->messageInputQueue.push(out.p);
 			}else{
 
-				printf("Sending message (%u)...\n", p->cid());
+			//	printf("Sending message (%u)...\n", p->cid());
 				switch(cat){
 				case	_Payload::CONTROL:
-					printf("Sending message (%u) as control...\n", p->cid());
+			//		printf("Sending message (%u) as control...\n", p->cid());
 					node->broadcastControlMessage(p,out.network);
 					node->messageInputQueue.push(out.p);
 					break;
@@ -327,23 +327,23 @@ namespace	mBrane{
 					uint16	sid=p->as_StreamData()->sid();
 					nodeCount=NodeEntry::Main[ST][sid].count();
 					if (nodeCount == 0)
-						printf("No activation for any node for stream message (%u)...\n", p->cid());
+						printf("*** No activation for any node for stream message cid %u ***\n", p->cid());
 					for(uint16	i=0;i<nodeCount;i++){
 
 						NodeEntry::Main[ST][sid][i].getActivation(act);
 						if(act){
 
 							if(i==node->_ID) {
-								printf("Sending message (%u) as stream locally...\n", p->cid());
+							//	printf("Sending message (%u) as stream locally...\n", p->cid());
 								node->messageInputQueue.push(out.p);
 							}
 							else {
-								printf("Sending message (%u) as stream network...\n", p->cid());
+							//	printf("Sending message (%u) as stream network...\n", p->cid());
 								node->sendStreamData(i,p,out.network);
 							}
 						}
 						else {
-							printf("No activation for node %u for stream message (%u)...\n", i, p->cid());
+						//	printf("No activation for node %u for stream message (%u)...\n", i, p->cid());
 						}
 					}
 					}break;
@@ -352,23 +352,23 @@ namespace	mBrane{
 					uint16	cid=p->cid();
 					nodeCount=NodeEntry::Main[DC][cid].count();
 					if (nodeCount == 0)
-						printf("No activation for any node for data message (%u)...\n", p->cid());
+						printf("*** No activation for any node for data message cid %u ***\n", p->cid());
 					for(uint16	i=0;i<nodeCount;i++){
 
 						NodeEntry::Main[DC][cid][i].getActivation(act);
 						if(act){
 
 							if(i==node->_ID) {
-								printf("Sending message (%u) as data locally...\n", p->cid());
+							//	printf("Sending message (%u) as data locally...\n", p->cid());
 								node->messageInputQueue.push(out.p);
 							}
 							else {
-								printf("Sending message (%u) as data network...\n", p->cid());
+							//	printf("Sending message (%u) as data network...\n", p->cid());
 								node->sendData(i,p,out.network);
 							}
 						}
 						else {
-							printf("No activation for node %u for data message (%u)...\n", i, p->cid());
+						//	printf("No activation for node %u for data message (%u)...\n", i, p->cid());
 						}
 					}
 					}
