@@ -15,13 +15,13 @@
     </Projection>
   </Module>
 
-  <Module class="RRModule" name="RR2" host="thorlinux">
+  <Module class="RRModule" name="RR2" host="thorlist">
     <Projection space="space1" activation_level="1">
       <Subscription message_class="Ball2"/>
     </Projection>
   </Module>
 
-  <Module class="RRModule" name="RR3" host="thorlinux">
+  <Module class="RRModule" name="RR3" host="thorlist">
     <Projection space="space1" activation_level="1">
       <Subscription message_class="Ball3"/>
     </Projection>
@@ -57,7 +57,7 @@
     </Projection>
   </Module>
 
-  <Module class="RRModule" name="RR9" host="thorlist">
+  <Module class="RRModule" name="RR9" host="thorlinux">
     <Projection space="space1" activation_level="1">
       <Subscription message_class="Ball9"/>
     </Projection>

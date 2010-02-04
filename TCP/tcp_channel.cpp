@@ -78,12 +78,13 @@ bool	TCPChannel::initialiseBuffer(uint32 len) {
 
 int16	TCPChannel::send(uint8	*b,size_t	s){
 
+//	uint64 t1 = Time::Get();
 //	PrintBinary(b, s, true, "TCP Sending");
 	if(::send(this->s,(char	*)b,(int)s,0)==SOCKET_ERROR) {
 //		int err = WSAGetLastError();
 		return	1;
 	}
-
+//	printf("TCP Send time: %u\n", (uint32) (Time::Get() - t1));
 	return	0;
 }
 

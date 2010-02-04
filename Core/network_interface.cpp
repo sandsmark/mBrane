@@ -59,6 +59,7 @@ namespace	mBrane{
 
 		inline int16	CommChannel::_send(__Payload	*c){
 
+		//	uint64 t1 = Time::Get();
 			ClassRegister	*CR=ClassRegister::Get(c->cid());
 			int16	r;
 
@@ -89,6 +90,7 @@ namespace	mBrane{
 				if(r=_send(p))
 					return	r;
 			}
+		//	printf("CommChannel Send time:    %u\n", (uint32) (Time::Get() - t1));
 			return	0;
 		}
 

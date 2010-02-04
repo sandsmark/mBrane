@@ -349,6 +349,7 @@ namespace	mBrane{
 					}break;
 				case	_Payload::DATA:
 					{
+		uint64 t1 = Time::Get();
 					uint16	cid=p->cid();
 					nodeCount=NodeEntry::Main[DC][cid].count();
 					if (nodeCount == 0)
@@ -371,6 +372,7 @@ namespace	mBrane{
 						//	printf("No activation for node %u for data message (%u)...\n", i, p->cid());
 						}
 					}
+		printf("SendMessages Send time:        %u\n", (uint32) (Time::Get() - t1));
 					}
 				}
 			}
