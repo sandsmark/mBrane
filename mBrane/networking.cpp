@@ -920,6 +920,7 @@ err1:	node->shutdown();
 				probe=new	SyncProbe();
 				probe->node_id=node->networkID->NID();
 				std::cout<<"> Info: Sending SyncProbe type '"<<probe->CID()<<"' ("<<probe->node_id<<")..."<<std::endl;
+				((_Payload*)probe)->node_send_ts() = Time::Get(); // this needs local time, not adjusted time
 				switch(node->network){
 				case	PRIMARY:
 				case	BOTH:

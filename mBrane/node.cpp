@@ -327,7 +327,7 @@ namespace	mBrane{
 
 			SystemReady	*m = new SystemReady();
 
-			m->send_ts() = Time::Get();
+			m->send_ts() = this->time();
 			Messaging::send(m, BOTH);
 
 		}
@@ -378,7 +378,7 @@ namespace	mBrane{
 
 		NodeJoined	*m=new	NodeJoined();
 		m->node_id=NID;
-		m->send_ts()=Time::Get();
+		m->send_ts()=this->time();
 		Messaging::send(m,LOCAL);
 
 		Node::Get()->trace(Node::NETWORK)<<"> Node joined: "<<networkID->name()<<":"<<NID<<"("<<connectedNodeCount<<" of "<<nodeCount<<" - "<<nodeJoined<<")"<<std::endl;
@@ -397,7 +397,7 @@ namespace	mBrane{
 
 			NodeLeft	*m=new	NodeLeft();
 			m->node_id=NID;
-			m->send_ts()=Time::Get();
+			m->send_ts()=this->time();
 			Messaging::send(m,LOCAL);
 
 			if (dataChannels[NID]->networkID)
@@ -503,6 +503,7 @@ namespace	mBrane{
 
 	void	Node::send(const	_Module	*sender,_Payload	*message,Network	network){
 
+		message->send_ts()=this->time();
 		_Payload::Category	cc= message->category();
 		if(message->category()==_Payload::DATA){
 

@@ -51,7 +51,10 @@ namespace	mBrane{
 			class	dll	SyncEcho:
 			public	ControlMessage<SyncEcho>{
 			public:
-				int64	time;	//	us
+				int64	t0;	//	from probe node_send_ts
+				int64	t1;	//	from probe node_recv_ts
+				// t2 is recorded in echo node_send_ts
+				// t3 is recorded in echo node_recv_ts
 			};
 
 			class	dll	NodeJoined:

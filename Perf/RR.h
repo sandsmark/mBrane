@@ -25,7 +25,7 @@ public:
 	void	react(SystemReady	*p){
 	//	Thread::Sleep(3000);
 		printf("RRMaster starting RoundRobin test, please wait...\n");
-		tStart = t1 = Time::Get();
+		tStart = t1 = NODE->time();
 		NODE->send(this,new Ball1(0),N::PRIMARY);
 	}
 
@@ -34,7 +34,7 @@ public:
 		int32 counter = p->num;
 		if (counter == 1)
 			printf("RoundRobin test running...\n");
-		t2 = Time::Get();
+		t2 = NODE->time();
 		printf("Module 9 Send/Rec time:               %u\n", (uint32) (t2 - t1));
 	//	if ((t = (uint32)(t2-t1)) > 100000)
 	//		printf("*** RR[%u] single run test took %uus for the %dth cycle, %.3fus per msg (%p)\n",
@@ -68,7 +68,13 @@ MODULE_CLASS_BEGIN(RRModule,Module<RRModule>)
 	template<class	T>	void	react(T	*p){}
 
 	void	react(Ball1 *p){
-		printf("Module Rec time:                             1   %u\n", (uint32) (Time::Get() - t1));
+		uint64 now = NODE->time();
+		printf("Module Rec time (%d,%d,%d,%d):                             1   %u\n",
+			(uint32) (now - p->send_ts()),
+			(uint32) (now - p->node_send_ts()),
+			(uint32) (now - p->node_recv_ts()),
+			(uint32) (now - p->recv_ts()),
+			(uint32) (now - t1));
 		int32 counter = p->num;
 //		printf( "Ball1 triggered...\n");
 		//	if (counter % 1000 == 0)
@@ -77,42 +83,84 @@ MODULE_CLASS_BEGIN(RRModule,Module<RRModule>)
 		NODE->send(this,new Ball2(counter),N::PRIMARY);
 	}
 	void	react(Ball2 *p){
-		printf("Module Rec time:                             2   %u\n", (uint32) (Time::Get() - t1));
+		uint64 now = NODE->time();
+		printf("Module Rec time (%d,%d,%d,%d):                             2   %u\n",
+			(uint32) (now - p->send_ts()),
+			(uint32) (now - p->node_send_ts()),
+			(uint32) (now - p->node_recv_ts()),
+			(uint32) (now - p->recv_ts()),
+			(uint32) (now - t1));
 //		printf( "Ball2 triggered...\n");
 		int32 counter = p->num;
 		NODE->send(this,new Ball3(counter),N::PRIMARY);
 	}
 	void	react(Ball3 *p){
-		printf("Module Rec time:                             3   %u\n", (uint32) (Time::Get() - t1));
+		uint64 now = NODE->time();
+		printf("Module Rec time (%d,%d,%d,%d):                             3   %u\n",
+			(uint32) (now - p->send_ts()),
+			(uint32) (now - p->node_send_ts()),
+			(uint32) (now - p->node_recv_ts()),
+			(uint32) (now - p->recv_ts()),
+			(uint32) (now - t1));
 //		printf( "Ball3 triggered...\n");
 		int32 counter = p->num;
 		NODE->send(this,new Ball4(counter),N::PRIMARY);
 	}
 	void	react(Ball4 *p){
-		printf("Module Rec time:                             4   %u\n", (uint32) (Time::Get() - t1));
+		uint64 now = NODE->time();
+		printf("Module Rec time (%d,%d,%d,%d):                             4   %u\n",
+			(uint32) (now - p->send_ts()),
+			(uint32) (now - p->node_send_ts()),
+			(uint32) (now - p->node_recv_ts()),
+			(uint32) (now - p->recv_ts()),
+			(uint32) (now - t1));
 //		printf( "Ball4 triggered...\n");
 		int32 counter = p->num;
 		NODE->send(this,new Ball5(counter),N::PRIMARY);
 	}
 	void	react(Ball5 *p){
-		printf("Module Rec time:                             5   %u\n", (uint32) (Time::Get() - t1));
+		uint64 now = NODE->time();
+		printf("Module Rec time (%d,%d,%d,%d):                             5   %u\n",
+			(uint32) (now - p->send_ts()),
+			(uint32) (now - p->node_send_ts()),
+			(uint32) (now - p->node_recv_ts()),
+			(uint32) (now - p->recv_ts()),
+			(uint32) (now - t1));
 //		printf( "Ball5 triggered...\n");
 		int32 counter = p->num;
 		NODE->send(this,new Ball6(counter),N::PRIMARY);
 	}
 	void	react(Ball6 *p){
-		printf("Module Rec time:                             6   %u\n", (uint32) (Time::Get() - t1));
+		uint64 now = NODE->time();
+		printf("Module Rec time (%d,%d,%d,%d):                             6   %u\n",
+			(uint32) (now - p->send_ts()),
+			(uint32) (now - p->node_send_ts()),
+			(uint32) (now - p->node_recv_ts()),
+			(uint32) (now - p->recv_ts()),
+			(uint32) (now - t1));
 		int32 counter = p->num;
 		NODE->send(this,new Ball7(counter),N::PRIMARY);
 	}
 	void	react(Ball7 *p){
-		printf("Module Rec time:                             7   %u\n", (uint32) (Time::Get() - t1));
+		uint64 now = NODE->time();
+		printf("Module Rec time (%d,%d,%d,%d):                             7   %u\n",
+			(uint32) (now - p->send_ts()),
+			(uint32) (now - p->node_send_ts()),
+			(uint32) (now - p->node_recv_ts()),
+			(uint32) (now - p->recv_ts()),
+			(uint32) (now - t1));
 //		printf( "Ball7 triggered...\n");
 		int32 counter = p->num;
 		NODE->send(this,new Ball8(counter),N::PRIMARY);
 	}
 	void	react(Ball8 *p){
-		printf("Module Rec time:                             8   %u\n", (uint32) (Time::Get() - t1));
+		uint64 now = NODE->time();
+		printf("Module Rec time (%d,%d,%d,%d):                             8   %u\n",
+			(uint32) (now - p->send_ts()),
+			(uint32) (now - p->node_send_ts()),
+			(uint32) (now - p->node_recv_ts()),
+			(uint32) (now - p->recv_ts()),
+			(uint32) (now - t1));
 //		printf( "Ball8 triggered...\n");
 		int32 counter = p->num;
 		NODE->send(this,new Ball9(counter),N::PRIMARY);

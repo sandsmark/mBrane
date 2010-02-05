@@ -51,24 +51,49 @@ namespace	mBrane{
 		_Payload	*p;
 		while(!_this->node->_shutdown){
 
+			uint64 t = Time::Get();
 			if(_this->channel	&&	_this->channel->recv(&p)){
 
 				_this->node->processError(_this->entry);
 				// continue;
 				thread_ret_val(0);
 			}
-
+			printf("RecvThread::ReceiveMessages::recv took %uus...\n", Time::Get()-t);
+			uint64 t0, t1, t2, t3;
+			uint64 start = Time::Get();
 			P<_Payload>	_p=p;
+			p->node_recv_ts()=_this->node->time();
 			switch(p->cid()){
 			case	SyncEcho_CID:	//	non-ref node, compute drift
-				_this->node->timeDrift=Time::Get()-((SyncEcho	*)p)->time-(p->node_recv_ts()-p->node_send_ts());
+				// Time Sync description for Non-Reference Node (receiver of SyncEcho)
+				// t0: SyncProbe node_send_ts (local time)
+				// t1: SyncProbe node_recv_ta (remote time)
+				// t2: SyncEcho node_send_ts (remote time)
+				// t3: SyncEcho node_recv_ta (local time)
+				// RTT:  t3-t0 - (t2-t1) // network transit time
+				// timeDrift = t0 - t1 - (RTT/2)
+				//  = t0 - t1 - (t3 - t0 - t2 + t1)/2
+				t0 = ((SyncEcho*)p)->t0;
+				t1 = ((SyncEcho*)p)->t1;
+				t2 = p->node_send_ts();
+				t3 = start;
+				_this->node->timeDrift = t0 - t1 - (t3 - t0 - t2 + t1)/2;
+				printf("timeDrift = %u\n", _this->node->timeDrift);
+				printf("RTT = %.3f\n", (t3 - t0 - (t2 - t1))/2.0);
+			//		((SyncEcho*)p)->t0 - ((SyncEcho*)p)->t1 -
+			//		   (p->node_recv_ts() - ((SyncEcho*)p)->t0 - p->node_send_ts() + ((SyncEcho*)p)->t1)/2;
+				
+				// Time::Get()-((SyncEcho	*)p)->time-(p->node_recv_ts()-p->node_send_ts());
 				break;
 			case	SyncProbe_CID:	//	ref node, echo
 				// Now the sending Node is definitely up and running...
 				_this->node->checkSyncProbe(((SyncProbe*)p)->node_id);
 				std::cout<<"> Info: Receiving SyncProbe from "<< ((SyncProbe*)p)->node_id <<" "<<std::endl;
 				echo=new	SyncEcho();
-				echo->time=Time::Get();
+				// echo->time=Time::Get();
+				echo->t0 = p->node_send_ts();
+				echo->t1 = start; // this needs local time, not adjusted time
+				((_Payload*)echo)->node_send_ts()=((_Payload*)echo)->send_ts()=Time::Get();
 				_this->channel->send(echo);
 				delete	echo;
 				break;
@@ -101,6 +126,7 @@ namespace	mBrane{
 
 //			std::cout<<"Looking for jobs ["<< (unsigned int)(&_this->source) <<"]..."<<std::endl;
 			_p=_this->source->pop();
+			_p->recv_ts()=_this->node->time();
 //			std::cout<<"Pushing job: "<<_p->cid()<<std::endl;
 			if(_p->category()==_Payload::CONTROL)
 				_this->node->processControlMessage(_p);
@@ -152,7 +178,7 @@ namespace	mBrane{
 		MessageSlot	o;
 		o.p=message;
 		o.network=network;
-		message->send_ts()=Time::Get();
+		// message->send_ts()=Time::Get();
 		// printf("Scheduling message (%u) for sending...\n", message->cid());
 		messageOutputQueue.push(o);
 	}
@@ -303,9 +329,11 @@ namespace	mBrane{
 
 			out=node->messageOutputQueue.pop();
 			p=out.p;
+			p->node_send_ts()=node->time();
 			_Payload::Category	cat=p->category();
 			if(out.network==module::Node::LOCAL){
 				
+				p->node_recv_ts()=node->time();
 			//	printf("Sending message (%u) locally...\n", p->cid());
 				if(cat==_Payload::STREAM)
 					NodeEntry::Main[ST][p->as_StreamData()->sid()][node->_ID].getActivation(act);
@@ -320,6 +348,7 @@ namespace	mBrane{
 				case	_Payload::CONTROL:
 			//		printf("Sending message (%u) as control...\n", p->cid());
 					node->broadcastControlMessage(p,out.network);
+					p->node_recv_ts()=node->time();
 					node->messageInputQueue.push(out.p);
 					break;
 				case	_Payload::STREAM:	//	find target remote nodes; send on data/stream channels; push in messageInputQueue if the local node is a target
@@ -335,6 +364,7 @@ namespace	mBrane{
 
 							if(i==node->_ID) {
 							//	printf("Sending message (%u) as stream locally...\n", p->cid());
+								p->node_recv_ts()=node->time();
 								node->messageInputQueue.push(out.p);
 							}
 							else {
@@ -349,7 +379,7 @@ namespace	mBrane{
 					}break;
 				case	_Payload::DATA:
 					{
-		uint64 t1 = Time::Get();
+		//uint64 t1 = Time::Get();
 					uint16	cid=p->cid();
 					nodeCount=NodeEntry::Main[DC][cid].count();
 					if (nodeCount == 0)
@@ -361,6 +391,7 @@ namespace	mBrane{
 
 							if(i==node->_ID) {
 							//	printf("Sending message (%u) as data locally...\n", p->cid());
+								p->node_recv_ts()=node->time();
 								node->messageInputQueue.push(out.p);
 							}
 							else {
@@ -372,7 +403,7 @@ namespace	mBrane{
 						//	printf("No activation for node %u for data message (%u)...\n", i, p->cid());
 						}
 					}
-		printf("SendMessages Send time:        %u\n", (uint32) (Time::Get() - t1));
+		//printf("SendMessages Send time:        %u\n", (uint32) (Time::Get() - t1));
 					}
 				}
 			}
