@@ -345,7 +345,9 @@ namespace	mBrane{
 
 			bool alreadyJoined = false;
 			for(uint16	i=0;i<nodeNames.count();i++) {
+			//	printf("Node join check '%s' == '%s'... \n", nodeNames[i],networkID->name());
 				if(stricmp(nodeNames[i],networkID->name())==0){
+				//	Node::Get()->trace(Node::NETWORK)<<"> Node join status: "<<networkID->name()<<": '"<<nodeStatus[i]<<"'"<<std::endl;
 					if (nodeStatus[i] >= 1)
 						alreadyJoined = true;
 					else
@@ -355,6 +357,7 @@ namespace	mBrane{
 			}
 
 			if (!alreadyJoined) {
+			//	Node::Get()->trace(Node::NETWORK)<<"> Node join init: "<<networkID->name()<<":"<<NID<<std::endl;
 				Space::Init(NID);
 
 				for(uint32	i=0;i<ModuleDescriptor::Config.count();i++)	{ //	resolve host names into NID
@@ -381,7 +384,7 @@ namespace	mBrane{
 		m->send_ts()=this->time();
 		Messaging::send(m,LOCAL);
 
-		Node::Get()->trace(Node::NETWORK)<<"> Node joined: "<<networkID->name()<<":"<<NID<<"("<<connectedNodeCount<<" of "<<nodeCount<<" - "<<nodeJoined<<")"<<std::endl;
+		Node::Get()->trace(Node::NETWORK)<<"> Node joined: "<<networkID->name()<<":"<<NID<<std::endl;
 	}
 
 	void	Node::notifyNodeLeft(uint16	NID){
