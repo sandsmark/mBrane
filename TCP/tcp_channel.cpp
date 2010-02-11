@@ -30,6 +30,18 @@
 
 #include	"tcp_channel.h"
 
+#if defined (WINDOWS)
+#include	<iphlpapi.h>
+#endif
+
+#if defined (LINUX)
+#include	<unistd.h>
+#include	<fcntl.h>
+#include	<netinet/tcp.h>
+#include	<errno.h>
+#include	<sys/ioctl.h>
+#include	<net/if.h>
+#endif
 
 using	namespace	mBrane;
 using	namespace	mBrane::sdk;
@@ -37,16 +49,25 @@ using	namespace	mBrane::sdk;
 TCPChannel::TCPChannel(mBrane::socket	s):ConnectedCommChannel(),s(s){
 	bufferLen = 0;
 	buffer = NULL;
-	bufferContentLen = 0;
-	bufferContentPos = 0;
+	bufferPos = 0;
 	initialiseBuffer(4096);
+
+	struct linger ling = {1, 0};
+	setsockopt(s, SOL_SOCKET, SO_LINGER, (char *)&ling, sizeof(ling));
+
+	char delay = 1;
+	setsockopt(s, IPPROTO_TCP, TCP_NODELAY, (char*) &delay, sizeof(delay));
+
 	#if defined(WINDOWS)
-		unsigned long parm = 0; // 1 = Non-blocking, 0 = Blocking
+		// Set non-blocking mode
+		unsigned long parm = 1; // 1 = Non-blocking, 0 = Blocking
 		ioctlsocket(s, FIONBIO, &parm);
+		// Set no linger
 	#else
+		// Set non-blocking mode
 		long parm = fcntl(s, F_GETFL);
-		//parm |= O_NONBLOCK;
-		parm &= (!O_NONBLOCK);
+		parm |= O_NONBLOCK;
+		//parm &= (!O_NONBLOCK);
 		fcntl(s, F_SETFL, parm);
 	#endif
 }
@@ -56,8 +77,7 @@ TCPChannel::~TCPChannel(){
 	if (buffer != NULL)
 		delete(buffer);
 	bufferLen = 0;
-	bufferContentLen = 0;
-	bufferContentPos = 0;
+	bufferPos = 0;
 	buffer = NULL;
 	tcpCS.leave();
 	closesocket(s);
@@ -70,8 +90,7 @@ bool	TCPChannel::initialiseBuffer(uint32 len) {
 		delete(buffer);
 	bufferLen = len;
 	buffer = new char[len];
-	bufferContentLen = 0;
-	bufferContentPos = 0;
+	bufferPos = 0;
 	tcpCS.leave();
 	return true;
 }
@@ -90,42 +109,53 @@ int16	TCPChannel::send(uint8	*b,size_t	s){
 
 int16	TCPChannel::recv(uint8	*b,size_t	s,bool	peek){
 
+	int32 wsaError;
 	tcpCS.enter();
 
-	if (s > bufferLen) {
+	while (s > bufferLen) {
 		tcpCS.leave();
 		initialiseBuffer(s * 2);
 		tcpCS.enter();
 	}
 
 	// Do we have enough data in the buffer already
-	if (bufferContentLen - bufferContentPos < s) {
-		// if not, discard what we have in the buffer now
-		bufferContentLen = bufferContentPos = 0;
-		// and read from the socket
-		int count = ::recv(this->s,buffer,bufferLen,0);
-		if(count==SOCKET_ERROR) {
-			printLastOSErrorMessage("Error: TCPChannel::recv");
-			tcpCS.leave();
-			return	1;
+	while (bufferPos < s) {
+		// read from the socket
+		int count = ::recv(this->s,buffer+bufferPos,bufferLen-bufferPos,0);
+		//int count = ::recv(this->s,buffer,s,0);
+		if (count==SOCKET_ERROR) {
+			wsaError = getLastOSErrorNumber();
+			if ((wsaError == SOCKETWOULDBLOCK) || (wsaError == EAGAIN))
+				WaitForSocketReadability(this->s, 10);
+			else {
+				printLastOSErrorMessage("Error: TCPChannel::recv");
+				tcpCS.leave();
+				return	1;
+			}
 		}
-		bufferContentLen = count;
+		else if (count == 0) {
+			WaitForSocketReadability(this->s, 10);
+		}
+		else
+			bufferPos += count;
 //		PrintBinary(buffer, bufferContentLen, true, "TCP Received");
 		// std::cout<<"Info: Not enough data in buffer, received "<<count<<" bytes from socket..."<<std::endl;
 	}
 
-	// Do we now have enough data in the buffer
-	if (bufferContentLen - bufferContentPos < s) {
-		// if not, we give up
-		tcpCS.leave();
-		std::cout<<"TCP Error: Not enough data in buffer, have "<<bufferContentLen-bufferContentPos<<" bytes, need "<<s<<" bytes..."<<std::endl;
-		return	1;
-	}
+	//// Do we now have enough data in the buffer
+	//if (bufferContentLen - bufferContentPos < s) {
+	//	// if not, we give up
+	//	tcpCS.leave();
+	//	std::cout<<"TCP Error: Not enough data in buffer, have "<<bufferContentLen-bufferContentPos<<" bytes, need "<<s<<" bytes..."<<std::endl;
+	//	return	1;
+	//}
 
 	// if yes, great
-	memcpy(b, buffer+bufferContentPos, s);
-	if (!peek)
-		bufferContentPos += s;
+	memcpy(b, buffer, s);
+	if (!peek) {
+		memcpy(buffer, buffer+s, bufferLen - s);
+		bufferPos -= s;
+	}
 	tcpCS.leave();
 //	std::cout<<"Info: Read "<<s<<" bytes from buffer, "<<bufferContentLen-bufferContentPos<<" bytes left..."<<std::endl;
 	return 0;

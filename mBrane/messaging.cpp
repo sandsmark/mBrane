@@ -58,7 +58,7 @@ namespace	mBrane{
 				// continue;
 				thread_ret_val(0);
 			}
-			printf("RecvThread::ReceiveMessages::recv took %uus...\n", Time::Get()-t);
+			// printf("RecvThread::ReceiveMessages::recv took %uus...\n", Time::Get()-t);
 			uint64 t0, t1, t2, t3;
 			uint64 start = Time::Get();
 			P<_Payload>	_p=p;
@@ -78,8 +78,7 @@ namespace	mBrane{
 				t2 = p->node_send_ts();
 				t3 = start;
 				_this->node->timeDrift = t0 - t1 - (t3 - t0 - t2 + t1)/2;
-				printf("timeDrift = %u\n", _this->node->timeDrift);
-				printf("RTT = %.3f\n", (t3 - t0 - (t2 - t1))/2.0);
+				printf("*** timeDrift = %llu       RTT = %d (+ %d = %d)\n", _this->node->timeDrift, (int32)(t3 - t0 - (t2 - t1)), (int32)(t2 - t1), (int32)(t3 - t0));
 			//		((SyncEcho*)p)->t0 - ((SyncEcho*)p)->t1 -
 			//		   (p->node_recv_ts() - ((SyncEcho*)p)->t0 - p->node_send_ts() + ((SyncEcho*)p)->t1)/2;
 				

@@ -66,7 +66,6 @@ public:
 	void	fillID(uint8	*ID);
 	uint16	newChannel(uint8	*ID,CommChannel	**channel);
 	uint16	acceptConnection(ConnectedCommChannel	**channel,int32	timeout,bool	&timedout);
-	bool waitForReadability(int32 timeout);
 };
 
 

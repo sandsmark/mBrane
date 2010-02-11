@@ -59,6 +59,8 @@
 //	Wrapping of OS-dependent functions
 namespace	mBrane{
 
+	bool dll	WaitForSocketReadability(socket s, int32 timeout);
+
 	int32 dll	getLastOSErrorNumber();
 	bool dll	getOSErrorMessage(char* buffer, uint32 buflen, int32 err = -1);
 	bool dll	printLastOSErrorMessage(const char* title);

@@ -39,14 +39,19 @@
 using	namespace	mBrane;
 using	namespace	mBrane::sdk;
 
+#ifdef WINDOWS
+	#define SOCKETWOULDBLOCK WSAEWOULDBLOCK
+#else
+	#define SOCKETWOULDBLOCK EINPROGRESS
+#endif
+
 class	TCPChannel:
 public	ConnectedCommChannel{
 private:
 	CriticalSection	tcpCS;
 	uint32 bufferLen;
+	uint32 bufferPos;
 	char* buffer;
-	uint32 bufferContentLen;
-	uint32 bufferContentPos;
 	mBrane::socket	s;
 	bool	initialiseBuffer(uint32 len);
 public:

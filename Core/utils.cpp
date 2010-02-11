@@ -975,4 +975,34 @@ bool getOSErrorMessage(char* buffer, uint32 buflen, int32 err) {
 	return true;
 }
 
+bool dll	WaitForSocketReadability(socket s, int32 timeout) {
+
+	int maxfd = 0;
+
+	struct timeval tv;
+	tv.tv_sec = 0;
+	tv.tv_usec = 0;
+
+	fd_set rdds;
+	// create a list of sockets to check for activity
+	FD_ZERO(&rdds);
+	// specify mySocket
+	FD_SET(s, &rdds);
+
+	#ifdef WINDOWS
+	#else
+		maxfd = s + 1;
+	#endif
+
+	if (timeout > 0) {
+		ldiv_t d = ldiv(timeout*1000, 1000000);
+		tv.tv_sec = d.quot;
+		tv.tv_usec = d.rem;
+	}
+
+	// Check for readability
+	int ret = select(maxfd, &rdds, NULL, NULL, &tv);
+	return(ret > 0);
+}
+
 }

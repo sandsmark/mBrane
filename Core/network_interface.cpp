@@ -104,7 +104,10 @@ namespace	mBrane{
 			AllocationScheme	a=(AllocationScheme)(metaData	&	0x0000000000000003);
 			ClassRegister		*CR=ClassRegister::Get((uint16)(metaData >> 16));
 			uint32	size;
-			if(a==RAW) {
+			if (CR == NULL) {
+				return -1;
+			}
+			else if(a==RAW) {
 				size=((uint32)metaData)>>2;
 			//	std::cout<<"Info: Receiving payload type '"<<CR->class_name<<"' ["<<(metaData>>16)<<"] (RAW) size '"<<size<<"'..."<<std::endl;
 			}
@@ -147,7 +150,7 @@ namespace	mBrane{
 
 		int16	CommChannel::send(_Payload	*p){
 
-			p->node_send_ts()=Time::Get();
+		//	p->node_send_ts()=Time::Get();
 			return	_send(p);
 		}
 
@@ -156,7 +159,7 @@ namespace	mBrane{
 			int16	r;
 			if(r=_recv((__Payload	**)p))
 				return	r;
-			(*p)->node_recv_ts()=Time::Get();
+		//	(*p)->node_recv_ts()=Time::Get();
 			return	0;
 		}
 

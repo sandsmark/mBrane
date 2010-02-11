@@ -323,7 +323,7 @@ uint16	TCPInterface::acceptConnection(ConnectedCommChannel	**channel,int32	timeo
 	if ((int) _s < 0) {
 		int wsaError = getLastOSErrorNumber();
 		if ((wsaError == WSAEWOULDBLOCK) || (wsaError == EINPROGRESS)) {
-			if (!waitForReadability(timeout)) {
+			if (!WaitForSocketReadability(s, timeout)) {
 				timedout = true;
 				return 0;
 			}
@@ -356,34 +356,4 @@ uint16	TCPInterface::acceptConnection(ConnectedCommChannel	**channel,int32	timeo
 	return	0;
 }
 
-
-bool TCPInterface::waitForReadability(int32 timeout) {
-
-	int maxfd = 0;
-
-	struct timeval tv;
-	tv.tv_sec = 0;
-	tv.tv_usec = 0;
-
-	fd_set rdds;
-	// create a list of sockets to check for activity
-	FD_ZERO(&rdds);
-	// specify mySocket
-	FD_SET(s, &rdds);
-
-	#ifdef WINDOWS
-	#else
-		maxfd = s + 1;
-	#endif
-
-	if (timeout > 0) {
-		ldiv_t d = ldiv(timeout*1000, 1000000);
-		tv.tv_sec = d.quot;
-		tv.tv_usec = d.rem;
-	}
-
-	// Check for readability
-	int ret = select(maxfd, &rdds, NULL, NULL, &tv);
-	return(ret > 0);
-}
 
