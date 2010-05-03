@@ -605,6 +605,7 @@ err2:	delete	networkID;
 
 	uint16	Networking::connect(NetworkID	*networkID){
 
+		std::cout<<"> Info: From map connecting to "<<networkID->NID()<<"..."<<std::endl;
 		switch(network){
 		case	BOTH:
 		case	PRIMARY:
@@ -802,7 +803,7 @@ err2:	delete	networkID;
 				node->acceptConnectionCS.leave();
 				thread_ret_val(0);
 			}
-			//std::cout<<"Info: Processing acceptConnection for protocol "<< (uint32)networkInterface->protocol()<<"..."<<std::endl;
+			std::cout<<"Info: Processing acceptConnection for protocol "<< (uint32)networkInterface->protocol()<<"..."<<std::endl;
 			
 			//	non reference nodes
 			decidedRefNode = true;
@@ -819,7 +820,7 @@ err2:	delete	networkID;
 
 			//		std::cout<<"Info: Got assigned NodeID ["<<assignedNID<<"]..."<<std::endl;
 					node->start(assignedNID,networkID,false);
-					std::cout<<"> Info: My NodeID is now ["<<networkID->NID()<<"]..."<<std::endl;
+					std::cout<<"> Info: My NodeID is now ["<<assignedNID<<"] assigned by ["<<networkID->NID()<<"]..."<<std::endl;
 					if(r=node->recvMap(c))
 						goto	err0;
 				}
@@ -858,9 +859,13 @@ err2:	delete	networkID;
 				break;
 			}
 			if(start){
+				std::cout<<"> >>>>> Info: Starting connection from ["<<remoteNID<<"]..."<<std::endl;
 				node->connectedNodeCount++;
 				node->startReceivingThreads(remoteNID);
 				node->notifyNodeJoined(remoteNID,node->dataChannels[remoteNID]->networkID);
+			}
+			else {
+				std::cout<<"> >>>>> Info: Not starting connection from ["<<remoteNID<<"]..."<<std::endl;
 			}
 			node->acceptConnectionCS.leave();
 		}

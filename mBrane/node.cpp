@@ -203,26 +203,37 @@ namespace	mBrane{
 	bool	Node::allNodesJoined() {
 		// don't check reference node = 0
 		for(uint16	i=1;i<nodeNames.count();i++) {
-			if (nodeStatus[i] < 1)
+			if (nodeStatus[i] < 1) {
+				printf("Still waiting for Node '%s' (%u of %u) to join... \n", nodeNames[i], i, nodeNames.count());
 				return false;
+			}
 		}
+		printf("All %u Nodes joined... \n", nodeNames.count());
 		return	true;
 	}
 
 	bool	Node::allNodesReady() {
 		// don't check reference node = 0
 		for(uint16	i=1;i<nodeNames.count();i++) {
-			if (nodeStatus[i] != 2)
+			if (nodeStatus[i] != 2) {
+				printf("Still waiting for Node '%s' (%u of %u) to get ready... \n", nodeNames[i], i, nodeNames.count());
 				return false;
+			}
 		}
+		printf("All %u Nodes ready... \n", nodeNames.count());
 		return	true;
 	}
 
 	bool	Node::checkSyncProbe(uint16 syncNodeID) {
 		if (nodeStatus[syncNodeID] != 2) {
 			nodeStatus[syncNodeID] = 2;
+			printf("Node '%s' set to ready... \n", nodeNames[syncNodeID]);
 			if (allNodesReady()) {
+				printf("SystemReady... \n");
 				Node::systemReady();
+			}
+			else {
+				printf("Not sending SystemReady... \n");
 			}
 		}
 		return	true;
@@ -345,7 +356,7 @@ namespace	mBrane{
 
 			bool alreadyJoined = false;
 			for(uint16	i=0;i<nodeNames.count();i++) {
-			//	printf("Node join check '%s' == '%s'... \n", nodeNames[i],networkID->name());
+				printf("Node join check '%s' == '%s'... \n", nodeNames[i],networkID->name());
 				if(stricmp(nodeNames[i],networkID->name())==0){
 				//	Node::Get()->trace(Node::NETWORK)<<"> Node join status: "<<networkID->name()<<": '"<<nodeStatus[i]<<"'"<<std::endl;
 					if (nodeStatus[i] >= 1)
@@ -357,7 +368,7 @@ namespace	mBrane{
 			}
 
 			if (!alreadyJoined) {
-			//	Node::Get()->trace(Node::NETWORK)<<"> Node join init: "<<networkID->name()<<":"<<NID<<std::endl;
+				Node::Get()->trace(Node::NETWORK)<<"> Node join init: "<<networkID->name()<<":"<<NID<<std::endl;
 				Space::Init(NID);
 
 				for(uint32	i=0;i<ModuleDescriptor::Config.count();i++)	{ //	resolve host names into NID
