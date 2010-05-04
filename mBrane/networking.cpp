@@ -788,14 +788,18 @@ err2:	delete	networkID;
 		bool decidedRefNode = false;
 		while(!node->_shutdown){
 
+			std::cout<<"   ---- 0 ---- AcceptConnection "<< (uint32)networkInterface->protocol()<<"..."<<std::endl;
+
 			if(r=networkInterface->acceptConnection(&c,timeout,timedout)) {
 				std::cout<<"Error: Networking Interface acceptConnection"<<std::endl;
 				goto	err1;
 			}
 
+			std::cout<<"   ---- 1 ---- AcceptConnection "<< (uint32)networkInterface->protocol()<<"..."<<std::endl;
 			// ######### if we already have received a connection, don't startup as ref node
 
 			node->acceptConnectionCS.enter();
+			std::cout<<"   ---- 2 ---- AcceptConnection "<< (uint32)networkInterface->protocol()<<"..."<<std::endl;
 
 			if ( (!decidedRefNode) && (category==_Payload::CONTROL) && (timedout) ) {	//	reference node
 				std::cout<<"> Info: Starting up as Reference Node..."<<std::endl;
@@ -811,11 +815,14 @@ err2:	delete	networkID;
 
 				// uint16	assignedNID;
 			//	std::cout<<"Info: Receiving incoming control connection..."<<std::endl;
+				std::cout<<"   ---- 3.1 ---- AcceptConnection "<< (uint32)networkInterface->protocol()<<"..."<<std::endl;
 				if(r=node->recvID(c,networkID))
 					goto	err0;
+				std::cout<<"   ---- 3.2 ---- AcceptConnection "<< (uint32)networkInterface->protocol()<<"...ID:"<< networkID->NID()<<"..."<<std::endl;
 			//	std::cout<<"Info: Preparing to receive assigned NodeID..."<<std::endl;
 				if(r=c->recv((uint8	*)&assignedNID,sizeof(uint16)))
 					goto	err0;
+				std::cout<<"   ---- 3.3 ---- AcceptConnection "<< (uint32)networkInterface->protocol()<<"...Assign:"<< assignedNID<<"..."<<std::endl;
 				if(assignedNID!=NoID){
 
 			//		std::cout<<"Info: Got assigned NodeID ["<<assignedNID<<"]..."<<std::endl;
@@ -827,10 +834,13 @@ err2:	delete	networkID;
 			}
 			else if ( (category==_Payload::DATA) || (category==_Payload::STREAM) ) {
 				// Just receive the remote NetworkID
+				std::cout<<"   ---- 3.3 ---- AcceptConnection "<< (uint32)networkInterface->protocol()<<"..."<<std::endl;
 				if(r=node->recvID(c,networkID))
 					goto	err0;
+				std::cout<<"   ---- 3.4 ---- AcceptConnection "<< (uint32)networkInterface->protocol()<<"...ID:"<< networkID->NID()<<"..."<<std::endl;
 			}
 
+			std::cout<<"   ---- 4 ---- AcceptConnection "<< (uint32)networkInterface->protocol()<<"..."<<std::endl;
 //			uint16	remoteNID=((uint16	*)networkID)[0];
 			uint16	remoteNID=networkID->NID();
 			node->dataChannels[remoteNID]->networkID=networkID;
@@ -858,6 +868,7 @@ err2:	delete	networkID;
 			default:
 				break;
 			}
+			std::cout<<"   ---- 5 ---- AcceptConnection "<< (uint32)networkInterface->protocol()<<"..."<<std::endl;
 			if(start){
 				std::cout<<"> >>>>> Info: Starting connection from ["<<remoteNID<<"]..."<<std::endl;
 				node->connectedNodeCount++;
@@ -867,7 +878,9 @@ err2:	delete	networkID;
 			else {
 				std::cout<<"> >>>>> Info: Not starting connection from ["<<remoteNID<<"]..."<<std::endl;
 			}
+			std::cout<<"   ---- 6 ---- AcceptConnection "<< (uint32)networkInterface->protocol()<<"..."<<std::endl;
 			node->acceptConnectionCS.leave();
+			std::cout<<"   ---- 7 ---- AcceptConnection "<< (uint32)networkInterface->protocol()<<"..."<<std::endl;
 		}
 		delete	acargs;
 		node->acceptConnectionCS.leave();

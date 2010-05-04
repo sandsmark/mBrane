@@ -288,8 +288,8 @@ uint16	TCPInterface::newChannel(uint8	*ID,CommChannel	**channel){	//	connect to 
 		return	1;
 	}
 
-	// std::cout<<"> Info: Opened TCP connection to "<<inet_ntoa(*(struct in_addr *)ID)<<
-	//	":" << (unsigned short)*((uint32 *)(ID+sizeof(struct in_addr))) << std::endl;
+	std::cout<<"> Info: Opened TCP connection to "<<inet_ntoa(*(struct in_addr *)ID)<<
+		":" << (unsigned short)*((uint32 *)(ID+sizeof(struct in_addr))) << std::endl;
 	*channel=new	TCPChannel(s);
 	
 	return	0;
@@ -297,7 +297,7 @@ uint16	TCPInterface::newChannel(uint8	*ID,CommChannel	**channel){	//	connect to 
 
 uint16	TCPInterface::acceptConnection(ConnectedCommChannel	**channel,int32	timeout,bool	&timedout){
 
-	// std::cout<<"> Info: Listening for TCP connection on port " << port << std::endl;
+	std::cout<<"> Info: Listening for TCP connection on port " << port << std::endl;
 
 	// Set blocking mode
 	#if defined(WINDOWS)
@@ -351,7 +351,7 @@ uint16	TCPInterface::acceptConnection(ConnectedCommChannel	**channel,int32	timeo
 	timedout = false;
 	*channel=new	TCPChannel(_s);
       
-	// std::cout<<"> Info: Accepted TCP connection ["<<(int)_s<<"] to port " << port << std::endl;
+	std::cout<<"> Info: Accepted TCP connection ["<<(int)_s<<"] to port " << port << std::endl;
 
 	return	0;
 }
