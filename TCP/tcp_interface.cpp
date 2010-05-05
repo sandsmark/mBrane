@@ -288,8 +288,8 @@ uint16	TCPInterface::newChannel(uint8	*ID,CommChannel	**channel){	//	connect to 
 		return	1;
 	}
 
-	std::cout<<"> Info: Opened TCP connection to "<<inet_ntoa(*(struct in_addr *)ID)<<
-		":" << (unsigned short)*((uint32 *)(ID+sizeof(struct in_addr))) << std::endl;
+	//std::cout<<"> Info: Opened TCP connection to "<<inet_ntoa(*(struct in_addr *)ID)<<
+	//	":" << (unsigned short)*((uint32 *)(ID+sizeof(struct in_addr))) << std::endl;
 	*channel=new	TCPChannel(s);
 	
 	return	0;

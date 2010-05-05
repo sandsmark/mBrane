@@ -87,7 +87,7 @@ namespace	mBrane{
 			case	SyncProbe_CID:	//	ref node, echo
 				// Now the sending Node is definitely up and running...
 				_this->node->checkSyncProbe(((SyncProbe*)p)->node_id);
-				std::cout<<"> Info: Receiving SyncProbe from "<< ((SyncProbe*)p)->node_id <<" "<<std::endl;
+				// std::cout<<"> Info: Receiving SyncProbe from "<< ((SyncProbe*)p)->node_id <<" "<<std::endl;
 				echo=new	SyncEcho();
 				// echo->time=Time::Get();
 				echo->t0 = p->node_send_ts();
