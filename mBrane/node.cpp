@@ -515,6 +515,67 @@ namespace	mBrane{
 			return	Time::Get()-timeDrift;
 	}
 
+	void	Node::send(const	_Module	*sender,_Payload	*message, Array<uint16, 128>	*nodeIDs,Network	network){
+
+		for (uint16 n=0; n<nodeIDs->count(); n++) {
+			send(sender, message, *nodeIDs->get(n), network);
+		}
+	}
+
+	void	Node::send(const	_Module	*sender,_Payload	*message, uint16	nodeID,Network	network){
+
+		message->send_ts()=this->time();
+		_Payload::Category	cat= message->category();
+
+		MessageSlot	out;
+		out.p=message;
+		out.network=network;
+
+		if(out.network==module::Node::LOCAL){
+				
+			message->node_recv_ts()=this->time();
+			this->messageInputQueue.push(out.p);
+		}else{
+
+			switch(cat){
+				case	_Payload::CONTROL:
+					this->broadcastControlMessage(message,out.network);
+					message->node_recv_ts()=this->time();
+					this->messageInputQueue.push(out.p);
+					break;
+				case	_Payload::STREAM:	//	find target remote nodes; send on data/stream channels; push in messageInputQueue if the local node is a target
+					{
+					if(nodeID==this->_ID) {
+					//	printf("Sending message (%u) as stream locally...\n", p->cid());
+						message->node_recv_ts()=this->time();
+						this->messageInputQueue.push(out.p);
+					}
+					else {
+					//	printf("Sending message (%u) as stream network...\n", p->cid());
+						this->sendStreamData(nodeID,message,out.network);
+					}
+					}break;
+				case	_Payload::DATA:
+					{
+					_Message	*_m=message->as_Message();
+					_m->senderModule_cid()=sender->descriptor->CID;
+					_m->senderModule_id()=sender->descriptor->ID;
+					if(nodeID==this->_ID) {
+					//	printf("Sending message (%u) as data locally...\n", p->cid());
+						message->node_recv_ts()=this->time();
+						this->messageInputQueue.push(out.p);
+					}
+					else {
+					//	printf("Sending message (%u) as data network...\n", p->cid());
+						this->sendData(nodeID,message,out.network);
+					}
+					}
+			}
+		}
+
+
+	}
+
 	void	Node::send(const	_Module	*sender,_Payload	*message,Network	network){
 
 		message->send_ts()=this->time();
