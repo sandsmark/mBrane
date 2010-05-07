@@ -34,7 +34,7 @@
 using	namespace	mBrane;
 using	namespace	mBrane::sdk;
 
-UDPChannel::UDPChannel(mBrane::socket	s,uint32	port):BroadcastCommChannel(),s(s){
+UDPChannel::UDPChannel(core::socket	s,uint32	port):BroadcastCommChannel(),s(s){
 
 	bcast_address.sin_family=AF_INET;
 	bcast_address.sin_port=htons((unsigned short)port);
@@ -95,7 +95,7 @@ int16	UDPChannel::recv(uint8	*b,size_t	s,bool	peek){
 		// and read from the socket
 		int count = ::recvfrom(this->s,buffer,bufferLen,0,NULL,0);
 		if(count==SOCKET_ERROR) {
-			printLastOSErrorMessage("Error: UDPChannel::recv");
+			Error::PrintLastOSErrorMessage("Error: UDPChannel::recv");
 			udpCS.leave();
 			return	1;
 		}

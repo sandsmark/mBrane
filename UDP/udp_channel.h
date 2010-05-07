@@ -42,7 +42,7 @@ using	namespace	mBrane::sdk;
 class	UDPChannel:
 public	BroadcastCommChannel{
 private:
-	mBrane::socket	s;
+	core::socket	s;
 	sockaddr_in		bcast_address;
 	uint32 bufferLen;
 	char* buffer;
@@ -51,7 +51,7 @@ private:
 	CriticalSection	udpCS;
 	bool	initialiseBuffer(uint32 len);
 public:
-	UDPChannel(mBrane::socket	s,uint32	port);
+	UDPChannel(core::socket	s,uint32	port);
 	~UDPChannel();
 	int16	send(uint8	*b,size_t	s);
 	int16	recv(uint8	*b,size_t	s,bool	peek=false);

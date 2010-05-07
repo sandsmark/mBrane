@@ -31,7 +31,7 @@
 #ifndef	mBrane_udp_h
 #define	mBrane_udp_h
 
-#include	"../Core/xml_parser.h"
+#include	"xml_parser.h"
 #include	"../Core/network_interface.h"
 
 

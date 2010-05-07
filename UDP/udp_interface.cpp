@@ -223,7 +223,7 @@ void	UDPInterface::fillID(uint8	*ID){	//	address|port
 
 uint16	UDPInterface::newChannel(uint8	*ID,CommChannel	**channel){
 
-	mBrane::socket	s;
+	core::socket	s;
 	if((s=::socket(AF_INET,SOCK_DGRAM,IPPROTO_UDP))==SOCKET_ERROR){
 
 		closesocket(s);

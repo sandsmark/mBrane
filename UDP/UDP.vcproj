@@ -41,6 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="&quot;$(CORE_LIBRARY_DIR)\CoreLibrary&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;UDP_EXPORTS"
 				MinimalRebuild="true"
 				ExceptionHandling="0"
@@ -62,9 +63,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Core.lib WS2_32.lib Iphlpapi.lib"
+				AdditionalDependencies="Core.lib WS2_32.lib Iphlpapi.lib CoreLibrary.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="$(OutDir)"
+				AdditionalLibraryDirectories="$(OutDir);$(CORE_LIBRARY_DIR)\Debug"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -121,6 +122,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
+				AdditionalIncludeDirectories="&quot;$(CORE_LIBRARY_DIR)\CoreLibrary&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;UDP_EXPORTS"
 				ExceptionHandling="0"
 				RuntimeLibrary="2"
@@ -141,9 +143,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Core.lib WS2_32.lib Iphlpapi.lib"
+				AdditionalDependencies="Core.lib WS2_32.lib Iphlpapi.lib CoreLibrary.lib"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="$(OutDir)"
+				AdditionalLibraryDirectories="$(OutDir);$(CORE_LIBRARY_DIR)\Release"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
