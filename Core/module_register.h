@@ -40,7 +40,7 @@ namespace	mBrane{
 
 		//	Allows to retrieve module class data from module class IDs.
 		//	Allows to retrieve module class IDs from module class names.
-		class	dll	ModuleRegister{
+		class	mBrane_dll	ModuleRegister{
 		public:
 			typedef	module::_Module	*(*ModuleBuilder)();
 		private:

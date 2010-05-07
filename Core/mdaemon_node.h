@@ -47,7 +47,7 @@ namespace	mBrane{
 
 			class	Daemon;
 			//	Node API, as seen from the daemons
-			class	dll	Node:
+			class	mBrane_dll	Node:
 			public	module::Node{
 			friend	class	RecvThread;
 			friend	class	PushThread;
@@ -79,7 +79,7 @@ namespace	mBrane{
 				//				- logical topology, i.e. affinities between modules; traffic between nodes in light of traffic between modules
 			};
 
-			class	dll	Daemon{
+			class	mBrane_dll	Daemon{
 			protected:
 				Node	*const	node;
 				Daemon(Node	*node);
