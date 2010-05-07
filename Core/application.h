@@ -49,7 +49,7 @@
 
 
 template<class	U>	class	Module:
-public	Object<Memory,module::_Module,U>{
+public	mBrane::sdk::Object<Memory,module::_Module,U>{
 protected:
 	static	const	uint16	_CID;
 	Module(bool	canMigrate=true):Object<Memory,module::_Module,U>(){
@@ -105,7 +105,7 @@ template<class	U>	const	uint16	Module<U>::_CID=ModuleRegister::Load(New,U::Class
 //	to use in user module cpp files; forces the intitialization of Module<U>::_CID
 #define	LOAD_MODULE(C)	static	uint16	cid_##C=C::CID();
 
-//	force _MetaData initilization in user dll.
+//	force _MetaData initilization in user mBrane_dll.
 #undef MBRANE_MESSAGE_CLASS
 #define	MBRANE_MESSAGE_CLASS(C)		static	const	uint64	C##_force_init=C::_MetaData;
 #include	APPLICATION_CLASSES
@@ -140,7 +140,7 @@ public:	\
 const	char	*C::ClassName=#C;	\
 extern	"C"{	\
 	mBrane::sdk::module::_Module *	cdecl	New##C(){	return	new	C();	}	\
-	const	mBrane::uint16	C##_CID(){	return	C::CID();	}	\
+	const	core::uint16	C##_CID(){	return	C::CID();	}	\
 }
 
 
