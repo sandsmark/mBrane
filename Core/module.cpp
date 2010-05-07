@@ -45,7 +45,7 @@ namespace	mBrane{
 			_Module::~_Module(){
 				
 				delete	sync;
-				Node::Get()->trace(Node::EXECUTION)<<"Module "<<_cid<<"|"<<_id<<" deleted\n";
+				Node::Get()->trace(Node::EXECUTION)<<"Module "<<_cid<<"|"<<_id<<" deleted"<<std::endl;
 			}
 
 			inline	uint8	&_Module::priority(){
