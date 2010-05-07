@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="Core"
 	ProjectGUID="{458D8636-9459-4345-A5A6-E14B4F30F8EF}"
 	RootNamespace="Core"
@@ -41,7 +41,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;CORE_EXPORTS;BUILD_DLL"
+				AdditionalIncludeDirectories="&quot;$(CORE_LIBRARY_DIR)\CoreLibrary&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;CORE_EXPORTS"
 				MinimalRebuild="true"
 				ExceptionHandling="0"
 				BasicRuntimeChecks="3"
@@ -62,8 +63,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="WS2_32.lib"
+				AdditionalDependencies="WS2_32.lib CoreLibrary.lib"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="$(CORE_LIBRARY_DIR)\Debug"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -120,7 +122,9 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;CORE_EXPORTS;BUILD_DLL"
+				EnableFiberSafeOptimizations="false"
+				AdditionalIncludeDirectories="&quot;$(CORE_LIBRARY_DIR)\CoreLibrary&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;CORE_EXPORTS"
 				ExceptionHandling="0"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -140,8 +144,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="WS2_32.lib"
+				AdditionalDependencies="WS2_32.lib CoreLibrary.lib"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="$(CORE_LIBRARY_DIR)\Release"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -403,34 +408,6 @@
 					/>
 				</FileConfiguration>
 			</File>
-			<File
-				RelativePath=".\utils.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\utils.tpl.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\xml_parser.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -523,18 +500,6 @@
 			</File>
 			<File
 				RelativePath=".\pipe.h"
-				>
-			</File>
-			<File
-				RelativePath=".\types.h"
-				>
-			</File>
-			<File
-				RelativePath=".\utils.h"
-				>
-			</File>
-			<File
-				RelativePath=".\xml_parser.h"
 				>
 			</File>
 		</Filter>
