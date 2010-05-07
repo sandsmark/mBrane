@@ -38,17 +38,17 @@ namespace	mBrane{
 	namespace	sdk{
 		namespace	payloads{
 
-			class	dll	SystemReady:	//	sent when all the nodes specified in the node cfg file are up and running
+			class	mBrane_dll	SystemReady:	//	sent when all the nodes specified in the node cfg file are up and running
 			public	ControlMessage<SystemReady>{
 			};
 
-			class	dll	SyncProbe:
+			class	mBrane_dll	SyncProbe:
 			public	ControlMessage<SyncProbe>{
 			public:
 				uint16	node_id;
 			};
 
-			class	dll	SyncEcho:
+			class	mBrane_dll	SyncEcho:
 			public	ControlMessage<SyncEcho>{
 			public:
 				int64	t0;	//	from probe node_send_ts
@@ -57,19 +57,19 @@ namespace	mBrane{
 				// t3 is recorded in echo node_recv_ts
 			};
 
-			class	dll	NodeJoined:
+			class	mBrane_dll	NodeJoined:
 			public	ControlMessage<NodeJoined>{
 			public:
 				uint16	node_id;
 			};
 
-			class	dll	NodeLeft:
+			class	mBrane_dll	NodeLeft:
 			public	ControlMessage<NodeLeft>{
 			public:
 				uint16	node_id;
 			};
 
-			class	dll	SetThreshold:
+			class	mBrane_dll	SetThreshold:
 			public	ControlMessage<SetThreshold>{
 			public:
 				uint16	host_id;
@@ -77,7 +77,7 @@ namespace	mBrane{
 				float32	threshold;
 			};
 
-			class	dll	ActivateModule:
+			class	mBrane_dll	ActivateModule:
 			public	ControlMessage<ActivateModule>{
 			public:
 				uint16	host_id;
@@ -87,7 +87,7 @@ namespace	mBrane{
 				float32	activationLevel;
 			};
 
-			class	dll	ActivateSpace:
+			class	mBrane_dll	ActivateSpace:
 			public	ControlMessage<ActivateSpace>{
 			public:
 				uint16	host_id;
@@ -105,31 +105,31 @@ namespace	mBrane{
 				uint16	space_id;
 			};
 
-			class	dll	SubscribeMessage:
+			class	mBrane_dll	SubscribeMessage:
 			public	Subscribe<SubscribeMessage>{
 			public:
 				uint16	message_cid;
 			};
 
-			class	dll	UnsubscribeMessage:
+			class	mBrane_dll	UnsubscribeMessage:
 			public	Subscribe<UnsubscribeMessage>{
 			public:
 				uint16	message_cid;
 			};
 
-			class	dll	SubscribeStream:
+			class	mBrane_dll	SubscribeStream:
 			public	Subscribe<SubscribeStream>{
 			public:
 				uint16	stream_id;
 			};
 
-			class	dll	UnsubscribeStream:
+			class	mBrane_dll	UnsubscribeStream:
 			public	Subscribe<UnsubscribeStream>{
 			public:
 				uint16	stream_id;
 			};
 
-			class	dll	CreateModule:
+			class	mBrane_dll	CreateModule:
 			public	ControlMessage<CreateModule>{
 			public:
 				uint16	sender_cid;
@@ -138,7 +138,7 @@ namespace	mBrane{
 				uint16	module_cid;
 			};
 
-			class	dll	DeleteModule:
+			class	mBrane_dll	DeleteModule:
 			public	ControlMessage<DeleteModule>{
 			public:
 				uint16	host_id;
@@ -146,7 +146,7 @@ namespace	mBrane{
 				uint16	module_id;
 			};
 
-			class	dll	CreateSpace:
+			class	mBrane_dll	CreateSpace:
 			public	ControlMessage<CreateSpace>{
 			public:
 				uint16	sender_cid;
@@ -154,21 +154,21 @@ namespace	mBrane{
 				uint16	host_id;
 			};
 
-			class	dll	DeleteSpace:
+			class	mBrane_dll	DeleteSpace:
 			public	ControlMessage<DeleteSpace>{
 			public:
 				uint16	host_id;
 				uint16	space_id;
 			};
 
-			class	dll	KillModule:	//	internal message issued upon reception of DeleteModule
+			class	mBrane_dll	KillModule:	//	internal message issued upon reception of DeleteModule
 			public	ControlMessage<KillModule>{
 			};
 
 			#define	MBRANE_MESSAGE_CLASS(C)	static	const	uint16	C##_CID=(uint16)__COUNTER__;
 			#include	"mBrane_message_classes.h"
 
-			void	dll	LoadControlMessageMetaData();	//	overwrites C::_MetaData with actual values (i.e. C_CID dependent) - where C is a Core-defined control message;
+			void	mBrane_dll	LoadControlMessageMetaData();	//	overwrites C::_MetaData with actual values (i.e. C_CID dependent) - where C is a Core-defined control message;
 														//	Core, mBrane and the user lib have different copies of C::_MetaData (initialized to 0xFFFFFFFFFFFFFFF) at Core loading time;
 														//	called by mBrane in main();
 														//	C::_MetaData is not used by the user lib (no instances of mBrane control messages are created: the user lib only reacts to their occurrences).
