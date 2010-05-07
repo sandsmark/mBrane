@@ -260,7 +260,7 @@ void	TCPInterface::fillID(uint8	*ID){	//	address|port
 
 uint16	TCPInterface::newChannel(uint8	*ID,CommChannel	**channel){	//	connect to a server
 
-	mBrane::socket	s;
+	core::socket	s;
 	if((s=::socket(AF_INET,SOCK_STREAM,IPPROTO_TCP))==INVALID_SOCKET){
 		std::cout<<"> Error: Could not create TCP socket to "<<inet_ntoa(*(struct in_addr *)ID)<<
 			":" << (unsigned short)*((uint32 *)(ID+sizeof(struct in_addr))) << std::endl;
@@ -280,7 +280,7 @@ uint16	TCPInterface::newChannel(uint8	*ID,CommChannel	**channel){	//	connect to 
 	addr.sin_addr=*((struct	in_addr	*)ID);
 	addr.sin_port=htons((unsigned short)*((uint32 *)(ID+sizeof(struct in_addr))));
 	if(connect(s,(SOCKADDR	*)&addr,sizeof(struct sockaddr_in))==SOCKET_ERROR){
-		getOSErrorMessage(errbuf, 1024);
+		Error::GetOSErrorMessage(errbuf, 1024);
 		std::cout<<"> Error: Could not connect TCP socket to "<<inet_ntoa(*(struct in_addr *)ID)<<
 			":" << (unsigned short)*((uint32 *)(ID+sizeof(struct in_addr))) << " - " << errbuf << std::endl;
 		closesocket(s);
@@ -318,10 +318,10 @@ uint16	TCPInterface::acceptConnection(ConnectedCommChannel	**channel,int32	timeo
 		return 1;
 	}
 
-	mBrane::socket _s = accept(s,NULL,NULL);
+	core::socket _s = accept(s,NULL,NULL);
 
 	if ((int) _s < 0) {
-		int wsaError = getLastOSErrorNumber();
+		int wsaError = Error::GetLastOSErrorNumber();
 		if ((wsaError == WSAEWOULDBLOCK) || (wsaError == EINPROGRESS)) {
 			if (!WaitForSocketReadability(s, timeout)) {
 				timedout = true;

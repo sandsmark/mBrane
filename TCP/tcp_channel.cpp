@@ -46,7 +46,7 @@
 using	namespace	mBrane;
 using	namespace	mBrane::sdk;
 
-TCPChannel::TCPChannel(mBrane::socket	s):ConnectedCommChannel(),s(s){
+TCPChannel::TCPChannel(core::socket	s):ConnectedCommChannel(),s(s){
 	bufferLen = 0;
 	buffer = NULL;
 	bufferPos = 0;
@@ -124,11 +124,11 @@ int16	TCPChannel::recv(uint8	*b,size_t	s,bool	peek){
 		int count = ::recv(this->s,buffer+bufferPos,bufferLen-bufferPos,0);
 		//int count = ::recv(this->s,buffer,s,0);
 		if (count==SOCKET_ERROR) {
-			wsaError = getLastOSErrorNumber();
+			wsaError = Error::GetLastOSErrorNumber();
 			if ((wsaError == SOCKETWOULDBLOCK) || (wsaError == EAGAIN))
 				WaitForSocketReadability(this->s, 10);
 			else {
-				printLastOSErrorMessage("Error: TCPChannel::recv");
+				Error::PrintLastOSErrorMessage("Error: TCPChannel::recv");
 				tcpCS.leave();
 				return	1;
 			}

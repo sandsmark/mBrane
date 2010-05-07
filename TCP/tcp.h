@@ -31,7 +31,7 @@
 #ifndef	mBrane_tcp_h
 #define	mBrane_tcp_h
 
-#include	"../Core/xml_parser.h"
+#include	"xml_parser.h"
 #include	"../Core/network_interface.h"
 
 

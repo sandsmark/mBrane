@@ -32,6 +32,7 @@
 #define	mBrane_tcp_channel_h
 
 #include	"../Core/network_interface.h"
+#include	"utils.h"
 #include <errno.h>
 #include <string.h>
 #include <fcntl.h>
@@ -52,10 +53,10 @@ private:
 	uint32 bufferLen;
 	uint32 bufferPos;
 	char* buffer;
-	mBrane::socket	s;
+	core::socket	s;
 	bool	initialiseBuffer(uint32 len);
 public:
-	TCPChannel(mBrane::socket	s);
+	TCPChannel(core::socket	s);
 	~TCPChannel();
 	int16	send(uint8	*b,size_t	s);
 	int16	recv(uint8	*b,size_t	s,bool	peek=false);

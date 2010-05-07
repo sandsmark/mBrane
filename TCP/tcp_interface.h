@@ -31,7 +31,8 @@
 #ifndef	mBrane_tcp_interface_h
 #define	mBrane_tcp_interface_h
 
-#include	"../Core/xml_parser.h"
+#include	"utils.h"
+#include	"xml_parser.h"
 #include	"../Core/network_interface.h"
 
 #ifdef WINDOWS
@@ -49,7 +50,7 @@ private:
 	static	uint32	Intialized;
 	static	bool	Init();
 	static	void	Shutdown();
-	mBrane::socket	s;
+	core::socket	s;
 	struct in_addr	address;
 	uint32	port;
 	TCPInterface();
