@@ -40,7 +40,7 @@ namespace	mBrane{
 
 			class	_Module;
 			//	Node API, as seen from the module
-			class	dll	Node{
+			class	mBrane_dll	Node{
 			private:
 				static	Node	*Singleton;
 			protected:
