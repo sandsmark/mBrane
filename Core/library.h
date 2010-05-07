@@ -131,7 +131,7 @@ public:	\
 const	char	*C::ClassName=#C;	\
 extern	"C"{	\
 	mBrane::sdk::module::_Module *	cdecl	New##C(){	return	new	C();	}	\
-	const	mBrane::uint16	C##_CID(){	return	C::CID();	}	\
+	const	core::uint16	C##_CID(){	return	C::CID();	}	\
 }
 
 
