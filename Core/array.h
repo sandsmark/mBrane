@@ -34,6 +34,7 @@
 #include	"types.h"
 #include	<string.h>
 
+using	namespace	core;
 
 namespace	mBrane{
 	namespace	sdk{
