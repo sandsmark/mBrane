@@ -42,30 +42,17 @@ namespace	mBrane{
 
 		namespace	payloads{
 
-			//	Utility class
-			template<class	U,class	D,class	F,class	P,class	M>	class	CompressedStreamData:	//	P: payload class, _Payload or _RPayload; subclass U shall not define any data at all (already defined by class D); F: frame data
-			public	___Payload<CompressedData,P,U,M>,
-			public	D{
-			protected:
-				F	compressedFrame;	//	the last data to be transmitted, i.e. anything declared afterwards will not be transmitted
-				F	uncompressedFrame;
-				CompressedStreamData();
-			public:
-				static	size_t	CoreSize();
-				virtual	~CompressedStreamData();
-			};
-
-			////////////////////////////////////////////////////////////////////////////////////////////////
-
 			template<class	U>	class	ControlMessage:
-			public	Payload<U,StaticData,Memory>{
+			public	Payload<U,Memory>{
 			protected:
 				ControlMessage();
 			public:
 				virtual	~ControlMessage();
 			};
 
-			class	dll	_StreamData{
+			////////////////////////////////////////////////////////////////////////////////////////////////
+
+			class	mBrane_dll	_StreamData{
 			protected:
 				uint16	_sid;	//	stream identifer
 				_StreamData(uint16	sid);
@@ -73,9 +60,11 @@ namespace	mBrane{
 				virtual	~_StreamData();
 				uint16	&sid();
 			};
+
+			////////////////////////////////////////////////////////////////////////////////////////////////
 		
-			template<class	U,template<class>	class	A,class	M>	class	StreamData:
-			public	Payload<U,A,M>,
+			template<class	U,class	M>	class	StreamData:
+			public	Payload<U,M>,
 			public	_StreamData{
 			protected:
 				StreamData(uint16	sid=0);
@@ -84,7 +73,9 @@ namespace	mBrane{
 				_StreamData	*as_StreamData();
 			};
 
-			class	dll	_Message{
+			////////////////////////////////////////////////////////////////////////////////////////////////
+
+			class	mBrane_dll	_Message{
 			protected:
 				uint16	_senderModuleCID;
 				uint16	_senderModuleID;
@@ -95,14 +86,42 @@ namespace	mBrane{
 				uint16	&senderModule_id();
 			};
 
-			template<class	U,template<class>	class	A,class	M>	class	Message:
-			public	Payload<U,A,M>,
+			////////////////////////////////////////////////////////////////////////////////////////////////
+
+			template<class	U,class	M>	class	Message:
+			public	Payload<U,M>,
 			public	_Message{
 			protected:
 				Message();
 			public:
 				virtual	~Message();
 				_Message	*as_Message();
+			};
+
+			////////////////////////////////////////////////////////////////////////////////////////////////
+
+			//	Compound messages are built from a user-defined core C, followed by a continous array of elements of type T.
+			//	Usage sample: class CoreData{...}; class ACompound:public CompoundMessage<ACompound,Memory,CoreData,word32>{};
+			//	Do not declare anything in subclasses of CompoundMessage: such subclasses shall only contain logic, e.g. functions to exploit C and the array of Ts.
+			//	ACompound	*ac=new(32) ACompound(); // ac contains the data from CoreData followed by an array of 32 word32.
+			//	Typical use: data compacted dynamically, i.e. whose size is not an integral constant (e.g. that could parameterize a template), e.g. archives, compressed images, etc.
+			template<class	U,class	M,class	C,typename	T>	class	CompoundMessage:
+			public	Message<U,M>,
+			public	C{
+			protected:
+				uint32	_size;		//	of the whole instance (not normalized)
+				uint32	_capacity;	//	max number of elements in the array
+				T		*_data;		//	points to ((T	*)(((uint8	*)this)+offsetof(CompoundMessage<U,M,C,T>,_data)+sizeof(T	*)));
+				CompoundMessage();
+			public:
+				static	void	*New(uint32	size);	//	total size of the instance; called upon sending
+				void	*operator	new(size_t	s,uint32	capacity);	//	overrides Object<U,M>::new
+				void	operator	delete(void	*o);					//	overrides Object<U,M>::delete
+				virtual	~CompoundMessage();
+				size_t	size()	const;
+				uint32	getCapacity()	const;
+				T	&operator	[](uint32	i);
+				T	*data();
 			};
 		}
 	}

@@ -32,22 +32,9 @@ namespace	mBrane{
 	namespace	sdk{
 		namespace	payloads{
 
-			template<class	U,class	D,class	F,class	P,class	M>	inline	size_t	CompressedStreamData<U,D,F,P,M>::CoreSize(){
+			template<class	U>	ControlMessage<U>::ControlMessage()/*:Payload<U,Memory>()*/{
 
-				return	___Payload<CompressedData,P,U,M>::Size()-2*sizeof(F);
-			}
-
-			template<class	U,class	D,class	F,class	P,class	M>	inline	CompressedStreamData<U,D,F,P,M>::CompressedStreamData():___Payload<CompressedData,P,U,M>(){
-			}
-
-			template<class	U,class	D,class	F,class	P,class	M>	CompressedStreamData<U,D,F,P,M>::~CompressedStreamData(){
-			}
-
-			////////////////////////////////////////////////////////////////////////////////////////////////
-
-			template<class	U>	ControlMessage<U>::ControlMessage()/*:Payload<U,StaticData,Memory>()*/{
-
-				this->_metaData = ControlMessage<U>::_MetaData | ControlMessage<U>::CONTROL<<2;
+				this->_metaData = ControlMessage<U>::_MetaData | ControlMessage<U>::CONTROL;
 			}
 
 			template<class	U>	ControlMessage<U>::~ControlMessage(){
@@ -55,32 +42,84 @@ namespace	mBrane{
 			
 			////////////////////////////////////////////////////////////////////////////////////////////////
 
-			template<class	U,template<class>	class	A,class	M>	inline	StreamData<U,A,M>::StreamData(uint16	sid):Payload<U,A,M>(),_StreamData(sid){
+			template<class	U,class	M>	inline	StreamData<U,M>::StreamData(uint16	sid):Payload<U,M>(),_StreamData(sid){
 
-				this->_metaData = StreamData<U,A,M>::_MetaData | StreamData<U,A,M>::STREAM<<2;
+				this->_metaData = StreamData<U,M>::_MetaData | StreamData<U,M>::STREAM;
 			}
 
-			template<class	U,template<class>	class	A,class	M>	inline	StreamData<U,A,M>::~StreamData(){
+			template<class	U,class	M>	inline	StreamData<U,M>::~StreamData(){
 			}
 
-			template<class	U,template<class>	class	A,class	M>	_StreamData	*StreamData<U,A,M>::as_StreamData(){
+			template<class	U,class	M>	_StreamData	*StreamData<U,M>::as_StreamData(){
 
-				return	(_StreamData	*)(((uint8	*)this)+sizeof(Payload<U,A,M>));
+				return	(_StreamData	*)(((uint8	*)this)+sizeof(Payload<U,M>));
 			}
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
 
-			template<class	U,template<class>	class	A,class	M>	Message<U,A,M>::Message():Payload<U,A,M>(),_Message(){
+			template<class	U,class	M>	Message<U,M>::Message():Payload<U,M>(),_Message(){
 				
-				this->_metaData = Message<U,A,M>::_MetaData | Message<U,A,M>::DATA<<2;
+				this->_metaData = Message<U,M>::_MetaData | Message<U,M>::DATA;
 			}
 
-			template<class	U,template<class>	class	A,class	M>	Message<U,A,M>::~Message(){
+			template<class	U,class	M>	Message<U,M>::~Message(){
 			}
 
-			template<class	U,template<class>	class	A,class	M>	_Message	*Message<U,A,M>::as_Message(){
+			template<class	U,class	M>	_Message	*Message<U,M>::as_Message(){
 
-				return	(_Message	*)(((uint8	*)this)+sizeof(Payload<U,A,M>));
+				return	(_Message	*)(((uint8	*)this)+sizeof(Payload<U,M>));
+			}
+
+			////////////////////////////////////////////////////////////////////////////////////////////////
+
+			template<class	U,class	M,class	C,typename	T>	void	*CompoundMessage<U,M,C,T>::New(uint32	size){
+
+				uint32	capacity=size-sizeof(CompoundMessage<U,M,C,T>);	//	capacity is now the size of the array
+				capacity=capacity/sizeof(T);	//	now capacity equals the number of elements in the array
+				return	new(capacity)	CompoundMessage<U,M,C,T>();
+			}
+
+			template<class	U,class	M,class	C,typename	T>	void	*CompoundMessage<U,M,C,T>::operator	new(size_t	s,uint32	capacity){
+
+				uint32	normalizedSize;
+				uint32	size=sizeof(CompoundMessage<U,M,C,T>)+capacity*sizeof(T);
+				CompoundMessage<U,M,C,T>	*o=(CompoundMessage<U,M,C,T>	*)M::GetDynamic(size)->alloc(normalizedSize);
+				o->_size=size;
+				o->_capacity=capacity;
+				return	o;
+			}
+
+			template<class	U,class	M,class	C,typename	T>	void	CompoundMessage<U,M,C,T>::operator	delete(void	*o){
+
+				M::GetDynamic(((CompoundMessage<U,M,C,T>	*)o)->_size)->dealloc(o);
+			}
+
+			template<class	U,class	M,class	C,typename	T>	CompoundMessage<U,M,C,T>::CompoundMessage():Message<U,M>(){
+
+				_data=(T	*)(((uint8	*)this)+sizeof(Message<U,M>)+sizeof(C)+sizeof(uint32)+sizeof(uint32)+sizeof(T	*));
+			}
+
+			template<class	U,class	M,class	C,typename	T>	CompoundMessage<U,M,C,T>::~CompoundMessage(){
+			}
+
+			template<class	U,class	M,class	C,typename	T>	size_t	CompoundMessage<U,M,C,T>::size()	const{
+
+				return	_size;
+			}
+
+			template<class	U,class	M,class	C,typename	T>	uint32	CompoundMessage<U,M,C,T>::getCapacity()	const{
+
+				return	capacity;
+			}
+
+			template<class	U,class	M,class	C,typename	T>	T	&CompoundMessage<U,M,C,T>::operator	[](uint32	i){
+
+				return	_data[i];
+			}
+
+			template<class	U,class	M,class	C,typename	T>	T	*CompoundMessage<U,M,C,T>::data(){
+
+				return	_data;
 			}
 		}
 	}
