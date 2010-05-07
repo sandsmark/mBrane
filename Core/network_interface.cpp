@@ -65,21 +65,12 @@ namespace	mBrane{
 
 		//	std::cout<<"Info: Sending payload type '"<<CR->class_name<<"' ["<<c->cid()<<"] size '"<<CR->size()<<"'..."<<std::endl;
 
-			switch(c->allocationScheme()){
-			case	STATIC:
-				if(r=send(((uint8	*)c)+CR->offset(),CR->size()))
-					return	r;
-				break;
-			case	COMPRESSED:
-				if(c->as_CompressedData()->needsCompression())
-					c->as_CompressedData()->compress();
-			case	RAW:
-			case	DYNAMIC:
-				if(r=send(((uint8	*)c)+CR->offset(),CR->coreSize()+c->as_DynamicData()->dynamicSize()))
-					return	r;
-				break;
-			}
-
+			uint32	size=c->size();
+			if(r=send((uint8	*)&size,sizeof(uint32)))	//	send the total size first (includes the size of the non transmitted data): will be used to alloc on the recv side
+				return	r;
+			if(r=send(((uint8	*)c)+CR->offset(),size-CR->offset()))
+				return	r;
+			
 			uint8		ptrCount=(uint8)c->ptrCount();
 			__Payload	*p;
 			for(uint8	i=0;i<ptrCount;i++){
@@ -98,41 +89,21 @@ namespace	mBrane{
 
 			uint64	metaData;
 			int16	r;
+			uint32	size;
+			if(r=recv((uint8	*)&size,sizeof(uint32)))	//	receive the total size (includes the size of the non transmitted data)
+				return	r;
 			if(r=recv((uint8	*)&metaData,sizeof(uint64),true))	//	receive __Payload::_metaData
 				return	r;
 			//	allocate and initialize the payload (default ctor is called)
-			AllocationScheme	a=(AllocationScheme)(metaData	&	0x0000000000000003);
 			ClassRegister		*CR=ClassRegister::Get((uint16)(metaData >> 16));
-			uint32	size;
-			if (CR == NULL) {
-				return -1;
-			}
-			else if(a==RAW) {
-				size=((uint32)metaData)>>2;
-			//	std::cout<<"Info: Receiving payload type '"<<CR->class_name<<"' ["<<(metaData>>16)<<"] (RAW) size '"<<size<<"'..."<<std::endl;
-			}
-			else {
-				size=CR->size();
-			//	std::cout<<"Info: Receiving payload type '"<<CR->class_name<<"' ["<<(metaData>>16)<<"] size '"<<size<<"'..."<<std::endl;
-			}
+			if(CR==NULL)
+				return	-1;
+
+			*c=(__Payload*)(*CR->allocator())(size);	//	calls UserDefinedClass::New(size)
+
+			if(r=recv(((uint8	*)*c)+CR->offset(),size-CR->offset()))	//	metadata only peeked: read from the offset, and not from offset+sizeof(_metaData)
+				return	r;
 			
-			*c=(__Payload*)(*CR->allocator())(size);
-
-			switch(a){
-			case	STATIC:
-			case	RAW:
-				if(r=recv(((uint8	*)*c)+CR->offset(),size))	//	metadata only peeked
-					return	r;
-				break;
-			case	COMPRESSED:
-			case	DYNAMIC:
-				if(r=recv(((uint8	*)*c)+CR->offset(),CR->coreSize()+(*c)->as_DynamicData()->dynamicSize()))
-					return	r;
-				break;
-			}
-			if(a==COMPRESSED)
-				(*c)->as_CompressedData()->decompress();
-
 			uint8		ptrCount=(uint8)(*c)->ptrCount();
 			__Payload	*p;
 			for(uint8	i=0;i<ptrCount;i++){

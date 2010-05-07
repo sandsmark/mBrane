@@ -41,7 +41,7 @@ namespace	mBrane{
 
 		class	CommChannel;
 		class	ConnectedCommChannel;
-		class	dll	NetworkInterface{
+		class	mBrane_dll	NetworkInterface{
 		public:
 			typedef	enum{
 				UDP=0,
@@ -68,7 +68,7 @@ namespace	mBrane{
 		};
 
 		class	_Payload;
-		class	dll	CommChannel{
+		class	mBrane_dll	CommChannel{
 		protected:
 			CommChannel();	//	initialization to be performed in subclasses' constructors
 			int16	_send(__Payload	*c);
@@ -81,7 +81,7 @@ namespace	mBrane{
 			int16	recv(_Payload	**p);
 		};
 
-		class	dll	ConnectedCommChannel:
+		class	mBrane_dll	ConnectedCommChannel:
 		public	CommChannel{
 		protected:
 			ConnectedCommChannel();
@@ -89,7 +89,7 @@ namespace	mBrane{
 			virtual	~ConnectedCommChannel();
 		};
 
-		class	dll	BroadcastCommChannel:
+		class	mBrane_dll	BroadcastCommChannel:
 		public	CommChannel{
 		protected:
 			BroadcastCommChannel();
