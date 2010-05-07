@@ -6,6 +6,7 @@
 
 #include	"node.h"
 
+using	namespace	core;
 using	namespace	mBrane;
 
 
@@ -125,7 +126,7 @@ int	main(int	argc,char	**argv){
 
 #ifndef	SAND_BOX
 
-	mBrane::SignalHandler::Add((signal_handler)Handler);
+	SignalHandler::Add((signal_handler)Handler);
 
 	if(argc!=4){
 	

@@ -31,7 +31,7 @@
 #ifndef	mBrane_space_h
 #define	mBrane_space_h
 
-#include	"../Core/xml_parser.h"
+#include	"xml_parser.h"
 
 #include	"module_descriptor.h"
 

@@ -33,7 +33,7 @@
 
 #include	"../Core/list.h"
 #include	"../Core/module.h"
-#include	"../Core/xml_parser.h"
+#include	"xml_parser.h"
 
 #include	"projection.h"
 

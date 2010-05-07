@@ -31,9 +31,9 @@
 #ifndef	mBrane_executing_h
 #define	mBrane_executing_h
 
-#include	"../Core/utils.h"
+#include	"utils.h"
 #include	"../Core/module.h"
-#include	"../Core/xml_parser.h"
+#include	"xml_parser.h"
 
 
 using	namespace	mBrane::sdk;
