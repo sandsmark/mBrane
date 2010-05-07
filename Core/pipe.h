@@ -32,7 +32,10 @@
 #define mBrane_sdk_pipe_h
 
 #include	"utils.h"
+#include	"config.h"
 
+
+using	namespace	core;
 
 namespace	mBrane{
 	namespace	sdk{

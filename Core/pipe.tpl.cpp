@@ -126,7 +126,7 @@ namespace	mBrane{
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		template<typename	T,uint32	_S>	Pipe1N<T,_S>::Pipe1N() {
+		template<typename	T,uint32	_S>	Pipe1N<T,_S>::Pipe1N(){
 		}
 
 		template<typename	T,uint32	_S>	Pipe1N<T,_S>::~Pipe1N(){
