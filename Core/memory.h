@@ -34,6 +34,7 @@
 #include	<cstdlib>
 
 #include	"utils.h"
+#include	"config.h"
 #include	"array.h"
 
 
@@ -50,7 +51,7 @@ namespace	mBrane{
 		//	Memory allocation is provided as segments of a larger block. Blocks are allocated to a certain size (objectSize x objectCount), and linked together
 		//	objectSize is the smallest power of two minus one greater or equal than the object's size; objectSize start at 64 bytes.
 		//	Each Memory always holds at least one block, even if entirely free.
-		class	dll	Memory{
+		class	mBrane_dll	Memory{
 		private:
 			static	Array<Memory,16>	*Memories;
 			static	CriticalSection		*CS;
@@ -88,7 +89,7 @@ namespace	mBrane{
 			Memory(size_t	objectSize);
 			void	*operator	new(size_t	s,uint16	index);
 			void	operator	delete(void	*b);
-			static	size_t	GetNormalizedSize(size_t	s,uint16	&pow2);	//	converts a size into the next power of 2
+			static	size_t	GetNormalizedSize(size_t	s,uint8	&pow2);	//	converts a size into the next power of 2
 		public:
 			static	Memory	*GetStatic(size_t	s);	//	called at class loading time; sequential calls
 			static	Memory	*GetDynamic(size_t	s);	//	called dynamically (rwa storage); concurrent calls
@@ -103,7 +104,7 @@ namespace	mBrane{
 		//	Memory allocation is provided as segments of a larger block. Blocks are allocated to a certain size (segmentSize x segmentCount), and linked together
 		//	segmentSize is the smallest power of two minus one greater or equal than the object's size; segmentSize start at 64 bytes.
 		//	Each Memory always holds at least one block, even if entirely free.
-		class	dll	Memory{
+		class	mBrane_dll	Memory{
 		private:
 			static	Array<Memory,16>	*Memories;
 			static	CriticalSection		*CS;
@@ -169,7 +170,7 @@ namespace	mBrane{
 			Memory(size_t	objectSize);
 			void	*operator	new(size_t	s,uint16	index);
 			void	operator	delete(void	*b);
-			static	size_t	GetNormalizedSize(size_t	s,uint16	&pow2);	//	converts a size into the next power of 2
+			static	size_t	GetNormalizedSize(size_t	s,uint8	&pow2);	//	converts a size into the next power of 2
 		public:
 			static	Memory	*GetStatic(size_t	s);	//	called at class loading time; sequential calls
 			static	Memory	*GetDynamic(size_t	s);	//	called dynamically (rwa storage); concurrent calls
@@ -182,7 +183,7 @@ namespace	mBrane{
 		};
 #elif	defined	MEMORY_MALLOC
 		//	for testing only!
-		class	dll	Memory{
+		class	mBrane_dll	Memory{
 		private:
 			const	size_t	objectSize;
 			Memory(size_t	objectSize):objectSize(objectSize){}

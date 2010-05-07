@@ -108,7 +108,7 @@ namespace	mBrane{
 
 		CriticalSection		*Memory::CS=NULL;
 
-		inline	size_t	Memory::GetNormalizedSize(size_t	s,uint16	&pow2){
+		inline	size_t	Memory::GetNormalizedSize(size_t	s,uint8	&pow2){
 
 			size_t	segmentSize=s+sizeof(Block	*);	//	makes room for a pointer to the block
 			size_t	objectSize=64;
@@ -129,7 +129,7 @@ namespace	mBrane{
 
 		Memory	*Memory::GetStatic(size_t	s){	//	s>0; called early, once per class, at static member init time
 			
-			uint16	i;
+			uint8	i;
 			size_t	objectSize=GetNormalizedSize(s,i);
 
 			if(!CS){	//	entered once early at class loading time; TODO: dealloc when the app terminates
@@ -153,7 +153,7 @@ namespace	mBrane{
 
 		inline	Memory	*Memory::GetDynamic(size_t	s){	//	s>0; called anytime, for raw storage
 			
-			uint16	i;
+			uint8	i;
 			size_t	objectSize=GetNormalizedSize(s,i);
 
 			CS->enter();	//	concurrent access for raw storage requests
@@ -304,7 +304,7 @@ namespace	mBrane{
 
 		CriticalSection		*Memory::CS=NULL;
 
-		inline	size_t	Memory::GetNormalizedSize(size_t	s,uint16	&pow2){
+		inline	size_t	Memory::GetNormalizedSize(size_t	s,uint8	&pow2){
 
 			size_t	segmentSize=s+sizeof(Block	*);	//	makes room for a pointer to the block
 			size_t	objectSize=64;
@@ -325,7 +325,7 @@ namespace	mBrane{
 
 		Memory	*Memory::GetStatic(size_t	s){	//	s>0; called early, once per class, at static member init time
 			
-			uint16	i;
+			uint8	i;
 			size_t	objectSize=GetNormalizedSize(s,i);
 
 			if(!CS){	//	entered once early at class loading time; TODO: dealloc when the app terminates
@@ -341,7 +341,7 @@ namespace	mBrane{
 
 		inline	Memory	*Memory::GetDynamic(size_t	s){	//	s>0; called anytime, for raw storage
 			
-			uint16	i;
+			uint8	i;
 			size_t	objectSize=GetNormalizedSize(s,i);
 
 			CS->enter();	//	concurrent access for raw storage requests
