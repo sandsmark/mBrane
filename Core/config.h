@@ -31,30 +31,16 @@
 #ifndef	mBrane_config_h
 #define	mBrane_config_h
 
-#if defined(WIN32)
-	#define	WINDOWS
-	#define	ARCH_32
-#elif defined(WIN64)
-	#define	WINDOWS
-	#define	ARCH_64
-#elif defined(__GNUC__)
+#include	"types.h"
 
-#if __GNUC__ == 4
-#if __GNUC_MINOR__ < 3
-#error "GNU C++ 4.3 or later is required to compile this program"
-#endif /* __GNUC_MINOR__ */
-#endif /* __GNUC__ */
-
-	#if defined(__x86_64)
-		#define	ARCH_64
-	#elif defined(__i386)
-		#define	ARCH_32
+#if defined WINDOWS
+	#if defined	CORE_EXPORTS
+		#define mBrane_dll	__declspec(dllexport)
+	#else
+		#define mBrane_dll	__declspec(dllimport)
 	#endif
-	#if defined(__linux)
-		#define	LINUX
-	#elif defined(__APPLE__)
-		#define	OSX
-	#endif
+#elif defined LINUX
+	#define mBrane_dll
 #endif
 
 #define	MBRANE_VERSION	0.0
