@@ -104,11 +104,6 @@ namespace	mBrane{
 			return	sizeof(U);
 		}
 
-		template<class	M,class	S,class	U>	inline	size_t	Object<M,S,U>::CoreSize(){
-
-			return	sizeof(U);
-		}
-
 		template<class	M,class	S,class	U>	inline	Object<M,S,U>::Object():S(){
 		}
 

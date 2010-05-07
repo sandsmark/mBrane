@@ -38,41 +38,23 @@ namespace	mBrane{
 	namespace	sdk{
 
 		namespace	payloads{
-			class	_DynamicData;
-			class	_CompressedData;
-			class	_ModuleData;
 			class	_Message;
 			class	_StreamData;
 		}
 
-		typedef	enum{
-			STATIC=0,
-			DYNAMIC=1,
-			COMPRESSED=2,
-			RAW=3
-		}AllocationScheme;
-
-		class	_DynamicData;
-		class	_CompressedData;
-		class	_RawStorage;
-
 		//	Base interface for payloads
-		class	dll	__Payload:
+		class	mBrane_dll	__Payload:
 		public	_Object{
 		protected:
 			__Payload();
 		public:
 			virtual	~__Payload();
-			virtual	uint16				cid()	const=0;
-			virtual	AllocationScheme	allocationScheme()	const=0;
-			virtual	void				init();	//	called upon reception
-			virtual	uint16				ptrCount()	const;					//	number of pointers to payloads
-			virtual	__Payload			*getPtr(uint16	i)	const;			//	iterates the pointers to payloads
-			virtual	void				setPtr(uint16	i,__Payload	*p);	//	iterates the pointers to payloads
-			//	down-casting, return NULL by default
-			virtual	_DynamicData		*as_DynamicData();
-			virtual	_CompressedData		*as_CompressedData();
-			virtual	_RawStorage			*as_RawStorage();
+			virtual	uint16		cid()	const=0;
+			virtual	void		init();								//	called upon reception
+			virtual	size_t		size()	const=0;					//	returns the size of the whole instance; called upon sending
+			virtual	uint16		ptrCount()	const;					//	number of pointers to payloads
+			virtual	__Payload	*getPtr(uint16	i)	const;			//	iterates the pointers to payloads
+			virtual	void		setPtr(uint16	i,__Payload	*p);	//	iterates the pointers to payloads
 		};
 
 		//	Convenience for writing getPtr and setPtr
@@ -81,7 +63,7 @@ namespace	mBrane{
 		class	payloads::_StreamData;
 		class	payloads::_Message;
 
-		class	dll	_Payload:
+		class	mBrane_dll	_Payload:
 		public	__Payload{
 		public:
 			typedef	enum{
@@ -92,7 +74,7 @@ namespace	mBrane{
 		protected:
 			int64	_node_recv_ts;	//	not transmitted
 			int64	_recv_ts;		//	not transmitted
-			uint64	_metaData;		//	[reserved(32)|cid(16)|reserved(12)|category(2)|allocation scheme(2)]
+			uint64	_metaData;		//	[reserved(32)|cid(16)|reserved(14)|category(2)]
 			int64	_node_send_ts;
 			int64	_send_ts;
 			_Payload();
@@ -104,73 +86,22 @@ namespace	mBrane{
 			int64		&send_ts();			//	send timestamp: time of emission from a module (< than node_send_ts)
 			int64		&recv_ts();			//	recv timestamp: time of reception by a module (> than node_recv_ts)
 			//	down_casting; return NULL by default
-			virtual	payloads::_Message	*as_Message();
+			virtual	payloads::_Message		*as_Message();
 			virtual	payloads::_StreamData	*as_StreamData();
 		};
 
-		class	dll	_RPayload:
+		class	mBrane_dll	_RPayload:
 		public	__Payload{
 		protected:
-			uint64	_metaData;	//	[reserved(32)|cid(16)|reserved(14)|allocation scheme(2)]
+			uint64	_metaData;	//	[reserved(32)|cid(16)|reserved(16)]
 			_RPayload();
 		public:
 			virtual	~_RPayload();
 		};
 
-		template<class	S,AllocationScheme	AS>	class	PayloadAlloc:	//	S:superclass, either _Payload or _RPayload
-		public	S{
-		protected:
-			PayloadAlloc();
-		public:
-			static	const	AllocationScheme	_AllocationScheme();
-			virtual	~PayloadAlloc();
-		};
-
-		template<class	S>	class	StaticData:
-		public	PayloadAlloc<S,STATIC>{
-		};
-	
-		class	dll	_DynamicData{
-		public:
-			virtual	size_t	dynamicSize()	const=0;	//	size of the variable part of the instance (will be added to CoreSize() to get the transmission size)
-		};
-
-		template<class	S>	class	DynamicData:
-		public	PayloadAlloc<S,DYNAMIC>,
-		public	_DynamicData{
-		public:
-			_DynamicData		*as_DynamicData();
-		};
-
-		class	dll	_CompressedData:
-		public	_DynamicData{
-		protected:
-			bool	_needsCompression;	//	must be updated by compress() and any method touching the data
-			_CompressedData();
-		public:
-			virtual	~_CompressedData();
-			bool			needsCompression();
-			virtual	void	compress();
-			virtual	void	decompress();
-		};
-
-		template<class	S>	class	CompressedData:
-		public	PayloadAlloc<S,COMPRESSED>,
-		public	_CompressedData{
-		public:
-			_CompressedData		*as_CompressedData();
-		};
-
-		template<class	S>	class	RawStorage:
-		public	PayloadAlloc<S,RAW>,
-		public	_DynamicData{
-		public:
-			_RawStorage			*as_RawStorage();
-		};
-
 		//	Base class for all payloads.
-		template<template<class>	class	A,	class	P,class	U,class	M>	class	___Payload:	//	A: subclass of PayloadAlloc, P: payload class, U: final class, M: memory
-		public	Object<M,A<P>,U>{
+		template<class	P,class	U,class	M>	class	___Payload:	//	P: payload class, U: final class, M: memory
+		public	Object<M,P,U>{
 		protected:
 			___Payload();
 		public:
@@ -181,24 +112,24 @@ namespace	mBrane{
 			void	*operator	new(size_t	s);
 			void	operator	delete(void	*o);
 			virtual	~___Payload();
-			uint16				cid()				const;
-			AllocationScheme	allocationScheme()	const;
+			uint16				cid()	const;
+			virtual	size_t		size()	const;	//	default; returns sizeof(U)
 		};
 
-		template<class	U,template<class>	class	A,class	M>	class	Payload:
-		public	___Payload<A,_Payload,U,M>{
+		template<class	U,class	M>	class	Payload:
+		public	___Payload<_Payload,U,M>{
 		protected:
 			Payload();
 		public:
 			virtual	~Payload();
 		};
 
-		//	Template variant of the well-known DP. Adapts C to Payload<U,A,M>.
+		//	Template variant of the well-known DP. Adapts C to Payload<U,M>.
 		//	Usage:	class	Some3rdPartyClass{ ... };
 		//			class Some3rdPartyClassAdapted:public PayloadAdapter<Some3rdPartyClass,Some3rdPartyClassAdapted>{ ... };
-		template<class	C,class	U,template<class>	class	A,class	M>	class	PayloadAdapter:
+		template<class	C,class	U,class	M>	class	PayloadAdapter:
 		public	C,
-		public	Payload<U,A,M>{
+		public	Payload<U,M>{
 		protected:
 			PayloadAdapter();
 		public:
@@ -206,18 +137,18 @@ namespace	mBrane{
 		};
 
 		//	Standard raw payload (no transmission information) to embed in any payload.
-		template<class	U,template<class>	class	A,class	M>	class	RPayload:
-		public	___Payload<A,_RPayload,U,M>{
+		template<class	U,class	M>	class	RPayload:
+		public	___Payload<_RPayload,U,M>{
 		protected:
 			RPayload();
 		public:
 			virtual	~RPayload();
 		};
 
-		//	Template variant of the well-known DP. Adapts C to RPayload<U,A,M>.
-		template<class	C,class	U,template<class>	class	A,class	M>	class	RPayloadAdapter:
+		//	Template variant of the well-known DP. Adapts C to RPayload<U,M>.
+		template<class	C,class	U,class	M>	class	RPayloadAdapter:
 		public	C,
-		public	RPayload<U,A,M>{
+		public	RPayload<U,M>{
 		protected:
 			RPayloadAdapter();
 		public:

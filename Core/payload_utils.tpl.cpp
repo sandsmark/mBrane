@@ -46,27 +46,26 @@ namespace	mBrane{
 			
 			template<typename	T>	void	Storage<T>::operator	delete(void	*storage){
 
-				Memory::GetDynamic(((Storage<T>	*)storage)->getSize())->dealloc(storage);
+				Memory::GetDynamic(((Storage<T>	*)storage)->getNormalizedSize())->dealloc(storage);
 			}
 			
-			template<typename	T>	inline	Storage<T>::Storage():/*RPayload<Storage<T>,RawStorage,Memory>(),*/size(0),count(0){	
+			template<typename	T>	inline	Storage<T>::Storage():/*RPayload<Storage<T>,Memory>(),*/size(0),count(0){	
 				
-				this->_metaData=RAW;
+				this->_metaData=Storage<T>::_MetaData;
 				this->data=((T	*)(((uint8	*)this)+offsetof(Storage<T>,data)+sizeof(T	*)));
 			}
 
 			template<typename	T>	Storage<T>::~Storage(){
 			}
 
-			template<typename	T>	inline	uint32	Storage<T>::getSize(){
+			template<typename	T>	inline	uint32	Storage<T>::getNormalizedSize(){
 
-				return	size;
+				return	normalizedSize;
 			}
 
-			template<typename	T>	inline	void	Storage<T>::setSize(uint32	size){	
+			template<typename	T>	inline	void	Storage<T>::setNormalizedSize(uint32	size){	
 				
-				this->size=size;
-				this->_metaData=size<<2	|	RAW;
+				normalizedSize=size;
 			}
 				
 			template<typename	T>	T	&Storage<T>::operator	[](uint32	i){	
@@ -74,9 +73,9 @@ namespace	mBrane{
 				return	data[i];
 			}
 			
-			template<typename	T>	size_t	Storage<T>::dynamicSize()	const{	
+			template<typename	T>	size_t	Storage<T>::size()	const{	
 				
-				return	sizeof(T)*count;
+				return	sizeof(Storage<T>)+sizeof(T)*count;
 			}
 
 			////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -94,27 +93,26 @@ namespace	mBrane{
 			
 			template<typename	T>	void	Storage<P<T> >::operator	delete(void	*storage){
 
-				Memory::GetDynamic(((Storage<T>	*)storage)->getSize())->dealloc(storage);
+				Memory::GetDynamic(((Storage<P<T> >	*)storage)->getNormalizedSize())->dealloc(storage);
 			}
 			
-			template<typename	T>	inline	Storage<P<T> >::Storage():/*RPayload<Storage<T>,RawStorage,Memory>(),*/size(0),count(0){	
+			template<typename	T>	inline	Storage<P<T> >::Storage():/*RPayload<Storage<T>,Memory>(),*/size(0),count(0){	
 				
-				this->_metaData=RAW;
+				this->_metaData=Storage<P<T> >::_MetaData;
 				this->data=((P<T>	*)(((uint8	*)this)+offsetof(Storage<P<T> >,data)+sizeof(P<T>	*)));
 			}
 
 			template<typename	T>	Storage<P<T> >::~Storage(){
 			}
 
-			template<typename	T>	inline	uint32	Storage<P<T> >::getSize(){
+			template<typename	T>	inline	uint32	Storage<P<T> >::getNormalizedSize(){
 
-				return	size;
+				return	normalizedSize;
 			}
 
-			template<typename	T>	inline	void	Storage<P<T> >::setSize(uint32	size){	
+			template<typename	T>	inline	void	Storage<P<T> >::setNormalizedSize(uint32	size){	
 				
-				this->size=size;
-				this->_metaData=size<<2	|	RAW;
+				normalizedSize=size;
 			}
 				
 			template<typename	T>	P<T>	&Storage<P<T> >::operator	[](uint32	i){	
@@ -122,9 +120,9 @@ namespace	mBrane{
 				return	data[i];
 			}
 			
-			template<typename	T>	size_t	Storage<P<T> >::dynamicSize()	const{	
+			template<typename	T>	size_t	Storage<P<T> >::size()	const{	
 				
-				return	sizeof(P<T>)*count;
+				return	sizeof(Storage<P<T> >)+sizeof(P<T>)*count;
 			}
 				
 			template<typename	T>	uint16	Storage<P<T> >::ptrCount()	const{
@@ -157,7 +155,7 @@ namespace	mBrane{
 				uint32	s=count*sizeof(T)+sizeof(Storage<T>);
 				uint32	normalizedSize;
 				Storage<T>	*newStorage=new(s,normalizedSize)	Storage<T>();
-				newStorage->setSize(normalizedSize);
+				newStorage->setNormalizedSize(normalizedSize);
 				if(_data!=NULL)
 					memcpy(newStorage->data,_data->data,_data->count*sizeof(T));
 				_data=newStorage;
@@ -180,12 +178,6 @@ namespace	mBrane{
 			template<typename	T>	inline	uint8	*Array<T>::asBytes(uint32	i){
 
 				return	(uint8	*)(_data+i);
-			}
-
-			template<typename	T>	inline	Array<T>	&Array<T>::pushBack(const	T	&t){
-
-				this->operator	[](_data->count)=t;
-				return	*this;
 			}
 
 			template<typename	T>	inline	uint16	Array<T>::ptrCount()	const{

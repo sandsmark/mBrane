@@ -34,14 +34,17 @@
 #include	<cstdlib>
 
 #include	"types.h"
+#include	"config.h"
 
+
+using	namespace	core;
 
 namespace	mBrane{
 	namespace	sdk{
 
 		//	Root pointer class.
 		class	_Object;
-		class	dll	_P{
+		class	mBrane_dll	_P{
 		protected:
 			_Object	*object;
 		public:
@@ -95,7 +98,6 @@ namespace	mBrane{
 			Object();
 		public:
 			static	size_t		Size();		//	Total size of an instance as defined by its class
-			static	size_t		CoreSize();	//	Size of the non variable part of an instance; equal to Size by default
 			void	*operator	new(size_t	s);
 			void	operator	delete(void	*o);
 		};
@@ -103,7 +105,7 @@ namespace	mBrane{
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		//	Root smart-pointable object class.
-		class	dll	_Object{
+		class	mBrane_dll	_Object{
 		template<class	C>	friend	class	P;
 		friend	class	_P;
 		private:

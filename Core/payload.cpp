@@ -57,21 +57,6 @@ namespace	mBrane{
 		void	__Payload::setPtr(uint16	i,__Payload	*p){
 		}
 
-		_DynamicData	*__Payload::as_DynamicData(){
-
-			return	NULL;
-		}
-
-		_CompressedData	*__Payload::as_CompressedData(){
-
-			return	NULL;
-		}
-
-		_RawStorage		*__Payload::as_RawStorage(){
-
-			return	NULL;
-		}
-
 		////////////////////////////////////////////////////////////////////////////////////
 
 		_Payload::_Payload():__Payload(){
@@ -82,7 +67,7 @@ namespace	mBrane{
 
 		_Payload::Category	_Payload::category()	const{
 
-			return	(_Payload::Category)((_metaData	&	0x000000000000000C)>>2);
+			return	(_Payload::Category)(_metaData	&	0x0000000000000003);
 		}
 
 		int64	&_Payload::node_send_ts(){
@@ -121,25 +106,6 @@ namespace	mBrane{
 		}
 
 		_RPayload::~_RPayload(){
-		}
-
-		////////////////////////////////////////////////////////////////////////////////////////////////
-
-		_CompressedData::_CompressedData():_needsCompression(false){
-		};
-
-		_CompressedData::~_CompressedData(){
-		}
-
-		bool	_CompressedData::needsCompression(){
-
-			return	_needsCompression;
-		}
-
-		void	_CompressedData::compress(){
-		}
-
-		void	_CompressedData::decompress(){
 		}
 	}
 }

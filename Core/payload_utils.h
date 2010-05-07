@@ -45,43 +45,43 @@ namespace	mBrane{
 			//	Storage<T> is registered in the ClassRegister (allocator=Storage<T>::New)
 			//	Specialize for any particular T holding pointers: redefine ptrCount, getPtr and setPtr
 			template<typename	T>	class	Storage:
-			public	RPayload<Storage<T>,RawStorage,Memory>{
+			public	RPayload<Storage<T>,Memory>{
 			template<typename	TA>	friend	class	Array;
 			private:
-				uint32	size;	//	currently allocated size, in bytes; normalized, i.e. _size = 64*s where s is a power of 2
+				uint32	normalizedSize;	//	currently allocated size, in bytes; normalized, i.e. _size = 64*s where s is a power of 2
 				uint32	count;	//	current max index; maintained by Array<T>
 				T		*data;	//	points to data+sizeof(T*)
-				void	setSize(uint32	size);
+				void	setNormalizedSize(uint32	size);
 			public:
 				static	void	*New(uint32	size);	//	to initialize the _vftable on recv()
 				Storage();
 				~Storage();
 				void	*operator	new(size_t	s,uint32	size,uint32	&normalizedSize);
 				void	operator	delete(void	*storage);
-				uint32	getSize();
+				uint32	getNormalizedSize();
 				T		&operator	[](uint32	i);
-				size_t	dynamicSize()	const;
+				size_t	size()	const;
 			};
  
 			//	Specialization for pointer storage
 			//	T must be a subclass of __Payload
 			template<typename	T>	class	Storage<P<T> >:
-			public	RPayload<Storage<T>,RawStorage,Memory>{
+			public	RPayload<Storage<T>,Memory>{
 			template<typename	TA>	friend	class	Array;
 			private:
-				uint32	size;
+				uint32	normalizedSize;
 				uint32	count;
 				P<T>	*data;
-				void	setSize(uint32	size);
+				void	setNormalizedSize(uint32	size);
 			public:
 				static	void	*New(uint32	size);
 				Storage();
 				~Storage();
 				void	*operator	new(size_t	s,uint32	size,uint32	&normalizedSize);
 				void	operator	delete(void	*storage);
-				uint32	getSize();
+				uint32	getNormalizedSize();
 				P<T>	&operator	[](uint32	i);
-				size_t	dynamicSize()	const;
+				size_t	size()	const;
 				uint16		ptrCount()	const;
 				__Payload	*getPtr(uint16	i)	const;
 				void		setPtr(uint16	i,__Payload	*p);
@@ -91,16 +91,15 @@ namespace	mBrane{
 			template<typename	T>	class	Array{
 			protected:
 				uint32			_maxCount;	//	capacity as a number of objects
-				P<Storage<T> >	_data;		//	contiguous data storage allocated via Memory::Get(needed_size)->alloc()
+				P<Storage<T> >	_data;		//	contiguous data storage allocated via Memory::GetDynamic(needed_size)->alloc()
 			public:
 				Array();
 				~Array();
-				void	ensure(uint32	count);	//	number of object
-				uint32	count()	const;
-				T		&operator	[](uint32	i);		//	reallocates if necessary (ensure())
+				void	ensure(uint32	count);	//	number of objects
+				uint32	count()	const;			//	number of objects
+				T		&operator	[](uint32	i);		//	reallocates if necessary (using ensure())
 				uint8	*asBytes(uint32	i);				//	returns the raw data from (and including) i (an index on Ts, not on bytes); no capacity check
-				Array<T>	&pushBack(const	T	&t);	//	convenience
-				//	functions to be invoked by the embedding payload class to have _data point to a storage and update Storage<T>::count
+				//	functions to be invoked by the embedding payload class
 				uint16		ptrCount()	const;
 				__Payload	*getPtr(uint16	i)	const;
 				void		setPtr(uint16	i,__Payload	*p);
