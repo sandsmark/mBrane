@@ -43,7 +43,7 @@ namespace	mBrane{
 		class	_RPayload;
 		//	Allows to retrieve class data from class IDs.
 		//	Allows to retrieve class IDs from class names.
-		class	dll	ClassRegister{
+		class	mBrane_dll	ClassRegister{
 		public:
 			typedef	void	*(*Allocator)(uint32);
 		private:
@@ -51,8 +51,6 @@ namespace	mBrane{
 			static	Array<ClassRegister,128>	*Get();
 			//	Class data
 			Allocator	_allocator;
-			size_t		_size;		//	transmission size for non-variable instances
-			size_t		_coreSize;	//	transmission size for the non-variable part of instances
 			size_t		_offset;	//	from this
 		public:
 			char		class_name[255];
@@ -66,8 +64,6 @@ namespace	mBrane{
 			ClassRegister();
 			~ClassRegister();
 			Allocator		allocator()	const;
-			size_t			size()		const;
-			size_t			coreSize()		const;
 			size_t			offset()	const;
 			static	void	Cleanup();
 		};

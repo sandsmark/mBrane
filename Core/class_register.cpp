@@ -83,16 +83,6 @@ namespace	mBrane{
 			return	_allocator;
 		}
 
-		size_t	ClassRegister::size()	const{
-
-			return	_size;
-		}
-
-		size_t	ClassRegister::coreSize()	const{
-
-			return	_coreSize;
-		}
-
 		size_t	ClassRegister::offset()	const{
 
 			return	_offset;
