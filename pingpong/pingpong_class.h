@@ -9,7 +9,7 @@ using	namespace	mBrane::sdk;
 using	namespace	mBrane::sdk::payloads;
 
 template<class	U>	class	_Ball:	//	to allow derivation
-public	payloads::Message<U,StaticData,Memory>{
+public	payloads::Message<U,Memory>{
 public:
 	uint32	d1;
 };
@@ -20,8 +20,8 @@ public:
 	Ball():_Ball<Ball>(),id(-1){}
 	Ball(int32	id):_Ball<Ball>(),id(id){}
 };
-class	Type1:public	payloads::Message<Type1,StaticData,Memory>{};
-class	Type2:public	payloads::Message<Type2,StaticData,Memory>{};
+class	Type1:public	payloads::Message<Type1,Memory>{};
+class	Type2:public	payloads::Message<Type2,Memory>{};
 
 
 #endif /* pingpong_class.h */
