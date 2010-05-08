@@ -72,52 +72,104 @@ namespace	mBrane{
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
 
-			template<class	U,class	M,class	C,typename	T>	void	*CompoundMessage<U,M,C,T>::New(uint32	size){
+			template<class	U,class	M,class	C,typename	T>	void	*CoreArrayMessage<U,M,C,T>::New(uint32	size){
 
-				uint32	capacity=size-sizeof(CompoundMessage<U,M,C,T>);	//	capacity is now the size of the array
+				uint32	capacity=size-sizeof(CoreArrayMessage<U,M,C,T>);	//	capacity is now the size of the array
 				capacity=capacity/sizeof(T);	//	now capacity equals the number of elements in the array
-				return	new(capacity)	CompoundMessage<U,M,C,T>();
+				return	new(capacity)	CoreArrayMessage<U,M,C,T>();
 			}
 
-			template<class	U,class	M,class	C,typename	T>	void	*CompoundMessage<U,M,C,T>::operator	new(size_t	s,uint32	capacity){
+			template<class	U,class	M,class	C,typename	T>	void	*CoreArrayMessage<U,M,C,T>::operator	new(size_t	s,uint32	capacity){
 
 				uint32	normalizedSize;
-				uint32	size=sizeof(CompoundMessage<U,M,C,T>)+capacity*sizeof(T);
-				CompoundMessage<U,M,C,T>	*o=(CompoundMessage<U,M,C,T>	*)M::GetDynamic(size)->alloc(normalizedSize);
+				uint32	size=sizeof(CoreArrayMessage<U,M,C,T>)+capacity*sizeof(T);
+				CoreArrayMessage<U,M,C,T>	*o=(CoreArrayMessage<U,M,C,T>	*)M::GetDynamic(size)->alloc(normalizedSize);
 				o->_size=size;
 				o->_capacity=capacity;
 				return	o;
 			}
 
-			template<class	U,class	M,class	C,typename	T>	void	CompoundMessage<U,M,C,T>::operator	delete(void	*o){
+			template<class	U,class	M,class	C,typename	T>	void	CoreArrayMessage<U,M,C,T>::operator	delete(void	*o){
 
-				M::GetDynamic(((CompoundMessage<U,M,C,T>	*)o)->_size)->dealloc(o);
+				M::GetDynamic(((CoreArrayMessage<U,M,C,T>	*)o)->_size)->dealloc(o);
 			}
 
-			template<class	U,class	M,class	C,typename	T>	CompoundMessage<U,M,C,T>::CompoundMessage():Message<U,M>(){
+			template<class	U,class	M,class	C,typename	T>	CoreArrayMessage<U,M,C,T>::CoreArrayMessage():Message<U,M>(){
 
 				_data=(T	*)(((uint8	*)this)+sizeof(Message<U,M>)+sizeof(C)+sizeof(uint32)+sizeof(uint32)+sizeof(T	*));
 			}
 
-			template<class	U,class	M,class	C,typename	T>	CompoundMessage<U,M,C,T>::~CompoundMessage(){
+			template<class	U,class	M,class	C,typename	T>	CoreArrayMessage<U,M,C,T>::~CoreArrayMessage(){
 			}
 
-			template<class	U,class	M,class	C,typename	T>	size_t	CompoundMessage<U,M,C,T>::size()	const{
+			template<class	U,class	M,class	C,typename	T>	size_t	CoreArrayMessage<U,M,C,T>::size()	const{
 
 				return	_size;
 			}
 
-			template<class	U,class	M,class	C,typename	T>	uint32	CompoundMessage<U,M,C,T>::getCapacity()	const{
+			template<class	U,class	M,class	C,typename	T>	uint32	CoreArrayMessage<U,M,C,T>::getCapacity()	const{
 
 				return	capacity;
 			}
 
-			template<class	U,class	M,class	C,typename	T>	T	&CompoundMessage<U,M,C,T>::operator	[](uint32	i){
+			template<class	U,class	M,class	C,typename	T>	T	&CoreArrayMessage<U,M,C,T>::operator	[](uint32	i){
 
 				return	_data[i];
 			}
 
-			template<class	U,class	M,class	C,typename	T>	T	*CompoundMessage<U,M,C,T>::data(){
+			template<class	U,class	M,class	C,typename	T>	T	*CoreArrayMessage<U,M,C,T>::data(){
+
+				return	_data;
+			}
+
+			////////////////////////////////////////////////////////////////////////////////////////////////
+
+			template<class	U,class	M,typename	T>	void	*ArrayMessage<U,M,T>::New(uint32	size){
+
+				uint32	capacity=size-sizeof(ArrayMessage<U,M,T>);	//	capacity is now the size of the array
+				capacity=capacity/sizeof(T);	//	now capacity equals the number of elements in the array
+				return	new(capacity)	ArrayMessage<U,M,T>();
+			}
+
+			template<class	U,class	M,typename	T>	void	*ArrayMessage<U,M,T>::operator	new(size_t	s,uint32	capacity){
+
+				uint32	normalizedSize;
+				uint32	size=sizeof(ArrayMessage<U,M,T>)+capacity*sizeof(T);
+				ArrayMessage<U,M,T>	*o=(ArrayMessage<U,M,T>	*)M::GetDynamic(size)->alloc(normalizedSize);
+				o->_size=size;
+				o->_capacity=capacity;
+				return	o;
+			}
+
+			template<class	U,class	M,typename	T>	void	ArrayMessage<U,M,T>::operator	delete(void	*o){
+
+				M::GetDynamic(((ArrayMessage<U,M,T>	*)o)->_size)->dealloc(o);
+			}
+
+			template<class	U,class	M,typename	T>	ArrayMessage<U,M,T>::ArrayMessage():Message<U,M>(){
+
+				_data=(T	*)(((uint8	*)this)+sizeof(Message<U,M>)+sizeof(uint32)+sizeof(uint32)+sizeof(T	*));
+			}
+
+			template<class	U,class	M,typename	T>	ArrayMessage<U,M,T>::~ArrayMessage(){
+			}
+
+			template<class	U,class	M,typename	T>	size_t	ArrayMessage<U,M,T>::size()	const{
+
+				return	_size;
+			}
+
+			template<class	U,class	M,typename	T>	uint32	ArrayMessage<U,M,T>::getCapacity()	const{
+
+				return	capacity;
+			}
+
+			template<class	U,class	M,typename	T>	T	&ArrayMessage<U,M,T>::operator	[](uint32	i){
+
+				return	_data[i];
+			}
+
+			template<class	U,class	M,typename	T>	T	*ArrayMessage<U,M,T>::data(){
 
 				return	_data;
 			}

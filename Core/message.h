@@ -102,24 +102,24 @@ namespace	mBrane{
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
 
-			//	Compound messages are built from a user-defined core C, followed by a continous array of elements of type T.
-			//	Usage sample: class CoreData{...}; class ACompound:public CompoundMessage<ACompound,Memory,CoreData,word32>{};
+			//	Core array messages are built from a user-defined core C, followed by a continous array of elements of type T.
+			//	Usage sample: class CoreData{...}; class ACompound:public CoreArrayMessage<ACompound,Memory,CoreData,word32>{};
 			//	ACompound	*ac=new(32) ACompound(); // ac contains the data from CoreData followed by an array of 32 word32.
-			//	Do not declare any data in subclasses of CompoundMessage: such subclasses shall only contain logic, e.g. functions to exploit C and the array of Ts.
+			//	Do not declare any data in subclasses of CoreArrayMessage: such subclasses shall only contain logic, e.g. functions to exploit C and the array of Ts.
 			//	Typical use: data compacted dynamically, i.e. whose size is not an integral constant (e.g. that could not parameterize a template), e.g. archives, compressed images, etc.
-			template<class	U,class	M,class	C,typename	T>	class	CompoundMessage:
+			template<class	U,class	M,class	C,typename	T>	class	CoreArrayMessage:
 			public	Message<U,M>,
 			public	C{
 			protected:
 				uint32	_size;		//	of the whole instance (not normalized)
 				uint32	_capacity;	//	max number of elements in the array
-				T		*_data;		//	points to ((T	*)(((uint8	*)this)+offsetof(CompoundMessage<U,M,C,T>,_data)+sizeof(T	*)));
-				CompoundMessage();
+				T		*_data;		//	points to ((T	*)(((uint8	*)this)+offsetof(CoreArrayMessage<U,M,C,T>,_data)+sizeof(T	*)));
+				CoreArrayMessage();
 			public:
 				static	void		*New(uint32	size);					//	total size of the instance; called upon sending
 				void	*operator	new(size_t	s,uint32	capacity);	//	overrides Object<U,M>::new
 				void	operator	delete(void	*o);					//	overrides Object<U,M>::delete
-				virtual	~CompoundMessage();
+				virtual	~CoreArrayMessage();
 				size_t	size()	const;
 				uint32	getCapacity()	const;
 				T		&operator	[](uint32	i);
@@ -132,7 +132,7 @@ namespace	mBrane{
 			protected:
 				uint32	_size;		//	of the whole instance (not normalized)
 				uint32	_capacity;	//	max number of elements in the array
-				T		*_data;		//	points to ((T	*)(((uint8	*)this)+offsetof(CompoundMessage<U,M,C,T>,_data)+sizeof(T	*)));
+				T		*_data;		//	points to ((T	*)(((uint8	*)this)+offsetof(CoreArrayMessage<U,M,C,T>,_data)+sizeof(T	*)));
 				ArrayMessage();
 			public:
 				static	void		*New(uint32	size);					//	total size of the instance; called upon sending
