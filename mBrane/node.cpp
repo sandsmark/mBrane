@@ -560,6 +560,7 @@ namespace	mBrane{
 					_Message	*_m=message->as_Message();
 					_m->senderModule_cid()=sender->descriptor->CID;
 					_m->senderModule_id()=sender->descriptor->ID;
+					_m->senderNodeID()=sender->descriptor->hostID;
 					if(nodeID==this->_ID) {
 					//	printf("Sending message (%u) as data locally...\n", p->cid());
 						message->node_recv_ts()=this->time();
@@ -585,6 +586,7 @@ namespace	mBrane{
 			_Message	*_m=message->as_Message();
 			_m->senderModule_cid()=sender->descriptor->CID;
 			_m->senderModule_id()=sender->descriptor->ID;
+			_m->senderNodeID()=sender->descriptor->hostID;
 		}
 		Messaging::send(message,network);
 	}

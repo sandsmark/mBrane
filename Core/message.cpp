@@ -63,6 +63,11 @@ namespace	mBrane{
 
 				return	_senderModuleID;
 			}
+
+			uint16	&_Message::senderNodeID(){
+
+				return	_senderNodeID;
+			}
 		}
 	}
 }

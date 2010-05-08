@@ -79,11 +79,13 @@ namespace	mBrane{
 			protected:
 				uint16	_senderModuleCID;
 				uint16	_senderModuleID;
+				uint16	_senderNodeID;
 				_Message();
 			public:
 				virtual	~_Message();
 				uint16	&senderModule_cid();
 				uint16	&senderModule_id();
+				uint16	&senderNodeID();
 			};
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
@@ -102,9 +104,9 @@ namespace	mBrane{
 
 			//	Compound messages are built from a user-defined core C, followed by a continous array of elements of type T.
 			//	Usage sample: class CoreData{...}; class ACompound:public CompoundMessage<ACompound,Memory,CoreData,word32>{};
-			//	Do not declare anything in subclasses of CompoundMessage: such subclasses shall only contain logic, e.g. functions to exploit C and the array of Ts.
 			//	ACompound	*ac=new(32) ACompound(); // ac contains the data from CoreData followed by an array of 32 word32.
-			//	Typical use: data compacted dynamically, i.e. whose size is not an integral constant (e.g. that could parameterize a template), e.g. archives, compressed images, etc.
+			//	Do not declare any data in subclasses of CompoundMessage: such subclasses shall only contain logic, e.g. functions to exploit C and the array of Ts.
+			//	Typical use: data compacted dynamically, i.e. whose size is not an integral constant (e.g. that could not parameterize a template), e.g. archives, compressed images, etc.
 			template<class	U,class	M,class	C,typename	T>	class	CompoundMessage:
 			public	Message<U,M>,
 			public	C{
@@ -114,14 +116,33 @@ namespace	mBrane{
 				T		*_data;		//	points to ((T	*)(((uint8	*)this)+offsetof(CompoundMessage<U,M,C,T>,_data)+sizeof(T	*)));
 				CompoundMessage();
 			public:
-				static	void	*New(uint32	size);	//	total size of the instance; called upon sending
+				static	void		*New(uint32	size);					//	total size of the instance; called upon sending
 				void	*operator	new(size_t	s,uint32	capacity);	//	overrides Object<U,M>::new
 				void	operator	delete(void	*o);					//	overrides Object<U,M>::delete
 				virtual	~CompoundMessage();
 				size_t	size()	const;
 				uint32	getCapacity()	const;
-				T	&operator	[](uint32	i);
-				T	*data();
+				T		&operator	[](uint32	i);
+				T		*data();
+			};
+
+			//	Variant with no Core.
+			template<class	U,class	M,typename	T>	class	ArrayMessage:
+			public	Message<U,M>{
+			protected:
+				uint32	_size;		//	of the whole instance (not normalized)
+				uint32	_capacity;	//	max number of elements in the array
+				T		*_data;		//	points to ((T	*)(((uint8	*)this)+offsetof(CompoundMessage<U,M,C,T>,_data)+sizeof(T	*)));
+				ArrayMessage();
+			public:
+				static	void		*New(uint32	size);					//	total size of the instance; called upon sending
+				void	*operator	new(size_t	s,uint32	capacity);	//	overrides Object<U,M>::new
+				void	operator	delete(void	*o);					//	overrides Object<U,M>::delete
+				virtual	~ArrayMessage();
+				size_t	size()	const;
+				uint32	getCapacity()	const;
+				T		&operator	[](uint32	i);
+				T		*data();
 			};
 		}
 	}
