@@ -73,6 +73,7 @@ namespace	mBrane{
 					PREEMPT=2
 				}Decision;
 				virtual	~_Module();
+				virtual	void	loadParameters(const	word32	*parameters){}	//	parameters is deallocated after the call
 				uint8	&priority();
 				bool	canMigrate();	//	on another node; dynamic
 				bool	isReady();	//	if not, messages will be lost

@@ -11,6 +11,11 @@ private:
 	uint32 cRun;
 	uint32 cc;
 public:
+	void	loadParameters(const	word32	*parameters){
+		int32	a=parameters[0];
+		float32	f=*reinterpret_cast<float32	*>(&a);
+		std::cout<<"RR Module got parameters: "<<f<<" "<<parameters[1]<<std::endl;
+	}
 	void	start(){
 		tStart= 0;
 		tEnd=0;

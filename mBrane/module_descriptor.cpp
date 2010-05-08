@@ -99,6 +99,32 @@ namespace	mBrane{
 			stricmp(_host,"local")==0)
 			_m=ModuleRegister::Get(CID)->buildModule();
 
+		XMLNode	parameters=n.getChildNode("Parameters");
+		if(!!parameters){
+
+			uint32	_parameterCount=n.nChildNode();
+			word32	*_parameters=new	word32[_parameterCount];
+			for(uint32	i=0;i<_parameterCount;++i){
+
+				XMLNode	p=parameters.getChildNode("Parameter",i);
+				const	char	*_type=p.getAttribute("type");
+				const	char	*_value=p.getAttribute("value");
+				if(strcmp(_type,"float32")==0){
+
+					float32	value=atof(_value);
+					_parameters[i]=*reinterpret_cast<word32	*>(&value);
+				}else	if(strcmp(_type,"int32")==0)
+					_parameters[i]=atoi(_value);
+				else{
+
+					std::cout<<"> Error: module "<<name<<": unrecognized parameter type"<<std::endl;
+					return	NULL;
+				}
+			}
+			_m->loadParameters(_parameters);
+			delete[]	_parameters;
+		}
+
 		uint16	ID=(uint16)ModuleDescriptor::Config[CID].count();
 		ModuleDescriptor	*m=new	ModuleDescriptor(_host,_m,CID,name);
 		ModuleDescriptor::Config[CID][ID]=m;

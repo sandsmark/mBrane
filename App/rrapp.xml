@@ -7,6 +7,10 @@
 			<Subscription message_class="SystemReady"/>
       <Subscription message_class="Ball9"/>
 		</Projection>
+    <Parameters>
+      <Parameter value="0.5" type="float32"/>
+      <Parameter value="1" type="int32"/>
+    </Parameters>
 	</Module>
 
   <Module class="RRModule" name="RR1" host="local">
