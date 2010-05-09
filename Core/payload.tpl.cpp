@@ -46,6 +46,16 @@ namespace	mBrane{
 			return	(uint16)(_MetaData>>16);
 		}
 
+		template<class	P,class	U,class	M>	void	*___Payload<P,U,M>::Alloc(uint32	requested_size,uint32	&normalized_size){
+
+			return	M::GetDynamic(requested_size)->alloc(normalized_size);
+		}
+
+		template<class	P,class	U,class	M>	void	___Payload<P,U,M>::Dealloc(uint32	requested_size,void	*o){
+
+			M::GetDynamic(requested_size)->dealloc(o);
+		}
+
 		template<class	P,class	U,class	M>	inline	void	*___Payload<P,U,M>::operator	new(size_t	s){
 
 			U	*p=(U	*)Object<M,P,U>::operator	new(s);

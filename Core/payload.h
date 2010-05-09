@@ -103,6 +103,9 @@ namespace	mBrane{
 		template<class	P,class	U,class	M>	class	___Payload:	//	P: payload class, U: final class, M: memory
 		public	Object<M,P,U>{
 		protected:
+			//	convenience for accessing the Memory from subclasses unaware of M
+			static	void	*Alloc(uint32	requested_size,uint32	&normalized_size);
+			static	void	Dealloc(uint32	requested_size,void	*o);
 			___Payload();
 		public:
 			static	uint64		_MetaData;

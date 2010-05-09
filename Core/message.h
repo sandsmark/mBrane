@@ -102,43 +102,27 @@ namespace	mBrane{
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
 
-			//	Core array messages are built from a user-defined core C, followed by a continous array of elements of type T.
-			//	Usage sample: class CoreData{...}; class ACompound:public CoreArrayMessage<ACompound,Memory,CoreData,word32>{};
-			//	ACompound	*ac=new(32) ACompound(); // ac contains the data from CoreData followed by an array of 32 word32.
-			//	Do not declare any data in subclasses of CoreArrayMessage: such subclasses shall only contain logic, e.g. functions to exploit C and the array of Ts.
+			//	CStorage stands for contiguous storage.
+			//	S. superclass, T: type of the data to be stored contiguously.
 			//	Typical use: data compacted dynamically, i.e. whose size is not an integral constant (e.g. that could not parameterize a template), e.g. archives, compressed images, etc.
-			template<class	U,class	M,class	C,typename	T>	class	CoreArrayMessage:
-			public	Message<U,M>,
-			public	C{
+			//	Usage sample:
+			//		template<class	U>	class CoreData:public	Message<U,Memory>{...};
+			//		class ACStorage:public CStorage<CoreData<ACStorage,word32> >{...};
+			//		ACStorage	*acs=new(32) ACStorage(); // acs contains the data from CoreData followed by an array of 32 word32.
+			//		N.B.: CoreData can be skipped in case of need of a message consisting of a simple array of T.
+			//	Do not declare any data in subclasses of CStorage: such subclasses shall only contain logic, e.g. functions to exploit CoreData (if any) and the array of Ts.
+			template<class	S,typename	T>	class	CStorage:
+			public	S{
 			protected:
 				uint32	_size;		//	of the whole instance (not normalized)
 				uint32	_capacity;	//	max number of elements in the array
-				T		*_data;		//	points to ((T	*)(((uint8	*)this)+offsetof(CoreArrayMessage<U,M,C,T>,_data)+sizeof(T	*)));
-				CoreArrayMessage();
+				T		*_data;		//	points to ((T	*)(((uint8	*)this)+offsetof(CStorage<S,T>,_data)+sizeof(T	*)));
+				CStorage();
 			public:
 				static	void		*New(uint32	size);					//	total size of the instance; called upon sending
 				void	*operator	new(size_t	s,uint32	capacity);	//	overrides Object<U,M>::new
 				void	operator	delete(void	*o);					//	overrides Object<U,M>::delete
-				virtual	~CoreArrayMessage();
-				size_t	size()	const;
-				uint32	getCapacity()	const;
-				T		&operator	[](uint32	i);
-				T		*data();
-			};
-
-			//	Variant with no Core.
-			template<class	U,class	M,typename	T>	class	ArrayMessage:
-			public	Message<U,M>{
-			protected:
-				uint32	_size;		//	of the whole instance (not normalized)
-				uint32	_capacity;	//	max number of elements in the array
-				T		*_data;		//	points to ((T	*)(((uint8	*)this)+offsetof(CoreArrayMessage<U,M,C,T>,_data)+sizeof(T	*)));
-				ArrayMessage();
-			public:
-				static	void		*New(uint32	size);					//	total size of the instance; called upon sending
-				void	*operator	new(size_t	s,uint32	capacity);	//	overrides Object<U,M>::new
-				void	operator	delete(void	*o);					//	overrides Object<U,M>::delete
-				virtual	~ArrayMessage();
+				virtual	~CStorage();
 				size_t	size()	const;
 				uint32	getCapacity()	const;
 				T		&operator	[](uint32	i);
