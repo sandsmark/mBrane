@@ -7,7 +7,7 @@ BINDIR = ../bin
 SRCDIR = .
 BUILDDIR = build
 
-INCLUDEDIRS = .
+INCLUDEDIRS = . ../CoreLibrary
 
 LIBS = 
 
@@ -55,7 +55,7 @@ profile: all
 
 $(BUILDDIR)/%.d: $(SRCDIR)/%.cpp
 	@echo Making dependencies for $(<F)...
-	@$(SHELL) -ec '$(CC) -MM $(INCLUDES) -D $(SYSTEM) $< \
+	@$(SHELL) -ec '$(CC) -MM $(INCLUDES) -D $(SYSTEM) -std=c++0x $< \
 		| sed '\''s/\($(*F)\)\.o[ :]*/\1.o $(@F) : /g'\'' > $@; \
 		[ -s $@ ] || rm -f $@'
 
@@ -69,7 +69,7 @@ endif
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.cpp
 	@echo Compiling $(<F)
-	@$(CC) $(DEBUG) $(INCLUDES) $(STANDARD) $(LIBCOPT) $(NOTLINK) $(OUTPUT_OPTION) $<
+	@$(CC) $(DEBUG) $(INCLUDES) $(STANDARD) -std=c++0x $(LIBCOPT) $(NOTLINK) $(OUTPUT_OPTION) $<
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 	@echo Compiling $(<F)
