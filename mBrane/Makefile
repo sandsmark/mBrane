@@ -6,9 +6,9 @@ BINDIR = ../bin
 SRCDIR = .
 BUILDDIR = build
 
-INCLUDEDIRS = . ../Core
+INCLUDEDIRS = . ../Core ../CoreLibrary
 
-LIBRARIES = ../bin/arch/libCore.so
+LIBRARIES = ../bin/arch/libCore.so ../bin/arch/libCoreLibrary.so
 
 ############# Include system stuff #############
 
@@ -47,7 +47,7 @@ profile: all
 
 $(BUILDDIR)/%.d: $(SRCDIR)/%.cpp
 	@echo Making dependencies for $(<F)...
-	@$(SHELL) -ec '$(CC) -MM $(INCLUDES) -D $(SYSTEM) $< \
+	@$(SHELL) -ec '$(CC) -MM $(INCLUDES) -D $(SYSTEM) -std=c++0x $< \
 		| sed '\''s/\($(*F)\)\.o[ :]*/\1.o $(@F) : /g'\'' > $@; \
 		[ -s $@ ] || rm -f $@'
 
@@ -61,7 +61,7 @@ endif
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.cpp
 	@echo Compiling $(<F)
-	@$(CC) $(DEBUG) $(INCLUDES) $(STANDARD) $(NOTLINK) $(OUTPUT_OPTION) $<
+	@$(CC) $(DEBUG) $(INCLUDES) $(STANDARD) -std=c++0x $(NOTLINK) $(OUTPUT_OPTION) $<
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 	@echo Compiling $(<F)

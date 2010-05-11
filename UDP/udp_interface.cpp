@@ -142,7 +142,7 @@ bool	UDPInterface::load(XMLNode	&n){
 #endif
 
 #if defined (LINUX)
-	mBrane::socket if_socket = 0;
+	core::socket if_socket = 0;
 	struct ifreq ifreq;
 	struct sockaddr_in if_addr;
 

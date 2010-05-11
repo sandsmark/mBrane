@@ -6,7 +6,7 @@ BINDIR = ../bin
 SRCDIR = .
 BUILDDIR = build
 
-INCLUDEDIRS = .
+INCLUDEDIRS = . ../CoreLibrary
 
 LIBS = 
 
@@ -59,7 +59,7 @@ endif
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.cpp
 	@echo Compiling $(<F)
-	@$(CC) $(DEBUG) $(INCLUDES) $(STANDARD) $(LIBCOPT) $(NOTLINK) $(OUTPUT_OPTION) $<
+	@$(CC) $(DEBUG) $(INCLUDES) $(STANDARD) -std=c++0x $(LIBCOPT) $(NOTLINK) $(OUTPUT_OPTION) $<
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 	@echo Compiling $(<F)
