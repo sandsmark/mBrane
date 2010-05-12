@@ -32,7 +32,7 @@
 namespace	mBrane{
 	namespace	sdk{
 		namespace	payloads{
-
+/*
 			template<typename	T>	void	*Storage<T>::New(uint32	size){	
 				
 				uint32	ns;
@@ -52,7 +52,7 @@ namespace	mBrane{
 				Memory::GetDynamic(((Storage<T>	*)storage)->getNormalizedSize())->dealloc(storage);
 			}
 			
-			template<typename	T>	inline	Storage<T>::Storage()/*:RPayload<Storage<T>,Memory>(),*/{	
+			template<typename	T>	inline	Storage<T>::Storage(){	
 				
 				this->_metaData=Storage<T>::_MetaData;
 				this->data=((T	*)(((uint8	*)this)+offsetof(Storage<T>,data)+sizeof(T	*)));
@@ -91,18 +91,18 @@ namespace	mBrane{
 			
 			template<typename	T>	void	*Storage<P<T> >::operator	new(size_t	s,uint32	size,uint32	&normalizedSize){
 
-				return	Memory::GetDynamic(size)->alloc(normalizedSize);
+				Storage<T>	*storage=(Storage<P<T> >	*)Memory::GetDynamic(size)->alloc(normalizedSize);
+				storage->normalizedSize=normalizedSize;
+				storage->count=(size-sizeof(Storage<P<T> >))/sizeof(T);
+				return	storage;
 			}
 			
 			template<typename	T>	void	Storage<P<T> >::operator	delete(void	*storage){
 
-				Storage<T>	*storage=(Storage<P<T> >	*)Memory::GetDynamic(size)->alloc(normalizedSize);
-				storage->normalizedSize=normalizedSize;
-				storage->count=(size-sizeof(Storage<P<T> >))/sizeof(P<T>);
-				return	storage;
+				Memory::GetDynamic(((Storage<P<T> >	*)storage)->getNormalizedSize())->dealloc(storage);
 			}
 			
-			template<typename	T>	inline	Storage<P<T> >::Storage()/*:RPayload<Storage<T>,Memory>(),*/{	
+			template<typename	T>	inline	Storage<P<T> >::Storage(){	
 				
 				this->_metaData=Storage<P<T> >::_MetaData;
 				this->data=((P<T>	*)(((uint8	*)this)+offsetof(Storage<P<T> >,data)+sizeof(P<T>	*)));
@@ -148,7 +148,7 @@ namespace	mBrane{
 
 			////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-			template<typename	T>	Array<T>::Array():/*RPayload<Array<T>,DynamicData,Memory>(),*/_data(NULL),_maxCount(0){
+			template<typename	T>	Array<T>::Array():_data(NULL),_maxCount(0){
 			}
 
 			template<typename	T>	Array<T>::~Array(){
@@ -199,7 +199,7 @@ namespace	mBrane{
 			template<typename	T>	inline	void	Array<T>::setPtr(uint16	i,__Payload	*p){
 
 				_data=(Storage<T>	*)p;
-			}
+			}*/
 		}
 	}
 }

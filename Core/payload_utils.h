@@ -37,7 +37,7 @@
 namespace	mBrane{
 	namespace	sdk{
 		namespace	payloads{
-
+/*
 			template<typename	T>	class	Array;
 			//	Leads a contiguous raw data storage; the allocated size is not sizeof(Storage<T>), but size; size <=2^30-1
 			//	_metaData is [size(30)|allocation scheme(2)]
@@ -103,7 +103,7 @@ namespace	mBrane{
 				uint16		ptrCount()	const;
 				__Payload	*getPtr(uint16	i)	const;
 				void		setPtr(uint16	i,__Payload	*p);
-			};
+			};*/
 		}
 	}
 }
