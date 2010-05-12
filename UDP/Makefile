@@ -45,7 +45,7 @@ profile: all
 
 $(BUILDDIR)/%.d: $(SRCDIR)/%.cpp
 	@echo Making dependencies for $(<F)...
-	@$(SHELL) -ec '$(CC) -MM $(INCLUDES) -D $(SYSTEM) $< \
+	@$(SHELL) -ec '$(CC) -MM $(INCLUDES) -D $(SYSTEM) -std=c++0x $< \
 		| sed '\''s/\($(*F)\)\.o[ :]*/\1.o $(@F) : /g'\'' > $@; \
 		[ -s $@ ] || rm -f $@'
 
