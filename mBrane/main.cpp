@@ -116,7 +116,7 @@ template<class	L>	int64	RAM_perf_probe(){	//	the real test is to allocate/deallo
 #endif
 
 #endif
-
+#include	"../Core/payload_utils.h"
 
 int	main(int	argc,char	**argv){
 

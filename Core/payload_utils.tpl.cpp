@@ -41,7 +41,10 @@ namespace	mBrane{
 			
 			template<typename	T>	void	*Storage<T>::operator	new(size_t	s,uint32	size,uint32	&normalizedSize){
 
-				return	Memory::GetDynamic(size)->alloc(normalizedSize);
+				Storage<T>	*storage=(Storage<T>	*)Memory::GetDynamic(size)->alloc(normalizedSize);
+				storage->normalizedSize=normalizedSize;
+				storage->count=(size-sizeof(Storage<T>))/sizeof(T);
+				return	storage;
 			}
 			
 			template<typename	T>	void	Storage<T>::operator	delete(void	*storage){
@@ -49,7 +52,7 @@ namespace	mBrane{
 				Memory::GetDynamic(((Storage<T>	*)storage)->getNormalizedSize())->dealloc(storage);
 			}
 			
-			template<typename	T>	inline	Storage<T>::Storage():/*RPayload<Storage<T>,Memory>(),*/size(0),count(0){	
+			template<typename	T>	inline	Storage<T>::Storage()/*:RPayload<Storage<T>,Memory>(),*/{	
 				
 				this->_metaData=Storage<T>::_MetaData;
 				this->data=((T	*)(((uint8	*)this)+offsetof(Storage<T>,data)+sizeof(T	*)));
@@ -93,10 +96,13 @@ namespace	mBrane{
 			
 			template<typename	T>	void	Storage<P<T> >::operator	delete(void	*storage){
 
-				Memory::GetDynamic(((Storage<P<T> >	*)storage)->getNormalizedSize())->dealloc(storage);
+				Storage<T>	*storage=(Storage<P<T> >	*)Memory::GetDynamic(size)->alloc(normalizedSize);
+				storage->normalizedSize=normalizedSize;
+				storage->count=(size-sizeof(Storage<P<T> >))/sizeof(P<T>);
+				return	storage;
 			}
 			
-			template<typename	T>	inline	Storage<P<T> >::Storage():/*RPayload<Storage<T>,Memory>(),*/size(0),count(0){	
+			template<typename	T>	inline	Storage<P<T> >::Storage()/*:RPayload<Storage<T>,Memory>(),*/{	
 				
 				this->_metaData=Storage<P<T> >::_MetaData;
 				this->data=((P<T>	*)(((uint8	*)this)+offsetof(Storage<P<T> >,data)+sizeof(P<T>	*)));
@@ -159,7 +165,7 @@ namespace	mBrane{
 				if(_data!=NULL)
 					memcpy(newStorage->data,_data->data,_data->count*sizeof(T));
 				_data=newStorage;
-				_maxCount=(_data->size-sizeof(Storage<T>))/sizeof(T);
+				_maxCount=(normalizedSize-sizeof(Storage<T>))/sizeof(T);
 			}
 
 			template<typename	T>	inline	uint32	Array<T>::count()	const{
