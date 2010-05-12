@@ -9,7 +9,7 @@ BUILDDIR = build
 
 INCLUDEDIRS = . ../CoreLibrary
 
-LIBS = 
+LIBRARIES = ../bin/arch/libCoreLibrary.so
 
 ############# Include system stuff #############
 
