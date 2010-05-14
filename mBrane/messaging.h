@@ -31,7 +31,7 @@
 #ifndef	mBrane_messaging_h
 #define	mBrane_messaging_h
 
-#include	"../Core/pipe.h"
+#include	"pipe.h"
 #include	"../Core/list.h"
 #include	"../Core/control_messages.h"
 

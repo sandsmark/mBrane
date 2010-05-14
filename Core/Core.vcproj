@@ -388,26 +388,6 @@
 					/>
 				</FileConfiguration>
 			</File>
-			<File
-				RelativePath=".\pipe.tpl.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -496,10 +476,6 @@
 			</File>
 			<File
 				RelativePath=".\payload_utils.h"
-				>
-			</File>
-			<File
-				RelativePath=".\pipe.h"
 				>
 			</File>
 		</Filter>
