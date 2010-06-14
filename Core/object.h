@@ -34,6 +34,7 @@
 #include	<cstdlib>
 
 #include	"types.h"
+#include	"base.h"
 #include	"config.h"
 
 
@@ -41,45 +42,6 @@ using	namespace	core;
 
 namespace	mBrane{
 	namespace	sdk{
-
-		//	Root pointer class.
-		class	_Object;
-		class	mBrane_dll	_P{
-		protected:
-			_Object	*object;
-		public:
-			_P();
-			_P(_Object	*o);
-			virtual	~_P();
-		};
-
-		//	Smart pointer (ref counting, deallocates when ref count<=0).
-		//	No circular refs (use std c++ ptrs).
-		//	No passing in functions (cast P<C> into C*).
-		//	Cannot be a value returned by a function (return C* instead).
-		template<class	C>	class	P:
-		public	_P{
-		public:
-			P();
-			P(C	*o);
-			P(const P<C>	&p);
-			~P();
-			C	*operator	->()	const;
-			template<class	D>	operator	D	*()	const{
-
-				return	(D	*)object;
-			}
-			bool	operator	==(C	*c)	const;
-			bool	operator	!=(C	*c)	const;
-			bool	operator	!()	const;
-			template<class	D>	bool	operator	==(P<D>	&p)	const;
-			template<class	D>	bool	operator	!=(P<D>	&p)	const;
-			P<C>	&operator	=(C	*c);
-			P<C>	&operator	=(const  P<C>	&p);
-			template<class	D>	P<C>	&operator	=(const P<D>	&p);
-		};
-
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		class	ClassRegister;
 		//	Standard base class for all objects in mBrane.
@@ -102,30 +64,7 @@ namespace	mBrane{
 			void	operator	delete(void	*o);
 		};
 
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-		//	Root smart-pointable object class.
-		class	mBrane_dll	_Object{
-		template<class	C>	friend	class	P;
-		friend	class	_P;
-		private:
-			int32	volatile	refCount;
-			void	incRef();	//	atomic operation
-			void	decRef();	//	atomic operation
-		protected:
-			_Object();
-		public:
-			virtual	~_Object();
-		};
-
-		//	Template version of the well-known DP. Adapts C to _Object.
-		template<class	C>	class	_ObjectAdapter:
-		public	C,
-		public	_Object{
-		protected:
-			_ObjectAdapter();
-		};
-
+		
 		//	Template version of the well-known DP. Adapts C to Object<M,_Object,U>.
 		template<class	C,class	M,class	U>	class	ObjectAdapter:
 		public	C,
