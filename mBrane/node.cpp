@@ -507,7 +507,7 @@ namespace	mBrane{
 //		unloadApplication();
 	}
 
-	inline	int64	Node::time()	const{
+	inline	uint64	Node::time()	const{
 
 		if(isTimeReference)
 			return	Time::Get();

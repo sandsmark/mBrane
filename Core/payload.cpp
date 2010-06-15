@@ -70,22 +70,22 @@ namespace	mBrane{
 			return	(_Payload::Category)(_metaData	&	0x0000000000000003);
 		}
 
-		int64	&_Payload::node_send_ts(){
+		uint64	&_Payload::node_send_ts(){
 
 			return	_node_send_ts;
 		}
 
-		int64	&_Payload::node_recv_ts(){
+		uint64	&_Payload::node_recv_ts(){
 
 			return	_node_recv_ts;
 		}
 
-		int64	&_Payload::send_ts(){
+		uint64	&_Payload::send_ts(){
 
 			return	_send_ts;
 		}
 				
-		int64	&_Payload::recv_ts(){
+		uint64	&_Payload::recv_ts(){
 
 			return	_recv_ts;
 		}

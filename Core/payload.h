@@ -72,19 +72,19 @@ namespace	mBrane{
 				STREAM=2
 			}Category;
 		protected:
-			int64	_node_recv_ts;	//	not transmitted
-			int64	_recv_ts;		//	not transmitted
+			uint64	_node_recv_ts;	//	not transmitted
+			uint64	_recv_ts;		//	not transmitted
 			uint64	_metaData;		//	[reserved(32)|cid(16)|reserved(14)|category(2)]
-			int64	_node_send_ts;
-			int64	_send_ts;
+			uint64	_node_send_ts;
+			uint64	_send_ts;
 			_Payload();
 		public:
 			virtual	~_Payload();
 			Category	category()	const;
-			int64		&node_send_ts();	//	send timestamp: time of emission from a node
-			int64		&node_recv_ts();	//	recv timestamp: time of reception by a node
-			int64		&send_ts();			//	send timestamp: time of emission from a module (< than node_send_ts)
-			int64		&recv_ts();			//	recv timestamp: time of reception by a module (> than node_recv_ts)
+			uint64		&node_send_ts();	//	send timestamp: time of emission from a node
+			uint64		&node_recv_ts();	//	recv timestamp: time of reception by a node
+			uint64		&send_ts();			//	send timestamp: time of emission from a module (< than node_send_ts)
+			uint64		&recv_ts();			//	recv timestamp: time of reception by a module (> than node_recv_ts)
 			//	down_casting; return NULL by default
 			virtual	payloads::_Message		*as_Message();
 			virtual	payloads::_StreamData	*as_StreamData();

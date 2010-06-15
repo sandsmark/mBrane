@@ -95,7 +95,7 @@ namespace	mBrane{
 		void	send(const	_Module	*sender,_Payload	*message,module::Node::Network	network=module::Node::PRIMARY);
 		void	send(const	_Module	*sender,_Payload	*message, uint16	nodeID,Network	network=module::Node::PRIMARY);
 		void	send(const	_Module	*sender,_Payload	*message, Array<uint16, 128>	*nodeIDs,Network	network);
-		int64	time()	const;
+		uint64	time()	const;
 		void	newSpace(const	_Module	*sender,Network	network=PRIMARY);
 		void	newModule(const	_Module	*sender,uint16	CID,Network	network=PRIMARY,const	char	*hostName="local");
 		void	deleteSpace(uint16	ID,Network	network=PRIMARY);
