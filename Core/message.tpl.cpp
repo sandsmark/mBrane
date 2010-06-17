@@ -117,6 +117,11 @@ namespace	mBrane{
 				return	_data[i];
 			}
 
+			template<class	S,typename	T>	T	&CStorage<S,T>::data(uint32	i){
+
+				return	_data[i];
+			}
+
 			template<class	S,typename	T>	T	*CStorage<S,T>::data(){
 
 				return	_data;

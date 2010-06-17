@@ -126,6 +126,7 @@ namespace	mBrane{
 				size_t	size()	const;
 				uint32	getCapacity()	const;
 				T		&operator	[](uint32	i);
+				T		&data(uint32	i);
 				T		*data();
 			};
 		}
