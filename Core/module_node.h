@@ -66,6 +66,7 @@ namespace	mBrane{
 				uint16	id()	const;
 				virtual	const	char	*name()=0;
 				virtual	void	send(const	_Module	*sender,_Payload	*p,Network	network=PRIMARY)=0;
+				virtual	void	send(const	_Module	*sender,_Payload	*message, uint16	nodeID,Network	network=PRIMARY)=0;
 				virtual	uint64	time()	const=0;	//	in us since 01/01/70
 				virtual	void	newSpace(const	_Module	*sender,Network	network=PRIMARY)=0;	//	names are meaningless for dynamic instances
 				virtual	void	newModule(const	_Module	*sender,uint16	CID,Network	network=PRIMARY,const	char	*hostName="local")=0;

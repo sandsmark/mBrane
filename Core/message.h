@@ -108,8 +108,7 @@ namespace	mBrane{
 			//	Usage sample:
 			//		template<class	U>	class CoreData:public	Message<U,Memory>{...};
 			//		class ACStorage:public CStorage<CoreData<ACStorage,word32> >{...};
-			//		ACStorage	*acs=new(32) ACStorage(); // acs contains the data from CoreData followed by an array of 32 word32.
-			//		N.B.: CoreData can be skipped in case of need of a message consisting of a simple array of T.
+			//		ACStorage	*acs=new(32) ACStorage(); // acs contains an array of 32 word32.
 			//	Do not declare any data in subclasses of CStorage: such subclasses shall only contain logic, e.g. functions to exploit CoreData (if any) and the array of Ts.
 			template<class	S,typename	T>	class	CStorage:
 			public	S{
@@ -125,8 +124,8 @@ namespace	mBrane{
 				virtual	~CStorage();
 				size_t	size()	const;
 				uint32	getCapacity()	const;
-				T		&operator	[](uint32	i);
 				T		&data(uint32	i);
+				T		&data(uint32	i)	const;
 				T		*data();
 			};
 		}

@@ -112,7 +112,7 @@ namespace	mBrane{
 				return	_capacity;
 			}
 
-			template<class	S,typename	T>	T	&CStorage<S,T>::operator	[](uint32	i){
+			template<class	S,typename	T>	T	&CStorage<S,T>::data(uint32	i)	const{
 
 				return	_data[i];
 			}
