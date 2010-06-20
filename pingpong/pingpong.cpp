@@ -13,6 +13,6 @@
  * So this is probably the best place to acquire global locks on
  * specific resoruce (audio, limbs, etc.)
  */
-void Init() {
+void Init(const	std::vector<word32>	&numbers,const	std::vector<std::string>	&strings) {
 	std::cout << "pingpong library loaded"<<std::endl;
 }

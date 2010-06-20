@@ -102,8 +102,9 @@ namespace	mBrane{
 		XMLNode	parameters=n.getChildNode("Parameters");
 		if(!!parameters){
 
-			uint32	_parameterCount=n.nChildNode();
-			word32	*_parameters=new	word32[_parameterCount];
+			uint32						_parameterCount=parameters.nChildNode();
+			std::vector<word32>			numerical_args;
+			std::vector<std::string>	string_args;
 			for(uint32	i=0;i<_parameterCount;++i){
 
 				XMLNode	p=parameters.getChildNode("Parameter",i);
@@ -112,17 +113,18 @@ namespace	mBrane{
 				if(strcmp(_type,"float32")==0){
 
 					float32	value=atof(_value);
-					_parameters[i]=*reinterpret_cast<word32	*>(&value);
+					numerical_args.push_back(*reinterpret_cast<word32	*>(&value));
 				}else	if(strcmp(_type,"int32")==0)
-					_parameters[i]=atoi(_value);
+					numerical_args.push_back(atoi(_value));
+				else	if(strcmp(_type,"string")==0)
+					string_args.push_back(std::string(_value));
 				else{
 
 					std::cout<<"> Error: module "<<name<<": unrecognized parameter type"<<std::endl;
 					return	NULL;
 				}
 			}
-			_m->loadParameters(_parameters);
-			delete[]	_parameters;
+			_m->loadParameters(numerical_args,string_args);
 		}
 
 		uint16	ID=(uint16)ModuleDescriptor::Config[CID].count();

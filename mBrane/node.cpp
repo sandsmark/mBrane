@@ -162,11 +162,38 @@ namespace	mBrane{
 		if(!(userLibrary=SharedLibrary::New(ul)))
 			return	false;
 
-		typedef	void	(*UserInitFunction)();
+		std::vector<word32>			numerical_args;
+		std::vector<std::string>	string_args;
+		XMLNode	parameters=mainNode.getChildNode("Parameters");
+		if(!!parameters){
+
+			uint32	_parameterCount=parameters.nChildNode();
+			for(uint32	i=0;i<_parameterCount;++i){
+
+				XMLNode	p=parameters.getChildNode("Parameter",i);
+				const	char	*_type=p.getAttribute("type");
+				const	char	*_value=p.getAttribute("value");
+				if(strcmp(_type,"float32")==0){
+
+					float32	value=atof(_value);
+					numerical_args.push_back(*reinterpret_cast<word32	*>(&value));
+				}else	if(strcmp(_type,"int32")==0)
+					numerical_args.push_back(atoi(_value));
+				else	if(strcmp(_type,"string")==0)
+					string_args.push_back(std::string(_value));
+				else{
+
+					std::cout<<"> Error: user library: unrecognized parameter type"<<std::endl;
+					return	NULL;
+				}
+			}
+		}
+
+		typedef	void	(*UserInitFunction)(const	std::vector<word32>	&,const	std::vector<std::string>	&);
 		UserInitFunction	userInitFunction=userLibrary->getFunction<UserInitFunction>("Init");
 		if(!userInitFunction)
 			return	false;
-		userInitFunction();
+		userInitFunction(numerical_args,string_args);
 		std::cout<<"> User library "<<ul<<" loaded"<<std::endl;
 
 		uint16	spaceCount=mainNode.nChildNode("Space");

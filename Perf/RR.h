@@ -11,10 +11,10 @@ private:
 	uint32 cRun;
 	uint32 cc;
 public:
-	void	loadParameters(const	word32	*parameters){
-		int32	a=parameters[0];
+	void	loadParameters(const	std::vector<word32>	&numbers,const	std::vector<std::string>	&strings){
+		int32	a=numbers[0];
 		float32	f=*reinterpret_cast<float32	*>(&a);
-		std::cout<<"RR Module got parameters: "<<f<<" "<<parameters[1]<<std::endl;
+		std::cout<<"RR Module got parameters: "<<f<<" "<<numbers[1]<<" "<<strings[0]<<std::endl;
 	}
 	void	start(){
 		tStart= 0;

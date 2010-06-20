@@ -1,5 +1,11 @@
 <ApplicationConfiguration user_library="Perf">
 
+  <Parameters>
+    <Parameter value="0.5" type="float32"/>
+    <Parameter value="1" type="int32"/>
+    <Parameter value="test_string1" type="string"/>
+  </Parameters>
+  
   <Space name="space1" activation_threshold="0.5"/>
 	
   <Module class="RRMaster" name="RRMaster" host="local">
@@ -8,8 +14,9 @@
       <Subscription message_class="Ball9"/>
 		</Projection>
     <Parameters>
-      <Parameter value="0.5" type="float32"/>
-      <Parameter value="1" type="int32"/>
+      <Parameter value="0.75" type="float32"/>
+      <Parameter value="2" type="int32"/>
+      <Parameter value="test_string2" type="string"/>
     </Parameters>
 	</Module>
 
