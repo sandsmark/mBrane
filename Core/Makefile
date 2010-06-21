@@ -18,8 +18,8 @@ include ../Makefile.sys
 ############# Files to compile #############
 
 CPPFILES = class_register.cpp control_messages.cpp mdaemon_node.cpp
-CPPFILES += message.cpp module.cpp module_node.cpp module_register.cpp
-CPPFILES += network_interface.cpp object.cpp payload.cpp memory.cpp
+CPPFILES += memory.cpp message.cpp module.cpp module_node.cpp module_register.cpp
+CPPFILES += network_interface.cpp payload.cpp
 
 PROG_CPPFILES = CoreTest.cpp
 
@@ -79,7 +79,7 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 $(PROGRAM): $(LIBRARY) $(PROG_OBJFILES)
 	@echo Linking $(PROGNAME) $(SYSTEM)...
 	@$(CC) $(DEBUG) $(STANDARD) $(PROG_OBJFILES) $(LIBRARY) $(LIBPATHS) -o $(PROGRAM) $(LIBS) $(BINLIBRARY) $(OTHERLIBS)
-	
+
 $(BINLIBRARY): $(OBJFILES)
 	@echo Linking $(BINLIBRARY) $(SYSTEM)...
 	@$(CC) $(DEBUG) $(STANDARD) $(LIBOPT) $(OBJFILES) $(LIBPATHS) -o $(BINLIBRARY) $(LIBS) $(OTHERLIBS)
