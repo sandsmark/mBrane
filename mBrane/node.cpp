@@ -91,6 +91,9 @@ namespace	mBrane{
 		if(!Networking::loadConfig(mainNode))
 			return	NULL;
 
+		if(!Messaging::loadConfig(mainNode))
+			return	NULL;
+
 		if(!Executing::loadConfig(mainNode))
 			return	NULL;
 
@@ -217,11 +220,11 @@ namespace	mBrane{
 		return	true;
 	}
 
-	uint16	Node::getNID(const	char	*name){
+	uint8	Node::getNID(const	char	*name){
 
 		if(stricmp(name,"local")==0)
 			return	_ID;
-		for(uint16	i=0;i<nodeNames.count();i++)
+		for(uint8	i=0;i<nodeNames.count();i++)
 			if(stricmp(nodeNames[i],networkID->name())==0)
 				return	i;
 		return	NoID;
@@ -251,7 +254,8 @@ namespace	mBrane{
 		return	true;
 	}
 
-	bool	Node::checkSyncProbe(uint16 syncNodeID) {
+	bool	Node::checkSyncProbe(uint8 syncNodeID) {
+
 		if (nodeStatus[syncNodeID] != 2) {
 			nodeStatus[syncNodeID] = 2;
 			// printf("Node '%s' set to ready... \n", nodeNames[syncNodeID]);
@@ -284,7 +288,7 @@ namespace	mBrane{
 		Thread::Sleep();
 	}
 
-	void	Node::start(uint16	assignedNID,NetworkID	*networkID,bool	isTimeReference){
+	void	Node::start(uint8	assignedNID,NetworkID	*networkID,bool	isTimeReference){
 
 		// we only need to do this once.
 
@@ -343,7 +347,7 @@ namespace	mBrane{
 
 	}
 
-	void	Node::ready(void) {
+	void	Node::ready() {
 
 		static bool initialised = false;
 
@@ -357,7 +361,7 @@ namespace	mBrane{
 		initialised = true;
 	}
 
-	void	Node::systemReady(void) {
+	void	Node::systemReady() {
 
 		if ( isTimeReference ) {
 
@@ -371,7 +375,7 @@ namespace	mBrane{
 		}
 	}
 
-	void	Node::notifyNodeJoined(uint16	NID,NetworkID	*networkID){
+	void	Node::notifyNodeJoined(uint8	NID,NetworkID	*networkID){
 
 		// static	uint16	ToJoin=nodeCount; // using nodeJoined instead
 
@@ -425,7 +429,7 @@ namespace	mBrane{
 		Node::Get()->trace(Node::NETWORK)<<"> Node joined: "<<networkID->name()<<":"<<NID<<std::endl;
 	}
 
-	void	Node::notifyNodeLeft(uint16	NID){
+	void	Node::notifyNodeLeft(uint8	NID){
 
 		if(	controlChannels[PRIMARY][NID]				||
 			dataChannels[NID]->channels[PRIMARY].data	||	
@@ -446,7 +450,7 @@ namespace	mBrane{
 		}
 	}
 
-	void	Node::startReceivingThreads(uint16	NID){
+	void	Node::startReceivingThreads(uint8	NID){
 
 		uint32 recThreadCount = 0;
 		if(network==PRIMARY	||	network==BOTH){
@@ -542,72 +546,29 @@ namespace	mBrane{
 			return	Time::Get()-timeDrift;
 	}
 
-	void	Node::send(const	_Module	*sender,_Payload	*message, Array<uint16, 128>	*nodeIDs,Network	network){
+	void	Node::send(const	_Module	*sender,_Payload	*message, Array<uint8, 128>	*nodeIDs,Network	network){
 
 		for (uint16 n=0; n<nodeIDs->count(); n++) {
 			send(sender, message, *nodeIDs->get(n), network);
 		}
 	}
 
-	void	Node::send(const	_Module	*sender,_Payload	*message, uint16	nodeID,Network	network){
+	void	Node::send(const	_Module	*sender,_Payload	*message, uint8	nodeID,Network	network){
 
 		message->send_ts()=this->time();
-		_Payload::Category	cat= message->category();
+		if(message->category()==_Payload::DATA){
 
-		MessageSlot	out;
-		out.p=message;
-		out.network=network;
-
-		if(out.network==module::Node::LOCAL){
-				
-			message->node_recv_ts()=this->time();
-			this->messageInputQueue.push(out.p);
-		}else{
-
-			switch(cat){
-				case	_Payload::CONTROL:
-					this->broadcastControlMessage(message,out.network);
-					message->node_recv_ts()=this->time();
-					this->messageInputQueue.push(out.p);
-					break;
-				case	_Payload::STREAM:	//	find target remote nodes; send on data/stream channels; push in messageInputQueue if the local node is a target
-					{
-					if(nodeID==this->_ID) {
-					//	printf("Sending message (%u) as stream locally...\n", p->cid());
-						message->node_recv_ts()=this->time();
-						this->messageInputQueue.push(out.p);
-					}
-					else {
-					//	printf("Sending message (%u) as stream network...\n", p->cid());
-						this->sendStreamData(nodeID,message,out.network);
-					}
-					}break;
-				case	_Payload::DATA:
-					{
-					_Message	*_m=message->as_Message();
-					_m->senderModule_cid()=sender->descriptor->CID;
-					_m->senderModule_id()=sender->descriptor->ID;
-					_m->senderNodeID()=sender->descriptor->hostID;
-					if(nodeID==this->_ID) {
-					//	printf("Sending message (%u) as data locally...\n", p->cid());
-						message->node_recv_ts()=this->time();
-						this->messageInputQueue.push(out.p);
-					}
-					else {
-					//	printf("Sending message (%u) as data network...\n", p->cid());
-						this->sendData(nodeID,message,out.network);
-					}
-					}
-			}
+			_Message	*_m=message->as_Message();
+			_m->senderModule_cid()=sender->descriptor->CID;
+			_m->senderModule_id()=sender->descriptor->ID;
+			_m->senderNodeID()=sender->descriptor->hostID;
 		}
-
-
+		Messaging::send(message,nodeID,network);
 	}
 
 	void	Node::send(const	_Module	*sender,_Payload	*message,Network	network){
 
 		message->send_ts()=this->time();
-		_Payload::Category	cc= message->category();
 		if(message->category()==_Payload::DATA){
 
 			_Message	*_m=message->as_Message();
@@ -744,7 +705,7 @@ namespace	mBrane{
 	void	Node::load(const	char	*fileName){	//	TODO
 	}
 
-	void	Node::migrate(uint16	CID,uint16	ID,uint16	NID){	//	TODO
+	void	Node::migrate(uint16	CID,uint16	ID,uint8	NID){	//	TODO
 	}
 
 //	Array<uint8>	&Node::sharedMemorySegment(uint8	segment){
@@ -752,8 +713,84 @@ namespace	mBrane{
 //		return	sharedMemorySegments[segment];
 //	}
 
-	_Module	*Node::getModule(uint16	hostID,uint16	CID,uint16	ID){
+	_Module	*Node::getModule(uint8	hostID,uint16	CID,uint16	ID){
 
 		return	ModuleDescriptor::Main[hostID][CID][ID]->module;
+	}
+
+	void	Node::markUnused(_Payload	*p){
+
+		Messaging::pendingDeletions[pendingDeletions_SO].insert(p);
+	}
+
+	void	Node::addConstantObject(_Payload	*c,const	std::string	&name){
+
+		c->setOID();
+		uint32	oid=c->getOID();
+		Messaging::constants[oid].object=c;
+		Messaging::constants[oid].name=name;
+	}
+
+	_Payload	*Node::getConstantObject(uint32	OID){
+
+		return	Messaging::constants[OID	&	0x00FFFFFF].object;
+	}
+
+	_Payload	*Node::getConstantObject(const	std::string	&name){
+
+		for(uint16	i=0;i<Messaging::constants.size();++i)
+			if(Messaging::constants[i].name==name)
+				return	Messaging::constants[i].object;
+		return	NULL;
+	}
+
+	void	Node::addLookup(uint8	sourceNID,uint32	OID){
+
+		Messaging::cacheCS.enter();
+		Messaging::lookup[sourceNID].insert(OID);
+		Messaging::cacheCS.leave();
+	}
+
+	bool	Node::hasLookup(uint8	destinationNID,uint32	OID){
+
+		Messaging::cacheCS.enter();
+		UNORDERED_SET<uint32>::const_iterator	oid=Messaging::lookup[destinationNID].find(OID);
+		if(oid==Messaging::lookup[destinationNID].end()){
+
+			Messaging::cacheCS.leave();
+			return	false;
+		}
+		Messaging::cacheCS.leave();
+		return	true;
+	}
+
+	void	Node::addSharedObject(_Payload	*o){
+
+		Messaging::cacheCS.enter();
+		o->setOID(id());
+		Messaging::cache[o->getOID()]=o;
+		Messaging::cacheCS.leave();
+	}
+
+	_Payload	*Node::getSharedObject(uint32	OID){
+
+		Messaging::cacheCS.enter();
+		UNORDERED_MAP<uint32,P<_Payload> >::const_iterator	o=Messaging::cache.find(OID);
+		if(o==Messaging::cache.end()){
+
+			Messaging::cacheCS.leave();
+			return	NULL;
+		}
+		Messaging::cacheCS.leave();
+		return	o->second;
+	}
+
+	void	Node::consolidate(_Payload	*p){	//	p can be in the pendingDeletions[pendingDeletions_SO]: case where no advertisement has ben made yet;
+												//	or in pendingDeletions[pendingDeletions_GC] otherwise: in that case that's too late to ressuscitate p.
+												//	p will be deleted on this node, remote nodes will know we don't have p anymore and will send in full.
+												//	lookup will be updated here and we'll receive in full.
+		UNORDERED_SET<_Payload	*>::const_iterator	d=Messaging::pendingDeletions[pendingDeletions_SO].find(p);
+		if(d!=Messaging::pendingDeletions[pendingDeletions_SO].end())
+			Messaging::pendingDeletions[pendingDeletions_SO].erase(d);
 	}
 }

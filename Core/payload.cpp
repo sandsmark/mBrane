@@ -57,7 +57,20 @@ namespace	mBrane{
 		void	__Payload::setPtr(uint16	i,__Payload	*p){
 		}
 
+		bool	__Payload::isShared()	const{
+
+			return	false;
+		}
+
+		bool	__Payload::isConstant()	const{
+
+			return	false;
+		}
+
 		////////////////////////////////////////////////////////////////////////////////////
+
+		uint32	_Payload::LastConstantOID=0;
+		uint32	_Payload::LastSharedOID=0;
 
 		_Payload::_Payload():__Payload(){
 		}
@@ -98,6 +111,36 @@ namespace	mBrane{
 		payloads::_StreamData	*_Payload::as_StreamData(){
 
 			return	NULL;
+		}
+
+		void	_Payload::setOID(uint8	NID){
+
+			uint64	oid=NID	&	0x7F;
+			oid<<=24;
+			oid|=LastSharedOID++;
+			_metaData|=(oid<<32);
+		}
+
+		void	_Payload::setOID(){
+
+			uint64	oid=0x80000000;
+			oid|=LastConstantOID++;
+			_metaData|=(oid<<32);
+		}
+
+		uint32	_Payload::getOID()	const{
+
+			return	_metaData>>32;
+		}
+
+		uint32	_Payload::getID()	const{
+
+			return	(_metaData>>32)	&	0x00FFFFFF;
+		}
+
+		uint8	_Payload::getNID()	const{
+
+			return	_metaData>>56;
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////

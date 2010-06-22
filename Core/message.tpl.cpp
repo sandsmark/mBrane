@@ -72,11 +72,60 @@ namespace	mBrane{
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
 
+			template<class	U,class	M>	SharedObject<U,M>::SharedObject():Message<U,M>(){
+
+				module::Node::Get()->addSharedObject(this);
+			}
+
+			template<class	U,class	M>	SharedObject<U,M>::~SharedObject(){
+			}
+
+			template<class	U,class	M>	void	SharedObject<U,M>::decRef(){
+
+				if(getOID()==0x00FFFFFF)	//	object has not been sent yet: it has not been smart pointed by the cache: treat as a normal object.
+					_Object::decRef();
+				else{
+
+					int32	ref_count=Atomic::Decrement32(&refCount);
+					switch(ref_count){
+					case	1:
+						module::Node::Get()->markUnused(this);
+						break;
+					case	0:
+						delete	this;
+						break;
+					}
+				}
+			}
+
+			template<class	U,class	M>	bool	SharedObject<U,M>::isShared(){
+
+				return	true;
+			}
+
+			template<class	U,class	M>	ConstantObject<U,M>::ConstantObject():Payload<U,M>(){
+			}
+
+			template<class	U,class	M>	ConstantObject<U,M>::~ConstantObject(){
+			}
+
+			template<class	U,class	M>	bool	ConstantObject<U,M>::isConstant(){
+
+				return	true;
+			}
+
+			////////////////////////////////////////////////////////////////////////////////////////////////
+
 			template<class	S,typename	T>	void	*CStorage<S,T>::New(uint32	size){
 
 				uint32	capacity=size-sizeof(CStorage<S,T>);	//	capacity is now the size of the array
 				capacity=capacity/sizeof(T);	//	now capacity equals the number of elements in the array
 				return	new(capacity)	CStorage<S,T>();
+			}
+
+			template<class	S,typename	T>	void	*CStorage<S,T>::operator	new(size_t	s){
+
+				return	NULL;
 			}
 
 			template<class	S,typename	T>	void	*CStorage<S,T>::operator	new(size_t	s,uint32	capacity){
@@ -86,6 +135,7 @@ namespace	mBrane{
 				CStorage<S,T>	*o=(CStorage<S,T>	*)S::Alloc(size,normalizedSize);
 				o->_size=size;
 				o->_capacity=capacity;
+				o->_metaData=_MetaData;
 				return	o;
 			}
 

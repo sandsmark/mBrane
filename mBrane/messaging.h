@@ -63,8 +63,8 @@ namespace	mBrane{
 		Pipe11<P<_Payload>,MESSAGE_INPUT_BLOCK_SIZE>	buffer;	//	incoming messages from remote nodes
 		Node			*node;
 		CommChannel		*channel;
-		uint16			entry;
-		RecvThread(Node	*node,CommChannel	*channel,uint16	entry);
+		uint8			sourceNID;
+		RecvThread(Node	*node,CommChannel	*channel,uint8	sourceNID);
 		~RecvThread();
 	};
 
@@ -78,6 +78,17 @@ namespace	mBrane{
 		~PushThread();
 	};
 
+	class	GarbageCollector:
+	public	Thread{
+	private:
+		Timer	timer;
+	public:
+		static	thread_ret thread_function_call	Run(void	*args);
+		Node	*const	node;
+		GarbageCollector(Node	*node);
+		~GarbageCollector();
+	};
+
 	class	Executing;
 	class	XThread;
 	class	Messaging{
@@ -85,6 +96,7 @@ namespace	mBrane{
 	friend	class	PushThread;
 	friend	class	XThread;
 	friend	class	Executing;
+	friend	class	GarbageCollector;
 	private:
 		CriticalSection	moduleCS;	//	control access to spaces, modules descriptors and projections in processControlMessages.
 		CriticalSection	spaceCS;
@@ -92,7 +104,8 @@ namespace	mBrane{
 	protected:
 		typedef	struct{
 			module::Node::Network	network;
-			P<_Payload>	p;
+			uint8					destinationNode;	//	0xFF means unspecified.
+			P<_Payload>				p;
 		}MessageSlot;
 		Pipe11<P<_Payload>,MESSAGE_INPUT_BLOCK_SIZE>	messageInputQueue;	//	incoming local messages
 		PipeN1<MessageSlot,MESSAGE_OUTPUT_BLOCK_SIZE>	messageOutputQueue;	//	outgoing messages
@@ -106,11 +119,37 @@ namespace	mBrane{
 		
 		//TODO: add a pointer to processControlMessage plugin here.
 
+		//	Cache.
+		class	ConstantEntry{
+		public:
+			std::string		name;
+			P<__Payload>	object;
+			ConstantEntry(){}
+			ConstantEntry(std::string	name,__Payload	*object):name(name),object(object){}
+		};
+		std::vector<ConstantEntry>			constants;	//	indexed by the OIDs.
+		UNORDERED_MAP<uint32,P<_Payload> >	cache;		//	shared objects residing on the node (local if they have been sent at least once, and foreign); indexed by full IDs.
+		std::vector<UNORDERED_SET<uint32> >	lookup;		//	shared objects's full IDs known as being held by remote nodes; vector indexed by NIDs.
+		CriticalSection						cacheCS;	//	concurrency: Messaging::processControlMessage, CommChannel::send, CommChannel::recv.
+
+		//	Deletion handling.
+		uint8						pendingAck;				//	number of ack to wait for.
+		UNORDERED_SET<_Payload	*>	pendingDeletions[2];	//	2-buffered list of objects to be deleted. Any object in here is smart pointed by the cache, and its ref count is 1.
+		uint8						pendingDeletions_GC;	//	index for access from GC::Run.
+		uint8						pendingDeletions_SO;	//	index for access from SharedObject::decRef.
+		CriticalSection				pendingDeletionsCS;		//	concurrency GarbageCollector::Run, CommChannel::recv.
+		uint32						GCPeriod;				//	at which the GC kicks in; in ms.
+		GarbageCollector			*GC;
+
 		Messaging();
 		~Messaging();
+
+		bool	loadConfig(XMLNode	&n);
+
 		void	start();
 		void	shutdown();
 		void	send(_Payload	*message,module::Node::Network	network);
+		void	send(_Payload	*message,uint8	nodeID,module::Node::Network	network);
 		void	pushJobs(_Payload	*p,NodeEntry	&e);
 		void	pushJobs(_Payload	*p);
 		void	processControlMessage(_Payload	*p);

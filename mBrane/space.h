@@ -52,18 +52,18 @@ namespace	mBrane{
 		const	char	*name;
 		float32	_activationThreshold;	//	in [0,1]
 		Array<_Projection,32>	initialProjections;
-		void					applyInitialProjections(uint16	hostID);
+		void					applyInitialProjections(uint8	hostID);
 	public:
 		static	Space						*Get(const	char	*name);	//	in Config.
 		static	Array<P<Space>,16>			Config;	//	indexed by space ID; 0 is the root space; see ModuleDescriptor.h
 		static	Array<Array<P<Space>,16>,8>	Main;	//	indexed by space ID; 0 is the root space
 		static	Space						*New(XMLNode	&n);
-		static	void						Init(uint16	hostID);	//	resolves hostID for each space, copies Config in Main, apply initial projections.
+		static	void						Init(uint8	hostID);	//	resolves hostID for each space, copies Config in Main, apply initial projections.
 		static	void						InitRoot(); // creates root space.
-		static	uint16						GetID(uint16	hostID);	//	returns the first available slot in Main[hostID].
+		static	uint16						GetID(uint8	hostID);	//	returns the first available slot in Main[hostID].
 		List<P<Projection<ModuleDescriptor> >,16>	moduleDescriptors;
 		List<P<Projection<Space> >,16>				spaces;
-		Space(uint16	hostID,const	char	*name=NULL);
+		Space(uint8	hostID,const	char	*name=NULL);
 		~Space();
 		const	char	*getName();
 		void	setActivationThreshold(float32	thr);

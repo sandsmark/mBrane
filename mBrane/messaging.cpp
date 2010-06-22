@@ -52,9 +52,9 @@ namespace	mBrane{
 		while(!_this->node->_shutdown){
 
 			uint64 t = Time::Get();
-			if(_this->channel	&&	_this->channel->recv(&p)){
+			if(_this->channel	&&	_this->channel->recv(&p,_this->sourceNID)){
 
-				_this->node->processError(_this->entry);
+				_this->node->processError(_this->sourceNID);
 				// continue;
 				thread_ret_val(0);
 			}
@@ -93,7 +93,7 @@ namespace	mBrane{
 				echo->t0 = p->node_send_ts();
 				echo->t1 = start; // this needs local time, not adjusted time
 				((_Payload*)echo)->node_send_ts()=((_Payload*)echo)->send_ts()=Time::Get();
-				_this->channel->send(echo);
+				_this->channel->send(echo,0xFF);
 				delete	echo;
 				break;
 			default:
@@ -107,7 +107,7 @@ namespace	mBrane{
 		thread_ret_val(0);
 	}
 
-	RecvThread::RecvThread(Node	*node,CommChannel	*channel,uint16	entry):Thread(),node(node),channel(channel),entry(entry){
+	RecvThread::RecvThread(Node	*node,CommChannel	*channel,uint8	sourceNID):Thread(),node(node),channel(channel),sourceNID(sourceNID){
 	}
 
 	RecvThread::~RecvThread(){
@@ -144,7 +144,48 @@ namespace	mBrane{
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	Messaging::Messaging():sendThread(NULL){
+	thread_ret thread_function_call	GarbageCollector::Run(void	*args){
+
+		GarbageCollector	*_this=(GarbageCollector	*)args;
+
+		_this->timer.start(_this->node->GCPeriod*1000,_this->node->GCPeriod);
+
+		while(1){
+
+			_this->timer.wait();
+
+			_this->node->pendingDeletionsCS.enter();	//	toggle the 2-buffer.
+			uint8	t=_this->node->pendingDeletions_GC;
+			_this->node->pendingDeletions_GC=_this->node->pendingDeletions_SO;
+			_this->node->pendingDeletions_SO=t;
+			_this->node->pendingDeletionsCS.leave();
+
+			DeleteSharedObjects	*m=new(_this->node->pendingDeletions[_this->node->pendingDeletions_GC].size())	DeleteSharedObjects();
+			m->node_id=_this->node->id();
+
+			UNORDERED_SET<_Payload	*>::const_iterator	o;
+			uint16	i=0;
+			for(o=_this->node->pendingDeletions[_this->node->pendingDeletions_GC].begin();o!=_this->node->pendingDeletions[_this->node->pendingDeletions_GC].end();++o,++i)
+				m->data(i)=(*o)->getOID();
+
+			//	when remote nodes receive this message, they update their lookup table.
+			//	at this time, however, there might be some objects travelling that are now advertised as soon to be deleted.
+			//	recv has to handle this case and consolidate the object.
+			((Messaging	*)_this->node)->send(m,module::Node::PRIMARY);
+		}
+
+		thread_ret_val(0);
+	}
+
+	GarbageCollector::GarbageCollector(Node	*node):Thread(),node(node){
+	}
+
+	GarbageCollector::~GarbageCollector(){
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+
+	Messaging::Messaging():sendThread(NULL),GC(NULL),pendingAck(0),pendingDeletions_GC(0),pendingDeletions_SO(1){
 	}
 
 	Messaging::~Messaging(){
@@ -170,11 +211,41 @@ namespace	mBrane{
 				pushThreads[i]=NULL;
 			}
 		}
+
+		delete	GC;
+	}
+
+	bool	Messaging::loadConfig(XMLNode	&n){
+
+		XMLNode	gc=n.getChildNode("GarbageCollector");
+		if(!!gc){
+
+			const	char	*_period=gc.getAttribute("period");
+			if(!_period){
+
+				std::cout<<"> Error: "<<n.getName()<<"::GarbageCollector::period is missing"<<std::endl;
+				return	false;
+			}
+			GCPeriod=atoi(_period);
+		}
+		return	true;
 	}
 
 	void	Messaging::send(_Payload	*message,module::Node::Network	network){
 
 		MessageSlot	o;
+		o.destinationNode=0xFF;
+		o.p=message;
+		o.network=network;
+		// message->send_ts()=Time::Get();
+		// printf("Scheduling message (%u) for sending...\n", message->cid());
+		messageOutputQueue.push(o);
+	}
+
+	void	Messaging::send(_Payload	*message,uint8	nodeID,module::Node::Network	network){
+
+		MessageSlot	o;
+		o.destinationNode=nodeID;
 		o.p=message;
 		o.network=network;
 		// message->send_ts()=Time::Get();
@@ -183,6 +254,8 @@ namespace	mBrane{
 	}
 
 	void	Messaging::start(){
+
+		GC=new	GarbageCollector((Node	*)this);
 
 		sendThread=Thread::New<Thread>(SendMessages,(Node*)this);
 
@@ -203,6 +276,7 @@ namespace	mBrane{
 			Thread::TerminateAndWait(*recvThreads.get(i));
 		for(uint32	i=0;i<pushThreads.count();i++)
 			Thread::TerminateAndWait(*pushThreads.get(i));
+		Thread::TerminateAndWait(GC);
 	}
 
 	inline	void	Messaging::pushJobs(_Payload	*p,NodeEntry	&e){
@@ -280,7 +354,7 @@ namespace	mBrane{
 			break;
 		case	CreateModule_CID:{
 			uint16	module_cid=((CreateModule	*)p)->module_cid;
-			uint16	host_id=((CreateModule	*)p)->host_id;
+			uint8	host_id=((CreateModule	*)p)->host_id;
 			moduleCS.enter();
 			uint16	module_id=ModuleDescriptor::GetID(host_id,module_cid);
 			ModuleDescriptor::Main[host_id][module_cid][module_id]=new	ModuleDescriptor(((CreateModule	*)p)->host_id,module_cid,module_id);
@@ -289,7 +363,7 @@ namespace	mBrane{
 		}case	DeleteModule_CID:{
 			uint16	module_cid=((DeleteModule	*)p)->module_cid;
 			uint16	module_id=((DeleteModule	*)p)->module_id;
-			uint16	host_id=((DeleteModule	*)p)->host_id;
+			uint8	host_id=((DeleteModule	*)p)->host_id;
 			projectionCS.enter();
 			_Module	*m=ModuleDescriptor::Main[host_id][module_cid][module_id]->module;
 			ModuleDescriptor::Main[host_id][module_cid][module_id]=NULL;
@@ -309,6 +383,39 @@ namespace	mBrane{
 			Space::Main[((DeleteSpace	*)p)->host_id][((DeleteSpace	*)p)->space_id]=NULL;
 			projectionCS.leave();
 			break;
+		case	DeleteSharedObjects_CID:{	//	remove the objects from the lookup, send ack to the sender.
+			pendingAck=((Node	*)this)->nodeCount;	//	wait for all nodes to reply.
+
+			cacheCS.enter();
+			for(uint16	i=0;i<((DeleteSharedObjects	*)p)->getCapacity();++i)
+				lookup[((DeleteSharedObjects	*)p)->node_id].erase(((DeleteSharedObjects	*)p)->data(i));
+			cacheCS.leave();
+
+			AckDeleteSharedObjects	*ack=new	AckDeleteSharedObjects();
+			ack->node_id=((Node	*)this)->id();
+			send(ack,((DeleteSharedObjects	*)p)->node_id,module::Node::PRIMARY);
+			break;
+		}case	AckDeleteSharedObjects_CID:	//	decrement pendingAck; when 0 remove all doomed objects from lookup and cache (this will delete them).
+			if(--pendingAck==0){
+
+				cacheCS.enter();
+				UNORDERED_SET<_Payload	*>::const_iterator	p;
+				for(p=pendingDeletions[pendingDeletions_GC].begin();p!=pendingDeletions[pendingDeletions_GC].end();++p){
+
+					lookup[(*p)->getNID()].erase((*p)->getOID());
+					cache.erase((*p)->getOID());	//	delete *p.
+				}
+				cacheCS.leave();
+
+				pendingDeletions[pendingDeletions_GC].clear();
+
+				pendingDeletionsCS.enter();	//	toggle the 2-buffer.
+				uint8	t=pendingDeletions_GC;
+				pendingDeletions_GC=pendingDeletions_SO;
+				pendingDeletions_SO=t;
+				pendingDeletionsCS.leave();
+			}
+			break;
 		default:	//	call the plugin if any (e.g. rMem).
 			break;
 		}
@@ -323,7 +430,7 @@ namespace	mBrane{
 		MessageSlot	out;
 		_Payload	*p;
 		uint32		act;
-		uint32		nodeCount;
+		uint8		nodeCount;
 		while(!node->_shutdown){
 
 			out=node->messageOutputQueue.pop();
@@ -346,64 +453,85 @@ namespace	mBrane{
 				switch(cat){
 				case	_Payload::CONTROL:
 			//		printf("Sending message (%u) as control...\n", p->cid());
-					node->broadcastControlMessage(p,out.network);
-					p->node_recv_ts()=node->time();
-					node->messageInputQueue.push(out.p);
+					if(out.destinationNode==0xFF){
+
+						node->broadcastControlMessage(p,out.network);
+						p->node_recv_ts()=node->time();
+						node->messageInputQueue.push(out.p);
+					}else	//	P2P ctrl messages are not pushed locally.
+						node->sendControlMessage(p,out.destinationNode,out.network);
 					break;
-				case	_Payload::STREAM:	//	find target remote nodes; send on data/stream channels; push in messageInputQueue if the local node is a target
-					{
+				case	_Payload::STREAM:{
 					uint16	sid=p->as_StreamData()->sid();
-					nodeCount=NodeEntry::Main[ST][sid].count();
-					if (nodeCount == 0)
-						printf("*** No activation for any node for stream message cid %u ***\n", p->cid());
-					for(uint16	i=0;i<nodeCount;i++){
 
-						NodeEntry::Main[ST][sid][i].getActivation(act);
-						if(act){
+					if(out.destinationNode==0xFF){	//	find target remote nodes; send on data/stream channels; push in messageInputQueue if the local node is a target
 
-							if(i==node->_ID) {
-							//	printf("Sending message (%u) as stream locally...\n", p->cid());
-								p->node_recv_ts()=node->time();
-								node->messageInputQueue.push(out.p);
+						nodeCount=NodeEntry::Main[ST][sid].count();
+						if (nodeCount == 0)
+							printf("*** No activation for any node for stream message cid %u ***\n", p->cid());
+						for(uint8	i=0;i<nodeCount;i++){
+
+							NodeEntry::Main[ST][sid][i].getActivation(act);
+							if(act){
+
+								if(i==node->_ID) {
+								//	printf("Sending message (%u) as stream locally...\n", p->cid());
+									p->node_recv_ts()=node->time();
+									node->messageInputQueue.push(out.p);
+								}
+								else {
+								//	printf("Sending message (%u) as stream network...\n", p->cid());
+									node->sendStreamData(i,p,out.network);
+								}
 							}
 							else {
-							//	printf("Sending message (%u) as stream network...\n", p->cid());
-								node->sendStreamData(i,p,out.network);
+							//	printf("No activation for node %u for stream message (%u)...\n", i, p->cid());
 							}
 						}
-						else {
-						//	printf("No activation for node %u for stream message (%u)...\n", i, p->cid());
-						}
+					}else	if(out.destinationNode!=node->_ID){
+
+						NodeEntry::Main[ST][sid][out.destinationNode].getActivation(act);
+						if(act)
+							node->sendStreamData(out.destinationNode,p,out.network);
 					}
-					}break;
-				case	_Payload::DATA:
-					{
+					break;
+				}case	_Payload::DATA:{
 		//uint64 t1 = Time::Get();
 					uint16	cid=p->cid();
-					nodeCount=NodeEntry::Main[DC][cid].count();
-					if (nodeCount == 0)
-						printf("*** No activation for any node for data message cid %u ***\n", p->cid());
-					for(uint16	i=0;i<nodeCount;i++){
 
-						NodeEntry::Main[DC][cid][i].getActivation(act);
-						if(act){
+					if(out.destinationNode==0xFF){
 
-							if(i==node->_ID) {
-							//	printf("Sending message (%u) as data locally...\n", p->cid());
-								p->node_recv_ts()=node->time();
-								node->messageInputQueue.push(out.p);
+						nodeCount=NodeEntry::Main[DC][cid].count();
+						if (nodeCount == 0)
+							printf("*** No activation for any node for data message cid %u ***\n", p->cid());
+						for(uint8	i=0;i<nodeCount;i++){
+
+							NodeEntry::Main[DC][cid][i].getActivation(act);
+							if(act){
+
+								if(i==node->_ID) {
+								//	printf("Sending message (%u) as data locally...\n", p->cid());
+									p->node_recv_ts()=node->time();
+									node->messageInputQueue.push(out.p);
+								}
+								else {
+								//	printf("Sending message (%u) as data network...\n", p->cid());
+									node->sendData(i,p,out.network);
+								}
 							}
 							else {
-							//	printf("Sending message (%u) as data network...\n", p->cid());
-								node->sendData(i,p,out.network);
+							//	printf("No activation for node %u for data message (%u)...\n", i, p->cid());
 							}
 						}
-						else {
-						//	printf("No activation for node %u for data message (%u)...\n", i, p->cid());
-						}
+					}else	if(out.destinationNode!=node->_ID){
+
+						NodeEntry::Main[DC][cid][out.destinationNode].getActivation(act);
+						if(act)
+							node->sendData(out.destinationNode,p,out.network);
 					}
 		//printf("SendMessages Send time:        %u\n", (uint32) (Time::Get() - t1));
-					}
+					break;
+				}
 				}
 			}
 

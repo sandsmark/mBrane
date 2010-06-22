@@ -68,17 +68,17 @@ namespace	mBrane{
 	protected:
 		Array<Array<typename	List<P<Projection<C> >,16>::Iterator,32>,8>	projections;	//	indexed by hostID | space ID; to speed up space updating when deleting projections
 	public:
-		uint16	hostID;	//	dynamically assigned; initially set to NoID, then resolved
+		uint8	hostID;	//	dynamically assigned; initially set to NoID, then resolved
 		uint16	ID;
 		uint32	activationCount;
 		bool	reactivated;
-		Projectable(uint16	hostID,uint16	ID);
+		Projectable(uint8	hostID,uint16	ID);
 		~Projectable();
-		void	project(uint16	hostID,uint16	spaceID);
-		void	unproject(uint16	hostID,uint16	spaceID);
+		void	project(uint8	hostID,uint16	spaceID);
+		void	unproject(uint8	hostID,uint16	spaceID);
 		void	activate();
 		void	deactivate();
-		void	setActivationLevel(uint16	hostID,uint16	spaceID,float32	a);	//	projects on space if necessary
+		void	setActivationLevel(uint8	hostID,uint16	spaceID,float32	a);	//	projects on space if necessary
 	};
 }
 

@@ -88,22 +88,22 @@ namespace	mBrane{
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	template<class	C>	Projectable<C>::Projectable(uint16	hostID,uint16	ID):Object<Memory,_Object,C>(),activationCount(0),hostID(hostID),ID(ID),reactivated(false){
+	template<class	C>	Projectable<C>::Projectable(uint8	hostID,uint16	ID):Object<Memory,_Object,C>(),activationCount(0),hostID(hostID),ID(ID),reactivated(false){
 	}
 
 	template<class	C>	Projectable<C>::~Projectable(){
 
-		for(uint16	i=0;i<projections.count();i++)
+		for(uint8	i=0;i<projections.count();i++)
 			for(uint16	j=0;j<projections[i].count();j++)
 				unproject(i,j);
 	}
 
-	template<class	C>	inline	void	Projectable<C>::project(uint16	hostID,uint16	spaceID){
+	template<class	C>	inline	void	Projectable<C>::project(uint8	hostID,uint16	spaceID){
 
 		projections[hostID][spaceID]=Space::Main[hostID][spaceID]->project(new	Projection<C>((C	*)this,Space::Main[hostID][spaceID]));
 	}
 
-	template<class	C>	inline	void	Projectable<C>::unproject(uint16	hostID,uint16	spaceID){
+	template<class	C>	inline	void	Projectable<C>::unproject(uint8	hostID,uint16	spaceID){
 		if(!projections[hostID][spaceID])
 			return;
 		*projections[hostID][spaceID]=NULL;
@@ -111,7 +111,7 @@ namespace	mBrane{
 		projections[hostID][spaceID]=typename List<P<Projection<C> >,16>::Iterator();
 	}
 
-	template<class	C>	inline	void	Projectable<C>::setActivationLevel(uint16	hostID,uint16	spaceID,float32	a){
+	template<class	C>	inline	void	Projectable<C>::setActivationLevel(uint8	hostID,uint16	spaceID,float32	a){
 		if(!projections[hostID][spaceID])
 			project(hostID,spaceID);
 		(*projections[hostID][spaceID])->setActivationLevel(a);

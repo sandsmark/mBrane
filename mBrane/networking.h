@@ -92,7 +92,7 @@ namespace	mBrane{
 
 		int32	bcastTimeout;	//	in ms
 
-		uint16	connectedNodeCount;
+		uint8	connectedNodeCount;
 
 		NetworkID	*networkID;
 
@@ -113,12 +113,12 @@ namespace	mBrane{
 		CriticalSection								channelsCS;	//	protects controlChannels and dataChannels
 
 		bool	isTimeReference;
-		uint16	referenceNID;
+		uint8	referenceNID;
 		void	setNewReference();
 
-		virtual	void	startReceivingThreads(uint16	NID)=0;
-		virtual	void	notifyNodeJoined(uint16	NID,NetworkID	*networkID)=0;
-		virtual	void	notifyNodeLeft(uint16	NID)=0;
+		virtual	void	startReceivingThreads(uint8	NID)=0;
+		virtual	void	notifyNodeJoined(uint8	NID,NetworkID	*networkID)=0;
+		virtual	void	notifyNodeLeft(uint8	NID)=0;
 		virtual	void	shutdown();
 
 		Array<Thread	*,32>	commThreads;
@@ -143,13 +143,15 @@ namespace	mBrane{
 		uint16	connect(Network	network,NetworkID	*networkID);
 		void	_broadcastControlMessage(_Payload	*p,Network	network);
 		void	broadcastControlMessage(_Payload	*p,Network	network);
-		void	sendData(uint16	NID,_Payload	*p,Network	network);
-		void	sendStreamData(uint16	NID,_Payload	*p,Network	network);
-		void	processError(uint16	entry);	//	upon send/recv error. Disconnect the node on both networks
-		uint16	addNodeEntry();
+		void	_sendControlMessage(_Payload	*p,uint8	destinationNID,Network	network);
+		void	sendControlMessage(_Payload	*p,uint8	destinationNID,Network	network);
+		void	sendData(uint8	NID,_Payload	*p,Network	network);
+		void	sendStreamData(uint8	NID,_Payload	*p,Network	network);
+		void	processError(uint8	NID);	//	upon send/recv error. Disconnect the node on both networks
+		uint8	addNodeEntry();
 
 		bool	init();
-		virtual	void	start(uint16	assignedNID,NetworkID	*networkNID,bool	isTimeReference);
+		virtual	void	start(uint8	assignedNID,NetworkID	*networkNID,bool	isTimeReference);
 		bool	startSync();
 
 		Networking();

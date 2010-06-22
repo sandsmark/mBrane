@@ -60,12 +60,12 @@ namespace	mBrane{
 		static	uint16	DataIDSize[2];
 		static	uint16	StreamIDSize[2];
 		uint8	headerSize;	//	sizeof(NID)+sizeof(name size)+name size+sizeof(network)
-		uint8	*data;	//	[NID(16)|network(8)|name size(8)|name(name size*8)|discovery ID|control ID|data ID|stream ID|(control ID|data ID|stream ID) optional]
+		uint8	*data;		//	[NID(8)|network(8)|name size(8)|name(name size*8)|discovery ID|control ID|data ID|stream ID|(control ID|data ID|stream ID) optional]
 		NetworkID();
-		NetworkID(uint16	NID,mBrane::sdk::module::Node::Network	description,uint8	nameSize,char	*name);
+		NetworkID(uint8	NID,mBrane::sdk::module::Node::Network	description,uint8	nameSize,char	*name);
 		~NetworkID();
-		uint16								NID()	const;
-		uint16								setNID(uint16 newNID);
+		uint8								NID()	const;
+		uint8								setNID(uint8 newNID);
 		mBrane::sdk::module::Node::Network	network()	const;
 		char								*name()	const;
 		uint8	*at(InterfaceType	t)		const;

@@ -36,20 +36,22 @@
 
 namespace	mBrane{
 	namespace	sdk{
+
 		namespace	module{
 
 			class	_Module;
+
 			//	Node API, as seen from the module
 			class	mBrane_dll	Node{
 			private:
 				static	Node	*Singleton;
 			protected:
 				static	std::ostream	*Streams[3];
-				uint16	_ID;	//	max: 0xFFFE
-				Node(uint16	ID);
+				uint8	_ID;	//	max: 0x7F
+				Node(uint8	ID);
 				~Node();
 			public:
-				static	const	uint16	NoID=0xFFFF;
+				static	const	uint8	NoID=0xFF;
 				typedef	enum{
 					PRIMARY=0,
 					SECONDARY=1,
@@ -63,10 +65,10 @@ namespace	mBrane{
 				}TraceLevel;
 				static	Node	*Get();
 				static	std::ostream&	trace(TraceLevel	l);
-				uint16	id()	const;
+				uint8	id()	const;
 				virtual	const	char	*name()=0;
 				virtual	void	send(const	_Module	*sender,_Payload	*p,Network	network=PRIMARY)=0;
-				virtual	void	send(const	_Module	*sender,_Payload	*message, uint16	nodeID,Network	network=PRIMARY)=0;
+				virtual	void	send(const	_Module	*sender,_Payload	*message, uint8	nodeID,Network	network=PRIMARY)=0;
 				virtual	uint64	time()	const=0;	//	in us since 01/01/70
 				virtual	void	newSpace(const	_Module	*sender,Network	network=PRIMARY)=0;	//	names are meaningless for dynamic instances
 				virtual	void	newModule(const	_Module	*sender,uint16	CID,Network	network=PRIMARY,const	char	*hostName="local")=0;
@@ -81,6 +83,16 @@ namespace	mBrane{
 				virtual	void	unsubscribeStream(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,uint16	stream_id,Network	network=PRIMARY)=0;
 				virtual	const	char	*getSpaceName(uint16	hostID,uint16	ID)=0;
 				virtual	const	char	*getModuleName(uint16	CID)=0;
+				//	Interface for caching.
+				virtual	void		markUnused(_Payload	*p)=0;
+				virtual	void		addConstantObject(_Payload	*c,const	std::string	&name)=0;
+				virtual	_Payload	*getConstantObject(uint32	OID)=0;
+				virtual	_Payload	*getConstantObject(const	std::string	&name)=0;
+				virtual	void		addLookup(uint8	sourceNID,uint32	OID)=0;
+				virtual	bool		hasLookup(uint8	destinationNID,uint32	OID)=0;
+				virtual	void		addSharedObject(_Payload	*p)=0;
+				virtual	_Payload	*getSharedObject(uint32	OID)=0;
+				virtual	void		consolidate(_Payload	*p)=0;
 			};
 		}
 	}

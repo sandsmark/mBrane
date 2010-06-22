@@ -34,7 +34,7 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		template<class	P,class	U,class	M>	uint64	___Payload<P,U,M>::_MetaData=ClassRegister::Load<U,M>();
+		template<class	P,class	U,class	M>	uint64	___Payload<P,U,M>::_MetaData=ClassRegister::Load<U>();
 
 		template<class	P,class	U,class	M>	inline	void	*___Payload<P,U,M>::New(uint32	size){
 
@@ -75,7 +75,7 @@ namespace	mBrane{
 
 		template<class	P,class	U,class	M>	inline	___Payload<P,U,M>::___Payload():Object<M,P,U>(){
 
-			this->_metaData = ___Payload<P,U,M>::_MetaData;
+			this->_metaData=___Payload<P,U,M>::_MetaData;
 		}
 
 		template<class	P,class	U,class	M>	inline	___Payload<P,U,M>::~___Payload(){

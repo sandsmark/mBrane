@@ -55,6 +55,9 @@ namespace	mBrane{
 			virtual	uint16		ptrCount()	const;					//	number of pointers to payloads
 			virtual	__Payload	*getPtr(uint16	i)	const;			//	iterates the pointers to payloads
 			virtual	void		setPtr(uint16	i,__Payload	*p);	//	iterates the pointers to payloads
+
+			virtual	bool	isShared()		const;	//	called upon reception and transmission.
+			virtual	bool	isConstant()	const;	//	called upon reception and transmission.
 		};
 
 		//	Convenience for writing getPtr and setPtr
@@ -71,10 +74,13 @@ namespace	mBrane{
 				DATA=1,
 				STREAM=2
 			}Category;
+		private:
+			static	uint32	LastConstantOID;
+			static	uint32	LastSharedOID;
 		protected:
 			uint64	_node_recv_ts;	//	not transmitted
 			uint64	_recv_ts;		//	not transmitted
-			uint64	_metaData;		//	[reserved(32)|cid(16)|reserved(14)|category(2)]
+			uint64	_metaData;		//	[oid(32)|cid(16)|reserved(14)|category(2)]; oid==0x00FFFFFF means non shared object, or shared object not sent yet.
 			uint64	_node_send_ts;
 			uint64	_send_ts;
 			_Payload();
@@ -88,6 +94,12 @@ namespace	mBrane{
 			//	down_casting; return NULL by default
 			virtual	payloads::_Message		*as_Message();
 			virtual	payloads::_StreamData	*as_StreamData();
+			//	caching.
+			void	setOID(uint8	NID);	//	for shared objects.
+			void	setOID();				//	for constant objects.
+			uint32	getOID()	const;		//	full OID: 32 bits.
+			uint32	getID()		const;		//	object ID: 24 bits.
+			uint8	getNID()	const;		//	0x80 for constant objects.
 		};
 
 		class	mBrane_dll	_RPayload:

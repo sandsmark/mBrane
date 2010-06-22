@@ -33,6 +33,8 @@
 
 #include	"payload.h"
 #include	"memory.h"
+#include	"module_node.h"
+
 
 //	Root classes for defining applicative message classes
 namespace	mBrane{
@@ -102,6 +104,30 @@ namespace	mBrane{
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
 
+			//	Shared objects are cached. The first 32 bits of their metadata is NID(7 bits)|ID(24 bits). The most significant bit of the OID is 0 (1 for constants, see below).
+			//	Shared objects are supposed not to change once created.
+			template<class	U,class	M>	class	SharedObject:
+			public	Message<U,M>{
+			protected:
+				void	decRef();	//	notifies the node when the ref count drops to 1: doomed for deletion.
+				SharedObject();
+			public:
+				virtual	~SharedObject();
+				bool	isShared();
+			};
+
+			//	Constant objects are duplicated on each node.
+			template<class	U,class	M>	class	ConstantObject:
+			public	Payload<U,M>{
+			protected:
+				ConstantObject();
+			public:
+				virtual	~ConstantObject();
+				bool	isConstant();
+			};
+
+			////////////////////////////////////////////////////////////////////////////////////////////////
+
 			//	CStorage stands for contiguous storage.
 			//	S. superclass, T: type of the data to be stored contiguously.
 			//	Typical use: data compacted dynamically, i.e. whose size is not an integral constant (e.g. that could not parameterize a template), e.g. archives, compressed images, etc.
@@ -119,6 +145,7 @@ namespace	mBrane{
 				CStorage();
 			public:
 				static	void		*New(uint32	size);					//	total size of the instance; called upon sending
+				void	*operator	new(size_t	s);						//	unused; need for compilation of ___Payload<U,P,M>::New
 				void	*operator	new(size_t	s,uint32	capacity);	//	overrides Object<U,M>::new
 				void	operator	delete(void	*o);					//	overrides Object<U,M>::delete
 				virtual	~CStorage();

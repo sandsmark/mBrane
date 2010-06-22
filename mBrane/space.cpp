@@ -115,7 +115,7 @@ error:	Space::Config[s->ID]=NULL;
 		Space::Config[0]->initialActivationThreshold=1.0;	//	TODO: read initial threshold from config file
 	}
 
-	void	Space::Init(uint16	hostID){
+	void	Space::Init(uint8	hostID){
 
 		for(uint32	i=0;i<Space::Config.count();i++){
 
@@ -127,7 +127,7 @@ error:	Space::Config[s->ID]=NULL;
 		}		
 	}
 
-	uint16	Space::GetID(uint16	hostID){
+	uint16	Space::GetID(uint8	hostID){
 
 		for(uint16	i=0;i<Main[hostID].count();i++)
 			if(Main[hostID][i]==NULL)
@@ -135,7 +135,7 @@ error:	Space::Config[s->ID]=NULL;
 		return	(uint16)Main[hostID].count();
 	}
 
-	Space::Space(uint16	hostID,const	char	*name):Projectable<Space>(hostID,(uint16)Config.count()){
+	Space::Space(uint8	hostID,const	char	*name):Projectable<Space>(hostID,(uint16)Config.count()){
 
 		if(name){
 
@@ -203,7 +203,7 @@ error:	Space::Config[s->ID]=NULL;
 			(*j)->deactivate();
 	}
 
-	void	Space::applyInitialProjections(uint16	hostID){
+	void	Space::applyInitialProjections(uint8	hostID){
 
 		for(uint32	i=0;i<initialProjections.count();i++)
 			setActivationLevel(hostID,initialProjections[i].spaceID,initialProjections[i].activationLevel);

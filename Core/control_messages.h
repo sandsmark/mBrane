@@ -45,7 +45,7 @@ namespace	mBrane{
 			class	mBrane_dll	SyncProbe:
 			public	ControlMessage<SyncProbe>{
 			public:
-				uint16	node_id;
+				uint8	node_id;
 			};
 
 			class	mBrane_dll	SyncEcho:
@@ -60,19 +60,19 @@ namespace	mBrane{
 			class	mBrane_dll	NodeJoined:
 			public	ControlMessage<NodeJoined>{
 			public:
-				uint16	node_id;
+				uint8	node_id;
 			};
 
 			class	mBrane_dll	NodeLeft:
 			public	ControlMessage<NodeLeft>{
 			public:
-				uint16	node_id;
+				uint8	node_id;
 			};
 
 			class	mBrane_dll	SetThreshold:
 			public	ControlMessage<SetThreshold>{
 			public:
-				uint16	host_id;
+				uint8	host_id;
 				uint16	space_id;
 				float32	threshold;
 			};
@@ -80,7 +80,7 @@ namespace	mBrane{
 			class	mBrane_dll	ActivateModule:
 			public	ControlMessage<ActivateModule>{
 			public:
-				uint16	host_id;
+				uint8	host_id;
 				uint16	module_cid;
 				uint16	module_id;
 				uint16	space_id;
@@ -90,7 +90,7 @@ namespace	mBrane{
 			class	mBrane_dll	ActivateSpace:
 			public	ControlMessage<ActivateSpace>{
 			public:
-				uint16	host_id;
+				uint8	host_id;
 				uint16	space_id;	//	the space on which target space is projected onto
 				uint16	target_sid;	//	the space to set the activation for
 				float32	activationLevel;
@@ -99,7 +99,7 @@ namespace	mBrane{
 			template<class	U>	class	Subscribe:
 			public	ControlMessage<U>{
 			public:
-				uint16	host_id;
+				uint8	host_id;
 				uint16	module_cid;
 				uint16	module_id;
 				uint16	space_id;
@@ -134,14 +134,14 @@ namespace	mBrane{
 			public:
 				uint16	sender_cid;
 				uint16	sender_id;
-				uint16	host_id;
+				uint8	host_id;
 				uint16	module_cid;
 			};
 
 			class	mBrane_dll	DeleteModule:
 			public	ControlMessage<DeleteModule>{
 			public:
-				uint16	host_id;
+				uint8	host_id;
 				uint16	module_cid;
 				uint16	module_id;
 			};
@@ -151,13 +151,13 @@ namespace	mBrane{
 			public:
 				uint16	sender_cid;
 				uint16	sender_id;
-				uint16	host_id;
+				uint8	host_id;
 			};
 
 			class	mBrane_dll	DeleteSpace:
 			public	ControlMessage<DeleteSpace>{
 			public:
-				uint16	host_id;
+				uint8	host_id;
 				uint16	space_id;
 			};
 
@@ -165,11 +165,27 @@ namespace	mBrane{
 			public	ControlMessage<KillModule>{
 			};
 
+			template<class	U>	class	_DeleteSharedObjects:
+			public	ControlMessage<U>{
+			public:
+				uint8	node_id;
+			};
+
+			class	mBrane_dll	DeleteSharedObjects:	//	issued by the garbage collector. Triggers ack from remote nodes.
+			public	CStorage<_DeleteSharedObjects<DeleteSharedObjects>,uint32>{
+			};
+
+			class	mBrane_dll	AckDeleteSharedObjects:
+			public	ControlMessage<AckDeleteSharedObjects>{
+			public:
+				uint8	node_id;
+			};
+
 			#define	MBRANE_MESSAGE_CLASS(C)	static	const	uint16	C##_CID=(uint16)__COUNTER__;
 			#include	"mBrane_message_classes.h"
 
 			void	mBrane_dll	LoadControlMessageMetaData();	//	overwrites C::_MetaData with actual values (i.e. C_CID dependent) - where C is a Core-defined control message;
-														//	Core, mBrane and the user lib have different copies of C::_MetaData (initialized to 0xFFFFFFFFFFFFFFF) at Core loading time;
+														//	Core, mBrane and the user lib have different copies of C::_MetaData (initialized to 0x00FFFFFFFFFFFFF) at Core loading time;
 														//	called by mBrane in main();
 														//	C::_MetaData is not used by the user lib (no instances of mBrane control messages are created: the user lib only reacts to their occurrences).
 		}

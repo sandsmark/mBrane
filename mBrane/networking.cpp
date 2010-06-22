@@ -398,7 +398,7 @@ namespace	mBrane{
 		return	true;
 	}
 
-	void	Networking::start(uint16	assignedNID,NetworkID	*networkNID,bool	isTimeReference){
+	void	Networking::start(uint8	assignedNID,NetworkID	*networkNID,bool	isTimeReference){
 
 		this->isTimeReference=isTimeReference;
 		dataChannels[assignedNID]->networkID=this->networkID;
@@ -436,7 +436,7 @@ namespace	mBrane{
 	uint16	Networking::recvID(CommChannel	*c,NetworkID	*&networkID){
 
 		uint16	r;
-		uint16	remoteNID;
+		uint8	remoteNID;
 		uint16 mBraneToken;
 		if(r=c->recv((uint8	*)&mBraneToken,sizeof(uint16))) {
 			std::cout<<"Error: Error receiving NodeID..."<<std::endl;
@@ -446,7 +446,7 @@ namespace	mBrane{
 		//	std::cout<<"Error: mBrane Token error..."<<std::endl;
 			return	1;
 		}
-		if(r=c->recv((uint8	*)&remoteNID,sizeof(uint16)))
+		if(r=c->recv((uint8	*)&remoteNID,sizeof(uint8)))
 			return	r;
 		uint8 remoteNetwork;
 		// Network	;
@@ -523,8 +523,8 @@ namespace	mBrane{
 		CommChannel	*data_c;
 		CommChannel	*stream_c;
 
-		uint16	assignedNID = NoID;
-		uint16	nid = networkID->NID();
+		uint8	assignedNID = NoID;
+		uint8	nid = networkID->NID();
 	//	assignedNID = networkID->NID();
 		if (nid == NoID) {
 			if(isTimeReference) {
@@ -546,7 +546,7 @@ namespace	mBrane{
 			}
 			if(r=sendID(ctrl_c,this->networkID))
 				goto	err1;
-			if(r=ctrl_c->send((uint8	*)&assignedNID,sizeof(uint16)))
+			if(r=ctrl_c->send((uint8	*)&assignedNID,sizeof(uint8)))
 				goto	err1;
 			if(isTimeReference)
 				if(r=sendMap(ctrl_c))
@@ -564,7 +564,7 @@ namespace	mBrane{
 			if(r=sendID(data_c,this->networkID))
 				goto	err0;
 			if(networkInterfaces[offset+_Payload::CONTROL]->canBroadcast()){
-				if(r=data_c->send((uint8	*)&assignedNID,sizeof(uint16)))
+				if(r=data_c->send((uint8	*)&assignedNID,sizeof(uint8)))
 					goto	err0;
 				if(isTimeReference)
 					if(r=sendMap(data_c))
@@ -634,10 +634,10 @@ err2:	delete	networkID;
 		return	0;
 	}
 
-	uint16	Networking::addNodeEntry(){	//	assigns the first free slot
+	uint8	Networking::addNodeEntry(){	//	assigns the first free slot
 
 		channelsCS.enter();
-		for(uint16	i=0;i<dataChannels.count();i++){
+		for(uint8	i=0;i<dataChannels.count();i++){
 
 			if(i==_ID)
 				continue;
@@ -648,7 +648,7 @@ err2:	delete	networkID;
 			}
 		}
 		channelsCS.leave();
-		return	(uint16)dataChannels.count();
+		return	(uint8)dataChannels.count();
 	}
 
 	void	Networking::setNewReference(){	//	elect the first node in the list
@@ -667,9 +667,9 @@ err2:	delete	networkID;
 
 	inline	void	Networking::_broadcastControlMessage(_Payload	*p,Network	network){
 
-		for(uint32	i=0;i<controlChannels[network].count();i++)
-			if((i != _ID) && controlChannels[network][i]	&&	controlChannels[network][i]->send(p))
-				processError((uint16)i);
+		for(uint8	i=0;i<controlChannels[network].count();i++)
+			if((i != _ID) && controlChannels[network][i]	&&	controlChannels[network][i]->send(p,0xFF))
+				processError(i);
 	}
 
 	void	Networking::broadcastControlMessage(_Payload	*p,Network	network){
@@ -680,33 +680,47 @@ err2:	delete	networkID;
 			_broadcastControlMessage(p,SECONDARY);
 	}
 
-	void	Networking::sendData(uint16	NID,_Payload	*p,Network	network){
+	inline	void	Networking::_sendControlMessage(_Payload	*p,uint8	destinationNID,Network	network){
+
+		if((destinationNID != _ID) && controlChannels[network][destinationNID]	&&	controlChannels[network][destinationNID]->send(p,destinationNID))
+			processError(destinationNID);
+	}
+
+	void	Networking::sendControlMessage(_Payload	*p,uint8	destinationNID,Network	network){
+
+		if(network==PRIMARY	||	network==BOTH)
+			sendControlMessage(p,destinationNID,PRIMARY);
+		if(network==SECONDARY	||	network==BOTH)
+			sendControlMessage(p,destinationNID,SECONDARY);
+	}
+
+	void	Networking::sendData(uint8	NID,_Payload	*p,Network	network){
 
 		if((network==PRIMARY	||	network==BOTH)	&&	dataChannels[NID]->channels[PRIMARY].data){
 
-			if(dataChannels[NID]->channels[PRIMARY].data->send(p))
+			if(dataChannels[NID]->channels[PRIMARY].data->send(p,NID))
 				processError(NID);
 		}else	if((network==SECONDARY	||	network==BOTH)	&&	dataChannels[NID]->channels[SECONDARY].data){
 			
-			if(dataChannels[NID]->channels[SECONDARY].data->send(p))
+			if(dataChannels[NID]->channels[SECONDARY].data->send(p,NID))
 				processError(NID);
 		}
 	}
 
-	void	Networking::sendStreamData(uint16	NID,_Payload	*p,Network	network){
+	void	Networking::sendStreamData(uint8	NID,_Payload	*p,Network	network){
 
 		if((network==PRIMARY	||	network==BOTH)	&&	dataChannels[NID]->channels[PRIMARY].stream){
 
-			if(dataChannels[NID]->channels[PRIMARY].stream->send(p))
+			if(dataChannels[NID]->channels[PRIMARY].stream->send(p,NID))
 				processError(NID);
 		}else	if((network==SECONDARY	||	network==BOTH)	&&	dataChannels[NID]->channels[SECONDARY].stream){
 			
-			if(dataChannels[NID]->channels[SECONDARY].stream->send(p))
+			if(dataChannels[NID]->channels[SECONDARY].stream->send(p,NID))
 				processError(NID);
 		}
 	}
 
-	inline	void	Networking::processError(uint16	entry){
+	inline	void	Networking::processError(uint8	entry){
 
 		channelsCS.enter();
 
@@ -770,13 +784,13 @@ err2:	delete	networkID;
 
 	thread_ret thread_function_call	Networking::AcceptConnections(void	*args){
 
-		AcceptConnectionArgs		*acargs = (AcceptConnectionArgs *)args;
-		Networking			*node=acargs->node;
-		Network				network=acargs->network;
-		uint8	offset=network*3;
-		_Payload::Category	category=acargs->category;
-		int32				timeout=acargs->timeout;
-		NetworkInterface	*networkInterface=node->networkInterfaces[offset+category];
+		AcceptConnectionArgs	*acargs = (AcceptConnectionArgs *)args;
+		Networking				*node=acargs->node;
+		Network					network=acargs->network;
+		uint8					offset=network*3;
+		_Payload::Category		category=acargs->category;
+		int32					timeout=acargs->timeout;
+		NetworkInterface		*networkInterface=node->networkInterfaces[offset+category];
 
 		uint16	r;
 
@@ -789,7 +803,7 @@ err2:	delete	networkID;
 
 		ConnectedCommChannel	*c;
 		NetworkID	*networkID;
-		uint16	assignedNID;
+		uint8	assignedNID;
 		bool	timedout;
 		bool decidedRefNode = false;
 		while(!node->_shutdown){
@@ -834,7 +848,7 @@ err2:	delete	networkID;
 					goto	err0;
 				//std::cout<<"   ---- 3.2 ---- AcceptConnection "<< (uint32)networkInterface->protocol()<<"...ID:"<< networkID->NID()<<"..."<<std::endl;
 			//	std::cout<<"Info: Preparing to receive assigned NodeID..."<<std::endl;
-				if(r=c->recv((uint8	*)&assignedNID,sizeof(uint16)))
+				if(r=c->recv((uint8	*)&assignedNID,sizeof(uint8)))
 					goto	err0;
 				//std::cout<<"   ---- 3.3 ---- AcceptConnection "<< (uint32)networkInterface->protocol()<<"...Assign:"<< assignedNID<<"..."<<std::endl;
 				if((assignedNID!=NoID) && (!node->isTimeReference)){
@@ -855,7 +869,7 @@ err2:	delete	networkID;
 			}
 
 //			uint16	remoteNID=((uint16	*)networkID)[0];
-			uint16	remoteNID=networkID->NID();
+			uint8	remoteNID=networkID->NID();
 			//std::cout<<"   ---- 4 ---- AcceptConnection "<< (uint32)networkInterface->protocol()<<" remoteID: "<<remoteNID<<"..."<<std::endl;
 			node->dataChannels[remoteNID]->networkID=networkID;
 
@@ -957,11 +971,11 @@ err1:	node->shutdown();
 				case	PRIMARY:
 				case	BOTH:
 					if (node->dataChannels[node->referenceNID]->channels[PRIMARY].data)
-						node->dataChannels[node->referenceNID]->channels[PRIMARY].data->send(probe);
+						node->dataChannels[node->referenceNID]->channels[PRIMARY].data->send(probe,0xFF);
 					break;
 				case	SECONDARY:
 					if (node->dataChannels[node->referenceNID]->channels[SECONDARY].data)
-						node->dataChannels[node->referenceNID]->channels[SECONDARY].data->send(probe);
+						node->dataChannels[node->referenceNID]->channels[SECONDARY].data->send(probe,0xFF);
 					break;
 				}
 			}

@@ -101,6 +101,16 @@ public:
 	Ball9(int32	num):_Ball<Ball9>(),num(num),num2(num+1){}
 };
 
+//	For testing the cache.
+
+class	Shared:public	SharedObject<Shared,Memory>{
+public:
+};
+
+class	Constant:public	ConstantObject<Constant,Memory>{
+public:
+};
+
 
 
 #endif /* Perf_class.h */

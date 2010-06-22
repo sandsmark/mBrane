@@ -71,8 +71,8 @@ namespace	mBrane{
 	public	_Projection<ModuleDescriptor,Projection<ModuleDescriptor> >{
 	public:
 		Array<List<P<ModuleEntry>,1024>::Iterator,128>	subscriptions[2];		//	0: indexed by message class ID (MCID), 1: indexed by stream ID (SID)
-		uint16														subscriptionCount[2];	//	idem
-		Projection(ModuleDescriptor	*projected,Space				*space);
+		uint16											subscriptionCount[2];	//	idem
+		Projection(ModuleDescriptor	*projected,Space	*space);
 		~Projection();
 		void	activate();
 		void	deactivate();
@@ -104,25 +104,25 @@ namespace	mBrane{
 		static	Array<Array<P<ModuleDescriptor>,128>,32>			Config;	//	indexed by module descriptor class ID | ID; temporary: used at config time when node IDs are not known; tranfered in Node::start in Main.
 		static	Array<Array<Array<P<ModuleDescriptor>,128>,32>,8>	Main;	//	indexed by host ID | module descriptor class ID | ID.
 		static	ModuleDescriptor									*New(XMLNode	&n);
-		static	void												Init(uint16	hostID);	//	resolves host name into ID, copies Config in Main, apply initial projections.
-		static	uint16												GetID(uint16	hostID,uint16	CID);	//	returns the first available slot in Main[hostID][CID].
+		static	void												Init(uint8	hostID);	//	resolves host name into ID, copies Config in Main, apply initial projections.
+		static	uint16												GetID(uint8	hostID,uint16	CID);	//	returns the first available slot in Main[hostID][CID].
 		static	const char*											GetName(uint16	cid, uint16 id);	//	returns the name of CID.
 		Host::host_name	hostName;	//	resolved in hostID at Node::run() time
 		P<_Module>	module;	//	NULL if remote
 		//_Module	*module;
 		ModuleDescriptor(const	char	*hostName,_Module	*m,uint16	CID,const	char	*name);	//	invoked at Node::loadApplication() time.
-		ModuleDescriptor(uint16	hostID,uint16	CID,uint16	ID);									//	invoked dynamically.
+		ModuleDescriptor(uint8	hostID,uint16	CID,uint16	ID);									//	invoked dynamically.
 		~ModuleDescriptor();
-		void	applyInitialProjections(uint16	hostID);
+		void	applyInitialProjections(uint8	hostID);
 		const	char	*getName();
 		void	_activate();
 		void	_deactivate();
-		void	addSubscription_message(uint16	hostID,uint16	spaceID,uint16	MCID);
-		void	addSubscription_stream(uint16	hostID,uint16	spaceID,uint16	SID);
-		void	removeSubscription_message(uint16	hostID,uint16	spaceID,uint16	MCID);
-		void	removeSubscription_stream(uint16	hostID,uint16	spaceID,uint16	SID);
-		void	removeSubscriptions_message(uint16	hostID,uint16	spaceID);
-		void	removeSubscriptions_stream(uint16	hostID,uint16	spaceID);
+		void	addSubscription_message(uint8	hostID,uint16	spaceID,uint16	MCID);
+		void	addSubscription_stream(uint8	hostID,uint16	spaceID,uint16	SID);
+		void	removeSubscription_message(uint8	hostID,uint16	spaceID,uint16	MCID);
+		void	removeSubscription_stream(uint8	hostID,uint16	spaceID,uint16	SID);
+		void	removeSubscriptions_message(uint8	hostID,uint16	spaceID);
+		void	removeSubscriptions_stream(uint8	hostID,uint16	spaceID);
 	};
 }
 
