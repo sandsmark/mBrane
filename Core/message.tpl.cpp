@@ -82,11 +82,11 @@ namespace	mBrane{
 
 			template<class	U,class	M>	void	SharedObject<U,M>::decRef(){
 
-				if(getOID()==0x00FFFFFF)	//	object has not been sent yet: it has not been smart pointed by the cache: treat as a normal object.
+				if(_Payload::getOID()==0x00FFFFFF)	//	object has not been sent yet: it has not been smart pointed by the cache: treat as a normal object.
 					_Object::decRef();
 				else{
 
-					int32	ref_count=Atomic::Decrement32(&refCount);
+					int32	ref_count=Atomic::Decrement32(&this->refCount);
 					switch(ref_count){
 					case	1:
 						module::Node::Get()->markUnused(this);
@@ -135,7 +135,7 @@ namespace	mBrane{
 				CStorage<S,T>	*o=(CStorage<S,T>	*)S::Alloc(size,normalizedSize);
 				o->_size=size;
 				o->_capacity=capacity;
-				o->_metaData=_MetaData;
+				o->_metaData=S::_MetaData;
 				return	o;
 			}
 
