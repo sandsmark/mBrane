@@ -107,10 +107,5 @@ class	Shared:public	SharedObject<Shared,Memory>{
 public:
 };
 
-class	Constant:public	ConstantObject<Constant,Memory>{
-public:
-};
-
-
 
 #endif /* Perf_class.h */

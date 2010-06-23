@@ -104,8 +104,9 @@ namespace	mBrane{
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
 
-			//	Shared objects are cached. The first 32 bits of their metadata is NID(7 bits)|ID(24 bits). The most significant bit of the OID is 0 (1 for constants, see below).
+			//	Shared objects are cached. The first 32 bits of their metadata is NID(7 bits)|ID(24 bits). The most significant bit of the OID is 0 (1 for constants).
 			//	Shared objects are supposed not to change once created.
+			//	Constant objects are duplicated on each node.
 			template<class	U,class	M>	class	SharedObject:
 			public	Message<U,M>{
 			protected:
@@ -114,15 +115,6 @@ namespace	mBrane{
 			public:
 				virtual	~SharedObject();
 				bool	isShared();
-			};
-
-			//	Constant objects are duplicated on each node.
-			template<class	U,class	M>	class	ConstantObject:
-			public	Payload<U,M>{
-			protected:
-				ConstantObject();
-			public:
-				virtual	~ConstantObject();
 				bool	isConstant();
 			};
 

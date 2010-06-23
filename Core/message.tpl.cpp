@@ -102,16 +102,10 @@ namespace	mBrane{
 
 				return	true;
 			}
+	
+			template<class	U,class	M>	bool	SharedObject<U,M>::isConstant(){
 
-			template<class	U,class	M>	ConstantObject<U,M>::ConstantObject():Payload<U,M>(){
-			}
-
-			template<class	U,class	M>	ConstantObject<U,M>::~ConstantObject(){
-			}
-
-			template<class	U,class	M>	bool	ConstantObject<U,M>::isConstant(){
-
-				return	true;
+				return	getNID()==0x80;
 			}
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
