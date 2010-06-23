@@ -151,7 +151,7 @@ namespace	mBrane{
 			return	m;
 		}
 
-		inline	Memory	*Memory::GetDynamic(size_t	s){	//	s>0; called anytime, for raw storage
+		Memory	*Memory::GetDynamic(size_t	s){	//	s>0; called anytime, for raw storage
 			
 			uint8	i;
 			size_t	objectSize=GetNormalizedSize(s,i);
