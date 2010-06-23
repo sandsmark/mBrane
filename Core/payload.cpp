@@ -118,6 +118,7 @@ namespace	mBrane{
 			uint64	oid=NID	&	0x7F;
 			oid<<=24;
 			oid|=LastSharedOID++;
+			_metaData&=0x00000000FFFFFFFF;
 			_metaData|=(oid<<32);
 		}
 
@@ -125,6 +126,7 @@ namespace	mBrane{
 
 			uint64	oid=0x80000000;
 			oid|=LastConstantOID++;
+			_metaData&=0x00000000FFFFFFFF;
 			_metaData|=(oid<<32);
 		}
 

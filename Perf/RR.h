@@ -22,6 +22,8 @@ public:
 		t1=t2=0;
 		cRun=0;
 		cc=0;
+
+		NODE->addConstantObject(new	Constant(),"a_constant");
 	}
 	void	stop(){	}
 	template<class	T>	Decision	decide(T	*p){return	WAIT;}

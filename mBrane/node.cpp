@@ -726,9 +726,10 @@ namespace	mBrane{
 	void	Node::addConstantObject(_Payload	*c,const	std::string	&name){
 
 		c->setOID();
-		uint32	oid=c->getOID();
-		Messaging::constants[oid].object=c;
-		Messaging::constants[oid].name=name;
+		uint32	id=c->getID();
+		Messaging::constants.resize(id+1);
+		Messaging::constants[id].object=c;
+		Messaging::constants[id].name=name;
 	}
 
 	_Payload	*Node::getConstantObject(uint32	OID){
@@ -747,6 +748,8 @@ namespace	mBrane{
 	void	Node::addLookup(uint8	sourceNID,uint32	OID){
 
 		Messaging::cacheCS.enter();
+		if(Messaging::lookup.size()<=sourceNID)
+			Messaging::lookup.resize(sourceNID+1);
 		Messaging::lookup[sourceNID].insert(OID);
 		Messaging::cacheCS.leave();
 	}
