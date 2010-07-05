@@ -297,7 +297,7 @@ uint16	TCPInterface::newChannel(uint8	*ID,CommChannel	**channel){	//	connect to 
 
 uint16	TCPInterface::acceptConnection(ConnectedCommChannel	**channel,int32	timeout,bool	&timedout){
 
-	std::cout<<"> Info: Listening for TCP connection on port " << port << std::endl;
+	// std::cout<<"> Info: Listening for TCP connection on port " << port << std::endl;
 
 	// Set blocking mode
 	#if defined(WINDOWS)
