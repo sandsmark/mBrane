@@ -105,7 +105,7 @@ namespace	mBrane{
 	
 			template<class	U,class	M>	bool	SharedObject<U,M>::isConstant(){
 
-				return	getNID()==0x80;
+				return	this->getNID()==0x80;
 			}
 
 			////////////////////////////////////////////////////////////////////////////////////////////////

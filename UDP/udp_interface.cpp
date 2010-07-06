@@ -108,13 +108,13 @@ bool	UDPInterface::load(XMLNode	&n){
 		return	false;
 	}
 
+	unsigned char* socketAddr;
 	char ipAddressString[16];
 	bool	found=false;
 	bool	gotIPAddress=false;
 
 #if defined (WINDOWS)
 
-	unsigned char* socketAddr;
 	char adaptorString[128];
 	PIP_ADAPTER_ADDRESSES pAddresses = NULL;
 	ULONG iterations = 0;
@@ -220,7 +220,7 @@ bool	UDPInterface::load(XMLNode	&n){
 	struct if_nameindex *iflist = NULL, *listsave = NULL;
 
 	//need a socket for ioctl()
-	if( (sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+	if( (sock = ::socket(AF_INET, SOCK_STREAM, 0)) < 0)
 		return false;
 
 	//returns pointer to dynamically allocated list of structs
@@ -243,10 +243,9 @@ bool	UDPInterface::load(XMLNode	&n){
 			continue;
 		}
 		saptr = (struct sockaddr_in *)&ifreq.ifr_addr;
-		key = ifreq.ifr_name;
 
 		// First check the IP Address
-		socketAddr = (unsigned char*) saptr->sin_addr.s_addr
+		socketAddr = (unsigned char*) &(saptr->sin_addr.s_addr);
 		if ( (socketAddr[0] != 0) && (socketAddr[0] != 127) ) {
 			sprintf(ipAddressString, "%u.%u.%u.%u", socketAddr[0], socketAddr[1], socketAddr[2], socketAddr[3]);
 			if(strstr(ipAddressString, _nic) != NULL)
@@ -262,8 +261,7 @@ bool	UDPInterface::load(XMLNode	&n){
 		}
 
 		if (found) {
-			memcpy(&if_addr, &ifreq.ifr_addr, sizeof(struct sockaddr_in));
-			memcpy(&address, &if_addr.sin_addr, sizeof(struct in_addr));
+			memcpy(&address, &saptr->sin_addr, sizeof(struct in_addr));
 			break;
 		}
 	}
