@@ -102,67 +102,176 @@ UDPInterface::~UDPInterface(){
 bool	UDPInterface::load(XMLNode	&n){
 
 	const	char	*_nic=n.getAttribute("nic");
-	bool	found=false;
 	if(!_nic){
 
 		std::cout<<"> Error: NodeConfiguration::Network::"<<n.getName()<<"::nic is missing"<<std::endl;
 		return	false;
 	}
-	
-#if defined (WINDOWS)
-	uint32	size=sizeof(IP_ADAPTER_INFO);
-    IP_ADAPTER_INFO	_adapters;
-	IP_ADAPTER_INFO	*adapters=NULL;
-	// Make an initial call to GetAdaptersInfo to get
-	// the necessary size
-	uint32	r=GetAdaptersInfo(&_adapters,&size);	//	initial call to get the actual size
-	if(r==ERROR_BUFFER_OVERFLOW){
-		// Now we know the size, allocate and call again
-		adapters=(IP_ADAPTER_INFO *) new uint8[size];
-		r=GetAdaptersInfo(adapters,&size);
-	
-		if(r!=ERROR_SUCCESS) {
-			std::cout<<"> Error: could not get adapter info"<<std::endl;
-			return	false;
-		}
-	}else
-		adapters=&_adapters;
 
-	IP_ADAPTER_INFO	*a;
-	uint8	i;
-	for(i=0,a=adapters;a;a=a->Next){
-		if(strcmp(_nic,a->Description)==0){
-			address.s_addr=inet_addr(a->IpAddressList.IpAddress.String);
-			found=true;
+	char ipAddressString[16];
+	bool	found=false;
+	bool	gotIPAddress=false;
+
+#if defined (WINDOWS)
+
+	unsigned char* socketAddr;
+	char adaptorString[128];
+	PIP_ADAPTER_ADDRESSES pAddresses = NULL;
+	ULONG iterations = 0;
+	DWORD dwRetVal = 0;
+	ULONG outBufLen = 15000;
+
+	unsigned int i = 0;
+	// Set the flags to pass to GetAdaptersAddresses
+	ULONG flags = GAA_FLAG_INCLUDE_PREFIX;
+	// default to unspecified address family (both)
+	ULONG family = AF_UNSPEC;
+	LPVOID lpMsgBuf = NULL;
+
+	PIP_ADAPTER_ADDRESSES pCurrAddresses = NULL;
+	PIP_ADAPTER_UNICAST_ADDRESS pUnicast = NULL;
+	PIP_ADAPTER_ANYCAST_ADDRESS pAnycast = NULL;
+	PIP_ADAPTER_MULTICAST_ADDRESS pMulticast = NULL;
+	IP_ADAPTER_DNS_SERVER_ADDRESS *pDnServer = NULL;
+	IP_ADAPTER_PREFIX *pPrefix = NULL;
+
+	do {
+
+		pAddresses = (IP_ADAPTER_ADDRESSES *) malloc(outBufLen);
+		if (pAddresses == NULL) {
+			std::cout<<"> Error: could not get adapter info"<<std::endl;
+			return false;
+		}
+
+		dwRetVal = GetAdaptersAddresses(family, flags, NULL, pAddresses, &outBufLen);
+
+		if (dwRetVal == ERROR_BUFFER_OVERFLOW) {
+			free(pAddresses);
+			pAddresses = NULL;
+		} else {
 			break;
 		}
+
+		iterations++;
+
+	} while ((dwRetVal == ERROR_BUFFER_OVERFLOW) && (iterations < 3));
+
+
+    if (dwRetVal == NO_ERROR) {
+        // If successful, output some information from the data we received
+        pCurrAddresses = pAddresses;
+        while (pCurrAddresses) {
+			gotIPAddress = false;
+			if ( (pCurrAddresses->OperStatus == IfOperStatusUp) && (pCurrAddresses->IfIndex != 0)) {
+
+				// First check the IP address
+				pUnicast = pCurrAddresses->FirstUnicastAddress;
+				if (pUnicast != NULL) {
+					for (i = 0; pUnicast != NULL; i++) {
+						socketAddr = ((unsigned char*) ((SOCKADDR*)(pUnicast->Address.lpSockaddr))->sa_data) + 2;
+						if ( (socketAddr[0] != 0) && (socketAddr[0] != 127) ) {
+							sprintf(ipAddressString, "%u.%u.%u.%u", socketAddr[0], socketAddr[1], socketAddr[2], socketAddr[3]);
+							if(strstr(ipAddressString, _nic) != NULL)
+								found=true;
+							// For now only look at the first non-0 and non-127 address on each adaptor
+							gotIPAddress = true;
+							break;
+						}
+						pUnicast = pUnicast->Next;
+					}
+				}
+
+				// Then check the adaptor description field
+				if ((!found) && gotIPAddress) {
+					if (WideCharToMultiByte( CP_ACP, 0, pCurrAddresses->Description, -1, adaptorString, 128, NULL, NULL ) != 0) {
+						if(strstr(adaptorString, _nic) != NULL)
+							found=true;
+					}
+				}
+
+				if (found) {
+					address.s_addr=inet_addr(ipAddressString);
+					break;
+				}
+
+				//printf("\tAdapter name: %s\n", pCurrAddresses->AdapterName);
+				//printf("\tDescription: %wS\n", pCurrAddresses->Description);
+				//printf("\tFriendly name: %wS\n", pCurrAddresses->FriendlyName);
+				//printf("\n");
+			}
+
+            pCurrAddresses = pCurrAddresses->Next;
+        }
+	} else {
+		if (pAddresses)
+			free(pAddresses);
+		return false;
 	}
-	if(size>sizeof(IP_ADAPTER_INFO))
-		delete[]	adapters;
+
+	if (pAddresses)
+		free(pAddresses);
+
 #endif
 
 #if defined (LINUX)
-	core::socket if_socket = 0;
+	int sock = 0;
 	struct ifreq ifreq;
-	struct sockaddr_in if_addr;
+	struct sockaddr_in *saptr = NULL;
+	struct if_nameindex *iflist = NULL, *listsave = NULL;
 
-	if ((if_socket = ::socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
-		std::cout << "> Error: unable to obtain a socket"<<std::endl;
+	//need a socket for ioctl()
+	if( (sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+		return false;
+
+	//returns pointer to dynamically allocated list of structs
+	iflist = listsave = if_nameindex();
+
+	if (iflist == NULL) {
+		close(sock);
 		return false;
 	}
 
-	strncpy(ifreq.ifr_name, _nic, IFNAMSIZ);
+	//walk thru the array returned and query for each
+	//interface's address
+	for(iflist; iflist->if_index != 0; iflist++) {
+		gotIPAddress = false;
+		//copy in the interface name to look up address of
+		strncpy(ifreq.ifr_name, iflist->if_name, IF_NAMESIZE);
+		//get the address for this interface
+		if(ioctl(sock, SIOCGIFADDR, &ifreq) != 0) {
+			// ignore;
+			continue;
+		}
+		saptr = (struct sockaddr_in *)&ifreq.ifr_addr;
+		key = ifreq.ifr_name;
 
-	if (ioctl(if_socket, SIOCGIFADDR, &ifreq) < 0) {
-		std::cout << "> Error: unable to determine address of "<< _nic<<" via socket "<< if_socket <<std::endl;
-		return false;
+		// First check the IP Address
+		socketAddr = (unsigned char*) saptr->sin_addr.s_addr
+		if ( (socketAddr[0] != 0) && (socketAddr[0] != 127) ) {
+			sprintf(ipAddressString, "%u.%u.%u.%u", socketAddr[0], socketAddr[1], socketAddr[2], socketAddr[3]);
+			if(strstr(ipAddressString, _nic) != NULL)
+				found=true;
+			// For now only look at the first non-0 and non-127 address on each adaptor
+			gotIPAddress = true;
+		}
+
+		// Then check the adaptor name
+		if ((!found) && gotIPAddress) {
+			if(strstr(ifreq.ifr_name, _nic) != NULL)
+				found=true;
+		}
+
+		if (found) {
+			memcpy(&if_addr, &ifreq.ifr_addr, sizeof(struct sockaddr_in));
+			memcpy(&address, &if_addr.sin_addr, sizeof(struct in_addr));
+			break;
+		}
 	}
 
-	memcpy(&if_addr, &ifreq.ifr_addr, sizeof(struct sockaddr_in));
+	//free the dynamic memory kernel allocated for us
+	if_freenameindex(listsave);
+	close(sock); 
 
-	memcpy(&address, &if_addr.sin_addr, sizeof(struct in_addr));
-
-	found = true;
 #endif
 
 	if(!found){
