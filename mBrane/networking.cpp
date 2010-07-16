@@ -611,7 +611,7 @@ err2:	delete	networkID;
 
 	uint16	Networking::connect(NetworkID	*networkID){
 
-		std::cout<<"> Info: From map connecting to "<<networkID->NID()<<"..."<<std::endl;
+		std::cout<<"> Info: From map connecting to "<<(unsigned int)networkID->NID()<<"..."<<std::endl;
 		switch(network){
 		case	BOTH:
 		case	PRIMARY:
@@ -898,7 +898,7 @@ err2:	delete	networkID;
 			}
 			//std::cout<<"   ---- 5 ---- AcceptConnection "<< (uint32)networkInterface->protocol()<<"..."<<std::endl;
 			if(start){
-				std::cout<<"> Info: Starting connection from ["<<remoteNID<<"]..."<<std::endl;
+				std::cout<<"> Info: Starting connection from ["<<(unsigned int)remoteNID<<"]..."<<std::endl;
 				node->connectedNodeCount++;
 				node->startReceivingThreads(remoteNID);
 				node->notifyNodeJoined(remoteNID,node->dataChannels[remoteNID]->networkID);
@@ -957,6 +957,7 @@ err1:	node->shutdown();
 
 	thread_ret	thread_function_call	Networking::Sync(void	*args){	//	executed by non-time ref nodes
 
+		printf("Starting Network Sync...\n");
 		Networking	*node=(Networking	*)args;
 
 		SyncProbe	*probe;
@@ -978,8 +979,12 @@ err1:	node->shutdown();
 						node->dataChannels[node->referenceNID]->channels[SECONDARY].data->send(probe,0xFF);
 					break;
 				}
+				Thread::Sleep(node->syncPeriod);
+				//Thread::Sleep(1000000);
 			}
-			Thread::Sleep(node->syncPeriod);
+			else {
+				Thread::Sleep(100);
+			}
 		}
 		return	0;
 	}

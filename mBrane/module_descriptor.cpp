@@ -202,7 +202,7 @@ error:	ModuleDescriptor::Config[CID][m->ID]=NULL;
 		ModuleDescriptor	*md;
 		for(uint32	i=0;i<ModuleDescriptor::Config.count();i++)	//	resolve host names into NID
 			for(uint32	j=0;j<ModuleDescriptor::Config[i].count();j++){
-
+				printf("Initialising module '%s' for host '%s' on host '%s'...\n", ModuleDescriptor::Config[i][j]->getName(), ModuleDescriptor::Config[i][j]->hostName, Node::Get()->name());
 				if(	stricmp(ModuleDescriptor::Config[i][j]->hostName,Node::Get()->name())==0	||
 					stricmp(ModuleDescriptor::Config[i][j]->hostName,"local")==0){
 

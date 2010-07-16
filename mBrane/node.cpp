@@ -264,7 +264,7 @@ namespace	mBrane{
 				Node::systemReady();
 			}
 			else {
-				// printf("Not sending SystemReady... \n");
+				printf("Not sending SystemReady - all nodes not ready yet... \n");
 			}
 		}
 		return	true;
@@ -399,7 +399,7 @@ namespace	mBrane{
 			}
 
 			if (!alreadyJoined) {
-				Node::Get()->trace(Node::NETWORK)<<"> Node join init: "<<networkID->name()<<":"<<NID<<std::endl;
+				Node::Get()->trace(Node::NETWORK)<<"> Node join init: "<<networkID->name()<<":"<<(unsigned int)NID<<std::endl;
 				Space::Init(NID);
 
 				for(uint32	i=0;i<ModuleDescriptor::Config.count();i++)	{ //	resolve host names into NID
@@ -426,7 +426,7 @@ namespace	mBrane{
 		m->send_ts()=this->time();
 		Messaging::send(m,LOCAL);
 
-		Node::Get()->trace(Node::NETWORK)<<"> Node joined: "<<networkID->name()<<":"<<NID<<std::endl;
+		Node::Get()->trace(Node::NETWORK)<<"> Node joined: "<<networkID->name()<<":"<<(unsigned int)NID<<std::endl;
 	}
 
 	void	Node::notifyNodeLeft(uint8	NID){

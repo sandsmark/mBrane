@@ -283,7 +283,9 @@ namespace	mBrane{
 
 		uint32	act;
 		e.getActivation(act);
+		//std::cout<<"Pushing job: "<<p->cid()<<std::endl;
 		if(act){
+			//std::cout<<"Pushing active job: "<<p->cid()<<std::endl;
 
 			List<P<ModuleEntry>,1024>			&modules=e.modules;
 			
@@ -293,6 +295,7 @@ namespace	mBrane{
 					continue;
 
 				if((*i)->descriptor->module->isReady()	&&	(*i)->descriptor->activationCount) {
+					//std::cout<<"Pushing active ready job: "<<p->cid()<<std::endl;
 					Job j(p, (*i)->descriptor->module);
 					jobs.push(j);
 				}

@@ -66,31 +66,44 @@ namespace	mBrane{
 			ClassRegister	*CR=ClassRegister::Get(c->cid());
 			int16	r;
 
-		//	std::cout<<"Info: Sending payload type '"<<CR->class_name<<"' ["<<c->cid()<<"] size '"<<CR->size()<<"'..."<<std::endl;
+			uint32	size = c->size();
 
-			uint32	size=c->size();
-			if(r=send((uint8	*)&size,sizeof(uint32)))	//	send the total size first (includes the size of the non transmitted data): will be used to alloc on the recv side
+			//std::cout<<"Info: Sending payload type '"<<CR->class_name<<"' ["<<c->cid()<<"] size '"<<size<<"'..."<<std::endl;
+
+			commSendCS.enter();
+
+			if(r=send((uint8	*)&size,sizeof(uint32))) {	//	send the total size first (includes the size of the non transmitted data): will be used to alloc on the recv side
+				commSendCS.leave();
 				return	r;
+			}
 
 			if(destinationNID!=0xFF	&&	(c->isConstant()	||	c->isShared())){
 
 				if(((_Payload	*)c)->getOID()==0x00FFFFFF)	// object is shared and has never been sent and is not in the cache yet.
 					Node::Get()->addSharedObject((_Payload	*)c);
 
-				if(r=send(((uint8	*)c)+CR->offset(),sizeof(uint64)))	//	send the metadata.	
+				if(r=send(((uint8	*)c)+CR->offset(),sizeof(uint64))) {	//	send the metadata.	
+					commSendCS.leave();
 					return	r;
-				if(c->isConstant())
+				}
+				if(c->isConstant()) {
+					commSendCS.leave();
 					return	0;
+				}
 
 				if(!Node::Get()->hasLookup(destinationNID,((_Payload	*)c)->getOID())){	//	the destination node does not have the object already.
 
-					if(r=send(((uint8	*)c)+CR->offset(),size-CR->offset()-sizeof(uint64)))	//	send the rest of the object.
+					if(r=send(((uint8	*)c)+CR->offset(),size-CR->offset()-sizeof(uint64))) {	//	send the rest of the object.
+						commSendCS.leave();
 						return	r;
+					}
 					Node::Get()->addLookup(destinationNID,((_Payload	*)c)->getOID());	//	we now know that the receiver has the object.
 																							//	the receiver also knows now that we have it.
 				}
-			}else	if(r=send(((uint8	*)c)+CR->offset(),size-CR->offset()))	//	send in full.
+			}else	if(r=send(((uint8	*)c)+CR->offset(),size-CR->offset())) {	//	send in full.
+				commSendCS.leave();
 				return	r;
+			}
 			
 			uint8		ptrCount=(uint8)c->ptrCount();
 			__Payload	*p;
@@ -99,10 +112,13 @@ namespace	mBrane{
 				p=c->getPtr(i);
 				if(!p)
 					continue;
-				if(r=_send(p,destinationNID))
+				if(r=_send(p,destinationNID)) {
+					commSendCS.leave();
 					return	r;
+				}
 			}
 		//	printf("CommChannel Send time:    %u\n", (uint32) (Time::Get() - t1));
+			commSendCS.leave();
 			return	0;
 		}
 
@@ -111,14 +127,25 @@ namespace	mBrane{
 			uint64	metaData;
 			int16	r;
 			uint32	size;
-			if(r=recv((uint8	*)&size,sizeof(uint32)))	//	receive the total size (includes the size of the non transmitted data)
+			commRecvCS.enter();
+			if(r=recv((uint8	*)&size,sizeof(uint32))) {	//	receive the total size (includes the size of the non transmitted data)
+				commRecvCS.leave();
 				return	r;
-			if(r=recv((uint8	*)&metaData,sizeof(uint64),true))	//	receive __Payload::_metaData
+			}
+			//Error::PrintBinary((char*)&size, sizeof(uint32), true, "Received Size");
+			if(r=recv((uint8	*)&metaData,sizeof(uint64),true)) {	//	receive __Payload::_metaData
+				commRecvCS.leave();
 				return	r;
+			}
+			//Error::PrintBinary((char*)&metaData,sizeof(uint64), true, "Received metaData");
 			//	allocate and initialize the payload (default ctor is called)
 			ClassRegister		*CR=ClassRegister::Get((uint16)(metaData >> 16));
-			if(CR==NULL)
+			if(CR==NULL) {
+				commRecvCS.leave();
 				return	-1;
+			}
+
+			//printf("Received Class: '%s' [%u] size '%u'...\n", CR->class_name, (uint16)(metaData >> 16), size);
 
 			if(sourceNID!=0xFF){
 
@@ -126,6 +153,7 @@ namespace	mBrane{
 				if(OID	&	0x80000000){	//	constant object.
 
 					*c=Node::Get()->getConstantObject(OID);
+					commRecvCS.leave();
 					return	0;
 				}
 
@@ -135,6 +163,7 @@ namespace	mBrane{
 																//	no need to recv anything.
 						*c=Node::Get()->getSharedObject(OID);
 						Node::Get()->consolidate((_Payload	*)*c);	//	handles the case where c has been doomed after being sent by the source node: ressuscitate it if no advertisement has been made yet.
+						commRecvCS.leave();
 						return	0;
 					}
 
@@ -145,8 +174,10 @@ namespace	mBrane{
 
 			*c=(__Payload*)(*CR->allocator())(size);	//	calls UserDefinedClass::New(size)
 
-			if(r=recv(((uint8	*)*c)+CR->offset(),size-CR->offset()))	//	metadata only peeked: read from the offset, and not from offset+sizeof(_metaData)
+			if(r=recv(((uint8	*)*c)+CR->offset(),size-CR->offset())) {	//	metadata only peeked: read from the offset, and not from offset+sizeof(_metaData)
+				commRecvCS.leave();
 				return	r;
+			}
 
 			if(sourceNID!=0xFF){
 				
@@ -158,6 +189,7 @@ namespace	mBrane{
 
 						delete	c;
 						*c=s;
+						commRecvCS.leave();
 						return	0;
 					}
 
@@ -172,11 +204,13 @@ namespace	mBrane{
 				if(r=_recv(&p,sourceNID)){
 
 					delete	*c;
+					commRecvCS.leave();
 					return	r;
 				}
 				(*c)->setPtr(i,p);
 			}
 			(*c)->init();
+			commRecvCS.leave();
 			return	0;
 		}
 

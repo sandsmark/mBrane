@@ -104,6 +104,7 @@ int16	TCPChannel::send(uint8	*b,size_t	s){
 		return	1;
 	}
 //	printf("TCP Send time: %u\n", (uint32) (Time::Get() - t1));
+//	printf("TCP Sent %u bytes...\n", (uint32)s);
 	return	0;
 }
 
@@ -138,7 +139,7 @@ int16	TCPChannel::recv(uint8	*b,size_t	s,bool	peek){
 		}
 		else
 			bufferPos += count;
-//		PrintBinary(buffer, bufferContentLen, true, "TCP Received");
+//		Error::PrintBinary(buffer+bufferPos, count, true, "TCP Received");
 		// std::cout<<"Info: Not enough data in buffer, received "<<count<<" bytes from socket..."<<std::endl;
 	}
 
@@ -157,7 +158,7 @@ int16	TCPChannel::recv(uint8	*b,size_t	s,bool	peek){
 		bufferPos -= s;
 	}
 	tcpCS.leave();
-//	std::cout<<"Info: Read "<<s<<" bytes from buffer, "<<bufferContentLen-bufferContentPos<<" bytes left..."<<std::endl;
+//	std::cout<<"Info: Read "<<s<<" bytes from buffer, "<<bufferLen-bufferPos<<" bytes left..."<<std::endl;
 	return 0;
 
 }

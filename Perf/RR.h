@@ -123,6 +123,7 @@ MODULE_CLASS_BEGIN(RRModule,Module<RRModule>)
 		//	(uint32) (now - t1));
 //		printf( "Ball4 triggered...\n");
 		int32 counter = p->num;
+		printf( "Ball4 triggered %d...\n", p->num);
 		NODE->send(this,new Ball5(counter),N::PRIMARY);
 	}
 	void	react(Ball5 *p){
@@ -134,6 +135,7 @@ MODULE_CLASS_BEGIN(RRModule,Module<RRModule>)
 		//	(uint32) (now - p->recv_ts()),
 		//	(uint32) (now - t1));
 //		printf( "Ball5 triggered...\n");
+		printf( "Ball5 triggered %d...\n", p->num);
 		int32 counter = p->num;
 		NODE->send(this,new Ball6(counter),N::PRIMARY);
 	}
@@ -168,7 +170,7 @@ MODULE_CLASS_BEGIN(RRModule,Module<RRModule>)
 		//	(uint32) (now - p->node_recv_ts()),
 		//	(uint32) (now - p->recv_ts()),
 		//	(uint32) (now - t1));
-//		printf( "Ball8 triggered...\n");
+		printf( "Ball8 triggered %d...\n", p->num);
 		int32 counter = p->num;
 		NODE->send(this,new Ball9(counter),N::PRIMARY);
 	}

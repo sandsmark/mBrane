@@ -73,6 +73,8 @@ namespace	mBrane{
 			CommChannel();	//	initialization to be performed in subclasses' constructors
 			int16	_send(__Payload	*c,uint8	destinationNID);
 			int16	_recv(__Payload	**c,uint8	sourceNID);
+			CriticalSection	commSendCS;
+			CriticalSection	commRecvCS;
 		public:
 			virtual	~CommChannel();	//	shutdown to be performed in subclasses' destructors
 			virtual	int16	send(uint8	*b,size_t	s)=0;	//	return 0 if successfull, error code (>0) otherwise

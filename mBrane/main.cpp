@@ -120,6 +120,11 @@ template<class	L>	int64	RAM_perf_probe(){	//	the real test is to allocate/deallo
 
 int	main(int	argc,char	**argv){
 
+	//SyncProbe* probe=new	SyncProbe();
+	//printf("SyncProbe size is: %u\n\n", probe->size());
+	//Error::PrintBinary(probe, probe->size(), true, "SyncProbe Content");
+	//exit(0);
+
 	LoadControlMessageMetaData();
 
 	Time::Init(1000);
