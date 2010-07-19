@@ -34,6 +34,20 @@ public:
 		printf("RRMaster starting RoundRobin test, please wait...\n");
 		tStart = t1 = NODE->time();
 		NODE->send(this,new Ball1(0),N::PRIMARY);
+
+		ActivateModule* am = new ActivateModule();
+		am->host_id = 1;
+		am->module_cid = 2;
+		am->module_id = 3;
+		am->space_id = 4;
+		am->activationLevel = 5;
+		Error::PrintBinary(am, am->size(), true, "ActivateModule Message Structure");
+
+		Ball1* ball = new Ball1();
+		ball->d1 = 1;
+		ball->num = 2;
+		ball->num2 = 3;
+		Error::PrintBinary(ball, ball->size(), true, "Ball1 Message Structure");
 	}
 
 	void	react(Ball9 *p){
@@ -137,7 +151,21 @@ MODULE_CLASS_BEGIN(RRModule,Module<RRModule>)
 //		printf( "Ball5 triggered...\n");
 		printf( "Ball5 triggered %d...\n", p->num);
 		int32 counter = p->num;
-		NODE->send(this,new Ball6(counter),N::PRIMARY);
+
+		ActivateModule* am = new ActivateModule();
+		am->host_id = 1;
+		am->module_cid = 2;
+		am->module_id = 3;
+		am->space_id = 4;
+		am->activationLevel = 5;
+		Error::PrintBinary(am, am->size(), true, "ActivateModule Message Structure");
+
+		Ball1* ball = new Ball1();
+		ball->d1 = 1;
+		ball->num = 2;
+		ball->num2 = 3;
+		Error::PrintBinary(ball, ball->size(), true, "Ball1 Message Structure");
+//		NODE->send(this,new Ball6(counter),N::PRIMARY);
 	}
 	void	react(Ball6 *p){
 		uint64 now = NODE->time();
@@ -175,6 +203,32 @@ MODULE_CLASS_BEGIN(RRModule,Module<RRModule>)
 		NODE->send(this,new Ball9(counter),N::PRIMARY);
 	}
 MODULE_CLASS_END(RRModule)
+
+MODULE_CLASS_BEGIN(SizeTest,Module<SizeTest>)
+public:
+	void	start(){ }
+	void	stop(){	}
+	template<class	T>	Decision	decide(T	*p){return	WAIT;}
+	template<class	T>	void	react(T	*p){}
+
+	void	react(SystemReady	*p){
+		ActivateModule* am = new ActivateModule();
+		am->host_id = 1;
+		am->module_cid = 2;
+		am->module_id = 3;
+		am->space_id = 4;
+		am->activationLevel = 5;
+		Error::PrintBinary(am, am->size(), true, "ActivateModule Message Structure");
+
+		Ball1* ball = new Ball1();
+		ball->d1 = 1;
+		ball->num = 2;
+		ball->num2 = 3;
+		Error::PrintBinary(ball, ball->size(), true, "Ball1 Message Structure");
+	}
+
+MODULE_CLASS_END(SizeTest)
+
 
 
 #endif /* Perf_RR_h */
