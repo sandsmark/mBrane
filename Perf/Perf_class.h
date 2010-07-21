@@ -12,6 +12,7 @@ template<class	U>	class	_Ball:	//	to allow derivation
 public	payloads::Message<U,Memory>{
 public:
 	uint32	d1;
+	uint32	padding;
 };
 
 class	Ball:public		_Ball<Ball>{

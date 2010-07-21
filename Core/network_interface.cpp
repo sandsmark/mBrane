@@ -70,10 +70,10 @@ namespace	mBrane{
 
 			//std::cout<<"Info: Sending payload type '"<<CR->class_name<<"' ["<<c->cid()<<"] size '"<<size<<"'..."<<std::endl;
 
-			commSendCS.enter();
+//			commSendCS.enter();
 
 			if(r=send((uint8	*)&size,sizeof(uint32))) {	//	send the total size first (includes the size of the non transmitted data): will be used to alloc on the recv side
-				commSendCS.leave();
+				//commSendCS.leave();
 				return	r;
 			}
 
@@ -83,25 +83,25 @@ namespace	mBrane{
 					Node::Get()->addSharedObject((_Payload	*)c);
 
 				if(r=send(((uint8	*)c)+CR->offset(),sizeof(uint64))) {	//	send the metadata.	
-					commSendCS.leave();
+//					commSendCS.leave();
 					return	r;
 				}
 				if(c->isConstant()) {
-					commSendCS.leave();
+//					commSendCS.leave();
 					return	0;
 				}
 
 				if(!Node::Get()->hasLookup(destinationNID,((_Payload	*)c)->getOID())){	//	the destination node does not have the object already.
 
 					if(r=send(((uint8	*)c)+CR->offset(),size-CR->offset()-sizeof(uint64))) {	//	send the rest of the object.
-						commSendCS.leave();
+//						commSendCS.leave();
 						return	r;
 					}
 					Node::Get()->addLookup(destinationNID,((_Payload	*)c)->getOID());	//	we now know that the receiver has the object.
 																							//	the receiver also knows now that we have it.
 				}
 			}else	if(r=send(((uint8	*)c)+CR->offset(),size-CR->offset())) {	//	send in full.
-				commSendCS.leave();
+//				commSendCS.leave();
 				return	r;
 			}
 			
@@ -113,12 +113,12 @@ namespace	mBrane{
 				if(!p)
 					continue;
 				if(r=_send(p,destinationNID)) {
-					commSendCS.leave();
+//					commSendCS.leave();
 					return	r;
 				}
 			}
 		//	printf("CommChannel Send time:    %u\n", (uint32) (Time::Get() - t1));
-			commSendCS.leave();
+//			commSendCS.leave();
 			return	0;
 		}
 

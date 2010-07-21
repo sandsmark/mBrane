@@ -34,30 +34,16 @@ public:
 		printf("RRMaster starting RoundRobin test, please wait...\n");
 		tStart = t1 = NODE->time();
 		NODE->send(this,new Ball1(0),N::PRIMARY);
-
-		ActivateModule* am = new ActivateModule();
-		am->host_id = 1;
-		am->module_cid = 2;
-		am->module_id = 3;
-		am->space_id = 4;
-		am->activationLevel = 5;
-		Error::PrintBinary(am, am->size(), true, "ActivateModule Message Structure");
-
-		Ball1* ball = new Ball1();
-		ball->d1 = 1;
-		ball->num = 2;
-		ball->num2 = 3;
-		Error::PrintBinary(ball, ball->size(), true, "Ball1 Message Structure");
 	}
 
 	void	react(Ball9 *p){
 		uint32 t;
 		int32 counter = p->num;
 		if (counter == 1)
-			printf("RoundRobin test running...\n");
+			printf("RoundRobin test %u running...\n", cRun);
 		t2 = NODE->time();
 	//	printf("Module 9 Send/Rec time:               %u\n", (uint32) (t2 - t1));
-	//	if ((t = (uint32)(t2-t1)) > 100000)
+	//	if ((t = (uint32)(t2-t1)) > 10000)
 	//		printf("*** RR[%u] single run test took %uus for the %dth cycle, %.3fus per msg (%p)\n",
 	//			cRun, t, counter, ((double)t)/((double)9), p);
 		if (counter == 10000) {
@@ -137,7 +123,7 @@ MODULE_CLASS_BEGIN(RRModule,Module<RRModule>)
 		//	(uint32) (now - t1));
 //		printf( "Ball4 triggered...\n");
 		int32 counter = p->num;
-		printf( "Ball4 triggered %d...\n", p->num);
+//		printf( "Ball4 triggered %d...\n", p->num);
 		NODE->send(this,new Ball5(counter),N::PRIMARY);
 	}
 	void	react(Ball5 *p){
@@ -149,23 +135,21 @@ MODULE_CLASS_BEGIN(RRModule,Module<RRModule>)
 		//	(uint32) (now - p->recv_ts()),
 		//	(uint32) (now - t1));
 //		printf( "Ball5 triggered...\n");
-		printf( "Ball5 triggered %d...\n", p->num);
+//		printf( "Ball5 triggered %d...\n", p->num);
 		int32 counter = p->num;
 
-		ActivateModule* am = new ActivateModule();
-		am->host_id = 1;
-		am->module_cid = 2;
-		am->module_id = 3;
-		am->space_id = 4;
-		am->activationLevel = 5;
-		Error::PrintBinary(am, am->size(), true, "ActivateModule Message Structure");
+		//ActivateModule* am = new ActivateModule();
+		//am->host_id = 1;
+		//am->module_cid = 2;
+		//am->module_id = 3;
+		//am->space_id = 4;
+		//am->activationLevel = 5;
+		//Error::PrintBinary(am, am->size(), true, "ActivateModule Message Structure");
 
-		Ball1* ball = new Ball1();
-		ball->d1 = 1;
-		ball->num = 2;
-		ball->num2 = 3;
-		Error::PrintBinary(ball, ball->size(), true, "Ball1 Message Structure");
-//		NODE->send(this,new Ball6(counter),N::PRIMARY);
+		//Error::PrintBinary(p, p->size(), true, "Ball5 remote Message Structure");
+		//Ball5* ball = new Ball5(2);
+		//Error::PrintBinary(ball, ball->size(), true, "Ball5 local Message Structure");
+		NODE->send(this,new Ball6(counter),N::PRIMARY);
 	}
 	void	react(Ball6 *p){
 		uint64 now = NODE->time();
@@ -198,7 +182,7 @@ MODULE_CLASS_BEGIN(RRModule,Module<RRModule>)
 		//	(uint32) (now - p->node_recv_ts()),
 		//	(uint32) (now - p->recv_ts()),
 		//	(uint32) (now - t1));
-		printf( "Ball8 triggered %d...\n", p->num);
+//		printf( "Ball8 triggered %d...\n", p->num);
 		int32 counter = p->num;
 		NODE->send(this,new Ball9(counter),N::PRIMARY);
 	}
