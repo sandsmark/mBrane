@@ -58,18 +58,28 @@ TCPChannel::TCPChannel(core::socket	s):ConnectedCommChannel(),s(s){
 	char delay = 1;
 	setsockopt(s, IPPROTO_TCP, TCP_NODELAY, (char*) &delay, sizeof(delay));
 
+	char buffsize = 1;
+	setsockopt(s, SOL_SOCKET, SO_SNDBUF, &buffsize, sizeof(buffsize));
+
+	setBlockingMode(false);
+}
+
+bool TCPChannel::setBlockingMode(bool blocking) {
 	#if defined(WINDOWS)
 		// Set non-blocking mode
 		unsigned long parm = 1; // 1 = Non-blocking, 0 = Blocking
+		if (blocking) parm = 0;
 		ioctlsocket(s, FIONBIO, &parm);
-		// Set no linger
 	#else
 		// Set non-blocking mode
 		long parm = fcntl(s, F_GETFL);
-		parm |= O_NONBLOCK;
-		//parm &= (!O_NONBLOCK);
+		if (blocking)
+			parm &= ~O_NONBLOCK;
+		else
+			parm |= O_NONBLOCK;
 		fcntl(s, F_SETFL, parm);
 	#endif
+	return true;
 }
 
 TCPChannel::~TCPChannel(){
@@ -95,16 +105,20 @@ bool	TCPChannel::initialiseBuffer(uint32 len) {
 	return true;
 }
 
+
 int16	TCPChannel::send(uint8	*b,size_t	s){
 
+	setBlockingMode(true);
 //	uint64 t1 = Time::Get();
 //	PrintBinary(b, s, true, "TCP Sending");
 	if(::send(this->s,(char	*)b,(int)s,0)==SOCKET_ERROR) {
 //		int err = WSAGetLastError();
 		return	1;
 	}
-//	printf("TCP Send time: %u\n", (uint32) (Time::Get() - t1));
 //	printf("TCP Sent %u bytes...\n", (uint32)s);
+	WaitForSocketWriteability(this->s, 1000);
+	setBlockingMode(false);
+//	printf("TCP Send %u bytes time: %u [%llu]...\n", s, (uint32) (Time::Get() - t1), Time::Get());
 	return	0;
 }
 
@@ -115,19 +129,30 @@ int16	TCPChannel::recv(uint8	*b,size_t	s,bool	peek){
 
 	while (s > bufferLen) {
 		tcpCS.leave();
-		initialiseBuffer(s * 2);
+		initialiseBuffer((uint32)s * 2);
 		tcpCS.enter();
 	}
 
+//	uint64 t = Time::Get();
+	uint32 r = 0;
+	uint32 tw = 0;
+	uint32 tc = 0;
 	// Do we have enough data in the buffer already
 	while (bufferPos < s) {
 		// read from the socket
 		int count = ::recv(this->s,buffer+bufferPos,bufferLen-bufferPos,0);
+		#ifndef WINDOWS
+		//	setsockopt(this->s, IPPROTO_TCP, TCP_QUICKACK, (int[]){0}, sizeof(int));
+		#endif
 		//int count = ::recv(this->s,buffer,s,0);
 		if (count==SOCKET_ERROR) {
 			wsaError = Error::GetLastOSErrorNumber();
-			if ((wsaError == SOCKETWOULDBLOCK) || (wsaError == EAGAIN))
-				WaitForSocketReadability(this->s, 10);
+			if ((wsaError == SOCKETWOULDBLOCK) || (wsaError == EAGAIN)) {
+//				uint64 t2 = Time::Get();
+				WaitForSocketReadability(this->s, 1000);
+//				tw += (uint32)(Time::Get() - t2);
+//				tc++;
+			}
 			else {
 				Error::PrintLastOSErrorMessage("Error: TCPChannel::recv");
 				tcpCS.leave();
@@ -137,8 +162,10 @@ int16	TCPChannel::recv(uint8	*b,size_t	s,bool	peek){
 		else if (count == 0) {
 			WaitForSocketReadability(this->s, 10);
 		}
-		else
+		else {
 			bufferPos += count;
+//			r += count;
+		}
 //		Error::PrintBinary(buffer+bufferPos, count, true, "TCP Received");
 		// std::cout<<"Info: Not enough data in buffer, received "<<count<<" bytes from socket..."<<std::endl;
 	}
@@ -155,10 +182,16 @@ int16	TCPChannel::recv(uint8	*b,size_t	s,bool	peek){
 	memcpy(b, buffer, s);
 	if (!peek) {
 		memcpy(buffer, buffer+s, bufferLen - s);
-		bufferPos -= s;
+		bufferPos -= (uint32)s;
 	}
 	tcpCS.leave();
 //	std::cout<<"Info: Read "<<s<<" bytes from buffer, "<<bufferLen-bufferPos<<" bytes left..."<<std::endl;
+
+//	if (r)
+//		printf("Took %u us to read %u bytes into buffer (%ux = %u) [%llu]...\n", Time::Get()-t, r, tc, tw, Time::Get());
+//	else
+//		printf("   Got %u bytes from buffer [%llu]...\n", s, Time::Get());
+
 	return 0;
 
 }

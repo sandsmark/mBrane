@@ -375,11 +375,14 @@ uint16	TCPInterface::newChannel(uint8	*ID,CommChannel	**channel){	//	connect to 
 		return	1;
 	}
 
-	struct linger ling = {1, 0};
-	setsockopt(s, SOL_SOCKET, SO_LINGER, (char *)&ling, sizeof(ling));
+	//struct linger ling = {1, 0};
+	//setsockopt(s, SOL_SOCKET, SO_LINGER, (char *)&ling, sizeof(ling));
 
-	char delay = 1;
-	setsockopt(s, IPPROTO_TCP, TCP_NODELAY, (char*) &delay, sizeof(delay));
+	//char delay = 1;
+	//setsockopt(s, IPPROTO_TCP, TCP_NODELAY, (char*) &delay, sizeof(delay));
+
+	//char buffsize = 1;
+	//setsockopt(s, SOL_SOCKET, SO_SNDBUF, &buffsize, sizeof(buffsize));
 
 	char errbuf[1024];
 	struct sockaddr_in	addr;

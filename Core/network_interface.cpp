@@ -54,26 +54,32 @@ namespace	mBrane{
 		////////////////////////////////////////////////////////////////////////////////////////////////
 
 		CommChannel::CommChannel(){
+			sendBufferPos = 0;
+			sendBufferLen = 4096;
+			sendBuffer = (uint8*) malloc(sendBufferLen);
 		}
 
 		CommChannel::~CommChannel(){
-			int t=0;
+			free(sendBuffer);
+			sendBuffer = NULL;
+			sendBufferPos = 0;
+			sendBufferLen = 0;
 		}
 
 		inline int16	CommChannel::_send(__Payload	*c,uint8	destinationNID){
 
-		//	uint64 t1 = Time::Get();
+			// uint64 t1 = Time::Get();
 			ClassRegister	*CR=ClassRegister::Get(c->cid());
 			int16	r;
 
-			uint32	size = c->size();
+			uint32	size = (uint32)c->size();
 
 			//std::cout<<"Info: Sending payload type '"<<CR->class_name<<"' ["<<c->cid()<<"] size '"<<size<<"'..."<<std::endl;
 
-//			commSendCS.enter();
+			commSendCS.enter();
 
-			if(r=send((uint8	*)&size,sizeof(uint32))) {	//	send the total size first (includes the size of the non transmitted data): will be used to alloc on the recv side
-				//commSendCS.leave();
+			if(r=bufferedSend((uint8	*)&size,sizeof(uint32))) {	//	send the total size first (includes the size of the non transmitted data): will be used to alloc on the recv side
+				commSendCS.leave();
 				return	r;
 			}
 
@@ -82,26 +88,30 @@ namespace	mBrane{
 				if(((_Payload	*)c)->getOID()==0x00FFFFFF)	// object is shared and has never been sent and is not in the cache yet.
 					Node::Get()->addSharedObject((_Payload	*)c);
 
-				if(r=send(((uint8	*)c)+CR->offset(),sizeof(uint64))) {	//	send the metadata.	
-//					commSendCS.leave();
+				if(r=bufferedSend(((uint8	*)c)+CR->offset(),sizeof(uint64))) {	//	send the metadata.	
+					commSendCS.leave();
 					return	r;
 				}
 				if(c->isConstant()) {
-//					commSendCS.leave();
+					if (r=bufferedSend(NULL, 0, true)) {
+						commSendCS.leave();
+						return r;
+					}
+					commSendCS.leave();
 					return	0;
 				}
 
 				if(!Node::Get()->hasLookup(destinationNID,((_Payload	*)c)->getOID())){	//	the destination node does not have the object already.
 
-					if(r=send(((uint8	*)c)+CR->offset(),size-CR->offset()-sizeof(uint64))) {	//	send the rest of the object.
-//						commSendCS.leave();
+					if(r=bufferedSend(((uint8	*)c)+CR->offset(),size-CR->offset()-sizeof(uint64))) {	//	send the rest of the object.
+						commSendCS.leave();
 						return	r;
 					}
 					Node::Get()->addLookup(destinationNID,((_Payload	*)c)->getOID());	//	we now know that the receiver has the object.
 																							//	the receiver also knows now that we have it.
 				}
-			}else	if(r=send(((uint8	*)c)+CR->offset(),size-CR->offset())) {	//	send in full.
-//				commSendCS.leave();
+			}else	if(r=bufferedSend(((uint8	*)c)+CR->offset(),size-CR->offset())) {	//	send in full.
+				commSendCS.leave();
 				return	r;
 			}
 			
@@ -113,13 +123,42 @@ namespace	mBrane{
 				if(!p)
 					continue;
 				if(r=_send(p,destinationNID)) {
-//					commSendCS.leave();
+					commSendCS.leave();
 					return	r;
 				}
 			}
 		//	printf("CommChannel Send time:    %u\n", (uint32) (Time::Get() - t1));
-//			commSendCS.leave();
+			if (r=bufferedSend(NULL, 0, true)) {
+				commSendCS.leave();
+				return r;
+			}
+			commSendCS.leave();
 			return	0;
+		}
+
+		int16	CommChannel::bufferedSend(uint8 *b,size_t s, bool sendNow) {
+			if (b && s) {
+				while (sendBufferLen-sendBufferPos < s) {
+					sendBufferLen += (uint32)(s<4096 ? 4096 : s);
+					sendBuffer = (uint8*)realloc(sendBuffer, sendBufferLen);
+				}
+				memcpy(sendBuffer+sendBufferPos, b, s);
+				sendBufferPos += (uint32)s;
+			}
+
+			if (!sendNow)
+				return 0;
+
+		//	uint64 t = Time::Get();
+			int16 res = send(sendBuffer, sendBufferPos);
+		//	uint64 d = Time::Get() - t;
+		//	if (d > 2000) {
+		//		printf("********* Network send %u bytes took %u us**********\n\n",
+		//			sendBufferPos, (uint32)d);
+		//	}
+			sendBufferPos = 0;
+
+			return res;
 		}
 
 		inline int16	CommChannel::_recv(__Payload	**c,uint8	sourceNID){

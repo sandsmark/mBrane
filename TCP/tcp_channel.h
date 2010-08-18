@@ -55,6 +55,7 @@ private:
 	char* buffer;
 	core::socket	s;
 	bool	initialiseBuffer(uint32 len);
+	bool	setBlockingMode(bool blocking);
 public:
 	TCPChannel(core::socket	s);
 	~TCPChannel();
