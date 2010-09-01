@@ -31,20 +31,18 @@
 #ifndef	mBrane_messaging_h
 #define	mBrane_messaging_h
 
+#define	MESSAGE_INPUT_BLOCK_SIZE	64
+#define	MESSAGE_OUTPUT_BLOCK_SIZE	64
+#define	JOBS_BLOCK_SIZE				128
+
 #include	"pipe.h"
 #include	"../Core/list.h"
 #include	"../Core/control_messages.h"
 
-#include	"networking.h"
 #include	"module_descriptor.h"
-
 
 using	namespace	mBrane::sdk;
 using	namespace	mBrane::sdk::module;
-
-#define	MESSAGE_INPUT_BLOCK_SIZE	64
-#define	MESSAGE_OUTPUT_BLOCK_SIZE	64
-#define	JOBS_BLOCK_SIZE				128
 
 namespace	mBrane{
 
@@ -156,5 +154,6 @@ namespace	mBrane{
 	};
 }
 
+#include	"networking.h"
 
 #endif

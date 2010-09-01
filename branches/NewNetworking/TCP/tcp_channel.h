@@ -40,12 +40,6 @@
 using	namespace	mBrane;
 using	namespace	mBrane::sdk;
 
-#ifdef WINDOWS
-	#define SOCKETWOULDBLOCK WSAEWOULDBLOCK
-#else
-	#define SOCKETWOULDBLOCK EINPROGRESS
-#endif
-
 class	TCPChannel:
 public	ConnectedCommChannel{
 private:
@@ -61,6 +55,8 @@ public:
 	~TCPChannel();
 	int16	send(uint8	*b,size_t	s);
 	int16	recv(uint8	*b,size_t	s,bool	peek=false);
+	bool	isConnected();
+	bool	disconnect();
 };
 
 

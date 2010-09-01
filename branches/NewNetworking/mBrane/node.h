@@ -48,9 +48,7 @@ namespace	mBrane{
 
 	class	Node:
 	public	Networking,
-	public	Messaging,
 	public	Executing{
-	friend	class	Messaging;
 	private:
 		class	NoStream:
 		public	std::ostream{
@@ -82,7 +80,6 @@ namespace	mBrane{
 		uint8	getNID(const	char	*name);
 		bool allNodesJoined();
 		bool allNodesReady();
-		bool checkSyncProbe(uint8 syncNodeID);
 		const	char	*name();
 		//	main() NODE API
 		static	Node	*New(const	char	*configFileName,SharedLibrary	&userLibrary,uint8	traceLevels);
