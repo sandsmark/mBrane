@@ -56,7 +56,8 @@ namespace	mBrane{
 					PRIMARY=0,
 					SECONDARY=1,
 					BOTH=2,
-					LOCAL=3
+					LOCAL=3,
+					EITHER=4
 				}Network;
 				typedef	enum{
 					EXECUTION=0,

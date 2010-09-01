@@ -120,3 +120,13 @@ int16	UDPChannel::recv(uint8	*b,size_t	s,bool	peek){
 	return 0;
 }
 
+bool	UDPChannel::isConnected() {
+	return true;
+}
+
+bool	UDPChannel::disconnect() {
+	shutdown(s, SD_BOTH);
+	closesocket(s);
+	s = INVALID_SOCKET;
+	return true;
+}
