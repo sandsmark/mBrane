@@ -104,7 +104,7 @@ namespace	mBrane{
 				if ((!commChannels[CONTROL_PRIMARY]) || (!commChannels[CONTROL_PRIMARY]->isConnected()) ||
 					(!commChannels[DATA_PRIMARY]) || (!commChannels[DATA_PRIMARY]->isConnected()) ||
 					(!commChannels[STREAM_PRIMARY]) || (!commChannels[STREAM_PRIMARY]->isConnected()) ) {
-					if (module::Node::PRIMARY || module::Node::BOTH)
+					if ((network == module::Node::PRIMARY) || (network == module::Node::BOTH))
 						return false;
 				}
 				else if (module::Node::EITHER)
@@ -325,7 +325,7 @@ namespace	mBrane{
 	bool	Networking::allNodesJoined() {
 		// don't check reference node = 0
 		for(uint8	i=1;i<nodeCount;i++) {
-			if (!nodes[i]->isConnected()) {
+			if (!nodes[i]->ready && !nodes[i]->isConnected()) {
 				printf("*** Still waiting for Node '%s' (%u of %u) to join ***\n", nodes[i]->name, i, nodeCount);
 				return false;
 			}
@@ -767,8 +767,11 @@ namespace	mBrane{
 
 		this->isTimeReference=isTimeReference;
 		if (!isTimeReference) {
-			if (nodes[assignedNID])
+			if (nodes[assignedNID]) {
 				nodes[assignedNID]->setName(hostName);
+				nodes[assignedNID]->ready = true;
+				nodes[assignedNID]->joined = true;
+			}
 		}
 //		dataChannels[assignedNID]->networkID=this->networkID;
 		_ID=assignedNID;
@@ -798,9 +801,9 @@ namespace	mBrane{
 
 	uint16	Networking::sendID(CommChannel	*c,NetworkID	*networkID){
 
-		//std::cout<<"> Info: SendID network greeting ["<<networkID->name()<<","<<(*(uint16*)networkID->data)<<"]..."<<std::endl;
 		uint16	r;
 		uint16 mBraneToken = MBRANETOKEN;
+		std::cout<<"> Info: SendID network greeting ["<<networkID->name()<<","<<(*(uint16*)networkID->data)<<"]...("<<mBraneToken<<")"<<std::endl;
 		if(r=c->send((uint8*)&mBraneToken,sizeof(uint16)))
 			return	r;
 		if(r=c->send(networkID->data,NetworkID::Size+networkID->headerSize))
@@ -808,18 +811,20 @@ namespace	mBrane{
 		return	0;
 	}
 
-	uint16	Networking::recvID(CommChannel	*c,NetworkID	*&networkID){
+	uint16	Networking::recvID(CommChannel	*c,NetworkID	*&networkID, bool expectToken){
 
 		uint16	r;
 		uint8	remoteNID;
-		uint16 mBraneToken;
-		if(r=c->recv((uint8	*)&mBraneToken,sizeof(uint16))) {
-			std::cout<<"Error: Error receiving NodeID..."<<std::endl;
-			return	r;
-		}
-		if (mBraneToken != MBRANETOKEN) {
-		//	std::cout<<"Error: mBrane Token error..."<<std::endl;
-			return	1;
+		if (expectToken) {
+			uint16 mBraneToken;
+			if(r=c->recv((uint8	*)&mBraneToken,sizeof(uint16))) {
+				std::cout<<"Error: Error receiving NodeID..."<<std::endl;
+				return	r;
+			}
+			if (mBraneToken != MBRANETOKEN) {
+				std::cout<<"Error: mBrane Token error...("<<mBraneToken<<")"<<std::endl;
+				return	1;
+			}
 		}
 		if(r=c->recv((uint8	*)&remoteNID,sizeof(uint8)))
 			return	r;
@@ -856,7 +861,7 @@ namespace	mBrane{
 		NetworkID	*networkID;
 		for(uint16	i=0;i<mapElementCount;i++){
 
-			if(r=recvID(c,networkID))
+			if(r=recvID(c,networkID, false))
 				return	r;
 			if (nodes[networkID->NID()])
 				nodes[networkID->NID()]->setName(networkID->name());
@@ -869,20 +874,25 @@ namespace	mBrane{
 	uint16	Networking::sendMap(CommChannel	*c){
 
 		uint16	r;
+		uint32 len = 0;
 		uint8* data = new uint8[32*sizeof(NetworkID)+sizeof(uint16)];
 		NetworkID* ids = (NetworkID*)(data+sizeof(uint16));
 		uint16* mapElementCount = (uint16*)data;
-		*mapElementCount = 0;
+		// First copy myself in there, as I am not isConnected(), of course
+		memcpy(ids++, this->networkID->data, NetworkID::Size+networkID->headerSize);
+		len += NetworkID::Size+networkID->headerSize;
+		*mapElementCount = 1;
 		UNORDERED_MAP<uint8, NodeCon*>::iterator it, itEnd;
 		for (it = nodes.begin(), itEnd=nodes.end(); it != itEnd; it++) {
 			if ( it->second && it->second->isConnected() ) {
-				memcpy(ids++, &it->second->networkID, sizeof(NetworkID));
+				memcpy(ids++, &it->second->networkID->data, NetworkID::Size+it->second->networkID->headerSize);
+				len += NetworkID::Size+it->second->networkID->headerSize;
 				*mapElementCount++;
 			}
 		}
 
 		std::cout<<"> Info: Sending network map containing "<<*mapElementCount<<" nodes..."<<std::endl;
-		if(r=c->send(data,sizeof(uint16)+*mapElementCount*sizeof(NetworkID))) {
+		if(r=c->send(data,sizeof(uint16)+len)) {
 			delete [] data;
 			return	r;
 		}
@@ -915,8 +925,13 @@ namespace	mBrane{
 			}
 		}
 
-		if (nodes[nid] && nodes[nid]->isConnected(network))
+		if (nodes[nid] && nodes[nid]->isConnected(network)) {
+			printf("*** Reusing existing connections to %s:%u ***\n", networkID->name(), nid);
 			return	0;
+		}
+		else {
+			printf("*** Opening fresh connections to %s:%u ***\n", networkID->name(), nid);
+		}
 
 		if(!networkInterfaces[offset+_Payload::CONTROL]->canBroadcast()){
 
