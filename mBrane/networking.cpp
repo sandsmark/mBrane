@@ -32,6 +32,8 @@
 
 #include	"../Core/control_messages.h"
 
+#include	"node.h"
+
 #include	<cstring>
 
 using	namespace	mBrane::sdk::payloads;
@@ -39,20 +41,25 @@ using	namespace	mBrane::sdk::payloads;
 namespace	mBrane{
 
 
-	NodeCon::NodeCon(Networking* node, uint8 sourceNID) {
+	NodeCon::NodeCon(Networking* node) {
 		this->node = node;
-		this->sourceNID = sourceNID;
+		this->sourceNID = 0;
 		networkID = NULL;
 		for(uint32	i=0;i<6;i++) {
 			commChannels[i] = NULL;
 			commThreads[i] = NULL;
 		}
 		pushThread = NULL;
+		name = NULL;
+		joined = false;
+		ready = false;
 	}
 
 	NodeCon::~NodeCon() {
 		disconnect();
 		node = NULL;
+		if (name)
+			delete [] name;
 	};
 
 	uint32 NodeCon::getConnectionStatus() {
@@ -121,8 +128,8 @@ namespace	mBrane{
 				delete	t;
 			}
 			if (comm = commChannels[i]) {
-				comm->disconnect();
-				delete(comm);
+			//	comm->disconnect();
+			//	delete(comm);
 			}
 			commChannels[i] = NULL;
 			commThreads[i] = NULL;
@@ -134,6 +141,23 @@ namespace	mBrane{
 		}
 
 		return true;
+	}
+
+	bool NodeCon::setSourceNID(uint8 sourceNID) {
+		this->sourceNID = sourceNID;
+		return true;
+	}
+
+	bool NodeCon::setName(const char* name) {
+		if (name) {
+			if (this->name)
+				delete [] this->name;
+			this->name = new char[strlen(name)+1];
+			strcpy(this->name, name);
+			return true;
+		}
+		else
+			return false;
 	}
 
 	bool NodeCon::startNetworkChannel(CommChannel* c, uint8 type, bool isCopy) {
@@ -276,7 +300,78 @@ namespace	mBrane{
 
 
 
+	uint8	Networking::getNodeID(const	char	*name){
+
+		if(stricmp(name,"local")==0)
+			return	_ID;
+		for(uint8	i=0;i<nodeCount;i++)
+			if(stricmp(nodes[i]->name,name)==0)
+				return	i;
+		return	NoID;
+	}
+
+	bool	Networking::addNodeName(const char* name, bool myself) {
+		uint8 c = 0;
+		if (!myself)
+			c = nodeCount++;
+		NodeCon* con = nodes[c];
+		if (con == NULL) {
+			con = nodes[c] = new NodeCon(this);
+		}
+		con->setName(name);
+		return true;
+	}
+
+	bool	Networking::allNodesJoined() {
+		// don't check reference node = 0
+		for(uint8	i=1;i<nodeCount;i++) {
+			if (!nodes[i]->isConnected()) {
+				printf("*** Still waiting for Node '%s' (%u of %u) to join ***\n", nodes[i]->name, i, nodeCount);
+				return false;
+			}
+		}
+		printf("All %u Nodes joined\n", nodeCount);
+		return	true;
+	}
+
+	bool	Networking::allNodesReady() {
+		// don't check reference node = 0
+		for(uint8	i=1;i<nodeCount;i++) {
+			if (!nodes[i]->ready) {
+				printf("*** Still waiting for Node '%s' (%u of %u) to get ready ***\n", nodes[i]->name, i, nodeCount);
+				return false;
+			}
+		}
+		printf("All %u Nodes ready\n", nodeCount);
+		return	true;
+	}
+
+	void	Networking::systemReady() {
+
+		if ( isTimeReference ) {
+
+			printf("\n\n*** SYSTEM READY ***\n\n");
+
+			SystemReady	*m = new SystemReady();
+
+			m->send_ts() = this->time();
+			Messaging::send(m, BOTH);
+
+		}
+	}
+
 	bool	Networking::checkSyncProbe(uint8 syncNodeID) {
+
+		if (nodes[syncNodeID] && !nodes[syncNodeID]->ready) {
+			nodes[syncNodeID]->ready = true;
+			if (allNodesReady()) {
+				// printf("SystemReady... \n");
+				systemReady();
+			}
+			else {
+				printf("Not sending SystemReady - all nodes not ready yet... \n");
+			}
+		}
 
 		//if (nodeStatus[syncNodeID] != 2) {
 		//	nodeStatus[syncNodeID] = 2;
@@ -300,13 +395,14 @@ namespace	mBrane{
 			networkInterfaces[i]=NULL;
 		}
 
+		nodeCount = 1; // includes myself
 		for(uint8	i=0;i<32;i++){
 			nodes[i] = NULL;
-			//controlChannels[0][i] = NULL;
-			//controlChannels[1][i] = NULL;
 			commThreads[i] = NULL;
 		}
-		discoveryChannel = broadcastChannel[0] = broadcastChannel[1] = NULL;
+		discoveryChannel = NULL;
+		broadcastChannel[0] = NULL;
+		broadcastChannel[1] = NULL;
 		bootCallback=NULL;
 	}
 
@@ -326,13 +422,16 @@ namespace	mBrane{
 		if(callbackLibrary)
 			delete	callbackLibrary;
 
-		if(discoveryChannel)
-			delete	discoveryChannel;
+		if(discoveryChannel) {
+		//	delete	discoveryChannel;
+		}
 		if(broadcastChannel[0])
 			delete	broadcastChannel[0];
 		if(broadcastChannel[1])
 			delete	broadcastChannel[1];
-		discoveryChannel = broadcastChannel[0] = broadcastChannel[1] = NULL;
+		discoveryChannel = NULL;
+		broadcastChannel[0] = NULL;
+		broadcastChannel[1] = NULL;
 
 		for(uint8	i=0;i<commThreads.count();i++){
 
@@ -342,7 +441,6 @@ namespace	mBrane{
 			}
 
 			if (nodes[i]) {
-				delete	nodes[i];
 				delete nodes[i];
 			}
 
@@ -668,6 +766,10 @@ namespace	mBrane{
 	void	Networking::start(uint8	assignedNID,NetworkID	*networkNID,bool	isTimeReference){
 
 		this->isTimeReference=isTimeReference;
+		if (!isTimeReference) {
+			if (nodes[assignedNID])
+				nodes[assignedNID]->setName(hostName);
+		}
 //		dataChannels[assignedNID]->networkID=this->networkID;
 		_ID=assignedNID;
 		this->networkID->setNID(_ID);
@@ -676,8 +778,11 @@ namespace	mBrane{
 		else
 			referenceNID=assignedNID;
 
-		for(uint8	i=0;i<32;i++)
-			nodes[i] = new NodeCon(this, assignedNID);
+		for(uint8	i=0;i<nodeCount;i++) {
+			if (nodes[i])
+				nodes[i]->setSourceNID(assignedNID);
+		}
+//			nodes[i] = new NodeCon(this, assignedNID);
 
 		if(isTimeReference)
 			commThreads[commThreads.count()]=Thread::New<Thread>(ScanIDs,this);
@@ -753,6 +858,8 @@ namespace	mBrane{
 
 			if(r=recvID(c,networkID))
 				return	r;
+			if (nodes[networkID->NID()])
+				nodes[networkID->NID()]->setName(networkID->name());
 			if(r=connect(networkID))
 				return	r;
 		}
@@ -798,7 +905,7 @@ namespace	mBrane{
 	//	assignedNID = networkID->NID();
 		if (nid == NoID) {
 			if(isTimeReference) {
-				assignedNID=addNodeEntry();
+				assignedNID=getNodeID(networkID->name());
 				networkID->setNID(assignedNID);
 				nid = assignedNID;
 			}
@@ -911,7 +1018,7 @@ err2:	delete	networkID;
 	uint8	Networking::addNodeEntry(){	//	assigns the first free slot
 
 		channelsCS.enter();
-		for(uint8	i=0;i<nodes.size();i++){
+		for(uint8	i=0;i<nodeCount;i++){
 
 			if(i==_ID)
 				continue;
@@ -921,12 +1028,12 @@ err2:	delete	networkID;
 			}
 		}
 		channelsCS.leave();
-		return	(uint8)nodes.size();
+		return	(uint8)nodeCount;
 	}
 
 	void	Networking::setNewReference(){	//	elect the first node in the list
 
-		for(uint8	i=0;i<nodes.size();i++){
+		for(uint8	i=0;i<nodeCount;i++){
 			// ############ to be done
 		}
 
@@ -946,7 +1053,7 @@ err2:	delete	networkID;
 
 		CommChannel* c;
 		uint8 type = network == PRIMARY ? CONTROL_PRIMARY : CONTROL_SECONDARY;
-		for(uint8	i=0;i<nodes.size();i++) {
+		for(uint8	i=0;i<nodeCount;i++) {
 			if((i != _ID) && (c = nodes[i]->getNetworkChannel(type)) && c->send(p,0xFF))
 				processError(i);
 		}
@@ -1100,7 +1207,7 @@ err2:	delete	networkID;
 
 			//		std::cout<<"Info: Got assigned NodeID ["<<assignedNID<<"]..."<<std::endl;
 					node->start(assignedNID,networkID,false);
-					std::cout<<"> Info: My NodeID is now ["<<assignedNID<<"] assigned by ["<<networkID->NID()<<"]..."<<std::endl;
+					printf("> Info: My NodeID is now [%u] assigned by [%u]...", assignedNID, networkID->NID());
 					if(r=node->recvMap(c))
 						goto	err0;
 				}
@@ -1118,8 +1225,9 @@ err2:	delete	networkID;
 			//std::cout<<"   ---- 4 ---- AcceptConnection "<< (uint32)networkInterface->protocol()<<" remoteID: "<<remoteNID<<"..."<<std::endl;
 			NodeCon* con = node->nodes[remoteNID];
 			if (!con) {
-				con = node->nodes[remoteNID] = new NodeCon(node, node->_ID);
+				con = node->nodes[remoteNID] = new NodeCon(node);
 			}
+			con->setSourceNID(node->_ID);
 			con->networkID = networkID;
 
 			uint8 type = 0;

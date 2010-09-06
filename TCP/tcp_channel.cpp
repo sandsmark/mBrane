@@ -187,10 +187,10 @@ int16	TCPChannel::recv(uint8	*b,size_t	s,bool	peek){
 	tcpCS.leave();
 //	std::cout<<"Info: Read "<<s<<" bytes from buffer, "<<bufferLen-bufferPos<<" bytes left..."<<std::endl;
 
-	if (r)
-		printf("Took %u us to read %u bytes into buffer (%ux = %u) [%llu]...\n", Time::Get()-t, r, tc, tw, Time::Get());
-	else
-		printf("   Got %u bytes from buffer [%llu]...\n", s, Time::Get());
+	//if (r)
+	//	printf("Took %u us to read %u bytes into buffer (%ux = %u) [%llu]...\n", Time::Get()-t, r, tc, tw, Time::Get());
+	//else
+	//	printf("   Got %u bytes from buffer [%llu]...\n", s, Time::Get());
 
 	return 0;
 

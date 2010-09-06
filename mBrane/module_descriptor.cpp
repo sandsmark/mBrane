@@ -112,7 +112,7 @@ namespace	mBrane{
 				const	char	*_value=p.getAttribute("value");
 				if(strcmp(_type,"float32")==0){
 
-					float32	value=atof(_value);
+					float32	value=(float32)atof(_value);
 					numerical_args.push_back(*reinterpret_cast<word32	*>(&value));
 				}else	if(strcmp(_type,"int32")==0)
 					numerical_args.push_back(atoi(_value));

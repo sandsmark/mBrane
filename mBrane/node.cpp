@@ -53,7 +53,7 @@ namespace	mBrane{
 		return	NULL;
 	}
 
-	Node::Node(uint8	traceLevels):Networking(),Executing(),nodeCount(0),nodeJoined(0){
+	Node::Node(uint8	traceLevels):Networking(),Executing(){
 
 		if(!(traceLevels	&	0x01))
 			Streams[0]=new	NoStream();
@@ -107,10 +107,11 @@ namespace	mBrane{
 		else{
 
 			// First, add yourself to the list, in case it is not in the list
-			strcpy(nodeNames[0],hostName);
-			nodeStatus[0] = 2; // Do not wait for connection...
+			Networking::addNodeName(hostName, true);
+		//	strcpy(nodeNames[0],hostName);
+		//	nodeStatus[0] = 2; // Do not wait for connection...
 		//	printf("--- Node 0: '%s' ---\n", hostName);
-			nodeCount=nodeList.nChildNode("Node");
+			uint16 nodeCount=nodeList.nChildNode("Node");
 			for(uint16	i=0;i<nodeCount;i++){
 
 				XMLNode	n=nodeList.getChildNode(i);
@@ -118,15 +119,14 @@ namespace	mBrane{
 				if(!_n){
 
 					std::cout<<"> Error: NodeConfiguration::Nodes::node_"<<i<<"::hostname is missing"<<std::endl;
-					strcpy(nodeNames[i],"");
-					nodeStatus[i] = -1;
+				//	strcpy(nodeNames[i],"");
+				//	nodeStatus[i] = -1;
 					return	NULL;
 				}
 				if(	!stricmp(_n, hostName) == 0) {
-					entry++;
-					strcpy(nodeNames[entry],_n);
+					Networking::addNodeName(_n);
 				//	printf("--- Node %u: '%s' ---\n", entry, _n);
-					nodeStatus[entry] = 0; // awaiting joining...
+				//	nodeStatus[entry] = 0; // awaiting joining...
 				}
 			}
 		}
@@ -220,40 +220,6 @@ namespace	mBrane{
 		return	true;
 	}
 
-	uint8	Node::getNID(const	char	*name){
-
-		if(stricmp(name,"local")==0)
-			return	_ID;
-		for(uint8	i=0;i<nodeNames.count();i++)
-			if(stricmp(nodeNames[i],networkID->name())==0)
-				return	i;
-		return	NoID;
-	}
-
-	bool	Node::allNodesJoined() {
-		// don't check reference node = 0
-		for(uint16	i=1;i<nodeNames.count();i++) {
-			if (nodeStatus[i] < 1) {
-				printf("*** Still waiting for Node '%s' (%u of %u) to join ***\n", nodeNames[i], i, nodeNames.count());
-				return false;
-			}
-		}
-		printf("All %u Nodes joined\n", nodeNames.count());
-		return	true;
-	}
-
-	bool	Node::allNodesReady() {
-		// don't check reference node = 0
-		for(uint16	i=1;i<nodeNames.count();i++) {
-			if (nodeStatus[i] != 2) {
-				printf("*** Still waiting for Node '%s' (%u of %u) to get ready ***\n", nodeNames[i], i, nodeNames.count());
-				return false;
-			}
-		}
-		printf("All %u Nodes ready\n", nodeNames.count());
-		return	true;
-	}
-
 	const	char	*Node::name(){
 
 		return	hostName;
@@ -326,7 +292,7 @@ namespace	mBrane{
 		 */
 		if (nodeCount == 0) {
 			Node::ready();
-			Node::systemReady();
+			Networking::systemReady();
 		}
 
 	}
@@ -345,19 +311,6 @@ namespace	mBrane{
 		initialised = true;
 	}
 
-	void	Node::systemReady() {
-
-		if ( isTimeReference ) {
-
-			printf("\n\n*** SYSTEM READY ***\n\n");
-
-			SystemReady	*m = new SystemReady();
-
-			m->send_ts() = this->time();
-			Messaging::send(m, BOTH);
-
-		}
-	}
 
 	void	Node::notifyNodeJoined(uint8	NID,NetworkID	*networkID){
 
@@ -370,14 +323,14 @@ namespace	mBrane{
 		}else {	//	a node is joining during startup
 
 			bool alreadyJoined = false;
-			for(uint16	i=0;i<nodeNames.count();i++) {
+			for(uint8	i=0;i<nodeCount;i++) {
 				// printf("Node join check '%s' == '%s'... \n", nodeNames[i],networkID->name());
-				if(stricmp(nodeNames[i],networkID->name())==0){
+				if (nodes[i] && (stricmp(nodes[i]->name,networkID->name())==0)){
 				//	Node::Get()->trace(Node::NETWORK)<<"> Node join status: "<<networkID->name()<<": '"<<nodeStatus[i]<<"'"<<std::endl;
-					if (nodeStatus[i] >= 1)
+					if (nodes[i]->joined)
 						alreadyJoined = true;
 					else
-						nodeStatus[i] = 1; // now joined
+						nodes[i]->joined = true; // now joined
 					break;
 				}
 			}
