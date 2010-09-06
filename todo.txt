@@ -1,4 +1,6 @@
-- Non-TimeRef Node never gets to *** READY *** or *** SYSTEM READY ***
+- AcceptConnections recvMap+connect before registering isConnected()
+  = isConnected = CONTROL unless asked
+  = recvMap+connect after con->startNetworkChannel()
 
 - nodes[] names does not match for non-TimeRef Nodes
 

@@ -205,7 +205,7 @@ namespace	mBrane{
 		int64	syncPeriod;	//	in ms
 
 		uint16	sendID(CommChannel	*c,NetworkID	*networkID);
-		uint16	recvID(CommChannel	*c,NetworkID	*&networkID);
+		uint16	recvID(CommChannel	*c,NetworkID	*&networkID, bool expectToken = true);
 		uint16	sendMap(CommChannel	*c);
 		uint16	recvMap(CommChannel	*c);
 		uint16	connect(NetworkID	*networkID);
