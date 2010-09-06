@@ -48,6 +48,7 @@ UDPChannel::UDPChannel(core::socket	s,uint32	port):BroadcastCommChannel(),s(s){
 
 UDPChannel::~UDPChannel(){
 	udpCS.enter();
+	disconnect();
 	if (buffer != NULL)
 		delete(buffer);
 	bufferLen = 0;
@@ -125,8 +126,10 @@ bool	UDPChannel::isConnected() {
 }
 
 bool	UDPChannel::disconnect() {
-	shutdown(s, SD_BOTH);
-	closesocket(s);
+	if (s != INVALID_SOCKET) {
+		shutdown(s, SD_BOTH);
+		closesocket(s);
+	}
 	s = INVALID_SOCKET;
 	return true;
 }

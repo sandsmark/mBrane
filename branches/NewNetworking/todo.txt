@@ -1,0 +1,8 @@
+- Non-TimeRef Node never gets to *** READY *** or *** SYSTEM READY ***
+
+- nodes[] names does not match for non-TimeRef Nodes
+
+- No subscription to CID
+
+- Memory exception when deleting CommChannels
+  (discoveryChannel and in NodeCon)

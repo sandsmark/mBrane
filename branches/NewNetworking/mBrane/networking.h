@@ -66,8 +66,11 @@ namespace	mBrane{
 	class	Networking;
 	class	NodeCon {
 	public:
-		NodeCon(Networking* node, uint8 sourceNID);
+		NodeCon(Networking* node);
 		virtual ~NodeCon();
+
+		bool setSourceNID(uint8 sourceNID);
+		bool setName(const char* name);
 
 		bool isInUse();
 		uint32 getConnectionStatus();
@@ -80,6 +83,9 @@ namespace	mBrane{
 		Networking		*node;
 		NetworkID		*networkID;
 		uint8			sourceNID;
+		char*			name;
+		bool			joined;
+		bool			ready;
 
 		Array<CommChannel	*,6>		commChannels;
 		Array<Thread	*,6>	commThreads;
@@ -178,6 +184,13 @@ namespace	mBrane{
 		Array<Thread	*,32>	commThreads;
 
 		bool checkSyncProbe(uint8 syncNodeID);
+		void systemReady();
+
+		uint8 nodeCount;
+		bool addNodeName(const char* name, bool myself = false);
+		uint8 getNodeID(const char* name);
+		bool allNodesJoined();
+		bool allNodesReady();
 
 		static	thread_ret thread_function_call	ScanIDs(void	*args);
 		typedef	struct{
