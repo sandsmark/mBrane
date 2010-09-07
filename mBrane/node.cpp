@@ -317,10 +317,10 @@ namespace	mBrane{
 		// static	uint16	ToJoin=nodeCount; // using nodeJoined instead
 
 		// if(nodeCount && (nodeJoined == nodeCount)){	//	a node is joining after startup
-		if (allNodesJoined()) {
+	//	if (allNodesJoined()) {
 
 			//	TODO: update NodeEntries. See Node::notifyNodeLeft()
-		}else {	//	a node is joining during startup
+	//	}else {	//	a node is joining during startup
 
 			bool alreadyJoined = false;
 			for(uint8	i=0;i<nodeCount;i++) {
@@ -352,7 +352,7 @@ namespace	mBrane{
 				}
 
 			}
-		}
+	//	}
 
 		if (allNodesJoined()) {
 			Node::ready();

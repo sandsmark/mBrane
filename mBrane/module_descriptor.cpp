@@ -199,24 +199,22 @@ error:	ModuleDescriptor::Config[CID][m->ID]=NULL;
 
 	void	ModuleDescriptor::Init(uint8	hostID){
 
-		uint8				sHostID;
 		ModuleDescriptor	*md;
 		for(uint32	i=0;i<ModuleDescriptor::Config.count();i++)	//	resolve host names into NID
 			for(uint32	j=0;j<ModuleDescriptor::Config[i].count();j++){
 				printf("Initialising module '%s' for host '%s' on host '%s'...\n", ModuleDescriptor::Config[i][j]->getName(), ModuleDescriptor::Config[i][j]->hostName, Node::Get()->name());
-		//		if(	stricmp(ModuleDescriptor::Config[i][j]->hostName,Node::Get()->name())==0	||
-		//			stricmp(ModuleDescriptor::Config[i][j]->hostName,"local")==0){
-					sHostID = Node::Get()->getNodeID(ModuleDescriptor::Config[i][j]->hostName);
+				if(	stricmp(ModuleDescriptor::Config[i][j]->hostName,Node::Get()->name())==0	||
+					stricmp(ModuleDescriptor::Config[i][j]->hostName,"local")==0){
 
 					md=ModuleDescriptor::Config[i][j];
-					ModuleDescriptor::Main[sHostID][i][j]=md;
-					md->hostID=sHostID;
-					md->applyInitialProjections(sHostID);
+					ModuleDescriptor::Main[hostID][i][j]=md;
+					md->hostID=hostID;
+					md->applyInitialProjections(hostID);
 					if(md->module!=NULL)
 						md->module->_start();
 
 					ModuleDescriptor::Config[i][j]=NULL;
-		//		}
+				}
 			}
 	}
 
