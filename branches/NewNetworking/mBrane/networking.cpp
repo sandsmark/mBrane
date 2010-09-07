@@ -325,7 +325,7 @@ namespace	mBrane{
 	bool	Networking::allNodesJoined() {
 		// don't check reference node = 0
 		for(uint8	i=1;i<nodeCount;i++) {
-			if (!nodes[i]->ready && !nodes[i]->isConnected()) {
+			if (!nodes[i]->joined && !nodes[i]->isConnected()) {
 				printf("*** Still waiting for Node '%s' (%u of %u) to join ***\n", nodes[i]->name, i, nodeCount);
 				return false;
 			}
