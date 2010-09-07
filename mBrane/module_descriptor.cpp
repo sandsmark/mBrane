@@ -199,22 +199,24 @@ error:	ModuleDescriptor::Config[CID][m->ID]=NULL;
 
 	void	ModuleDescriptor::Init(uint8	hostID){
 
+		uint8				sHostID;
 		ModuleDescriptor	*md;
 		for(uint32	i=0;i<ModuleDescriptor::Config.count();i++)	//	resolve host names into NID
 			for(uint32	j=0;j<ModuleDescriptor::Config[i].count();j++){
 				printf("Initialising module '%s' for host '%s' on host '%s'...\n", ModuleDescriptor::Config[i][j]->getName(), ModuleDescriptor::Config[i][j]->hostName, Node::Get()->name());
-				if(	stricmp(ModuleDescriptor::Config[i][j]->hostName,Node::Get()->name())==0	||
-					stricmp(ModuleDescriptor::Config[i][j]->hostName,"local")==0){
+		//		if(	stricmp(ModuleDescriptor::Config[i][j]->hostName,Node::Get()->name())==0	||
+		//			stricmp(ModuleDescriptor::Config[i][j]->hostName,"local")==0){
+					sHostID = Node::Get()->getNodeID(ModuleDescriptor::Config[i][j]->hostName);
 
 					md=ModuleDescriptor::Config[i][j];
-					ModuleDescriptor::Main[hostID][i][j]=md;
-					md->hostID=hostID;
-					md->applyInitialProjections(hostID);
+					ModuleDescriptor::Main[sHostID][i][j]=md;
+					md->hostID=sHostID;
+					md->applyInitialProjections(sHostID);
 					if(md->module!=NULL)
 						md->module->_start();
 
 					ModuleDescriptor::Config[i][j]=NULL;
-				}
+		//		}
 			}
 	}
 
@@ -286,8 +288,8 @@ error:	ModuleDescriptor::Config[CID][m->ID]=NULL;
 	void	ModuleDescriptor::addSubscription_message(uint8	hostID,uint16	spaceID,uint16	MCID){
 		if(!projections[hostID][spaceID])
 			project(hostID,spaceID);
-		P<ModuleEntry>	p=new	ModuleEntry(NodeEntry::Main[DC][MCID].get(this->hostID),this);
-		(*projections[hostID][spaceID])->addSubscription(DC,MCID,NodeEntry::Main[DC][MCID][this->hostID].modules.addElementTail(p));
+		P<ModuleEntry>	p=new	ModuleEntry(NodeEntry::Main[DC][MCID].get(hostID),this);
+		(*projections[hostID][spaceID])->addSubscription(DC,MCID,NodeEntry::Main[DC][MCID][hostID].modules.addElementTail(p));
 		p=NULL;
 	}
 
@@ -295,8 +297,8 @@ error:	ModuleDescriptor::Config[CID][m->ID]=NULL;
 
 		if(!projections[hostID][spaceID])
 			project(hostID,spaceID);
-		P<ModuleEntry>	p=new	ModuleEntry(NodeEntry::Main[ST][SID].get(this->hostID),this);
-		(*projections[hostID][spaceID])->addSubscription(ST,SID,NodeEntry::Main[ST][SID][this->hostID].modules.addElementTail(p));
+		P<ModuleEntry>	p=new	ModuleEntry(NodeEntry::Main[ST][SID].get(hostID),this);
+		(*projections[hostID][spaceID])->addSubscription(ST,SID,NodeEntry::Main[ST][SID][hostID].modules.addElementTail(p));
 		p=NULL;
 	}
 

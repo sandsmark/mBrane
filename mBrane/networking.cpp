@@ -789,8 +789,9 @@ namespace	mBrane{
 
 		if(isTimeReference)
 			commThreads[commThreads.count()]=Thread::New<Thread>(ScanIDs,this);
-		else
-			commThreads[commThreads.count()]=Thread::New<Thread>(Sync,this);
+	// Delay startSync, now called from node.cpp
+	//	else
+	//		commThreads[commThreads.count()]=Thread::New<Thread>(Sync,this);
 	}
 
 	bool	Networking::startSync() {
@@ -822,7 +823,7 @@ namespace	mBrane{
 				return	r;
 			}
 			if (mBraneToken != MBRANETOKEN) {
-				std::cout<<"Error: mBrane Token error...("<<mBraneToken<<")"<<std::endl;
+			//	std::cout<<"Error: mBrane Token error...("<<mBraneToken<<")"<<std::endl;
 				return	1;
 			}
 		}
@@ -851,22 +852,25 @@ namespace	mBrane{
 		return	0;
 	}
 
-	uint16	Networking::recvMap(CommChannel	*c){
+	uint16	Networking::recvMap(CommChannel	*c, NetworkID	*fromNetworkID){
 
 		uint16	r;
 		uint16	mapElementCount;
 		if(r=c->recv((uint8	*)&mapElementCount,sizeof(uint16)))
 			return	r;
-		std::cout<<"> Info: Receiving network map containing "<<mapElementCount<<" other nodes..."<<std::endl;
+		std::cout<<"> Info: Receiving network map containing "<<mapElementCount<<" other nodes from "<<fromNetworkID->name()<<":"<<fromNetworkID->NID()<<"..."<<std::endl;
 		NetworkID	*networkID;
+		uint8		rNID;
 		for(uint16	i=0;i<mapElementCount;i++){
 
 			if(r=recvID(c,networkID, false))
 				return	r;
-			if (nodes[networkID->NID()])
-				nodes[networkID->NID()]->setName(networkID->name());
-			if(r=connect(networkID))
-				return	r;
+			rNID = networkID->NID();
+			if (nodes[rNID])
+				nodes[rNID]->setName(networkID->name());
+			if ((rNID != _ID) && (rNID != fromNetworkID->NID()))
+				if(r=connect(networkID))
+					return	r;
 		}
 		return	0;
 	}
@@ -1223,7 +1227,7 @@ err2:	delete	networkID;
 			//		std::cout<<"Info: Got assigned NodeID ["<<assignedNID<<"]..."<<std::endl;
 					node->start(assignedNID,networkID,false);
 					printf("> Info: My NodeID is now [%u] assigned by [%u]...", assignedNID, networkID->NID());
-					if(r=node->recvMap(c))
+					if(r=node->recvMap(c, networkID))
 						goto	err0;
 				}
 			}
@@ -1336,6 +1340,7 @@ err1:	node->shutdown();
 		printf("Starting Network Sync...\n");
 		Networking	*node=(Networking	*)args;
 
+		uint64 t = Time::Get();
 		CommChannel		*c;
 		SyncProbe	*probe;
 		while(!node->_shutdown){
@@ -1343,8 +1348,8 @@ err1:	node->shutdown();
 			if (node->nodes[node->referenceNID] && node->nodes[node->referenceNID]->isConnected()) {
 				probe=new	SyncProbe();
 				probe->node_id=node->networkID->NID();
-				// std::cout<<"> Info: Sending SyncProbe type '"<<probe->CID()<<"' ("<<probe->node_id<<")..."<<std::endl;
-				((_Payload*)probe)->node_send_ts() = Time::Get(); // this needs local time, not adjusted time
+				std::cout<<"> Info: Sending SyncProbe type '"<<probe->CID()<<"' ("<<(uint32)probe->node_id<<") after "<<(uint32)(Time::Get() - t)<<" usec..."<<std::endl;
+				((_Payload*)probe)->node_send_ts() = (t = Time::Get()); // this needs local time, not adjusted time
 				switch(node->network){
 				case	PRIMARY:
 				case	BOTH:
@@ -1357,6 +1362,7 @@ err1:	node->shutdown();
 					break;
 				}
 				Thread::Sleep(node->syncPeriod);
+				//std::cout<<"> Slept for "<<(uint32)(Time::Get() - t)<<" usec ("<<(uint64)(&t)<<")..."<<std::endl;
 				//Thread::Sleep(1000000);
 			}
 			else {

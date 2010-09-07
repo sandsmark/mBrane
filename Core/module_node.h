@@ -84,6 +84,7 @@ namespace	mBrane{
 				virtual	void	unsubscribeStream(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,uint16	stream_id,Network	network=PRIMARY)=0;
 				virtual	const	char	*getSpaceName(uint16	hostID,uint16	ID)=0;
 				virtual	const	char	*getModuleName(uint16	CID)=0;
+				virtual uint8	getNodeID(const char* name)=0;
 				//	Interface for caching.
 				virtual	void		markUnused(_Payload	*p)=0;
 				virtual	void		addConstantObject(_Payload	*c,const	std::string	&name)=0;

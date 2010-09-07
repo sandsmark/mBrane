@@ -207,7 +207,7 @@ namespace	mBrane{
 		uint16	sendID(CommChannel	*c,NetworkID	*networkID);
 		uint16	recvID(CommChannel	*c,NetworkID	*&networkID, bool expectToken = true);
 		uint16	sendMap(CommChannel	*c);
-		uint16	recvMap(CommChannel	*c);
+		uint16	recvMap(CommChannel	*c, NetworkID	*fromNetworkID);
 		uint16	connect(NetworkID	*networkID);
 		uint16	connect(Network	network,NetworkID	*networkID);
 		void	_broadcastControlMessage(_Payload	*p,Network	network);
