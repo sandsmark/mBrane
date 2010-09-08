@@ -53,7 +53,7 @@ namespace	mBrane{
 		return	NULL;
 	}
 
-	Node::Node(uint8	traceLevels):Networking(),Messaging(),Executing(),nodeCount(0),nodeJoined(0){
+	Node::Node(uint8	traceLevels):Networking(),Executing(){
 
 		if(!(traceLevels	&	0x01))
 			Streams[0]=new	NoStream();
@@ -107,10 +107,11 @@ namespace	mBrane{
 		else{
 
 			// First, add yourself to the list, in case it is not in the list
-			strcpy(nodeNames[0],hostName);
-			nodeStatus[0] = 2; // Do not wait for connection...
+			Networking::addNodeName(hostName, true);
+		//	strcpy(nodeNames[0],hostName);
+		//	nodeStatus[0] = 2; // Do not wait for connection...
 		//	printf("--- Node 0: '%s' ---\n", hostName);
-			nodeCount=nodeList.nChildNode("Node");
+			uint16 nodeCount=nodeList.nChildNode("Node");
 			for(uint16	i=0;i<nodeCount;i++){
 
 				XMLNode	n=nodeList.getChildNode(i);
@@ -118,15 +119,14 @@ namespace	mBrane{
 				if(!_n){
 
 					std::cout<<"> Error: NodeConfiguration::Nodes::node_"<<i<<"::hostname is missing"<<std::endl;
-					strcpy(nodeNames[i],"");
-					nodeStatus[i] = -1;
+				//	strcpy(nodeNames[i],"");
+				//	nodeStatus[i] = -1;
 					return	NULL;
 				}
 				if(	!stricmp(_n, hostName) == 0) {
-					entry++;
-					strcpy(nodeNames[entry],_n);
+					Networking::addNodeName(_n);
 				//	printf("--- Node %u: '%s' ---\n", entry, _n);
-					nodeStatus[entry] = 0; // awaiting joining...
+				//	nodeStatus[entry] = 0; // awaiting joining...
 				}
 			}
 		}
@@ -178,7 +178,7 @@ namespace	mBrane{
 				const	char	*_value=p.getAttribute("value");
 				if(strcmp(_type,"float32")==0){
 
-					float32	value=atof(_value);
+					float32	value=(float32)atof(_value);
 					numerical_args.push_back(*reinterpret_cast<word32	*>(&value));
 				}else	if(strcmp(_type,"int32")==0)
 					numerical_args.push_back(atoi(_value));
@@ -197,7 +197,7 @@ namespace	mBrane{
 		if(!userInitFunction)
 			return	false;
 		userInitFunction(numerical_args,string_args);
-		std::cout<<"> User library "<<ul<<" loaded"<<std::endl;
+		std::cout<<"> Info: User library '"<<ul<<"' loaded"<<std::endl;
 
 		uint16	spaceCount=mainNode.nChildNode("Space");
 		for(uint16	i=0;i<spaceCount;i++){
@@ -217,56 +217,6 @@ namespace	mBrane{
 				return	false;
 		}
 
-		return	true;
-	}
-
-	uint8	Node::getNID(const	char	*name){
-
-		if(stricmp(name,"local")==0)
-			return	_ID;
-		for(uint8	i=0;i<nodeNames.count();i++)
-			if(stricmp(nodeNames[i],networkID->name())==0)
-				return	i;
-		return	NoID;
-	}
-
-	bool	Node::allNodesJoined() {
-		// don't check reference node = 0
-		for(uint16	i=1;i<nodeNames.count();i++) {
-			if (nodeStatus[i] < 1) {
-				printf("*** Still waiting for Node '%s' (%u of %u) to join ***\n", nodeNames[i], i, nodeNames.count());
-				return false;
-			}
-		}
-		printf("All %u Nodes joined\n", nodeNames.count());
-		return	true;
-	}
-
-	bool	Node::allNodesReady() {
-		// don't check reference node = 0
-		for(uint16	i=1;i<nodeNames.count();i++) {
-			if (nodeStatus[i] != 2) {
-				printf("*** Still waiting for Node '%s' (%u of %u) to get ready ***\n", nodeNames[i], i, nodeNames.count());
-				return false;
-			}
-		}
-		printf("All %u Nodes ready\n", nodeNames.count());
-		return	true;
-	}
-
-	bool	Node::checkSyncProbe(uint8 syncNodeID) {
-
-		if (nodeStatus[syncNodeID] != 2) {
-			nodeStatus[syncNodeID] = 2;
-			// printf("Node '%s' set to ready... \n", nodeNames[syncNodeID]);
-			if (allNodesReady()) {
-				// printf("SystemReady... \n");
-				Node::systemReady();
-			}
-			else {
-				printf("Not sending SystemReady - all nodes not ready yet... \n");
-			}
-		}
 		return	true;
 	}
 
@@ -303,31 +253,31 @@ namespace	mBrane{
 
 		Networking::start(assignedNID,networkID,isTimeReference);
 
-		uint32 recThreadCount = 0;
-		if(network==PRIMARY	||	network==BOTH){
+		//uint32 recThreadCount = 0;
+		//if(network==PRIMARY	||	network==BOTH){
 
-			if(networkInterfaces[CONTROL_PRIMARY]->canBroadcast()){
+		//	if(networkInterfaces[CONTROL_PRIMARY]->canBroadcast()){
 
-				recThreadCount = recvThreads.count();
-				RecvThread	*t=new	RecvThread(this,controlChannels[PRIMARY][0],0);
-				recvThreads[recThreadCount]=t;
-				t->start(RecvThread::ReceiveMessages);
-				pushThreads[recThreadCount+1]=new	PushThread((Node*)this,&t->buffer);
-				pushThreads[recThreadCount+1]->start(PushThread::PushJobs);
-			}
-		}
-		if(network==SECONDARY	||	network==BOTH){
+		//		recThreadCount = recvThreads.count();
+		//		RecvThread	*t=new	RecvThread(this,controlChannels[PRIMARY][0],0);
+		//		recvThreads[recThreadCount]=t;
+		//		t->start(RecvThread::ReceiveMessages);
+		//		pushThreads[recThreadCount+1]=new	PushThread((Node*)this,&t->buffer);
+		//		pushThreads[recThreadCount+1]->start(PushThread::PushJobs);
+		//	}
+		//}
+		//if(network==SECONDARY	||	network==BOTH){
 
-			if(networkInterfaces[CONTROL_SECONDARY]->canBroadcast()){
+		//	if(networkInterfaces[CONTROL_SECONDARY]->canBroadcast()){
 
-				recThreadCount = recvThreads.count();
-				RecvThread	*t=new	RecvThread(this,controlChannels[SECONDARY][0],0);
-				recvThreads[recThreadCount]=t;
-				t->start(RecvThread::ReceiveMessages);
-				pushThreads[recThreadCount+1]=new	PushThread((Node*)this,&t->buffer);
-				pushThreads[recThreadCount+1]->start(PushThread::PushJobs);
-			}
-		}
+		//		recThreadCount = recvThreads.count();
+		//		RecvThread	*t=new	RecvThread(this,controlChannels[SECONDARY][0],0);
+		//		recvThreads[recThreadCount]=t;
+		//		t->start(RecvThread::ReceiveMessages);
+		//		pushThreads[recThreadCount+1]=new	PushThread((Node*)this,&t->buffer);
+		//		pushThreads[recThreadCount+1]->start(PushThread::PushJobs);
+		//	}
+		//}
 
 		Messaging::start();
 		mdaemon::Node::start();
@@ -342,7 +292,7 @@ namespace	mBrane{
 		 */
 		if (nodeCount == 0) {
 			Node::ready();
-			Node::systemReady();
+			Networking::systemReady();
 		}
 
 	}
@@ -361,45 +311,32 @@ namespace	mBrane{
 		initialised = true;
 	}
 
-	void	Node::systemReady() {
-
-		if ( isTimeReference ) {
-
-			printf("\n\n*** SYSTEM READY ***\n\n");
-
-			SystemReady	*m = new SystemReady();
-
-			m->send_ts() = this->time();
-			Messaging::send(m, BOTH);
-
-		}
-	}
 
 	void	Node::notifyNodeJoined(uint8	NID,NetworkID	*networkID){
 
 		// static	uint16	ToJoin=nodeCount; // using nodeJoined instead
 
 		// if(nodeCount && (nodeJoined == nodeCount)){	//	a node is joining after startup
-		if (allNodesJoined()) {
+	//	if (allNodesJoined()) {
 
 			//	TODO: update NodeEntries. See Node::notifyNodeLeft()
-		}else {	//	a node is joining during startup
+	//	}else {	//	a node is joining during startup
 
 			bool alreadyJoined = false;
-			for(uint16	i=0;i<nodeNames.count();i++) {
+			for(uint8	i=0;i<nodeCount;i++) {
 				// printf("Node join check '%s' == '%s'... \n", nodeNames[i],networkID->name());
-				if(stricmp(nodeNames[i],networkID->name())==0){
+				if (nodes[i] && (stricmp(nodes[i]->name,networkID->name())==0)){
 				//	Node::Get()->trace(Node::NETWORK)<<"> Node join status: "<<networkID->name()<<": '"<<nodeStatus[i]<<"'"<<std::endl;
-					if (nodeStatus[i] >= 1)
+					if (nodes[i]->joined)
 						alreadyJoined = true;
 					else
-						nodeStatus[i] = 1; // now joined
+						nodes[i]->joined = true; // now joined
 					break;
 				}
 			}
 
 			if (!alreadyJoined) {
-				Node::Get()->trace(Node::NETWORK)<<"> Node join init: "<<networkID->name()<<":"<<(unsigned int)NID<<std::endl;
+				Node::Get()->trace(Node::NETWORK)<<"> Info: Node join init: "<<networkID->name()<<":"<<(unsigned int)NID<<std::endl;
 				Space::Init(NID);
 
 				for(uint32	i=0;i<ModuleDescriptor::Config.count();i++)	{ //	resolve host names into NID
@@ -415,7 +352,7 @@ namespace	mBrane{
 				}
 
 			}
-		}
+	//	}
 
 		if (allNodesJoined()) {
 			Node::ready();
@@ -426,18 +363,19 @@ namespace	mBrane{
 		m->send_ts()=this->time();
 		Messaging::send(m,LOCAL);
 
-		Node::Get()->trace(Node::NETWORK)<<"> Node joined: "<<networkID->name()<<":"<<(unsigned int)NID<<std::endl;
+		Node::Get()->trace(Node::NETWORK)<<"> Info: Node joined: "<<networkID->name()<<" (ID: "<<(unsigned int)NID<<")"<<std::endl;
 	}
 
 	void	Node::notifyNodeLeft(uint8	NID){
 
-		if(	controlChannels[PRIMARY][NID]				||
-			dataChannels[NID]->channels[PRIMARY].data	||	
-			dataChannels[NID]->channels[PRIMARY].stream	||
-			controlChannels[SECONDARY][NID]				||
-			dataChannels[NID]->channels[SECONDARY].data	||	
-			dataChannels[NID]->channels[SECONDARY].stream){
+		//if(	controlChannels[PRIMARY][NID]				||
+		//	dataChannels[NID]->channels[PRIMARY].data	||	
+		//	dataChannels[NID]->channels[PRIMARY].stream	||
+		//	controlChannels[SECONDARY][NID]				||
+		//	dataChannels[NID]->channels[SECONDARY].data	||	
+		//	dataChannels[NID]->channels[SECONDARY].stream){
 
+		if (!nodes[NID] || !nodes[NID]->isConnected()) {
 			//	TODO: update NodeEntries. Implies defining a policy for node ressucitation.
 
 			NodeLeft	*m=new	NodeLeft();
@@ -445,79 +383,80 @@ namespace	mBrane{
 			m->send_ts()=this->time();
 			Messaging::send(m,LOCAL);
 
-			if (dataChannels[NID]->networkID)
-				Node::Get()->trace(Node::NETWORK)<<"> Node left: "<<dataChannels[NID]->networkID->name()<<":"<<NID<<std::endl;
+		//	if (dataChannels[NID]->networkID)
+			if (nodes[NID] && nodes[NID]->networkID)
+				Node::Get()->trace(Node::NETWORK)<<"> Node left: "<<nodes[NID]->networkID->name()<<":"<<NID<<std::endl;
 		}
 	}
 
 	void	Node::startReceivingThreads(uint8	NID){
 
-		uint32 recThreadCount = 0;
-		if(network==PRIMARY	||	network==BOTH){
+		//uint32 recThreadCount = 0;
+		//if(network==PRIMARY	||	network==BOTH){
 
-			if(!networkInterfaces[CONTROL_PRIMARY]->canBroadcast()){
+		//	if(!networkInterfaces[CONTROL_PRIMARY]->canBroadcast()){
 
-				recThreadCount = recvThreads.count();
-				RecvThread	*t=new	RecvThread(this,controlChannels[PRIMARY][NID],NID);
-				recvThreads[recThreadCount]=t;
-				t->start(RecvThread::ReceiveMessages);
-				pushThreads[recThreadCount+1]=new	PushThread((Node*)this,&t->buffer);
-				pushThreads[recThreadCount+1]->start(PushThread::PushJobs);
-			}
+		//		recThreadCount = recvThreads.count();
+		//		RecvThread	*t=new	RecvThread(this,controlChannels[PRIMARY][NID],NID);
+		//		recvThreads[recThreadCount]=t;
+		//		t->start(RecvThread::ReceiveMessages);
+		//		pushThreads[recThreadCount+1]=new	PushThread((Node*)this,&t->buffer);
+		//		pushThreads[recThreadCount+1]->start(PushThread::PushJobs);
+		//	}
 
-			if(networkInterfaces[DATA_PRIMARY]!=networkInterfaces[CONTROL_PRIMARY]){
+		//	if(networkInterfaces[DATA_PRIMARY]!=networkInterfaces[CONTROL_PRIMARY]){
 
-				recThreadCount = recvThreads.count();
-				RecvThread	*t=new	RecvThread(this,dataChannels[NID]->channels[PRIMARY].data,NID);
-				recvThreads[recThreadCount]=t;
-				t->start(RecvThread::ReceiveMessages);
-				pushThreads[recThreadCount+1]=new	PushThread((Node*)this,&t->buffer);
-				pushThreads[recThreadCount+1]->start(PushThread::PushJobs);
-			}
+		//		recThreadCount = recvThreads.count();
+		//		RecvThread	*t=new	RecvThread(this,dataChannels[NID]->channels[PRIMARY].data,NID);
+		//		recvThreads[recThreadCount]=t;
+		//		t->start(RecvThread::ReceiveMessages);
+		//		pushThreads[recThreadCount+1]=new	PushThread((Node*)this,&t->buffer);
+		//		pushThreads[recThreadCount+1]->start(PushThread::PushJobs);
+		//	}
 
-			if(networkInterfaces[STREAM_PRIMARY]!=networkInterfaces[DATA_PRIMARY]){
+		//	if(networkInterfaces[STREAM_PRIMARY]!=networkInterfaces[DATA_PRIMARY]){
 
-				recThreadCount = recvThreads.count();
-				RecvThread	*t=new	RecvThread(this,dataChannels[NID]->channels[PRIMARY].stream,NID);
-				recvThreads[recThreadCount]=t;
-				t->start(RecvThread::ReceiveMessages);
-				pushThreads[recThreadCount+1]=new	PushThread((Node*)this,&t->buffer);
-				pushThreads[recThreadCount+1]->start(PushThread::PushJobs);
-			}
-		}
+		//		recThreadCount = recvThreads.count();
+		//		RecvThread	*t=new	RecvThread(this,dataChannels[NID]->channels[PRIMARY].stream,NID);
+		//		recvThreads[recThreadCount]=t;
+		//		t->start(RecvThread::ReceiveMessages);
+		//		pushThreads[recThreadCount+1]=new	PushThread((Node*)this,&t->buffer);
+		//		pushThreads[recThreadCount+1]->start(PushThread::PushJobs);
+		//	}
+		//}
 
-		if(network==SECONDARY	||	network==BOTH){
+		//if(network==SECONDARY	||	network==BOTH){
 
-			if(!networkInterfaces[CONTROL_SECONDARY]->canBroadcast()){
+		//	if(!networkInterfaces[CONTROL_SECONDARY]->canBroadcast()){
 
-				recThreadCount = recvThreads.count();
-				RecvThread	*t=new	RecvThread(this,controlChannels[SECONDARY][NID],NID);
-				recvThreads[recThreadCount]=t;
-				t->start(RecvThread::ReceiveMessages);
-				pushThreads[recThreadCount+1]=new	PushThread((Node*)this,&t->buffer);
-				pushThreads[recThreadCount+1]->start(PushThread::PushJobs);
-			}
+		//		recThreadCount = recvThreads.count();
+		//		RecvThread	*t=new	RecvThread(this,controlChannels[SECONDARY][NID],NID);
+		//		recvThreads[recThreadCount]=t;
+		//		t->start(RecvThread::ReceiveMessages);
+		//		pushThreads[recThreadCount+1]=new	PushThread((Node*)this,&t->buffer);
+		//		pushThreads[recThreadCount+1]->start(PushThread::PushJobs);
+		//	}
 
-			if(networkInterfaces[DATA_SECONDARY]!=networkInterfaces[CONTROL_SECONDARY]){
+		//	if(networkInterfaces[DATA_SECONDARY]!=networkInterfaces[CONTROL_SECONDARY]){
 
-				recThreadCount = recvThreads.count();
-				RecvThread	*t=new	RecvThread(this,dataChannels[NID]->channels[SECONDARY].data,NID);
-				recvThreads[recThreadCount]=t;
-				t->start(RecvThread::ReceiveMessages);
-				pushThreads[recThreadCount+1]=new	PushThread((Node*)this,&t->buffer);
-				pushThreads[recThreadCount+1]->start(PushThread::PushJobs);
-			}
+		//		recThreadCount = recvThreads.count();
+		//		RecvThread	*t=new	RecvThread(this,dataChannels[NID]->channels[SECONDARY].data,NID);
+		//		recvThreads[recThreadCount]=t;
+		//		t->start(RecvThread::ReceiveMessages);
+		//		pushThreads[recThreadCount+1]=new	PushThread((Node*)this,&t->buffer);
+		//		pushThreads[recThreadCount+1]->start(PushThread::PushJobs);
+		//	}
 
-			if(networkInterfaces[STREAM_SECONDARY]!=networkInterfaces[DATA_SECONDARY]){
+		//	if(networkInterfaces[STREAM_SECONDARY]!=networkInterfaces[DATA_SECONDARY]){
 
-				recThreadCount = recvThreads.count();
-				RecvThread	*t=new	RecvThread(this,dataChannels[NID]->channels[SECONDARY].stream,NID);
-				recvThreads[recThreadCount]=t;
-				t->start(RecvThread::ReceiveMessages);
-				pushThreads[recThreadCount+1]=new	PushThread((Node*)this,&t->buffer);
-				pushThreads[recThreadCount+1]->start(PushThread::PushJobs);
-			}
-		}
+		//		recThreadCount = recvThreads.count();
+		//		RecvThread	*t=new	RecvThread(this,dataChannels[NID]->channels[SECONDARY].stream,NID);
+		//		recvThreads[recThreadCount]=t;
+		//		t->start(RecvThread::ReceiveMessages);
+		//		pushThreads[recThreadCount+1]=new	PushThread((Node*)this,&t->buffer);
+		//		pushThreads[recThreadCount+1]->start(PushThread::PushJobs);
+		//	}
+		//}
 	}
 
 	void	Node::shutdown(){

@@ -48,9 +48,7 @@ namespace	mBrane{
 
 	class	Node:
 	public	Networking,
-	public	Messaging,
 	public	Executing{
-	friend	class	Messaging;
 	private:
 		class	NoStream:
 		public	std::ostream{
@@ -72,24 +70,23 @@ namespace	mBrane{
 		//	SHARED MEMORY
 		//	Array<Array<uint8>,65535>	sharedMemorySegments;	//	FUTURE DEVELOPMENT
 		//	NODE
-		Array<Host::host_name,32>	nodeNames;
-		Array<int32,32>	nodeStatus;
+	//	Array<Host::host_name,32>	nodeNames;
+	//	Array<int32,32>	nodeStatus;
 		Node(uint8	traceLevels);
 		bool	loadApplication(const	char	*fileName);
 	public:
-		uint8	nodeCount;
-		uint8	nodeJoined;
-		uint8	getNID(const	char	*name);
-		bool allNodesJoined();
-		bool allNodesReady();
-		bool checkSyncProbe(uint8 syncNodeID);
+	//	uint8	nodeCount;
+	//	uint8	nodeJoined;
+	//	uint8	getNID(const	char	*name);
+	//	bool allNodesJoined();
+	//	bool allNodesReady();
 		const	char	*name();
 		//	main() NODE API
 		static	Node	*New(const	char	*configFileName,SharedLibrary	&userLibrary,uint8	traceLevels);
 		~Node();
 		void	run();
 		void	ready();
-		void	systemReady();
+		//void	systemReady();
 		void	shutdown();
 		//	MODULE NODE API
 		void	send(const	_Module	*sender,_Payload	*message,module::Node::Network	network=module::Node::PRIMARY);

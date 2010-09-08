@@ -112,7 +112,7 @@ namespace	mBrane{
 				const	char	*_value=p.getAttribute("value");
 				if(strcmp(_type,"float32")==0){
 
-					float32	value=atof(_value);
+					float32	value=(float32)atof(_value);
 					numerical_args.push_back(*reinterpret_cast<word32	*>(&value));
 				}else	if(strcmp(_type,"int32")==0)
 					numerical_args.push_back(atoi(_value));
@@ -202,7 +202,8 @@ error:	ModuleDescriptor::Config[CID][m->ID]=NULL;
 		ModuleDescriptor	*md;
 		for(uint32	i=0;i<ModuleDescriptor::Config.count();i++)	//	resolve host names into NID
 			for(uint32	j=0;j<ModuleDescriptor::Config[i].count();j++){
-				printf("Initialising module '%s' for host '%s' on host '%s'...\n", ModuleDescriptor::Config[i][j]->getName(), ModuleDescriptor::Config[i][j]->hostName, Node::Get()->name());
+				
+				Node::Get()->trace(Node::EXECUTION)<<"> Info: Module init '"<<ModuleDescriptor::Config[i][j]->getName()<<"' for host '"<<ModuleDescriptor::Config[i][j]->hostName<<"'"<<std::endl;
 				if(	stricmp(ModuleDescriptor::Config[i][j]->hostName,Node::Get()->name())==0	||
 					stricmp(ModuleDescriptor::Config[i][j]->hostName,"local")==0){
 

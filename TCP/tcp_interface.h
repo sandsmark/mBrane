@@ -35,12 +35,6 @@
 #include	"xml_parser.h"
 #include	"../Core/network_interface.h"
 
-#ifdef WINDOWS
-	#define EINPROGRESS WSAEWOULDBLOCK
-#else
-	#define WSAEWOULDBLOCK EAGAIN
-#endif
-
 using	namespace	mBrane;
 using	namespace	mBrane::sdk;
 

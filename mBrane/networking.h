@@ -34,13 +34,68 @@
 #include	"../Core/network_interface.h"
 #include	"network_id.h"
 
+#include	"pipe.h"
+#include	"../Core/list.h"
+#include	"../Core/control_messages.h"
+#include	"messaging.h"
 
 using	namespace	mBrane::sdk;
 using	namespace	mBrane::sdk::mdaemon;
 
 namespace	mBrane{
 
-	class	RecvThread;
+	#define CONTROL_PRIMARY_INITIALISED		0x0001
+	#define DATA_PRIMARY_INITIALISED		0x0002
+	#define STREAM_PRIMARY_INITIALISED		0x0004
+	#define CONTROL_SECONDARY_INITIALISED	0x0008
+	#define DATA_SECONDARY_INITIALISED		0x0010
+	#define STREAM_SECONDARY_INITIALISED	0x0020
+	#define CONTROL_PRIMARY_CONNECTED		0x0040
+	#define DATA_PRIMARY_CONNECTED			0x0080
+	#define STREAM_PRIMARY_CONNECTED		0x0100
+	#define CONTROL_SECONDARY_CONNECTED		0x0200
+	#define DATA_SECONDARY_CONNECTED		0x0400
+	#define STREAM_SECONDARY_CONNECTED		0x0800
+
+	class	NodeCon;
+	struct ReceiveThreadInfo {
+		NodeCon* con;
+		CommChannel* channel;
+	};
+
+	class	Networking;
+	class	NodeCon {
+	public:
+		NodeCon(Networking* node);
+		virtual ~NodeCon();
+
+		bool setSourceNID(uint8 sourceNID);
+		bool setName(const char* name);
+
+		bool isInUse();
+		uint32 getConnectionStatus();
+		bool isConnected(module::Node::Network network = module::Node::EITHER);
+		bool disconnect();
+
+		bool startNetworkChannel(CommChannel* c, uint8 type, bool isCopy = false);
+		CommChannel* getNetworkChannel(uint8 type);
+
+		Networking		*node;
+		NetworkID		*networkID;
+		uint8			sourceNID;
+		char*			name;
+		bool			joined;
+		bool			ready;
+
+		Array<CommChannel	*,6>		commChannels;
+		Array<Thread	*,6>	commThreads;
+		Thread	*				pushThread;
+
+		Pipe11<P<_Payload>,MESSAGE_INPUT_BLOCK_SIZE>	buffer;	//	incoming messages from remote nodes
+		static	thread_ret thread_function_call	ReceiveMessages(void	*args);
+		static	thread_ret thread_function_call	PushJobs(void	*args);
+	};
+
 	class	Messaging;
 	//	Handles network initialization and connection.
 	//	Handles two isolated networks: primary (ex: core computation) and secondary (ex: I/O, signal processing)
@@ -70,9 +125,12 @@ namespace	mBrane{
 	//	When at least one connection to a remote node dies, the node in question is considred dead and the other connections to it are terminated
 	//	if the ref node dies, the node with the lowest NID is the new ref node
 	class	Networking:
-	public	mdaemon::Node{
-	friend	class	RecvThread;
+	public	mdaemon::Node, public	Messaging
+	{
 	friend	class	Messaging;
+	friend	class	RecvThread;
+//	friend	class	Messaging;
+	friend	class	NodeCon;
 	protected:
 		Host::host_name	hostName;
 		uint8			hostNameSize;
@@ -96,21 +154,23 @@ namespace	mBrane{
 
 		NetworkID	*networkID;
 
-		class	DataCommChannel{
-		public:
-			DataCommChannel();
-			~DataCommChannel();
-			typedef	struct{
-				CommChannel	*data;
-				CommChannel	*stream;
-			}CommChannels;
-			CommChannels	channels[2];	//	1 for each network
-			NetworkID		*networkID;
-		};
+		//class	DataCommChannel{
+		//public:
+		//	DataCommChannel();
+		//	~DataCommChannel();
+		//	typedef	struct{
+		//		CommChannel	*data;
+		//		CommChannel	*stream;
+		//	}CommChannels;
+		//	CommChannels	channels[2];	//	1 for each network
+		//	NetworkID		*networkID;
+		//};
 		CommChannel									*discoveryChannel;	//	bcast
-		Array<CommChannel	*,32>					controlChannels[2];	//	for each network: 1 (bcast capable) or many (connected)
-		Array<DataCommChannel	*,32,ArrayManaged>	dataChannels;
+		CommChannel									*broadcastChannel[2];	//	bcast
+//		Array<CommChannel	*,32>					controlChannels[2];	//	for each network: 1 (bcast capable) or many (connected)
+//		Array<DataCommChannel	*,32,ArrayManaged>	dataChannels;
 		CriticalSection								channelsCS;	//	protects controlChannels and dataChannels
+		UNORDERED_MAP<uint8, NodeCon*>				nodes;
 
 		bool	isTimeReference;
 		uint8	referenceNID;
@@ -122,6 +182,15 @@ namespace	mBrane{
 		virtual	void	shutdown();
 
 		Array<Thread	*,32>	commThreads;
+
+		bool checkSyncProbe(uint8 syncNodeID);
+		void systemReady();
+
+		uint8 nodeCount;
+		bool addNodeName(const char* name, bool myself = false);
+		uint8 getNodeID(const char* name);
+		bool allNodesJoined();
+		bool allNodesReady();
 
 		static	thread_ret thread_function_call	ScanIDs(void	*args);
 		typedef	struct{
@@ -136,9 +205,9 @@ namespace	mBrane{
 		int64	syncPeriod;	//	in ms
 
 		uint16	sendID(CommChannel	*c,NetworkID	*networkID);
-		uint16	recvID(CommChannel	*c,NetworkID	*&networkID);
+		uint16	recvID(CommChannel	*c,NetworkID	*&networkID, bool expectToken = true);
 		uint16	sendMap(CommChannel	*c);
-		uint16	recvMap(CommChannel	*c);
+		uint16	recvMap(CommChannel	*c, NetworkID	*fromNetworkID);
 		uint16	connect(NetworkID	*networkID);
 		uint16	connect(Network	network,NetworkID	*networkID);
 		void	_broadcastControlMessage(_Payload	*p,Network	network);

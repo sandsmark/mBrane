@@ -349,7 +349,7 @@ uint16	UDPInterface::newChannel(uint8	*ID,CommChannel	**channel){
 	if_addr.sin_port = htons((unsigned short)port);
 	if (bind(s, (struct sockaddr *)&if_addr, sizeof(struct sockaddr_in)) < 0) {
 		std::cout<<"> Error: unable to bind to port " << port << std::endl;
-		return false;
+		return 1;
 	}
 	std::cout<<"> Info: UDP bound to port " << port << std::endl;
 
