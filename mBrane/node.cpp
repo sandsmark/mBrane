@@ -197,7 +197,7 @@ namespace	mBrane{
 		if(!userInitFunction)
 			return	false;
 		userInitFunction(numerical_args,string_args);
-		std::cout<<"> User library "<<ul<<" loaded"<<std::endl;
+		std::cout<<"> Info: User library '"<<ul<<"' loaded"<<std::endl;
 
 		uint16	spaceCount=mainNode.nChildNode("Space");
 		for(uint16	i=0;i<spaceCount;i++){
@@ -336,7 +336,7 @@ namespace	mBrane{
 			}
 
 			if (!alreadyJoined) {
-				Node::Get()->trace(Node::NETWORK)<<"> Node join init: "<<networkID->name()<<":"<<(unsigned int)NID<<std::endl;
+				Node::Get()->trace(Node::NETWORK)<<"> Info: Node join init: "<<networkID->name()<<":"<<(unsigned int)NID<<std::endl;
 				Space::Init(NID);
 
 				for(uint32	i=0;i<ModuleDescriptor::Config.count();i++)	{ //	resolve host names into NID
@@ -363,7 +363,7 @@ namespace	mBrane{
 		m->send_ts()=this->time();
 		Messaging::send(m,LOCAL);
 
-		Node::Get()->trace(Node::NETWORK)<<"> Node joined: "<<networkID->name()<<":"<<(unsigned int)NID<<std::endl;
+		Node::Get()->trace(Node::NETWORK)<<"> Info: Node joined: "<<networkID->name()<<" (ID: "<<(unsigned int)NID<<")"<<std::endl;
 	}
 
 	void	Node::notifyNodeLeft(uint8	NID){

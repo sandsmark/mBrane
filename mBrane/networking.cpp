@@ -342,7 +342,7 @@ namespace	mBrane{
 				return false;
 			}
 		}
-		printf("All %u Nodes ready\n", nodeCount);
+		Node::Get()->trace(Node::NETWORK)<<"> Info: All "<<(unsigned int)nodeCount<<" Nodes are ready..."<<std::endl;
 		return	true;
 	}
 
@@ -804,7 +804,7 @@ namespace	mBrane{
 
 		uint16	r;
 		uint16 mBraneToken = MBRANETOKEN;
-		std::cout<<"> Info: SendID network greeting ["<<networkID->name()<<","<<(*(uint16*)networkID->data)<<"]...("<<mBraneToken<<")"<<std::endl;
+	//	std::cout<<"> Info: SendID network greeting ["<<networkID->name()<<","<<(*(uint16*)networkID->data)<<"]...("<<mBraneToken<<")"<<std::endl;
 		if(r=c->send((uint8*)&mBraneToken,sizeof(uint16)))
 			return	r;
 		if(r=c->send(networkID->data,NetworkID::Size+networkID->headerSize))
@@ -895,7 +895,7 @@ namespace	mBrane{
 			}
 		}
 
-		std::cout<<"> Info: Sending network map containing "<<*mapElementCount<<" nodes..."<<std::endl;
+	//	std::cout<<"> Info: Sending network map containing "<<*mapElementCount<<" nodes..."<<std::endl;
 		if(r=c->send(data,sizeof(uint16)+len)) {
 			delete [] data;
 			return	r;
@@ -934,7 +934,7 @@ namespace	mBrane{
 			return	0;
 		}
 		else {
-			printf("*** Opening fresh connections to %s:%u ***\n", networkID->name(), nid);
+			Node::Get()->trace(Node::NETWORK)<<"> Info: Opening connections to: "<<networkID->name()<<" (ID: "<<(unsigned int)nid<<")"<<std::endl;
 		}
 
 		if(!networkInterfaces[offset+_Payload::CONTROL]->canBroadcast()){
@@ -950,7 +950,7 @@ namespace	mBrane{
 			if(isTimeReference)
 				if(r=sendMap(ctrl_c))
 					goto	err1;
-			std::cout<<"> Info: Opened control connection to '"<< networkID->name() <<"'..."<<std::endl;
+		//	std::cout<<"> Info: Opened control connection to '"<< networkID->name() <<"'..."<<std::endl;
 		}
 			
 		if(*networkInterfaces[offset+_Payload::DATA]!=*networkInterfaces[offset+_Payload::CONTROL]){
@@ -969,9 +969,9 @@ namespace	mBrane{
 					if(r=sendMap(data_c))
 						goto	err0;
 			}
-			std::cout<<"> Info: Opened data connection to '"<< networkID->name() <<"'..."<<std::endl;
+		//	std::cout<<"> Info: Opened data connection to '"<< networkID->name() <<"'..."<<std::endl;
 		}else {
-			std::cout<<"> Info: Reusing control connection for data connection to '"<< networkID->name() <<"'..."<<std::endl;
+		//	std::cout<<"> Info: Reusing control connection for data connection to '"<< networkID->name() <<"'..."<<std::endl;
 			data_c=ctrl_c;
 		}
 
@@ -984,9 +984,9 @@ namespace	mBrane{
 			// In all cases we need to send our networkID
 			if(r=sendID(stream_c,this->networkID))
 				goto	err0;
-			std::cout<<"> Info: Opened stream connection to '"<< networkID->name() <<"'..."<<std::endl;
+		//	std::cout<<"> Info: Opened stream connection to '"<< networkID->name() <<"'..."<<std::endl;
 		}else {
-			std::cout<<"> Info: Reusing control connection for stream connection to '"<< networkID->name() <<"'..."<<std::endl;
+		//	std::cout<<"> Info: Reusing data connection for stream connection to '"<< networkID->name() <<"'..."<<std::endl;
 			stream_c=data_c;
 		}
 
@@ -1011,7 +1011,7 @@ err2:	delete	networkID;
 
 	uint16	Networking::connect(NetworkID	*networkID){
 
-		std::cout<<"> Info: From map connecting to "<<(unsigned int)networkID->NID()<<"..."<<std::endl;
+	//	std::cout<<"> Info: From map connecting to "<<(unsigned int)networkID->NID()<<"..."<<std::endl;
 		switch(network){
 		case	BOTH:
 		case	PRIMARY:
@@ -1226,7 +1226,7 @@ err2:	delete	networkID;
 
 			//		std::cout<<"Info: Got assigned NodeID ["<<assignedNID<<"]..."<<std::endl;
 					node->start(assignedNID,networkID,false);
-					printf("> Info: My NodeID is now [%u] assigned by [%u]...", assignedNID, networkID->NID());
+					Node::Get()->trace(Node::NETWORK)<<"> Info: My NodeID is now ["<<(unsigned int)assignedNID<<"] assigned by ["<<(unsigned int)networkID->NID()<<"]"<<std::endl;
 					if(r=node->recvMap(c, networkID))
 						goto	err0;
 				}
@@ -1326,7 +1326,7 @@ err1:	node->shutdown();
 					std::cout<<"> Warning: Received invalid network greeting with empty name, ignoring..."<<std::endl;
 				}
 				else {
-					std::cout<<"> Info: Received network greeting from ["<<recName<<","<<*(uint16*)networkID->data<<"], connecting..."<<std::endl;
+					Node::Get()->trace(Node::NETWORK)<<"> Info: Received network greeting from '"<<recName<<"' ("<<(unsigned int)*(uint16*)networkID->data<<"), connecting..."<<std::endl;
 					node->connect(networkID);
 				}
 			}
