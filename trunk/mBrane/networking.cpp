@@ -312,12 +312,16 @@ namespace	mBrane{
 
 	bool	Networking::addNodeName(const char* name, bool myself) {
 		uint8 c = 0;
-		if (!myself)
-			c = nodeCount++;
-		NodeCon* con = nodes[c];
-		if (con == NULL) {
-			con = nodes[c] = new NodeCon(this);
+		if (!myself) {
+			while (nodes[c] && nodes[c]->name) {
+				if (stricmp(name, nodes[c]->name) == 0)
+					return true;
+				c++;
+			}
 		}
+		NodeCon* con = nodes[c];
+		if (con == NULL)
+			con = nodes[c] = new NodeCon(this);
 		con->setName(name);
 		return true;
 	}
@@ -395,7 +399,7 @@ namespace	mBrane{
 			networkInterfaces[i]=NULL;
 		}
 
-		nodeCount = 1; // includes myself
+		nodeCount = 0;
 		for(uint8	i=0;i<32;i++){
 			nodes[i] = NULL;
 			commThreads[i] = NULL;
@@ -991,13 +995,15 @@ namespace	mBrane{
 		}
 
 		nodeCon = nodes[nid];
-		nodeCon->startNetworkChannel(ctrl_c, CONTROL_PRIMARY+offset);
-		nodeCon->startNetworkChannel(data_c, DATA_PRIMARY+offset, data_c == ctrl_c);
-		nodeCon->startNetworkChannel(data_c, STREAM_PRIMARY+offset, stream_c == data_c);
-		nodeCon->networkID = networkID;
-		
-		//connectedNodeCount++;
-		notifyNodeJoined(nid,networkID);
+		if (nodeCon != NULL) {
+			nodeCon->startNetworkChannel(ctrl_c, CONTROL_PRIMARY+offset);
+			nodeCon->startNetworkChannel(data_c, DATA_PRIMARY+offset, data_c == ctrl_c);
+			nodeCon->startNetworkChannel(data_c, STREAM_PRIMARY+offset, stream_c == data_c);
+			nodeCon->networkID = networkID;
+			
+			//connectedNodeCount++;
+			notifyNodeJoined(nid,networkID);
+		}
 
 		return	0;
 err0:	if(data_c!=ctrl_c)

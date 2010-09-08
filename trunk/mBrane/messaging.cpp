@@ -471,7 +471,7 @@ namespace	mBrane{
 
 					if(out.destinationNode==0xFF){	//	find target remote nodes; send on data/stream channels; push in messageInputQueue if the local node is a target
 
-						nodeCount=(uint8)NodeEntry::Main[ST][sid].count();
+						uint8 nodeCount=(uint8)NodeEntry::Main[ST][sid].count();
 						if (nodeCount == 0)
 							printf("*** No activation for any node for stream message cid %u ***\n", p->cid());
 						for(uint8	i=0;i<nodeCount;i++){
@@ -506,7 +506,7 @@ namespace	mBrane{
 
 					if(out.destinationNode==0xFF){
 
-						nodeCount=(uint8)NodeEntry::Main[DC][cid].count();
+						uint8 nodeCount=(uint8)NodeEntry::Main[DC][cid].count();
 						if (nodeCount == 0)
 							printf("*** No activation for any node for data message cid %u ***\n", p->cid());
 						for(uint8	i=0;i<nodeCount;i++){

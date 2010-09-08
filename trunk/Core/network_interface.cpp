@@ -74,7 +74,7 @@ namespace	mBrane{
 
 			uint32	size = (uint32)c->size();
 
-			//std::cout<<"Info: Sending payload type '"<<CR->class_name<<"' ["<<c->cid()<<"] size '"<<size<<"'..."<<std::endl;
+			std::cout<<"Info: Sending payload type '"<<CR->class_name<<"' ["<<c->cid()<<"] size '"<<size<<"'..."<<std::endl;
 
 			commSendCS.enter();
 
@@ -171,12 +171,12 @@ namespace	mBrane{
 				commRecvCS.leave();
 				return	r;
 			}
-			//Error::PrintBinary((char*)&size, sizeof(uint32), true, "Received Size");
+			Error::PrintBinary((char*)&size, sizeof(uint32), true, "Received Size");
 			if(r=recv((uint8	*)&metaData,sizeof(uint64),true)) {	//	receive __Payload::_metaData
 				commRecvCS.leave();
 				return	r;
 			}
-			//Error::PrintBinary((char*)&metaData,sizeof(uint64), true, "Received metaData");
+			Error::PrintBinary((char*)&metaData,sizeof(uint64), true, "Received metaData");
 			//	allocate and initialize the payload (default ctor is called)
 			ClassRegister		*CR=ClassRegister::Get((uint16)(metaData >> 16));
 			if(CR==NULL) {
@@ -184,7 +184,7 @@ namespace	mBrane{
 				return	-1;
 			}
 
-			//printf("Received Class: '%s' [%u] size '%u'...\n", CR->class_name, (uint16)(metaData >> 16), size);
+			printf("Received Class: '%s' [%u] size '%u'...\n", CR->class_name, (uint16)(metaData >> 16), size);
 
 			if(sourceNID!=0xFF){
 
