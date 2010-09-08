@@ -74,7 +74,7 @@ namespace	mBrane{
 
 			uint32	size = (uint32)c->size();
 
-			std::cout<<"Info: Sending payload type '"<<CR->class_name<<"' ["<<c->cid()<<"] size '"<<size<<"'..."<<std::endl;
+			//std::cout<<"Info: Sending payload type '"<<CR->class_name<<"' ["<<c->cid()<<"] size '"<<size<<"'..."<<std::endl;
 
 			commSendCS.enter();
 
@@ -184,7 +184,7 @@ namespace	mBrane{
 				return	-1;
 			}
 
-			printf("Received Class: '%s' [%u] size '%u'...\n", CR->class_name, (uint16)(metaData >> 16), size);
+			//printf("Received Class: '%s' [%u] size '%u'...\n", CR->class_name, (uint16)(metaData >> 16), size);
 
 			if(sourceNID!=0xFF){
 

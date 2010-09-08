@@ -330,14 +330,14 @@ namespace	mBrane{
 				return false;
 			}
 		}
-		printf("All %u Nodes joined\n", nodeCount);
+		// printf("All %u Nodes joined\n", nodeCount);
 		return	true;
 	}
 
 	bool	Networking::allNodesReady() {
 		// don't check reference node = 0
 		for(uint8	i=1;i<nodeCount;i++) {
-			if (!nodes[i]->ready) {
+			if (!nodes[i]->ready || !nodes[i]->joined) {
 				printf("*** Still waiting for Node '%s' (%u of %u) to get ready ***\n", nodes[i]->name, i, nodeCount);
 				return false;
 			}
@@ -858,7 +858,7 @@ namespace	mBrane{
 		uint16	mapElementCount;
 		if(r=c->recv((uint8	*)&mapElementCount,sizeof(uint16)))
 			return	r;
-		std::cout<<"> Info: Receiving network map containing "<<mapElementCount<<" other nodes from "<<fromNetworkID->name()<<":"<<fromNetworkID->NID()<<"..."<<std::endl;
+		//std::cout<<"> Info: Receiving network map containing "<<mapElementCount<<" other nodes from "<<fromNetworkID->name()<<":"<<fromNetworkID->NID()<<"..."<<std::endl;
 		NetworkID	*networkID;
 		uint8		rNID;
 		for(uint16	i=0;i<mapElementCount;i++){
@@ -1337,7 +1337,8 @@ err1:	node->shutdown();
 
 	thread_ret	thread_function_call	Networking::Sync(void	*args){	//	executed by non-time ref nodes
 
-		printf("Starting Network Sync...\n");
+		Thread::Sleep(100);
+		//printf("Starting Network Sync...\n");
 		Networking	*node=(Networking	*)args;
 
 		uint64 t = Time::Get();
@@ -1348,7 +1349,7 @@ err1:	node->shutdown();
 			if (node->nodes[node->referenceNID] && node->nodes[node->referenceNID]->isConnected()) {
 				probe=new	SyncProbe();
 				probe->node_id=node->networkID->NID();
-				std::cout<<"> Info: Sending SyncProbe type '"<<probe->CID()<<"' ("<<(uint32)probe->node_id<<") after "<<(uint32)(Time::Get() - t)<<" usec..."<<std::endl;
+				//std::cout<<"> Info: Sending SyncProbe type '"<<probe->CID()<<"' ("<<(uint32)probe->node_id<<") after "<<(uint32)(Time::Get() - t)<<" usec..."<<std::endl;
 				((_Payload*)probe)->node_send_ts() = (t = Time::Get()); // this needs local time, not adjusted time
 				switch(node->network){
 				case	PRIMARY:
