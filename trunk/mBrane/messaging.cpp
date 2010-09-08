@@ -278,7 +278,7 @@ namespace	mBrane{
 			Thread::TerminateAndWait(*recvThreads.get(i));
 		for(uint32	i=0;i<pushThreads.count();i++)
 			Thread::TerminateAndWait(*pushThreads.get(i));
-		Thread::TerminateAndWait(GC);
+	//	Thread::TerminateAndWait(GC);
 	}
 
 	inline	void	Messaging::pushJobs(_Payload	*p,NodeEntry	&e){
