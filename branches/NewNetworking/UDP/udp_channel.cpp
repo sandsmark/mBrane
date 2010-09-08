@@ -96,7 +96,7 @@ int16	UDPChannel::recv(uint8	*b,size_t	s,bool	peek){
 		// and read from the socket
 		int count = ::recvfrom(this->s,buffer,bufferLen,0,NULL,0);
 		if(count==SOCKET_ERROR) {
-			Error::PrintLastOSErrorMessage("Error: UDPChannel::recv");
+		//	Error::PrintLastOSErrorMessage("Error: UDPChannel::recv");
 			udpCS.leave();
 			return	1;
 		}

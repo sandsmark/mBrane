@@ -154,7 +154,7 @@ int16	TCPChannel::recv(uint8	*b,size_t	s,bool	peek){
 				tc++;
 			}
 			else {
-				Error::PrintLastOSErrorMessage("Error: TCPChannel::recv");
+			//	Error::PrintLastOSErrorMessage("Error: TCPChannel::recv");
 				tcpCS.leave();
 				return	1;
 			}
