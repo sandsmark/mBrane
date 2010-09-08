@@ -124,7 +124,7 @@ int16	TCPChannel::send(uint8	*b,size_t	s){
 
 int16	TCPChannel::recv(uint8	*b,size_t	s,bool	peek){
 
-	int32 wsaError;
+	int32 err;
 	tcpCS.enter();
 
 	while (s > bufferLen) {
@@ -133,7 +133,7 @@ int16	TCPChannel::recv(uint8	*b,size_t	s,bool	peek){
 		tcpCS.enter();
 	}
 
-//	uint64 t = Time::Get();
+	uint64 t = Time::Get();
 	uint32 r = 0;
 	uint32 tw = 0;
 	uint32 tc = 0;
@@ -146,15 +146,15 @@ int16	TCPChannel::recv(uint8	*b,size_t	s,bool	peek){
 		#endif
 		//int count = ::recv(this->s,buffer,s,0);
 		if (count==SOCKET_ERROR) {
-			wsaError = Error::GetLastOSErrorNumber();
-			if ((wsaError == SOCKETWOULDBLOCK) || (wsaError == EAGAIN)) {
-//				uint64 t2 = Time::Get();
+			err = Error::GetLastOSErrorNumber();
+			if ((err == SOCKETWOULDBLOCK) || (err == EAGAIN)) {
+				uint64 t2 = Time::Get();
 				WaitForSocketReadability(this->s, 1000);
-//				tw += (uint32)(Time::Get() - t2);
-//				tc++;
+				tw += (uint32)(Time::Get() - t2);
+				tc++;
 			}
 			else {
-				Error::PrintLastOSErrorMessage("Error: TCPChannel::recv");
+			//	Error::PrintLastOSErrorMessage("Error: TCPChannel::recv");
 				tcpCS.leave();
 				return	1;
 			}
@@ -164,7 +164,7 @@ int16	TCPChannel::recv(uint8	*b,size_t	s,bool	peek){
 		}
 		else {
 			bufferPos += count;
-//			r += count;
+			r += count;
 		}
 //		Error::PrintBinary(buffer+bufferPos, count, true, "TCP Received");
 		// std::cout<<"Info: Not enough data in buffer, received "<<count<<" bytes from socket..."<<std::endl;
@@ -187,12 +187,119 @@ int16	TCPChannel::recv(uint8	*b,size_t	s,bool	peek){
 	tcpCS.leave();
 //	std::cout<<"Info: Read "<<s<<" bytes from buffer, "<<bufferLen-bufferPos<<" bytes left..."<<std::endl;
 
-//	if (r)
-//		printf("Took %u us to read %u bytes into buffer (%ux = %u) [%llu]...\n", Time::Get()-t, r, tc, tw, Time::Get());
-//	else
-//		printf("   Got %u bytes from buffer [%llu]...\n", s, Time::Get());
+	//if (r)
+	//	printf("Took %u us to read %u bytes into buffer (%ux = %u) [%llu]...\n", Time::Get()-t, r, tc, tw, Time::Get());
+	//else
+	//	printf("   Got %u bytes from buffer [%llu]...\n", s, Time::Get());
 
 	return 0;
 
 }
 
+bool	TCPChannel::isConnected() {
+
+	if (s == INVALID_SOCKET)
+		return false;
+
+	uint16 timeout = 10;
+
+	char peekBuffer[1];
+	// First use the socket a bit
+	int res = ::recv(s, peekBuffer, 1, MSG_PEEK);
+	if (res <= 0) {
+		int err = Error::GetLastOSErrorNumber();
+		if (err != SOCKETWOULDBLOCK) {
+			// Error will be handled by the called
+			disconnect();
+			return false;
+		}
+	}
+
+	struct timeval tv;
+	tv.tv_sec = 0;
+	tv.tv_usec = 10;
+
+	int maxfd = 0;
+	fd_set wfds;
+	// create a list of sockets to check for activity
+	FD_ZERO(&wfds);
+	// specify socket
+	FD_SET(s, &wfds);
+
+	#ifdef WINDOWS
+		int len;
+	#else
+		#ifdef Darwin
+			#if GCC_VERSION < 40000
+				int len;
+				maxfd = s + 1;
+			#else
+				socklen_t len;
+				maxfd = s + 1;
+			#endif // GCC_VERSION < 40000
+		#else
+			socklen_t len;
+			maxfd = s + 1;
+		#endif
+	#endif
+
+	if (timeout > 0) {
+		ldiv_t d = ldiv(timeout*1000, 1000000);
+		tv.tv_sec = d.quot;
+		tv.tv_usec = d.rem;
+	}
+
+	// Check for writability
+	res = select(maxfd, NULL, &wfds, NULL, &tv);
+
+	if (res <= 0)
+		return false;
+
+	int error;
+	len = sizeof(error);
+
+	if (FD_ISSET(s, &wfds) != 0) {
+		if (getsockopt(s, SOL_SOCKET, SO_ERROR, (char*)&error, &len) != 0) {
+
+			int err = Error::GetLastOSErrorNumber();
+			if (err == 0) {
+				// No error, just unable to send...
+				return true;
+			}
+			#ifdef WINDOWS
+				else if (err == WSAENETDOWN ) {
+					return false;
+				}
+				else if (err == WSAEFAULT  ) {
+					return false;
+				}
+				else if (err == WSAEINPROGRESS  ) {
+					return false;
+				}
+				else if (err == WSAEINVAL  ) {
+					return false;
+				}
+				else if (err == WSAENOPROTOOPT  ) {
+					if (error == 0) {
+						return true;
+					}
+				}
+				else if (err == WSAENOTSOCK  ) {
+					return false;
+				}
+			#endif			
+			return false;
+		}
+		if (error == 0)
+			return true;
+	}
+
+	return false;
+}
+
+bool	TCPChannel::disconnect() {
+	shutdown(s, SD_BOTH);
+	closesocket(s);
+	s = INVALID_SOCKET;
+	return true;
+}

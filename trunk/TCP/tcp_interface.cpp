@@ -422,17 +422,20 @@ uint16	TCPInterface::acceptConnection(ConnectedCommChannel	**channel,int32	timeo
 		fcntl(s, F_SETFL, parm);
 	#endif
 
+	int err;
 	if(listen(s,1)==SOCKET_ERROR){
+		err = Error::GetLastOSErrorNumber();
 		closesocket(s);
 		Shutdown();
+		std::cout<<"> Error: Accept TCP connection to port " << port << " failed to listen ("<< err <<")" << std::endl;
 		return 1;
 	}
 
 	core::socket _s = accept(s,NULL,NULL);
 
 	if ((int) _s < 0) {
-		int wsaError = Error::GetLastOSErrorNumber();
-		if ((wsaError == WSAEWOULDBLOCK) || (wsaError == EINPROGRESS)) {
+		err = Error::GetLastOSErrorNumber();
+		if (err == SOCKETWOULDBLOCK) {
 			if (!WaitForSocketReadability(s, timeout)) {
 				timedout = true;
 				return 0;
@@ -447,6 +450,7 @@ uint16	TCPInterface::acceptConnection(ConnectedCommChannel	**channel,int32	timeo
 		else {
 			closesocket(s);
 			Shutdown();
+			std::cout<<"> Error: Accept TCP connection to port " << port << " failed to accept ("<< err <<")" << std::endl;
 			return 1;
 		}
 	}

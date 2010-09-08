@@ -78,9 +78,9 @@ namespace	mBrane{
 				t2 = p->node_send_ts();
 				t3 = start;
 				_this->node->timeDrift = t0 - t1 - (t3 - t0 - t2 + t1)/2;
-				printf("*** timeDrift = %llu       RTT = %d (+ %d = %d)\n",
-					_this->node->timeDrift, (int32)(t3 - t0 - (t2 - t1)),
-					(int32)(t2 - t1), (int32)(t3 - t0));
+				//printf("*** timeDrift = %llu       RTT = %d (+ %d = %d)\n",
+				//	_this->node->timeDrift, (int32)(t3 - t0 - (t2 - t1)),
+				//	(int32)(t2 - t1), (int32)(t3 - t0));
 			//		((SyncEcho*)p)->t0 - ((SyncEcho*)p)->t1 -
 			//		   (p->node_recv_ts() - ((SyncEcho*)p)->t0 - p->node_send_ts() + ((SyncEcho*)p)->t1)/2;
 				
@@ -471,7 +471,7 @@ namespace	mBrane{
 
 					if(out.destinationNode==0xFF){	//	find target remote nodes; send on data/stream channels; push in messageInputQueue if the local node is a target
 
-						nodeCount=NodeEntry::Main[ST][sid].count();
+						nodeCount=(uint8)NodeEntry::Main[ST][sid].count();
 						if (nodeCount == 0)
 							printf("*** No activation for any node for stream message cid %u ***\n", p->cid());
 						for(uint8	i=0;i<nodeCount;i++){
@@ -506,7 +506,7 @@ namespace	mBrane{
 
 					if(out.destinationNode==0xFF){
 
-						nodeCount=NodeEntry::Main[DC][cid].count();
+						nodeCount=(uint8)NodeEntry::Main[DC][cid].count();
 						if (nodeCount == 0)
 							printf("*** No activation for any node for data message cid %u ***\n", p->cid());
 						for(uint8	i=0;i<nodeCount;i++){

@@ -48,6 +48,7 @@ UDPChannel::UDPChannel(core::socket	s,uint32	port):BroadcastCommChannel(),s(s){
 
 UDPChannel::~UDPChannel(){
 	udpCS.enter();
+	disconnect();
 	if (buffer != NULL)
 		delete(buffer);
 	bufferLen = 0;
@@ -95,7 +96,7 @@ int16	UDPChannel::recv(uint8	*b,size_t	s,bool	peek){
 		// and read from the socket
 		int count = ::recvfrom(this->s,buffer,bufferLen,0,NULL,0);
 		if(count==SOCKET_ERROR) {
-			Error::PrintLastOSErrorMessage("Error: UDPChannel::recv");
+		//	Error::PrintLastOSErrorMessage("Error: UDPChannel::recv");
 			udpCS.leave();
 			return	1;
 		}
@@ -120,3 +121,15 @@ int16	UDPChannel::recv(uint8	*b,size_t	s,bool	peek){
 	return 0;
 }
 
+bool	UDPChannel::isConnected() {
+	return true;
+}
+
+bool	UDPChannel::disconnect() {
+	if (s != INVALID_SOCKET) {
+		shutdown(s, SD_BOTH);
+		closesocket(s);
+	}
+	s = INVALID_SOCKET;
+	return true;
+}
