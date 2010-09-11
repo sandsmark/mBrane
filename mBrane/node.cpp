@@ -111,8 +111,8 @@ namespace	mBrane{
 		//	strcpy(nodeNames[0],hostName);
 		//	nodeStatus[0] = 2; // Do not wait for connection...
 		//	printf("--- Node 0: '%s' ---\n", hostName);
-			uint16 nodeCount=nodeList.nChildNode("Node");
-			for(uint16	i=0;i<nodeCount;i++){
+			uint16 nCount=nodeList.nChildNode("Node");
+			for(uint16	i=0;i<nCount;i++){
 
 				XMLNode	n=nodeList.getChildNode(i);
 				const	char	*_n=n.getAttribute("hostname");
@@ -290,7 +290,7 @@ namespace	mBrane{
 		 * when we have more than one, this should be handled by the
 		 * other parts of the networking code
 		 */
-		if (nodeCount == 0) {
+		if (nodeCount <= 1) {
 			Node::ready();
 			Networking::systemReady();
 		}

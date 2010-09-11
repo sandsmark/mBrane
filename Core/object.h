@@ -56,9 +56,6 @@ namespace	mBrane{
 		friend	class	ClassRegister;
 		private:
 			static	M	*_Allocator;
-			#ifdef	ARCH_32
-			uint32	__vfptr_padding_Object;
-			#endif
 		protected:
 			Object();
 		public:
@@ -69,12 +66,12 @@ namespace	mBrane{
 
 		
 		//	Template version of the well-known DP. Adapts C to Object<M,_Object,U>.
-		//template<class	C,class	M,class	U>	class	ObjectAdapter:
-		//public	C,
-		//public	Object<M,_Object,U>{
-		//protected:
-		//	ObjectAdapter();
-		//};
+		template<class	C,class	M,class	U>	class	ObjectAdapter:
+		public	C,
+		public	Object<M,_Object,U>{
+		protected:
+			ObjectAdapter();
+		};
 	}
 }
 

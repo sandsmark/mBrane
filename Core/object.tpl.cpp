@@ -53,7 +53,7 @@ namespace	mBrane{
 
 		////////////////////////////////////////////////////////////////////////////////////
 
-//		template<class	C,class	M,class	U>	inline	ObjectAdapter<C,M,U>::ObjectAdapter():Object<M,_Object,U>(),C(){
-//		}
+		template<class	C,class	M,class	U>	inline	ObjectAdapter<C,M,U>::ObjectAdapter():Object<M,_Object,U>(),C(){
+		}
 	}
 }
