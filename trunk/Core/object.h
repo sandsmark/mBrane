@@ -33,8 +33,8 @@
 
 #include	<cstdlib>
 
-#include	"types.h"
-#include	"base.h"
+#include	"../CoreLibrary/types.h"
+#include	"../CoreLibrary/base.h"
 #include	"config.h"
 
 

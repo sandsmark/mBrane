@@ -31,7 +31,7 @@
 #ifndef mBrane_sdk_array_h
 #define mBrane_sdk_array_h
 
-#include	"types.h"
+#include	"../CoreLibrary/types.h"
 #include	<string.h>
 
 using	namespace	core;

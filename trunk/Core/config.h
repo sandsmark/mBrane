@@ -31,7 +31,7 @@
 #ifndef	mBrane_config_h
 #define	mBrane_config_h
 
-#include	"types.h"
+#include	"../CoreLibrary/types.h"
 
 #if defined WINDOWS
 	#if defined	CORE_EXPORTS
