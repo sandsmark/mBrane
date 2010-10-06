@@ -31,7 +31,7 @@
 #ifndef mBrane_sdk_module_h
 #define mBrane_sdk_module_h
 
-#include	"utils.h"
+#include	"../CoreLibrary/utils.h"
 #include	"message.h"
 
 using	namespace	mBrane::sdk::payloads;
