@@ -89,7 +89,7 @@ namespace	mBrane{
 
 	class	Executing;
 	class	XThread;
-	class	Messaging{
+	class	mbrane_dll	Messaging{
 	friend	class	RecvThread;
 	friend	class	PushThread;
 	friend	class	XThread;

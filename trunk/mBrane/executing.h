@@ -57,7 +57,7 @@ namespace	mBrane{
 	};
 
 	//	XThread pool.
-	class	Executing{
+	class	mbrane_dll	Executing{
 	friend	class	XThread;
 	protected:
 		

@@ -31,6 +31,7 @@
 #ifndef	mBrane_node_h
 #define	mBrane_node_h
 
+#include	"mBrane.h"
 #include	"../Core/payload.h"
 #include	"../Core/list.h"
 
@@ -46,7 +47,7 @@ using	namespace	mBrane::sdk::mdaemon;
 
 namespace	mBrane{
 
-	class	Node:
+	class	mbrane_dll	Node:
 	public	Networking,
 	public	Executing{
 	private:
