@@ -1,5 +1,6 @@
 ############# Names and dirs #############
 
+BINLIBNAME = mBraneLib
 PROGNAME = mBrane
 
 BINDIR = ../bin
@@ -16,15 +17,21 @@ include ../Makefile.sys
 
 ############# Files to compile #############
 
-CPPFILES = executing.cpp main.cpp messaging.cpp module_descriptor.cpp networking.cpp
+CPPFILES = executing.cpp messaging.cpp module_descriptor.cpp networking.cpp
 CPPFILES += network_id.cpp node.cpp space.cpp 
+
+PROG_CPPFILES = main.cpp
 
 ############# Setup dirs #############
 
 PROGRAM = $(BINDESTDIR)/$(PROGNAME)
+BINLIBRARY = $(BINDESTDIR)/lib$(BINLIBNAME).so
 
 SRCFILES = $(patsubst %.cpp,$(SRCDIR)/%.cpp,$(CPPFILES))
 OBJFILES = $(patsubst %.cpp,$(BUILDDIR)/%.o,$(CPPFILES))
+
+PROG_SRCFILES = $(patsubst %.cpp,$(SRCDIR)/%.cpp,$(PROG_CPPFILES))
+PROG_OBJFILES = $(patsubst %.cpp,$(BUILDDIR)/%.o,$(PROG_CPPFILES))
 
 INCLUDES = $(patsubst %,-I% ,$(INCLUDEDIRS))
 LIBS = $(subst /arch/,/$(ARCH)/,$(LIBRARIES))
@@ -32,12 +39,11 @@ LIBS = $(subst /arch/,/$(ARCH)/,$(LIBRARIES))
 RESULT := $(shell if [ ! -d $(BINDIR) ]; then mkdir $(BINDIR); fi)
 RESULT := $(shell if [ ! -d $(BINDESTDIR) ]; then mkdir $(BINDESTDIR); fi)
 RESULT := $(shell if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi)
-RESULT := $(shell if [ ! -d $(BUILDDIR)/thirdparty ]; then mkdir $(BUILDDIR)/thirdparty; fi)
 
 ############# Overall commands #############
 
-all : $(PROGRAM)
-	@echo $(PROGRAM) ready
+all : $(BINLIBRARY) $(PROGRAM)
+	@echo $(BINLIBRARY) and $(PROGRAM) ready
 
 debug: all
 
@@ -61,24 +67,28 @@ endif
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.cpp
 	@echo Compiling $(<F)
-	@$(CC) $(DEBUG) $(INCLUDES) $(STANDARD) -std=c++0x $(NOTLINK) $(OUTPUT_OPTION) $<
+	@$(CC) $(DEBUG) $(INCLUDES) $(STANDARD) -std=c++0x $(LIBCOPT) $(NOTLINK) $(OUTPUT_OPTION) $<
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 	@echo Compiling $(<F)
-	@gcc $(DEBUG) $(INCLUDES) -Wall -w -Wstrict-prototypes -Wmissing-prototypes -O2 -o $@ -c $<
+	@gcc $(DEBUG) $(INCLUDES) $(LIBCOPT) -Wall -w -Wstrict-prototypes -Wmissing-prototypes -O2 -o $@ -c $<
 
 ############# Linking #############
 
-$(PROGRAM): $(OBJFILES)
+$(PROGRAM): $(BINLIBRARY) $(PROG_OBJFILES)
 	@echo Linking $(PROGNAME) $(SYSTEM)...
-	@$(CC) $(DEBUG) $(STANDARD) $(OBJFILES) $(LIBRARY) $(LIBPATHS) -o $(PROGRAM) $(LIBS) $(OTHERLIBS)
+	@$(CC) $(DEBUG) $(STANDARD) $(PROG_OBJFILES) $(LIBPATHS) -o $(PROGRAM) $(LIBS) $(BINLIBRARY) $(OTHERLIBS)
+
+$(BINLIBRARY): $(OBJFILES)
+	@echo Linking $(BINLIBRARY) $(SYSTEM)...
+	@$(CC) $(DEBUG) $(STANDARD) $(LIBOPT) $(OBJFILES) $(LIBRARY) $(LIBPATHS) -o $(BINLIBRARY) $(LIBS) $(OTHERLIBS)
 
 ############# Cleaning #############
 
 clean:
 	@echo Removing build and binary files
 	@$(RMALL) $(BUILDDIR)
-	@$(RMALL) $(PROGRAM)
+	@$(RMALL) $(BINLIBRARY) $(PROGRAM)
 
 totalclean : clean
 	@echo Removing Visual Studio temporary files
@@ -88,7 +98,7 @@ totalclean : clean
 
 rebuild : clean all
 
-run : all
+test : all
 	@echo Running $(PROGNAME)
 	@echo
-	@$(PROGNAME)
+	@$(PROGNAME) 100 ../App/sizetest.xml 7
