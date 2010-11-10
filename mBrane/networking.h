@@ -124,7 +124,7 @@ namespace	mBrane{
 	//
 	//	When at least one connection to a remote node dies, the node in question is considred dead and the other connections to it are terminated
 	//	if the ref node dies, the node with the lowest NID is the new ref node
-	class	Networking:
+	class	mbrane_dll	Networking:
 	public	mdaemon::Node, public	Messaging
 	{
 	friend	class	Messaging;
