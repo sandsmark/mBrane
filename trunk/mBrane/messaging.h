@@ -35,6 +35,7 @@
 #define	MESSAGE_OUTPUT_BLOCK_SIZE	64
 #define	JOBS_BLOCK_SIZE				128
 
+#include	"mBrane.h"
 #include	"pipe.h"
 #include	"../Core/list.h"
 #include	"../Core/control_messages.h"
