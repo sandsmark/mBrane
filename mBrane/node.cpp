@@ -45,7 +45,18 @@ namespace	mBrane{
 	Node	*Node::New(const	char	*configFileName,SharedLibrary	&userLibrary,uint8	traceLevels){
 
 		Node	*n=new	Node(traceLevels);
-		if(n->loadConfig(configFileName)){
+		if(n->loadConfigFile(configFileName)){
+
+			userLibrary=*n->userLibrary;
+			return	n;
+		}
+		return	NULL;
+	}
+
+	Node	*Node::NewXML(const	char	*configXML,SharedLibrary	&userLibrary,uint8	traceLevels){
+
+		Node	*n=new	Node(traceLevels);
+		if(n->loadConfigXML(configXML)){
 
 			userLibrary=*n->userLibrary;
 			return	n;
@@ -75,13 +86,45 @@ namespace	mBrane{
 			delete	Streams[2];
 	}
 
-	Node	*Node::loadConfig(const	char	*configFileName){
+	Node	*Node::loadConfigFile(const	char	*configFileName){
+		FILE *f=fopen(configFileName,"rb");
+		if (f==NULL)
+			return NULL;
+		fseek(f,0,SEEK_END);
+		int l=ftell(f),headerSz=0;
+		if (!l)
+			return NULL;
+		fseek(f,0,SEEK_SET);
+		char *buf=(char*)malloc(l+4);
+		fread(buf,l,1,f);
+		fclose(f);
+		buf[l]=0;buf[l+1]=0;buf[l+2]=0;buf[l+3]=0;
+
+		Node* node = loadConfigXML(buf);
+	    free(buf);
+		return node;
+	}
+
+	Node	*Node::loadConfigXML(const	char	*configXML){
 
 		hostNameSize=Host::Name(hostName);
 
 		std::cout<<std::endl<<"--------- mBrane v"<<MBRANE_VERSION<<" Node: "<<hostName<<" ---------"<<std::endl<<std::endl;
 
-		XMLNode	mainNode=XMLNode::openFileHelper(configFileName,"NodeConfiguration");
+	//	XMLNode	mainNode=XMLNode::openFileHelper(configFileName,"NodeConfiguration");
+
+	    XMLResults pResults;
+	    XMLNode mainNode=XMLNode::parseString(configXML,"NodeConfiguration",&pResults);
+
+		// display error message (if any)
+		if (pResults.error != eXMLErrorNone)
+		{
+			// create message
+			// if (pResults.error==eXMLErrorFirstTagNotFound) {}
+			std::cout<<"> Error: NodeConfiguration did not contain the correct XML tag"<<std::endl;
+			return	NULL;
+		}
+
 		if(!mainNode){
 
 			std::cout<<"> Error: NodeConfiguration corrupted"<<std::endl;

@@ -213,6 +213,18 @@ public:
 
 MODULE_CLASS_END(SizeTest)
 
+MODULE_CLASS_BEGIN(Loom,Module<Loom>)
+public:
+	void	start(){ }
+	void	stop(){	}
+	template<class	T>	Decision	decide(T	*p){return	WAIT;}
+	template<class	T>	void	react(T	*p){}
+
+	void	react(SystemReady	*p){
+		
+	}
+
+MODULE_CLASS_END(Loom)
 
 
 #endif /* Perf_RR_h */
