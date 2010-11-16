@@ -13,4 +13,6 @@
 	#define mbrane_dll
 #endif
 
+#include	"node.h"
+
 #endif // mbrane_h

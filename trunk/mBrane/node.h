@@ -61,7 +61,8 @@ namespace	mBrane{
 		};
 		//	CONFIG
 		SharedLibrary	*userLibrary;
-		Node	*loadConfig(const	char	*configFileName);
+		Node	*loadConfigXML(const	char	*configXML);
+		Node	*loadConfigFile(const	char	*configFileName);
 		//	NETWORKING
 		void	start(uint8	assignedNID,NetworkID	*networkID,bool	isTimeReference);
 		void	notifyNodeJoined(uint8	NID,NetworkID	*networkID);
@@ -84,6 +85,7 @@ namespace	mBrane{
 		const	char	*name();
 		//	main() NODE API
 		static	Node	*New(const	char	*configFileName,SharedLibrary	&userLibrary,uint8	traceLevels);
+		static	Node	*NewXML(const	char	*configXML,SharedLibrary	&userLibrary,uint8	traceLevels);
 		~Node();
 		void	run();
 		void	ready();
