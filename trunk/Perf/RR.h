@@ -213,6 +213,8 @@ public:
 
 MODULE_CLASS_END(SizeTest)
 
+typedef	char* (*LoomInterface)(const char*);
+
 MODULE_CLASS_BEGIN(Loom,Module<Loom>)
 public:
 	void	start(){ }
@@ -221,7 +223,15 @@ public:
 	template<class	T>	void	react(T	*p){}
 
 	void	react(SystemReady	*p){
-		
+		SharedLibrary* lib = SharedLibrary::New("modules/mBrane_d.dll");
+		if (lib) {
+			LoomInterface loomInterface = lib->getFunction<LoomInterface>("Test");
+			if (loomInterface) {
+				char* test = loomInterface("Test");
+				delete [] test;
+			}
+			delete(lib);
+		}
 	}
 
 MODULE_CLASS_END(Loom)
