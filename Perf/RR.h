@@ -213,25 +213,79 @@ public:
 
 MODULE_CLASS_END(SizeTest)
 
-typedef	char* (*LoomInterface)(const char*);
+typedef	char* (*LoomOutput)(uint32&, uint32&, uint32);
+typedef	bool (*LoomInput)(uint32, char*, uint32);
 
 MODULE_CLASS_BEGIN(Loom,Module<Loom>)
 public:
-	void	start(){ }
-	void	stop(){	}
+	Thread* thread;
+	SharedLibrary* lib;
+	LoomOutput waitForEvent;
+	LoomInput processEvent;
+
+	void	start(){
+		lib = SharedLibrary::New("modules/mBrane_d.dll");
+		if (lib) {
+			waitForEvent = lib->getFunction<LoomOutput>("WaitForEvent");
+			processEvent = lib->getFunction<LoomInput>("ProcessEvent");
+		}
+		else {
+			waitForEvent = NULL;
+			processEvent = NULL;
+		}
+		thread = NULL;
+	}
+	void	stop(){
+		delete(thread);
+		thread = NULL;
+		delete(lib);
+		lib = NULL;
+		waitForEvent = NULL;
+		processEvent = NULL;
+	}
 	template<class	T>	Decision	decide(T	*p){return	WAIT;}
 	template<class	T>	void	react(T	*p){}
 
 	void	react(SystemReady	*p){
-		SharedLibrary* lib = SharedLibrary::New("modules/mBrane_d.dll");
-		if (lib) {
-			LoomInterface loomInterface = lib->getFunction<LoomInterface>("Test");
-			if (loomInterface) {
-				char* test = loomInterface("Test");
-				delete [] test;
-			}
-			delete(lib);
+		thread = Thread::New<Thread>(run, this);
+		uint32 type = 0;
+		char* data = NULL;
+		uint32 dataSize = 0;
+
+		// Output data to Loom
+		if (processEvent)
+			processEvent(type, data, dataSize);
+	}
+
+	void	react(Ball1	*p){
+		uint32 type = 0;
+		char* data = NULL;
+		uint32 dataSize = 0;
+
+		// Output data to Loom
+		if (processEvent) {
+			processEvent(type, data, dataSize);
 		}
+	}
+
+	static thread_ret thread_function_call run(void	*args) {
+
+		Loom* _this = (Loom*) args;
+		if (!_this)
+			thread_ret_val(0);
+
+		uint32 type = 0;
+		char* data = NULL;
+		uint32 dataSize = 0;
+
+		while (_this->waitForEvent) {
+			// wait for new input from lib function
+			if ( (data = _this->waitForEvent(type, dataSize, 100)) ) {
+				// if there, post output
+			}
+		}
+
+		thread_ret_val(0);
 	}
 
 MODULE_CLASS_END(Loom)
