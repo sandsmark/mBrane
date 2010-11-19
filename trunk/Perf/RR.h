@@ -213,8 +213,8 @@ public:
 
 MODULE_CLASS_END(SizeTest)
 
-typedef	char* (*LoomOutput)(uint32&, uint32&, uint32);
-typedef	bool (*LoomInput)(uint32, char*, uint32);
+typedef	char* (*LoomOutput)(uint32);
+typedef	bool (*LoomInput)(char*);
 
 MODULE_CLASS_BEGIN(Loom,Module<Loom>)
 public:
@@ -248,23 +248,19 @@ public:
 
 	void	react(SystemReady	*p){
 		thread = Thread::New<Thread>(run, this);
-		uint32 type = 0;
 		char* data = NULL;
-		uint32 dataSize = 0;
 
 		// Output data to Loom
 		if (processEvent)
-			processEvent(type, data, dataSize);
+			processEvent(data);
 	}
 
 	void	react(Ball1	*p){
-		uint32 type = 0;
 		char* data = NULL;
-		uint32 dataSize = 0;
 
 		// Output data to Loom
 		if (processEvent) {
-			processEvent(type, data, dataSize);
+			processEvent(data);
 		}
 	}
 
@@ -280,7 +276,7 @@ public:
 
 		while (_this->waitForEvent) {
 			// wait for new input from lib function
-			if ( (data = _this->waitForEvent(type, dataSize, 100)) ) {
+			if ( (data = _this->waitForEvent(100)) ) {
 				// if there, post output
 			}
 		}
