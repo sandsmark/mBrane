@@ -240,7 +240,7 @@ namespace	mBrane{
 		o.p=message;
 		o.network=network;
 		// message->send_ts()=Time::Get();
-		// printf("Scheduling message (%u) for sending...\n", message->cid());
+		//printf("Scheduling message (%u) for sending...\n", message->cid());
 		messageOutputQueue.push(o);
 	}
 

@@ -96,35 +96,37 @@ namespace	mBrane{
 
 		_Module	*_m=NULL;
 		if(	stricmp(_host,Node::Get()->name())==0	||
-			stricmp(_host,"local")==0)
+			stricmp(_host,"local")==0){
+
 			_m=ModuleRegister::Get(CID)->buildModule();
 
-		XMLNode	parameters=n.getChildNode("Parameters");
-		if(!!parameters){
+			XMLNode	parameters=n.getChildNode("Parameters");
+			if(!!parameters){
 
-			uint32						_parameterCount=parameters.nChildNode();
-			std::vector<word32>			numerical_args;
-			std::vector<std::string>	string_args;
-			for(uint32	i=0;i<_parameterCount;++i){
+				uint32						_parameterCount=parameters.nChildNode();
+				std::vector<word32>			numerical_args;
+				std::vector<std::string>	string_args;
+				for(uint32	i=0;i<_parameterCount;++i){
 
-				XMLNode	p=parameters.getChildNode("Parameter",i);
-				const	char	*_type=p.getAttribute("type");
-				const	char	*_value=p.getAttribute("value");
-				if(strcmp(_type,"float32")==0){
+					XMLNode	p=parameters.getChildNode("Parameter",i);
+					const	char	*_type=p.getAttribute("type");
+					const	char	*_value=p.getAttribute("value");
+					if(strcmp(_type,"float32")==0){
 
-					float32	value=(float32)atof(_value);
-					numerical_args.push_back(*reinterpret_cast<word32	*>(&value));
-				}else	if(strcmp(_type,"int32")==0)
-					numerical_args.push_back(atoi(_value));
-				else	if(strcmp(_type,"string")==0)
-					string_args.push_back(std::string(_value));
-				else{
+						float32	value=(float32)atof(_value);
+						numerical_args.push_back(*reinterpret_cast<word32	*>(&value));
+					}else	if(strcmp(_type,"int32")==0)
+						numerical_args.push_back(atoi(_value));
+					else	if(strcmp(_type,"string")==0)
+						string_args.push_back(std::string(_value));
+					else{
 
-					std::cout<<"> Error: module "<<name<<": unrecognized parameter type"<<std::endl;
-					return	NULL;
+						std::cout<<"> Error: module "<<name<<": unrecognized parameter type"<<std::endl;
+						return	NULL;
+					}
 				}
+				_m->loadParameters(numerical_args,string_args);
 			}
-			_m->loadParameters(numerical_args,string_args);
 		}
 
 		uint16	ID=(uint16)ModuleDescriptor::Config[CID].count();
