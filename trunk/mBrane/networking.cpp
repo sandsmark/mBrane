@@ -891,7 +891,7 @@ namespace	mBrane{
 			if ( it->second && it->second->isConnected() ) {
 				memcpy(ids++, &it->second->networkID->data, NetworkID::Size+it->second->networkID->headerSize);
 				len += NetworkID::Size+it->second->networkID->headerSize;
-				*mapElementCount++;
+				(*mapElementCount)++;
 			}
 		}
 
