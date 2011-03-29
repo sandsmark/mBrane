@@ -182,6 +182,7 @@ namespace	mBrane{
 			};
 
 			#define	MBRANE_MESSAGE_CLASS(C)	static	const	uint16	C##_CID=(uint16)__COUNTER__;
+			//#define	MBRANE_MESSAGE_CLASS(C)	static	const	uint16	C##_CID=ClassRegister::Load<C>(0);
 			#include	"mBrane_message_classes.h"
 
 			void	mBrane_dll	LoadControlMessageMetaData();	//	overwrites C::_MetaData with actual values (i.e. C_CID dependent) - where C is a Core-defined control message;
