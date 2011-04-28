@@ -994,7 +994,7 @@ namespace	mBrane{
 		if (nodeCon) {
 			nodeCon->startNetworkChannel(ctrl_c, CONTROL_PRIMARY+offset);
 			nodeCon->startNetworkChannel(data_c, DATA_PRIMARY+offset, data_c == ctrl_c);
-			nodeCon->startNetworkChannel(data_c, STREAM_PRIMARY+offset, stream_c == data_c);
+			nodeCon->startNetworkChannel(stream_c, STREAM_PRIMARY+offset, stream_c == data_c);
 			nodeCon->networkID = networkID;
 
 			//connectedNodeCount++;
