@@ -70,11 +70,13 @@ namespace	mBrane{
 
 	void	Executing::start(){
 
-		xThreads.alloc(threadCount*2);	//	twice the requested amount: to keep extra threads in our sleeve when some are waiting
+		xThreads.alloc(threadCount*1);	//	twice the requested amount: to keep extra threads in our sleeve when some are waiting
 		for(uint32	i=0;i<xThreads.count();i++){
 
 			XThread	*t=new	XThread((Node	*)this);
 			xThreads[i]=t;
+			if(i>=threadCount)
+				t->wasSupporting=true;
 			t->start(XThread::Xec);
 		}
 	}
@@ -90,12 +92,8 @@ namespace	mBrane{
 
 		XThread	*_this=((XThread	*)args);
 
-		static	uint32	xCount=0;
-		if(++xCount>_this->node->threadCount){
-
+		if(_this->wasSupporting)
 check_in:	_this->node->supportSync->acquire();
-			_this->wasSupporting=true;
-		}
 
 		while(_this->node->isRunning()){
 
@@ -122,7 +120,7 @@ check_in:	_this->node->supportSync->acquire();
 	}
 
 	inline	void	XThread::work(_Payload	*p,_Module	*m){
-		
+//static	uint32	w=0;
 		XThread	*currentProcessor=(XThread	*)m->processor;
 		if(currentProcessor){
 
@@ -158,6 +156,7 @@ check_in:	_this->node->supportSync->acquire();
 		else{
 
 			//std::cout<<"xec notified job: "<<p->cid()<<" "<<std::hex<<this<<std::dec<<std::endl;fflush(stdout);
+			//std::cout<<"Executing job: "<<++w<<"|"<<p->cid()<<std::endl;
 			m->notify(p);
 		}
 		m->processor=NULL;

@@ -282,7 +282,7 @@ namespace	mBrane{
 	}
 
 	inline	void	Messaging::pushJobs(_Payload	*p,NodeEntry	&e){
-
+//static	uint32	w=0;
 		uint32	act;
 		e.getActivation(act);
 		//std::cout<<"Pushing job: "<<p->cid()<<std::endl;
@@ -298,6 +298,7 @@ namespace	mBrane{
 
 				if((*i)->descriptor->module->isReady()	&&	(*i)->descriptor->activationCount) {
 					//std::cout<<"Pushing active ready job: "<<p->cid()<<std::endl;
+					//std::cout<<"Pushing job: "<<++w<<"|"<<p->cid()<<":"<<(*i)->descriptor->CID<<std::endl;
 					Job j(p, (*i)->descriptor->module);
 					jobs.push(j);
 				}
