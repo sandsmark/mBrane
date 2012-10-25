@@ -1,54 +1,79 @@
-//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/â€¨//_/_/â€¨//_/_/Â  array.tpl.cppâ€¨//_/_/â€¨//_/_/Â  Eric Nivelâ€¨//_/_/Â  Center for Analysis and Design of Intelligent Agentsâ€¨//_/_/Â Â   Reykjavik University, Menntavegur 1, 101 Reykjavik, Icelandâ€¨//_/_/Â Â   http://cadia.ru.is
-//_/_/Â  CopyrightÂ©2012â€¨//_/_/â€¨//_/_/Â  This software was developed by the above copyright holder as part of â€¨//_/_/Â  the HUMANOBS EU research project, in collaboration with the â€¨//_/_/  following parties:
-//_/_/Â  â€¨//_/_/Â  Autonomous Systems Laboratoryâ€¨//_/_/Â Â Â  Technical University of Madrid, Spainâ€¨//_/_/Â Â Â  http://www.aslab.org/â€¨//_/_/â€¨//_/_/Â  Communicative Machinesâ€¨//_/_/Â Â Â  Edinburgh, United Kingdomâ€¨//_/_/Â Â Â  http://www.cmlabs.com/â€¨//_/_/â€¨//_/_/Â  Istituto Dalle Molle di Studi sull'Intelligenza Artificialeâ€¨//_/_/Â Â Â  University of Lugano and SUPSI, Switzerlandâ€¨//_/_/Â Â Â  http://www.idsia.ch/â€¨//_/_/â€¨//_/_/Â  Institute of Cognitive Sciences and Technologiesâ€¨//_/_/Â Â Â  Consiglio Nazionale delle Ricerche, Italyâ€¨//_/_/Â Â Â  http://www.istc.cnr.it/
-//_/_/
-//_/_/  Dipartimento di Ingegneria Informatica
-//_/_/    University of Palermo, Italy
-//_/_/Â Â Â  http://roboticslab.dinfo.unipa.it/index.php/Main/HomePage
-//_/_/â€¨//_/_/
-//_/_/  --- HUMANOBS Open-Source BSD License, with CADIA Clause v 1.0 ---
-//_/_/
-//_/_/Â  Redistribution and use in source and binary forms, with or without 
-//_/_/  modification, is permitted provided that the following conditions 
-//_/_/  are met:
-//_/_/
-//_/_/Â  - Redistributions of source code must retain the above copyright 
-//_/_/    and collaboration notice, this list of conditions and the 
-//_/_/Â Â Â  following disclaimer.
-//_/_/
-//_/_/Â  - Redistributions in binary form must reproduce the above copyright 
-//_/_/    notice, this list of conditions and the following
-//_/_/    disclaimer in the documentation and/or other materials provided 
-//_/_/    with the distribution.
-//_/_/
-//_/_/Â  - Neither the name of its copyright holders nor the names of its 
-//_/_/    contributors may be used to endorse or promote products 
-//_/_/    derived from this software without specific prior written permission.
-//_/_/
-//_/_/Â  - CADIA Clause: The license granted in and to the software under this 
-//_/_/     agreement is a limited-use license. The software may not be used in 
-//_/_/     furtherance of: 
-//_/_/     (i) intentionally causing bodily injury or severe emotional distress 
-//_/_/         to any person; 
-//_/_/     (ii) invading the personal privacy or violating the human rights of 
-//_/_/         any person; or 
-//_/_/     (iii) committing  or preparing for any act of war.
-//_/_/
-//_/_/Â  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-//_/_/  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
-//_/_/  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
-//_/_/  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
-//_/_/  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
-//_/_/  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
-//_/_/  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
-//_/_/  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
-//_/_/  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
-//_/_/  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
-//_/_/  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//_/_/
 //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-
-
+//_/_/
+//_/_/Ê < REPLACE THIS LINE WITH THE NAME OF THE SOFTWARE >
+//_/_/
+//_/_/Ê Eric Nivel
+//_/_/Ê Center for Analysis and Design of Intelligent Agents
+//_/_/ÊÊ Reykjavik University, Menntavegur 1, 101 Reykjavik, Iceland
+//_/_/ÊÊ http://cadia.ru.is
+//_/_/Ê Copyright©2012
+//_/_/
+//_/_/Ê This software was developed by the above copyright holder as part of 
+//_/_/Ê the HUMANOBS EU research project, in collaboration with the 
+//_/_/ following parties:
+//_/_/Ê 
+//_/_/Ê Autonomous Systems Laboratory
+//_/_/ÊÊÊ Technical University of Madrid, Spain
+//_/_/ÊÊÊ http://www.aslab.org/
+//_/_/
+//_/_/Ê Communicative Machines
+//_/_/ÊÊÊ Edinburgh, United Kingdom
+//_/_/ÊÊÊ http://www.cmlabs.com/
+//_/_/
+//_/_/Ê Istituto Dalle Molle di Studi sull'Intelligenza Artificiale
+//_/_/ÊÊÊ University of Lugano and SUPSI, Switzerland
+//_/_/ÊÊÊ http://www.idsia.ch/
+//_/_/
+//_/_/Ê Institute of Cognitive Sciences and Technologies
+//_/_/ÊÊÊ Consiglio Nazionale delle Ricerche, Italy
+//_/_/ÊÊÊ http://www.istc.cnr.it/
+//_/_/
+//_/_/ Dipartimento di Ingegneria Informatica
+//_/_/ University of Palermo, Italy
+//_/_/ÊÊÊ http://roboticslab.dinfo.unipa.it/index.php/Main/HomePage
+//_/_/
+//_/_/
+//_/_/ --- HUMANOBS Open-Source BSD License, with CADIA Clause v 1.0 ---
+//_/_/
+//_/_/Ê Redistribution and use in source and binary forms, with or without 
+//_/_/ modification, is permitted provided that the following conditions 
+//_/_/ are met:
+//_/_/
+//_/_/Ê - Redistributions of source code must retain the above copyright 
+//_/_/ and collaboration notice, this list of conditions and the 
+//_/_/ÊÊÊ following disclaimer.
+//_/_/
+//_/_/Ê - Redistributions in binary form must reproduce the above copyright 
+//_/_/ notice, this list of conditions and the following
+//_/_/ disclaimer in the documentation and/or other materials provided 
+//_/_/ with the distribution.
+//_/_/
+//_/_/Ê - Neither the name of its copyright holders nor the names of its 
+//_/_/ contributors may be used to endorse or promote products 
+//_/_/ derived from this software without specific prior written permission.
+//_/_/
+//_/_/Ê - CADIA Clause: The license granted in and to the software under this 
+//_/_/ agreement is a limited-use license. The software may not be used in 
+//_/_/ furtherance of: 
+//_/_/ (i) intentionally causing bodily injury or severe emotional distress 
+//_/_/ to any person; 
+//_/_/ (ii) invading the personal privacy or violating the human rights of 
+//_/_/ any person; or 
+//_/_/ (iii) committing or preparing for any act of war.
+//_/_/
+//_/_/Ê THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+//_/_/ "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
+//_/_/ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
+//_/_/ A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+//_/_/ OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+//_/_/ SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+//_/_/ LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+//_/_/ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+//_/_/ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
+//_/_/ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+//_/_/ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//_/_/
+//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/ 
 
 namespace	mBrane{
 	namespace	sdk{
