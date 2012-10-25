@@ -1,58 +1,58 @@
 //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 //_/_/
-//_/_/Â  application.h
+//_/_/Ê application.h
 //_/_/
-//_/_/Â  Eric Nivel
-//_/_/Â  Center for Analysis and Design of Intelligent Agents
-//_/_/Â Â  Reykjavik University, Menntavegur 1, 101 Reykjavik, Iceland
-//_/_/Â Â  http://cadia.ru.is
-//_/_/Â  CopyrightÂ©2012
+//_/_/Ê Eric Nivel
+//_/_/Ê Center for Analysis and Design of Intelligent Agents
+//_/_/ÊÊ Reykjavik University, Menntavegur 1, 101 Reykjavik, Iceland
+//_/_/ÊÊ http://cadia.ru.is
+//_/_/Ê Copyright©2012
 //_/_/
-//_/_/Â  This software was developed by the above copyright holder as part of 
-//_/_/Â  the HUMANOBS EU research project, in collaboration with the 
+//_/_/Ê This software was developed by the above copyright holder as part of 
+//_/_/Ê the HUMANOBS EU research project, in collaboration with the 
 //_/_/ following parties:
-//_/_/Â  
-//_/_/Â  Autonomous Systems Laboratory
-//_/_/Â Â Â  Technical University of Madrid, Spain
-//_/_/Â Â Â  http://www.aslab.org/
+//_/_/Ê 
+//_/_/Ê Autonomous Systems Laboratory
+//_/_/ÊÊÊ Technical University of Madrid, Spain
+//_/_/ÊÊÊ http://www.aslab.org/
 //_/_/
-//_/_/Â  Communicative Machines
-//_/_/Â Â Â  Edinburgh, United Kingdom
-//_/_/Â Â Â  http://www.cmlabs.com/
+//_/_/Ê Communicative Machines
+//_/_/ÊÊÊ Edinburgh, United Kingdom
+//_/_/ÊÊÊ http://www.cmlabs.com/
 //_/_/
-//_/_/Â  Istituto Dalle Molle di Studi sull'Intelligenza Artificiale
-//_/_/Â Â Â  University of Lugano and SUPSI, Switzerland
-//_/_/Â Â Â  http://www.idsia.ch/
+//_/_/Ê Istituto Dalle Molle di Studi sull'Intelligenza Artificiale
+//_/_/ÊÊÊ University of Lugano and SUPSI, Switzerland
+//_/_/ÊÊÊ http://www.idsia.ch/
 //_/_/
-//_/_/Â  Institute of Cognitive Sciences and Technologies
-//_/_/Â Â Â  Consiglio Nazionale delle Ricerche, Italy
-//_/_/Â Â Â  http://www.istc.cnr.it/
+//_/_/Ê Institute of Cognitive Sciences and Technologies
+//_/_/ÊÊÊ Consiglio Nazionale delle Ricerche, Italy
+//_/_/ÊÊÊ http://www.istc.cnr.it/
 //_/_/
 //_/_/ Dipartimento di Ingegneria Informatica
 //_/_/ University of Palermo, Italy
-//_/_/Â Â Â  http://roboticslab.dinfo.unipa.it/index.php/Main/HomePage
+//_/_/ÊÊÊ http://roboticslab.dinfo.unipa.it/index.php/Main/HomePage
 //_/_/
 //_/_/
 //_/_/ --- HUMANOBS Open-Source BSD License, with CADIA Clause v 1.0 ---
 //_/_/
-//_/_/Â  Redistribution and use in source and binary forms, with or without 
+//_/_/Ê Redistribution and use in source and binary forms, with or without 
 //_/_/ modification, is permitted provided that the following conditions 
 //_/_/ are met:
 //_/_/
-//_/_/Â  - Redistributions of source code must retain the above copyright 
+//_/_/Ê - Redistributions of source code must retain the above copyright 
 //_/_/ and collaboration notice, this list of conditions and the 
-//_/_/Â Â Â  following disclaimer.
+//_/_/ÊÊÊ following disclaimer.
 //_/_/
-//_/_/Â  - Redistributions in binary form must reproduce the above copyright 
+//_/_/Ê - Redistributions in binary form must reproduce the above copyright 
 //_/_/ notice, this list of conditions and the following
 //_/_/ disclaimer in the documentation and/or other materials provided 
 //_/_/ with the distribution.
 //_/_/
-//_/_/Â  - Neither the name of its copyright holders nor the names of its 
+//_/_/Ê - Neither the name of its copyright holders nor the names of its 
 //_/_/ contributors may be used to endorse or promote products 
 //_/_/ derived from this software without specific prior written permission.
 //_/_/
-//_/_/Â  - CADIA Clause: The license granted in and to the software under this 
+//_/_/Ê - CADIA Clause: The license granted in and to the software under this 
 //_/_/ agreement is a limited-use license. The software may not be used in 
 //_/_/ furtherance of: 
 //_/_/ (i) intentionally causing bodily injury or severe emotional distress 
@@ -61,7 +61,7 @@
 //_/_/ any person; or 
 //_/_/ (iii) committing or preparing for any act of war.
 //_/_/
-//_/_/Â  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+//_/_/Ê THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 //_/_/ "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
 //_/_/ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
 //_/_/ A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
