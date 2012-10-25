@@ -1,12 +1,12 @@
 //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 //_/_/
-//_/_/ < REPLACE THIS LINE WITH THE NAME OF THE SOFTWARE >
+//_/_/ HUMANOBS - mBrane
 //_/_/
 //_/_/ Eric Nivel
 //_/_/ Center for Analysis and Design of Intelligent Agents
 //_/_/   Reykjavik University, Menntavegur 1, 101 Reykjavik, Iceland
 //_/_/   http://cadia.ru.is
-//_/_/ Copyright?2012
+//_/_/ Copyright(c)2012
 //_/_/
 //_/_/ This software was developed by the above copyright holder as part of 
 //_/_/ the HUMANOBS EU research project, in collaboration with the 
