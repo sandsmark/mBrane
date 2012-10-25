@@ -4,8 +4,8 @@
 //_/_/
 //_/_/ Eric Nivel
 //_/_/ Center for Analysis and Design of Intelligent Agents
-//_/_/ Reykjavik University, Menntavegur 1, 101 Reykjavik, Iceland
-//_/_/ http://cadia.ru.is
+//_/_/   Reykjavik University, Menntavegur 1, 101 Reykjavik, Iceland
+//_/_/   http://cadia.ru.is
 //_/_/ Copyright?2012
 //_/_/
 //_/_/ This software was developed by the above copyright holder as part of 
@@ -13,24 +13,24 @@
 //_/_/ following parties:
 //_/_/ 
 //_/_/ Autonomous Systems Laboratory
-//_/_/ Technical University of Madrid, Spain
-//_/_/ http://www.aslab.org/
+//_/_/   Technical University of Madrid, Spain
+//_/_/   http://www.aslab.org/
 //_/_/
 //_/_/ Communicative Machines
-//_/_/ Edinburgh, United Kingdom
-//_/_/ http://www.cmlabs.com/
+//_/_/   Edinburgh, United Kingdom
+//_/_/   http://www.cmlabs.com/
 //_/_/
 //_/_/ Istituto Dalle Molle di Studi sull'Intelligenza Artificiale
-//_/_/ University of Lugano and SUPSI, Switzerland
-//_/_/ http://www.idsia.ch/
+//_/_/   University of Lugano and SUPSI, Switzerland
+//_/_/   http://www.idsia.ch/
 //_/_/
 //_/_/ Institute of Cognitive Sciences and Technologies
-//_/_/ Consiglio Nazionale delle Ricerche, Italy
-//_/_/ http://www.istc.cnr.it/
+//_/_/   Consiglio Nazionale delle Ricerche, Italy
+//_/_/   http://www.istc.cnr.it/
 //_/_/
 //_/_/ Dipartimento di Ingegneria Informatica
-//_/_/ University of Palermo, Italy
-//_/_/ http://roboticslab.dinfo.unipa.it/index.php/Main/HomePage
+//_/_/   University of Palermo, Italy
+//_/_/   http://roboticslab.dinfo.unipa.it/index.php/Main/HomePage
 //_/_/
 //_/_/
 //_/_/ --- HUMANOBS Open-Source BSD License, with CADIA Clause v 1.0 ---
