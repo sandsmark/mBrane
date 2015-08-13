@@ -219,7 +219,7 @@ namespace	mBrane{
 			};
 
 			class	mBrane_dll	DeleteSharedObjects:	//	issued by the garbage collector. Triggers ack from remote nodes.
-			public	CStorage<_DeleteSharedObjects<DeleteSharedObjects>,uint32>{
+			public	CStorage<_DeleteSharedObjects<DeleteSharedObjects>,uint32_t>{
 			};
 
 			class	mBrane_dll	AckDeleteSharedObjects:

@@ -117,7 +117,7 @@ namespace	mBrane{
 		//	MESSAGING
 		void	startReceivingThreads(uint8_t NID);
 		//	SHARED MEMORY
-		//	Array<Array<uint8>,65535>	sharedMemorySegments;	//	FUTURE DEVELOPMENT
+		//	Array<Array<uint8_t>,65535>	sharedMemorySegments;	//	FUTURE DEVELOPMENT
 		//	NODE
 	//	Array<Host::host_name,32>	nodeNames;
 	//	Array<int32,32>	nodeStatus;

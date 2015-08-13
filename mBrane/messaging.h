@@ -175,7 +175,7 @@ namespace	mBrane{
 		};
 		std::vector<ConstantEntry>			constants;	//	indexed by the IDs.
 		UNORDERED_MAP<uint32,P<_Payload> >	cache;		//	shared objects residing on the node (local if they have been sent at least once, and foreign); indexed by full IDs.
-		std::vector<UNORDERED_SET<uint32> >	lookup;		//	shared objects's full IDs known as being held by remote nodes; vector indexed by NIDs.
+		std::vector<UNORDERED_SET<uint32_t> >	lookup;		//	shared objects's full IDs known as being held by remote nodes; vector indexed by NIDs.
 		CriticalSection						cacheCS;	//	concurrency: Messaging::processControlMessage, CommChannel::send, CommChannel::recv.
 
 		//	Deletion handling.
