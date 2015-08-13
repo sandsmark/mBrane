@@ -121,7 +121,7 @@ namespace	mBrane{
 			public:
                                 uint8_t	host_id;
                                 uint16_t	space_id;
-				float32	threshold;
+				float	threshold;
 			};
 
 			class	mBrane_dll	ActivateModule:
@@ -131,7 +131,7 @@ namespace	mBrane{
                                 uint16_t	module_cid;
                                 uint16_t	module_id;
                                 uint16_t	space_id;
-				float32	activationLevel;
+				float	activationLevel;
 			};
 
 			class	mBrane_dll	ActivateSpace:
@@ -140,7 +140,7 @@ namespace	mBrane{
                                 uint8_t	host_id;
                                 uint16_t	space_id;	//	the space on which target space is projected onto
                                 uint16_t	target_sid;	//	the space to set the activation for
-				float32	activationLevel;
+				float	activationLevel;
 			};
 
 			template<class	U>	class	Subscribe:

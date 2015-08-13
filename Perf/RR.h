@@ -90,7 +90,7 @@ private:
 public:
 	void	loadParameters(const	std::vector<word32>	&numbers,const	std::vector<std::string>	&strings){
 		int32	a=numbers[0];
-		float32	f=*reinterpret_cast<float32	*>(&a);
+		float	f=*reinterpret_cast<float	*>(&a);
 		std::cout<<"RR Module got parameters: "<<f<<" "<<numbers[1]<<" "<<strings[0]<<std::endl;
 	}
 	void	start(){

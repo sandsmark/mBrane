@@ -123,8 +123,8 @@ namespace	mBrane{
 		~Projection();
 		void	activate();
 		void	deactivate();
-		void	setActivationLevel(float32	a);
-		void	updateActivationCount(float32	t);
+		void	setActivationLevel(float	a);
+		void	updateActivationCount(float	t);
 		void	addSubscription(uint8	payloadType,uint16	ID,List<P<ModuleEntry>,1024>::Iterator	i);
 		void	removeSubscription(uint8	payloadType,uint16	ID);
 	};
@@ -141,7 +141,7 @@ namespace	mBrane{
 		class	_Projection{
 		public:
 			uint16					spaceID;
-			float32					activationLevel;
+			float					activationLevel;
 			Array<_Subscription,8>	subscriptions;
 		};
 		Array<_Projection,32>	initialProjections;

@@ -93,11 +93,11 @@ namespace	mBrane{
 		class	_Projection{
 		public:
 			uint16	spaceID;
-			float32	activationLevel;
+			float	activationLevel;
 		};
-		float32	initialActivationThreshold;
+		float	initialActivationThreshold;
 		const	char	*name;
-		float32	_activationThreshold;	//	in [0,1]
+		float	_activationThreshold;	//	in [0,1]
 		Array<_Projection,32>	initialProjections;
 		void					applyInitialProjections(uint8	hostID);
 	public:
@@ -113,8 +113,8 @@ namespace	mBrane{
 		Space(uint8	hostID,const	char	*name=NULL);
 		~Space();
 		const	char	*getName();
-		void	setActivationThreshold(float32	thr);
-		float32	getActivationThreshold();
+		void	setActivationThreshold(float	thr);
+		float	getActivationThreshold();
 		void	_activate();	//	update children activation; called upon changing the space threshold or the space activation level
 		void	_deactivate();	//	deactivate children
 		List<P<Projection<ModuleDescriptor> >,16>::Iterator	project(Projection<ModuleDescriptor>	*p);

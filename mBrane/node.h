@@ -147,9 +147,9 @@ namespace	mBrane{
 		void	newModule(const	_Module	*sender,uint16	CID,Network	network=PRIMARY,const	char	*hostName="local");
 		void	deleteSpace(uint16	ID,Network	network=PRIMARY);
 		void	deleteModule(uint16	CID,uint16	ID,Network	network=PRIMARY);
-		void	activateModule(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,float32	activationLevel,Network	network=PRIMARY);
-		void	activateSpace(const	_Module	*sender,uint16	space_id,uint16	target_sid,float32	activationLevel,Network	network=PRIMARY);
-		void	setSpaceThreshold(const	_Module	*sender,uint16	space_id,float32	threshold,Network	network=PRIMARY);
+		void	activateModule(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,float	activationLevel,Network	network=PRIMARY);
+		void	activateSpace(const	_Module	*sender,uint16	space_id,uint16	target_sid,float	activationLevel,Network	network=PRIMARY);
+		void	setSpaceThreshold(const	_Module	*sender,uint16	space_id,float	threshold,Network	network=PRIMARY);
 		void	subscribeMessage(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,uint16	message_cid,Network	network=PRIMARY);
 		void	unsubscribeMessage(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,uint16	message_cid,Network	network=PRIMARY);
 		void	subscribeStream(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,uint16	stream_id,Network	network=PRIMARY);
