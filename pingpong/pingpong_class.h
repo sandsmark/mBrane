@@ -88,14 +88,14 @@ using	namespace	mBrane::sdk::payloads;
 template<class	U>	class	_Ball:	//	to allow derivation
 public	payloads::Message<U,Memory>{
 public:
-	uint32	d1;
+	uint32_t d1;
 };
 
 class	Ball:public		_Ball<Ball>{
 public:
-	int32	id;
+	int32_t id;
 	Ball():_Ball<Ball>(),id(-1){}
-	Ball(int32	id):_Ball<Ball>(),id(id){}
+	Ball(int32_t id):_Ball<Ball>(),id(id){}
 };
 class	Type1:public	payloads::Message<Type1,Memory>{};
 class	Type2:public	payloads::Message<Type2,Memory>{};

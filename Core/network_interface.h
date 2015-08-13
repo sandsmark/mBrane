@@ -106,20 +106,20 @@ namespace	mBrane{
 			virtual	bool	operator	==(NetworkInterface	&i)=0;
 			virtual	bool	operator	!=(NetworkInterface	&i)=0;
 			virtual	bool	canBroadcast()=0;	//	as opposed to connected mode
-			virtual	uint16	start()=0;	//	initialize the network interface; returns 0 if successful
-			virtual	uint16	stop()=0;	//	the network interface; returns 0 if successful
-			virtual	uint16	getIDSize()=0;	//	node net ID to be broadcast
-			virtual	void	fillID(uint8	*ID)=0;	//	with relevant parameters (different from Node::_ID; ex: IP addr and port)
-			virtual	uint16	newChannel(uint8	*ID,CommChannel	**channel)=0;	//	create a new channel (bcast ID=local node net ID, or connected ID=remote node net ID); returns 0 if successful
-			virtual	uint16	acceptConnection(ConnectedCommChannel	**channel,int32	timeout,bool	&timedout)=0;	//	listen to connect attempts and creates a new channel accordingly; returns 0 if successful
+			virtual	uint16_t start()=0;	//	initialize the network interface; returns 0 if successful
+			virtual	uint16_t stop()=0;	//	the network interface; returns 0 if successful
+			virtual	uint16_t getIDSize()=0;	//	node net ID to be broadcast
+			virtual	void	fillID(uint8_t *ID)=0;	//	with relevant parameters (different from Node::_ID; ex: IP addr and port)
+			virtual	uint16_t newChannel(uint8_t *ID,CommChannel	**channel)=0;	//	create a new channel (bcast ID=local node net ID, or connected ID=remote node net ID); returns 0 if successful
+			virtual	uint16_t acceptConnection(ConnectedCommChannel	**channel,int32_t timeout,bool	&timedout)=0;	//	listen to connect attempts and creates a new channel accordingly; returns 0 if successful
 		};
 
 		class	_Payload;
 		class	mBrane_dll	CommChannel{
 		protected:
 			CommChannel();	//	initialization to be performed in subclasses' constructors
-			int16	_send(__Payload	*c,uint8	destinationNID);
-			int16	_recv(__Payload	**c,uint8	sourceNID);
+			int16_t _send(__Payload	*c,uint8_t destinationNID);
+			int16_t _recv(__Payload	**c,uint8_t sourceNID);
 			CriticalSection	commSendCS;
 			CriticalSection	commRecvCS;
 			uint8* sendBuffer;
@@ -127,13 +127,13 @@ namespace	mBrane{
 			uint32 sendBufferPos;
 		public:
 			virtual	~CommChannel();	//	shutdown to be performed in subclasses' destructors
-			virtual	int16	send(uint8	*b,size_t	s)=0;	//	return 0 if successfull, error code (>0) otherwise
-			virtual	int16	recv(uint8	*b,size_t	s,bool	peek=false)=0;
+			virtual	int16_t send(uint8_t *b,size_t	s)=0;	//	return 0 if successfull, error code (>0) otherwise
+			virtual	int16_t recv(uint8_t *b,size_t	s,bool	peek=false)=0;
 			virtual bool	isConnected() = 0;
 			virtual bool	disconnect() = 0;
-			int16	bufferedSend(uint8 *b,size_t s, bool sendNow = false);
-			int16	send(_Payload	*p,uint8	destinationNID);	//	return 0 if successfull, error code (>0) otherwise. destinationNID used only for connected comm channels.
-			int16	recv(_Payload	**p,uint8	sourceNID);
+			int16_t bufferedSend(uint8 *b,size_t s, bool sendNow = false);
+			int16_t send(_Payload	*p,uint8_t destinationNID);	//	return 0 if successfull, error code (>0) otherwise. destinationNID used only for connected comm channels.
+			int16_t recv(_Payload	**p,uint8_t sourceNID);
 		};
 
 		class	mBrane_dll	ConnectedCommChannel:

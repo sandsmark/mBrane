@@ -109,8 +109,8 @@ namespace	mBrane{
 		Pipe11<P<_Payload>,MESSAGE_INPUT_BLOCK_SIZE>	buffer;	//	incoming messages from remote nodes
 		Node			*node;
 		CommChannel		*channel;
-		uint8			sourceNID;
-		RecvThread(Node	*node,CommChannel	*channel,uint8	sourceNID);
+		uint8_t 		sourceNID;
+		RecvThread(Node	*node,CommChannel	*channel,uint8_t sourceNID);
 		~RecvThread();
 	};
 
@@ -150,7 +150,7 @@ namespace	mBrane{
 	protected:
 		typedef	struct{
 			module::Node::Network	network;
-			uint8					destinationNode;	//	0xFF means unspecified.
+			uint8_t 				destinationNode;	//	0xFF means unspecified.
 			P<_Payload>				p;
 		}MessageSlot;
 		Pipe11<P<_Payload>,MESSAGE_INPUT_BLOCK_SIZE>	messageInputQueue;	//	incoming local messages
@@ -179,12 +179,12 @@ namespace	mBrane{
 		CriticalSection						cacheCS;	//	concurrency: Messaging::processControlMessage, CommChannel::send, CommChannel::recv.
 
 		//	Deletion handling.
-		uint8						pendingAck;				//	number of ack to wait for.
+		uint8_t 					pendingAck;				//	number of ack to wait for.
 		UNORDERED_SET<_Payload	*>	pendingDeletions[2];	//	2-buffered list of objects to be deleted. Any object in here is smart pointed by the cache, and its ref count is 1.
-		uint8						pendingDeletions_GC;	//	index for access from GC::Run.
-		uint8						pendingDeletions_SO;	//	index for access from SharedObject::decRef.
+		uint8_t 					pendingDeletions_GC;	//	index for access from GC::Run.
+		uint8_t 					pendingDeletions_SO;	//	index for access from SharedObject::decRef.
 		CriticalSection				pendingDeletionsCS;		//	concurrency GarbageCollector::Run, CommChannel::recv.
-		uint32						GCPeriod;				//	at which the GC kicks in; in ms.
+		uint32_t 					GCPeriod;				//	at which the GC kicks in; in ms.
 		GarbageCollector			*GC;
 
 		Messaging();
@@ -195,7 +195,7 @@ namespace	mBrane{
 		void	start();
 		void	shutdown();
 		void	send(_Payload	*message,module::Node::Network	network);
-		void	send(_Payload	*message,uint8	nodeID,module::Node::Network	network);
+		void	send(_Payload	*message,uint8_t nodeID,module::Node::Network	network);
 		void	pushJobs(_Payload	*p,NodeEntry	&e);
 		void	pushJobs(_Payload	*p);
 		void	processControlMessage(_Payload	*p);

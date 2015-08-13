@@ -111,28 +111,28 @@ namespace	mBrane{
 		Node	*loadConfigXML(const	char	*configXML);
 		Node	*loadConfigFile(const	char	*configFileName);
 		//	NETWORKING
-		void	start(uint8	assignedNID,NetworkID	*networkID,bool	isTimeReference);
-		void	notifyNodeJoined(uint8	NID,NetworkID	*networkID);
-		void	notifyNodeLeft(uint8	NID);
+		void	start(uint8_t assignedNID,NetworkID	*networkID,bool	isTimeReference);
+		void	notifyNodeJoined(uint8_t NID,NetworkID	*networkID);
+		void	notifyNodeLeft(uint8_t NID);
 		//	MESSAGING
-		void	startReceivingThreads(uint8	NID);
+		void	startReceivingThreads(uint8_t NID);
 		//	SHARED MEMORY
 		//	Array<Array<uint8>,65535>	sharedMemorySegments;	//	FUTURE DEVELOPMENT
 		//	NODE
 	//	Array<Host::host_name,32>	nodeNames;
 	//	Array<int32,32>	nodeStatus;
-		Node(uint8	traceLevels);
+		Node(uint8_t traceLevels);
 		bool	loadApplication(const	char	*fileName);
 	public:
-	//	uint8	nodeCount;
-	//	uint8	nodeJoined;
-	//	uint8	getNID(const	char	*name);
+	//	uint8_t nodeCount;
+	//	uint8_t nodeJoined;
+	//	uint8_t getNID(const	char	*name);
 	//	bool allNodesJoined();
 	//	bool allNodesReady();
 		const	char	*name();
 		//	main() NODE API
-		static	Node	*New(const	char	*configFileName,SharedLibrary	&userLibrary,uint8	traceLevels);
-		static	Node	*NewXML(const	char	*configXML,SharedLibrary	&userLibrary,uint8	traceLevels);
+		static	Node	*New(const	char	*configFileName,SharedLibrary	&userLibrary,uint8_t traceLevels);
+		static	Node	*NewXML(const	char	*configXML,SharedLibrary	&userLibrary,uint8_t traceLevels);
 		~Node();
 		void	run();
 		void	ready();
@@ -140,37 +140,37 @@ namespace	mBrane{
 		void	shutdown();
 		//	MODULE NODE API
 		void	send(const	_Module	*sender,_Payload	*message,module::Node::Network	network=module::Node::PRIMARY);
-		void	send(const	_Module	*sender,_Payload	*message, uint8	nodeID,Network	network=module::Node::PRIMARY);
+		void	send(const	_Module	*sender,_Payload	*message, uint8_t nodeID,Network	network=module::Node::PRIMARY);
 		void	send(const	_Module	*sender,_Payload	*message, Array<uint8, 128>	*nodeIDs,Network	network);
-		uint64	time()	const;
+		uint64_t time()	const;
 		void	newSpace(const	_Module	*sender,Network	network=PRIMARY);
-		void	newModule(const	_Module	*sender,uint16	CID,Network	network=PRIMARY,const	char	*hostName="local");
-		void	deleteSpace(uint16	ID,Network	network=PRIMARY);
-		void	deleteModule(uint16	CID,uint16	ID,Network	network=PRIMARY);
-		void	activateModule(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,float	activationLevel,Network	network=PRIMARY);
-		void	activateSpace(const	_Module	*sender,uint16	space_id,uint16	target_sid,float	activationLevel,Network	network=PRIMARY);
-		void	setSpaceThreshold(const	_Module	*sender,uint16	space_id,float	threshold,Network	network=PRIMARY);
-		void	subscribeMessage(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,uint16	message_cid,Network	network=PRIMARY);
-		void	unsubscribeMessage(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,uint16	message_cid,Network	network=PRIMARY);
-		void	subscribeStream(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,uint16	stream_id,Network	network=PRIMARY);
-		void	unsubscribeStream(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,uint16	stream_id,Network	network=PRIMARY);
-		const	char	*getSpaceName(uint16	hostID,uint16	ID);
-		const	char	*getModuleName(uint16	CID);
+		void	newModule(const	_Module	*sender,uint16_t CID,Network	network=PRIMARY,const	char	*hostName="local");
+		void	deleteSpace(uint16_t ID,Network	network=PRIMARY);
+		void	deleteModule(uint16_t CID,uint16_t ID,Network	network=PRIMARY);
+		void	activateModule(const	_Module	*sender,uint16_t module_cid,uint16_t module_id,uint16_t space_id,float	activationLevel,Network	network=PRIMARY);
+		void	activateSpace(const	_Module	*sender,uint16_t space_id,uint16_t target_sid,float	activationLevel,Network	network=PRIMARY);
+		void	setSpaceThreshold(const	_Module	*sender,uint16_t space_id,float	threshold,Network	network=PRIMARY);
+		void	subscribeMessage(const	_Module	*sender,uint16_t module_cid,uint16_t module_id,uint16_t space_id,uint16_t message_cid,Network	network=PRIMARY);
+		void	unsubscribeMessage(const	_Module	*sender,uint16_t module_cid,uint16_t module_id,uint16_t space_id,uint16_t message_cid,Network	network=PRIMARY);
+		void	subscribeStream(const	_Module	*sender,uint16_t module_cid,uint16_t module_id,uint16_t space_id,uint16_t stream_id,Network	network=PRIMARY);
+		void	unsubscribeStream(const	_Module	*sender,uint16_t module_cid,uint16_t module_id,uint16_t space_id,uint16_t stream_id,Network	network=PRIMARY);
+		const	char	*getSpaceName(uint16_t hostID,uint16_t ID);
+		const	char	*getModuleName(uint16_t CID);
 		void		markUnused(_Payload	*p);
 		void		addConstantObject(_Payload	*c,const	std::string	&name);
-		_Payload	*getConstantObject(uint32	OID);
+		_Payload	*getConstantObject(uint32_t OID);
 		_Payload	*getConstantObject(const	std::string	&name);	//	usage: call once and retain a pointer to the result.
-		void		addLookup(uint8	sourceNID,uint32	OID);
-		bool		hasLookup(uint8	destinationNID,uint32	OID);
+		void		addLookup(uint8_t sourceNID,uint32_t OID);
+		bool		hasLookup(uint8_t destinationNID,uint32_t OID);
 		void		addSharedObject(_Payload	*o);
-		_Payload	*getSharedObject(uint32	OID);
+		_Payload	*getSharedObject(uint32_t OID);
 		void		consolidate(_Payload	*p);
 		//	DAEMON NODE API
 		void			dump(const	char	*fileName);
 		void			load(const	char	*fileName);
-		void			migrate(uint16	CID,uint16	ID,uint8	NID);
-		//Array<uint8,65535>	&sharedMemorySegment(uint8	segment);	//	FUTURE DEVELOPMENT
-		_Module			*getModule(uint8	hostID,uint16	CID,uint16	ID);
+		void			migrate(uint16_t CID,uint16_t ID,uint8_t NID);
+		//Array<uint8,65535>	&sharedMemorySegment(uint8_t segment);	//	FUTURE DEVELOPMENT
+		_Module			*getModule(uint8_t hostID,uint16_t CID,uint16_t ID);
 	};
 }
 

@@ -91,7 +91,7 @@ namespace	core{
 		//	N1: N writers, 1 reader
 		//	NN: N writers, N readers
 #ifdef	PIPE_1
-		template<typename	T,uint32	_S>	class	Pipe11:
+		template<typename	T,uint32_t _S>	class	Pipe11:
 		public	Semaphore,
 		public	CriticalSection{
 		private:
@@ -102,8 +102,8 @@ namespace	core{
 				Block(Block	*prev):next(NULL){	if(prev)prev->next=this;	}
 				~Block(){	if(next)	delete	next;	}
 			};
-			int32	head;
-			int32	tail;
+			int32_t head;
+			int32_t tail;
 			Block	*first;
 			Block	*last;
 			Block	*spare;
@@ -118,7 +118,7 @@ namespace	core{
 			T		pop();			//	decreases the size as necessary
 		};
 
-		template<typename	T,uint32	_S>	class	Pipe1N:
+		template<typename	T,uint32_t _S>	class	Pipe1N:
 		public	Pipe11<T,_S>{
 		private:
 			CriticalSection	popCS;
@@ -129,7 +129,7 @@ namespace	core{
 			T		pop();
 		};
 
-		template<typename	T,uint32	_S>	class	PipeN1:
+		template<typename	T,uint32_t _S>	class	PipeN1:
 		public	Pipe11<T,_S>{
 		private:
 			CriticalSection	pushCS;
@@ -140,7 +140,7 @@ namespace	core{
 			void	push(T	&t);
 		};
 
-		template<typename	T,uint32	_S>	class	PipeNN:
+		template<typename	T,uint32_t _S>	class	PipeNN:
 		public	Pipe11<T,_S>{
 		private:
 			CriticalSection	pushCS;
@@ -153,10 +153,10 @@ namespace	core{
 			T		pop();
 		};
 #elif	defined	PIPE_2
-		template<typename	T,uint32	_S,class	Pipe>	class	Push1;
-		template<typename	T,uint32	_S,class	Pipe>	class	PushN;
-		template<typename	T,uint32	_S,class	Pipe>	class	Pop1;
-		template<typename	T,uint32	_S,class	Pipe>	class	PopN;
+		template<typename	T,uint32_t _S,class	Pipe>	class	Push1;
+		template<typename	T,uint32_t _S,class	Pipe>	class	PushN;
+		template<typename	T,uint32_t _S,class	Pipe>	class	Pop1;
+		template<typename	T,uint32_t _S,class	Pipe>	class	PopN;
 
 		//	a Pipe<T,_S> is a linked list of blocks containing _S objects of type T
 		//	push() adds an object at the tail of the last block and moves the tail forward; when the tail reaches the end of the last block, a new block is appended to the list
@@ -166,12 +166,12 @@ namespace	core{
 		//	The Head and Tail argument is meant to allow the parameterizing of heads and tails
 		//	Push and Pop are functors tailored to the multiplicity of resp. the read and write threads
 		//	P is the actual pipe class (e.g. Pipe11, etc.)
-		template<typename	T,uint32	_S,typename	Head,typename	Tail,class	P,template<typename,uint32,class>	class	Push,template<typename,uint32,class>	class	Pop>	class	Pipe:
+		template<typename	T,uint32_t _S,typename	Head,typename	Tail,class	P,template<typename,uint32,class>	class	Push,template<typename,uint32,class>	class	Pop>	class	Pipe:
 		public	Semaphore{
-		template<typename	T,uint32	_S,class	Pipe>	friend	class	Push1;
-		template<typename	T,uint32	_S,class	Pipe>	friend	class	PushN;
-		template<typename	T,uint32	_S,class	Pipe>	friend	class	Pop1;
-		template<typename	T,uint32	_S,class	Pipe>	friend	class	PopN;
+		template<typename	T,uint32_t _S,class	Pipe>	friend	class	Push1;
+		template<typename	T,uint32_t _S,class	Pipe>	friend	class	PushN;
+		template<typename	T,uint32_t _S,class	Pipe>	friend	class	Pop1;
+		template<typename	T,uint32_t _S,class	Pipe>	friend	class	PopN;
 		protected:
 			class	Block{
 			public:
@@ -186,7 +186,7 @@ namespace	core{
 
 			Head	head;	//	starts at -1
 			Tail	tail;	//	starts at 0
-			int32	volatile	waitingList;	//	amount of readers that have to wait, negative value indicate free lunch
+			int32_t volatile	waitingList;	//	amount of readers that have to wait, negative value indicate free lunch
 
 			Push<T,_S,P>	*_push;
 			Pop<T,_S,P>		*_pop;
@@ -207,14 +207,14 @@ namespace	core{
 			PipeFunctor(Pipe	&p);
 		};
 
-		template<typename	T,uint32	_S,class	Pipe>	class	Push1:
+		template<typename	T,uint32_t _S,class	Pipe>	class	Push1:
 		public	PipeFunctor<Pipe>{
 		public:
 			Push1(Pipe	&p);
 			void	operator	()(T	&t);
 		};
 
-		template<typename	T,uint32	_S,class	Pipe>	class	PushN:
+		template<typename	T,uint32_t _S,class	Pipe>	class	PushN:
 		public	PipeFunctor<Pipe>,
 		public	Semaphore{
 		public:
@@ -222,14 +222,14 @@ namespace	core{
 			void	operator	()(T	&t);
 		};
 
-		template<typename	T,uint32	_S,class	Pipe>	class	Pop1:
+		template<typename	T,uint32_t _S,class	Pipe>	class	Pop1:
 		public	PipeFunctor<Pipe>{
 		public:
 			Pop1(Pipe	&p);
 			T	operator	()();
 		};
 
-		template<typename	T,uint32	_S,class	Pipe>	class	PopN:
+		template<typename	T,uint32_t _S,class	Pipe>	class	PopN:
 		public	PipeFunctor<Pipe>,
 		public	Semaphore{
 		public:
@@ -237,29 +237,29 @@ namespace	core{
 			T	operator	()();
 		};
 
-		template<typename	T,uint32	S>	class	Pipe11:
+		template<typename	T,uint32_t S>	class	Pipe11:
 		public	Pipe<T,S,int32,int32,Pipe11<T,S>,Push1,Pop1>{
 		public:
 			Pipe11();
 			~Pipe11();
 		};
 
-		template<typename	T,uint32	S>	class	Pipe1N:
-		public	Pipe<T,S,int32,int32	volatile,Pipe1N<T,S>,Push1,PopN>{
+		template<typename	T,uint32_t S>	class	Pipe1N:
+		public	Pipe<T,S,int32,int32_t volatile,Pipe1N<T,S>,Push1,PopN>{
 		public:
 			Pipe1N();
 			~Pipe1N();
 		};
 
-		template<typename	T,uint32	S>	class	PipeN1:
-		public	Pipe<T,S,int32	volatile,int32,PipeN1<T,S>,PushN,Pop1>{
+		template<typename	T,uint32_t S>	class	PipeN1:
+		public	Pipe<T,S,int32_t volatile,int32,PipeN1<T,S>,PushN,Pop1>{
 		public:
 			PipeN1();
 			~PipeN1();
 		};
 
-		template<typename	T,uint32	S>	class	PipeNN:
-		public	Pipe<T,S,int32	volatile,int32	volatile,PipeNN<T,S>,PushN,PopN>{
+		template<typename	T,uint32_t S>	class	PipeNN:
+		public	Pipe<T,S,int32_t volatile,int32_t volatile,PipeNN<T,S>,PushN,PopN>{
 		public:
 			PipeNN();
 			~PipeNN();

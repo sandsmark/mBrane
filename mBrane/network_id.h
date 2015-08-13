@@ -101,21 +101,21 @@ namespace	mBrane{
 	//	The total size depends on the network: headerSize+Size[PRIMARY]+Size[SECONDARY] or headerSize+Size[PRIMARY] or headerSize+Size[SECONDARY]
 	class	NetworkID{
 	public:
-		static	uint16	DiscoveryIDSize;
-		static	uint16	Size;
-		static	uint16	CtrlIDSize[2];	//	1 for each network
-		static	uint16	DataIDSize[2];
-		static	uint16	StreamIDSize[2];
-		uint8	headerSize;	//	sizeof(NID)+sizeof(name size)+name size+sizeof(network)
-		uint8	*data;		//	[NID(8)|network(8)|name size(8)|name(name size*8)|discovery ID|control ID|data ID|stream ID|(control ID|data ID|stream ID) optional]
+		static	uint16_t DiscoveryIDSize;
+		static	uint16_t Size;
+		static	uint16_t CtrlIDSize[2];	//	1 for each network
+		static	uint16_t DataIDSize[2];
+		static	uint16_t StreamIDSize[2];
+		uint8_t headerSize;	//	sizeof(NID)+sizeof(name size)+name size+sizeof(network)
+		uint8_t *data;		//	[NID(8)|network(8)|name size(8)|name(name size*8)|discovery ID|control ID|data ID|stream ID|(control ID|data ID|stream ID) optional]
 		NetworkID();
-		NetworkID(uint8	NID,mBrane::sdk::module::Node::Network	description,uint8	nameSize,char	*name);
+		NetworkID(uint8_t NID,mBrane::sdk::module::Node::Network	description,uint8_t nameSize,char	*name);
 		~NetworkID();
-		uint8								NID()	const;
-		uint8								setNID(uint8 newNID);
+		uint8_t 							NID()	const;
+		uint8_t 							setNID(uint8 newNID);
 		mBrane::sdk::module::Node::Network	network()	const;
 		char								*name()	const;
-		uint8	*at(InterfaceType	t)		const;
+		uint8_t *at(InterfaceType	t)		const;
 	};
 }
 

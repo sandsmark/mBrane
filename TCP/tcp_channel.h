@@ -101,8 +101,8 @@ private:
 public:
 	TCPChannel(core::socket	s);
 	~TCPChannel();
-	int16	send(uint8	*b,size_t	s);
-	int16	recv(uint8	*b,size_t	s,bool	peek=false);
+	int16_t send(uint8_t *b,size_t	s);
+	int16_t recv(uint8_t *b,size_t	s,bool	peek=false);
 	bool	isConnected();
 	bool	disconnect();
 };

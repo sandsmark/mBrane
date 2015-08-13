@@ -128,10 +128,10 @@ MODULE_CLASS_BEGIN(ping,Module<ping>)
 		OUTPUT<<"ping got the ball "<<p->id<<std::endl;
 	}
 	void	react(Type1	*p){
-		static	uint32	i=0;
-		static	uint64	_begin=Time::Get();
+		static	uint32_t i=0;
+		static	uint64_t _begin=Time::Get();
 		if(++i==10){
-			uint64	delta=Time::Get()-_begin;
+			uint64_t delta=Time::Get()-_begin;
 			float	t=((float)delta)/1000000; // convert from us to ms (1000) per message (1000)
 			std::cout<<"------------ "<<t<<std::endl;
 			return;
@@ -142,7 +142,7 @@ MODULE_CLASS_BEGIN(ping,Module<ping>)
 	void	react(Type2	*p){
 		OUTPUT<<"ping got Type2"<<std::endl;
 	}
-	template<class	T>	void	react(uint16	sid,T	*p){	//	to stream data
+	template<class	T>	void	react(uint16_t sid,T	*p){	//	to stream data
 		OUTPUT<<"ping got data on stream "<<sid<<std::endl;
 	}
 MODULE_CLASS_END(ping)
@@ -171,7 +171,7 @@ MODULE_CLASS_BEGIN(pong,Module<pong>)
 		OUTPUT<<"pong got Type2"<<std::endl;
 		NODE->send(this,new Type1(),N::LOCAL);
 	}
-	template<class	T>	void	react(uint16	sid,T	*p){	//	to stream data
+	template<class	T>	void	react(uint16_t sid,T	*p){	//	to stream data
 		OUTPUT<<"pong got data on stream "<<sid<<std::endl;
 	}
 MODULE_CLASS_END(pong)

@@ -97,10 +97,10 @@ namespace	mBrane{
 			ModuleBuilder	_builder;
 			char			class_name[255];
 		public:
-			static	uint16	Load(ModuleBuilder	b,const	char	*className);
-			static	ModuleRegister	*Get(uint16	CID);
-			static	uint16	GetCID(const	char	*className);
-			static	uint16	Count();
+			static	uint16_t Load(ModuleBuilder	b,const	char	*className);
+			static	ModuleRegister	*Get(uint16_t CID);
+			static	uint16_t GetCID(const	char	*className);
+			static	uint16_t Count();
 			ModuleRegister();
 			~ModuleRegister();
 			module::_Module	*buildModule()	const;

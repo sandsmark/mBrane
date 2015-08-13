@@ -98,10 +98,10 @@ private:
 	CriticalSection	udpCS;
 	bool	initialiseBuffer(uint32 len);
 public:
-	UDPChannel(core::socket	s,uint32	port);
+	UDPChannel(core::socket	s,uint32_t port);
 	~UDPChannel();
-	int16	send(uint8	*b,size_t	s);
-	int16	recv(uint8	*b,size_t	s,bool	peek=false);
+	int16_t send(uint8_t *b,size_t	s);
+	int16_t recv(uint8_t *b,size_t	s,bool	peek=false);
 	bool	isConnected();
 	bool	disconnect();
 };

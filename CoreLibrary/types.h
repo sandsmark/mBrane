@@ -196,8 +196,8 @@ typedef	word16						half_word;
 #if defined	WINDOWS
 	typedef	long					int32;
 	typedef	unsigned	long		uint32;
-	typedef	__int64					int64;
-	typedef	unsigned __int64		uint64;
+	typedef	__int64_t 				int64;
+	typedef	unsigned __int64_t 	uint64;
 #else
 	typedef	int						int32;
 	typedef	unsigned	int			uint32;

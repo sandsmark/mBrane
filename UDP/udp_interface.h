@@ -89,12 +89,12 @@ using	namespace	mBrane::sdk;
 class	UDPInterface:
 public	NetworkInterface{
 private:
-	static	uint32	Intialized;
+	static	uint32_t Intialized;
 	static	bool	Init();
 	static	void	Shutdown();
 	core::socket	s;
 	struct in_addr	address;
-	uint32	port;
+	uint32_t port;
 	UDPInterface();
 	bool	load(XMLNode	&n);
 public:
@@ -103,12 +103,12 @@ public:
 	bool	operator	==(NetworkInterface	&i);
 	bool	operator	!=(NetworkInterface	&i);
 	bool	canBroadcast();
-	uint16	start();
-	uint16	stop();
-	uint16	getIDSize();
-	void	fillID(uint8	*ID);
-	uint16	newChannel(uint8	*ID,CommChannel	**channel);
-	uint16	acceptConnection(ConnectedCommChannel	**channel,int32	timeout,bool	&timedout);
+	uint16_t start();
+	uint16_t stop();
+	uint16_t getIDSize();
+	void	fillID(uint8_t *ID);
+	uint16_t newChannel(uint8_t *ID,CommChannel	**channel);
+	uint16_t acceptConnection(ConnectedCommChannel	**channel,int32_t timeout,bool	&timedout);
 };
 
 

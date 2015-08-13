@@ -122,9 +122,9 @@ namespace	core{
 	friend	class	_P;
 	protected:
 		#ifdef	ARCH_32
-		uint32	__vfptr_padding_Object;
+		uint32_t __vfptr_padding_Object;
 		#endif
-		int32	volatile	refCount;
+		int32_t volatile	refCount;
 		_Object();
 	public:
 		virtual	~_Object();

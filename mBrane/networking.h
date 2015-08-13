@@ -129,7 +129,7 @@ namespace	mBrane{
 
 		Networking		*node;
 		NetworkID		*networkID;
-		uint8			sourceNID;
+		uint8_t 		sourceNID;
 		char*			name;
 		bool			joined;
 		bool			ready;
@@ -180,7 +180,7 @@ namespace	mBrane{
 	friend	class	NodeCon;
 	protected:
 		Host::host_name	hostName;
-		uint8			hostNameSize;
+		uint8_t 		hostNameSize;
 
 		typedef	void	(*BootCallback)();
 		SharedLibrary	*callbackLibrary;
@@ -195,9 +195,9 @@ namespace	mBrane{
 		bool	startInterfaces();
 		void	stopInterfaces();
 
-		int32	bcastTimeout;	//	in ms
+		int32_t bcastTimeout;	//	in ms
 
-		uint8	connectedNodeCount;
+		uint8_t connectedNodeCount;
 
 		NetworkID	*networkID;
 
@@ -220,12 +220,12 @@ namespace	mBrane{
 		UNORDERED_MAP<uint8, NodeCon*>				nodes;
 
 		bool	isTimeReference;
-		uint8	referenceNID;
+		uint8_t referenceNID;
 		void	setNewReference();
 
-		virtual	void	startReceivingThreads(uint8	NID)=0;
-		virtual	void	notifyNodeJoined(uint8	NID,NetworkID	*networkID)=0;
-		virtual	void	notifyNodeLeft(uint8	NID)=0;
+		virtual	void	startReceivingThreads(uint8_t NID)=0;
+		virtual	void	notifyNodeJoined(uint8_t NID,NetworkID	*networkID)=0;
+		virtual	void	notifyNodeLeft(uint8_t NID)=0;
 		virtual	void	shutdown();
 
 		Array<Thread	*,32>	commThreads;
@@ -242,32 +242,32 @@ namespace	mBrane{
 		static	thread_ret thread_function_call	ScanIDs(void	*args);
 		typedef	struct{
 			Networking			*node;
-			int32				timeout;
+			int32_t 			timeout;
 			Network				network;
 			_Payload::Category	category;
 		}AcceptConnectionArgs;
 		static	thread_ret thread_function_call	AcceptConnections(void	*args);
 		static	thread_ret thread_function_call	Sync(void	*args);
-		int64	timeDrift;	//	in ms
-		int64	syncPeriod;	//	in ms
+		int64_t timeDrift;	//	in ms
+		int64_t syncPeriod;	//	in ms
 
-		uint16	sendID(CommChannel	*c,NetworkID	*networkID);
-		uint16	recvID(CommChannel	*c,NetworkID	*&networkID, bool expectToken = true);
-		uint16	sendMap(CommChannel	*c);
-		uint16	recvMap(CommChannel	*c, NetworkID	*fromNetworkID);
-		uint16	connect(NetworkID	*networkID);
-		uint16	connect(Network	network,NetworkID	*networkID);
+		uint16_t sendID(CommChannel	*c,NetworkID	*networkID);
+		uint16_t recvID(CommChannel	*c,NetworkID	*&networkID, bool expectToken = true);
+		uint16_t sendMap(CommChannel	*c);
+		uint16_t recvMap(CommChannel	*c, NetworkID	*fromNetworkID);
+		uint16_t connect(NetworkID	*networkID);
+		uint16_t connect(Network	network,NetworkID	*networkID);
 		void	_broadcastControlMessage(_Payload	*p,Network	network);
 		void	broadcastControlMessage(_Payload	*p,Network	network);
-		void	_sendControlMessage(_Payload	*p,uint8	destinationNID,Network	network);
-		void	sendControlMessage(_Payload	*p,uint8	destinationNID,Network	network);
-		void	sendData(uint8	NID,_Payload	*p,Network	network);
-		void	sendStreamData(uint8	NID,_Payload	*p,Network	network);
-		void	processError(uint8	NID);	//	upon send/recv error. Disconnect the node on both networks
-		uint8	addNodeEntry();
+		void	_sendControlMessage(_Payload	*p,uint8_t destinationNID,Network	network);
+		void	sendControlMessage(_Payload	*p,uint8_t destinationNID,Network	network);
+		void	sendData(uint8_t NID,_Payload	*p,Network	network);
+		void	sendStreamData(uint8_t NID,_Payload	*p,Network	network);
+		void	processError(uint8_t NID);	//	upon send/recv error. Disconnect the node on both networks
+		uint8_t addNodeEntry();
 
 		bool	init();
-		virtual	void	start(uint8	assignedNID,NetworkID	*networkNID,bool	isTimeReference);
+		virtual	void	start(uint8_t assignedNID,NetworkID	*networkNID,bool	isTimeReference);
 		bool	startSync();
 
 		Networking();

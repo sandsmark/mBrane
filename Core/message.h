@@ -180,7 +180,7 @@ namespace	mBrane{
 			protected:
                                 uint32_t	_size;		//	of the whole instance (not normalized)
                                 uint32_t	_capacity;	//	max number of elements in the array
-				T		*_data;		//	points to ((T	*)(((uint8	*)this)+offsetof(CStorage<S,T>,_data)+sizeof(T	*)));
+				T		*_data;		//	points to ((T	*)(((uint8_t *)this)+offsetof(CStorage<S,T>,_data)+sizeof(T	*)));
 				CStorage();
 			public:
                                 static	void		*New(uint32_t	size);					//	total size of the instance; called upon sending

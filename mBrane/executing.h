@@ -109,7 +109,7 @@ namespace	mBrane{
 	protected:
 		
 		StaticArray<Thread	*>	xThreads;
-		uint16		threadCount;
+		uint16_t 	threadCount;
 		Semaphore	*supportSync;
 
 		Executing();

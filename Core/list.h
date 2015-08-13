@@ -91,7 +91,7 @@ namespace	mBrane{
 			ListElement	*prev;
 		};
 
-		template<typename	T,uint16	Size>	class	List{
+		template<typename	T,uint16_t Size>	class	List{
 		public:
 			class	Iterator{
 			friend	class	List;
@@ -130,19 +130,19 @@ namespace	mBrane{
 
 			ListElement<T>	*first;
 			ListElement<T>	*last;
-			uint32			_elementCount;
+			uint32_t 		_elementCount;
 			ListElement<T>	*firstFree;
 			ListElement<T>	*lastFree;
 			ListElement<T>	*getFreeSlot();
 			void		remove(ListElement<T>	*o);
-			uint32		removeReturnNext(ListElement<T>	*o);
-			uint32		removeReturnPrevious(ListElement<T>	*o);
+			uint32_t 	removeReturnNext(ListElement<T>	*o);
+			uint32_t 	removeReturnPrevious(ListElement<T>	*o);
 			Iterator	insertAfter(ListElement<T>	*o,T	&t);	//	returns the index of the new element
 			Iterator	insertBefore(ListElement<T>	*o,T	&t);
 		public:
 			List();
 			~List();
-			uint32		elementCount()	const;
+			uint32_t 	elementCount()	const;
 			void		clear();
 			Iterator	addElementHead(T	&t);	//	returns the index of the new element
 			Iterator	addElementTail(T	&t);

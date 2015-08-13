@@ -103,14 +103,14 @@ namespace	mBrane{
 	class	NodeEntry:
 	public	CriticalSection{	//	guards against Messaging::SendMessages.
 	private:
-		uint32	activationCount;
+		uint32_t activationCount;
 	public:
 		static	Array<Array<NodeEntry,32>,128>	Main[2];	//	0: Data and Control: message class -> nodes -> modules, 1: Streams: stream id -> nodes -> modules
 		NodeEntry();
 		~NodeEntry();
 		void	incActivation(){	enter();activationCount++;leave();	}
 		void	decActivation(){	enter();activationCount--;leave();	}
-		void	getActivation(uint32	&a){	enter();a=activationCount;leave();	}
+		void	getActivation(uint32_t &a){	enter();a=activationCount;leave();	}
 		List<P<ModuleEntry>,1024>	modules;
 	};
 
@@ -118,15 +118,15 @@ namespace	mBrane{
 	public	_Projection<ModuleDescriptor,Projection<ModuleDescriptor> >{
 	public:
 		Array<List<P<ModuleEntry>,1024>::Iterator,128>	subscriptions[2];		//	0: indexed by message class ID (MCID), 1: indexed by stream ID (SID)
-		uint16											subscriptionCount[2];	//	idem
+		uint16_t 										subscriptionCount[2];	//	idem
 		Projection(ModuleDescriptor	*projected,Space	*space);
 		~Projection();
 		void	activate();
 		void	deactivate();
 		void	setActivationLevel(float	a);
 		void	updateActivationCount(float	t);
-		void	addSubscription(uint8	payloadType,uint16	ID,List<P<ModuleEntry>,1024>::Iterator	i);
-		void	removeSubscription(uint8	payloadType,uint16	ID);
+		void	addSubscription(uint8_t payloadType,uint16_t ID,List<P<ModuleEntry>,1024>::Iterator	i);
+		void	removeSubscription(uint8_t payloadType,uint16_t ID);
 	};
 
 	//	Module proxy.
@@ -135,41 +135,41 @@ namespace	mBrane{
 	private:
 		class	_Subscription{
 		public:
-			uint16	MCID;
-			uint16	SID;
+			uint16_t MCID;
+			uint16_t SID;
 		};
 		class	_Projection{
 		public:
-			uint16					spaceID;
+			uint16_t 				spaceID;
 			float					activationLevel;
 			Array<_Subscription,8>	subscriptions;
 		};
 		Array<_Projection,32>	initialProjections;
 		const	char	*name;
 	public:
-		uint16	CID;
+		uint16_t CID;
 		static	Array<Array<P<ModuleDescriptor>,128>,32>			Config;	//	indexed by module descriptor class ID | ID; temporary: used at config time when node IDs are not known; tranfered in Node::start in Main.
 		static	Array<Array<Array<P<ModuleDescriptor>,128>,32>,8>	Main;	//	indexed by host ID | module descriptor class ID | ID.
 		static	ModuleDescriptor									*New(XMLNode	&n);
-		static	void												Init(uint8	hostID);	//	resolves host name into ID, copies Config in Main, apply initial projections.
-		static	uint16												GetID(uint8	hostID,uint16	CID);	//	returns the first available slot in Main[hostID][CID].
-		static	const char*											GetName(uint16	cid, uint16 id);	//	returns the name of CID.
+		static	void												Init(uint8_t hostID);	//	resolves host name into ID, copies Config in Main, apply initial projections.
+		static	uint16_t 											GetID(uint8_t hostID,uint16_t CID);	//	returns the first available slot in Main[hostID][CID].
+		static	const char*											GetName(uint16_t cid, uint16_t id);	//	returns the name of CID.
 		Host::host_name	hostName;	//	resolved in hostID at Node::run() time
 		P<_Module>	module;	//	NULL if remote
 		//_Module	*module;
-		ModuleDescriptor(const	char	*hostName,_Module	*m,uint16	CID,const	char	*name);	//	invoked at Node::loadApplication() time.
-		ModuleDescriptor(uint8	hostID,uint16	CID,uint16	ID);									//	invoked dynamically.
+		ModuleDescriptor(const	char	*hostName,_Module	*m,uint16_t CID,const	char	*name);	//	invoked at Node::loadApplication() time.
+		ModuleDescriptor(uint8_t hostID,uint16_t CID,uint16_t ID);									//	invoked dynamically.
 		~ModuleDescriptor();
-		void	applyInitialProjections(uint8	hostID);
+		void	applyInitialProjections(uint8_t hostID);
 		const	char	*getName();
 		void	_activate();
 		void	_deactivate();
-		void	addSubscription_message(uint8	hostID,uint16	spaceID,uint16	MCID);
-		void	addSubscription_stream(uint8	hostID,uint16	spaceID,uint16	SID);
-		void	removeSubscription_message(uint8	hostID,uint16	spaceID,uint16	MCID);
-		void	removeSubscription_stream(uint8	hostID,uint16	spaceID,uint16	SID);
-		void	removeSubscriptions_message(uint8	hostID,uint16	spaceID);
-		void	removeSubscriptions_stream(uint8	hostID,uint16	spaceID);
+		void	addSubscription_message(uint8_t hostID,uint16_t spaceID,uint16_t MCID);
+		void	addSubscription_stream(uint8_t hostID,uint16_t spaceID,uint16_t SID);
+		void	removeSubscription_message(uint8_t hostID,uint16_t spaceID,uint16_t MCID);
+		void	removeSubscription_stream(uint8_t hostID,uint16_t spaceID,uint16_t SID);
+		void	removeSubscriptions_message(uint8_t hostID,uint16_t spaceID);
+		void	removeSubscriptions_stream(uint8_t hostID,uint16_t spaceID);
 	};
 }
 
