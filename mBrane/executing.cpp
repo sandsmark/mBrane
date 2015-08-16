@@ -202,7 +202,11 @@ inline void XThread::work(_Payload *p, _Module *m)
 
         case _Module::PREEMPT:
             if (currentProcessor) { // could be NULL if currentProcessor just finished.
+#if defined WINDOWS
+                SuspendThread(currentProcessor->thread.native_handle());
+#elif defined LINUX
                 pthread_kill(currentProcessor->thread.native_handle(), SIGSTOP);
+#endif
             }
 
             m->processor = this;
@@ -215,7 +219,11 @@ inline void XThread::work(_Payload *p, _Module *m)
             }
 
             if ((m->processor = currentProcessor)) { // could be NULL if currentProcessor just finished.
+#if defined WINDOWS
+                ResumeThread(currentProcessor->thread.native_handle());
+#elif defined LINUX
                 pthread_kill(currentProcessor->thread.native_handle(), SIGCONT);
+#endif
             }
 
             release(); // release a potential waiting thread.
