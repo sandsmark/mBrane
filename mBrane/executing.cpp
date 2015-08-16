@@ -131,21 +131,23 @@ void Executing::start()
             t->wasSupporting = true;
         }
 
-        t->start(XThread::Xec);
+        t->thread = std::thread(XThread::Xec, t);
     }
 }
 
 void Executing::shutdown()
 {
-    Thread::TerminateAndWait(xThreads.data(), xThreads.count());
+    for (int i = 0; i < xThreads.count(); i++) {
+        if (xThreads[i]->thread.joinable()) {
+            xThreads[i]->thread.join();
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-thread_ret thread_function_call XThread::Xec(void *args)
+void XThread::Xec(XThread *_this)
 {
-    XThread *_this = ((XThread *)args);
-
     if (_this->wasSupporting) {
 check_in:
         _this->node->supportSync->acquire();
@@ -169,11 +171,11 @@ check_in:
             goto check_in;
         }
     }
-
-    thread_ret_val(0);
 }
 
-XThread::XThread(Node *n): Thread(), FastSemaphore(0, 1), node(n), wasSupporting(false)
+XThread::XThread(Node *n) : FastSemaphore(0, 1),
+    node(n),
+    wasSupporting(false)
 {
 }
 
@@ -200,7 +202,7 @@ inline void XThread::work(_Payload *p, _Module *m)
 
         case _Module::PREEMPT:
             if (currentProcessor) { // could be NULL if currentProcessor just finished.
-                currentProcessor->suspend();
+                pthread_kill(currentProcessor->thread.native_handle(), SIGSTOP);
             }
 
             m->processor = this;
@@ -212,8 +214,8 @@ inline void XThread::work(_Payload *p, _Module *m)
                 m->notify(p);
             }
 
-            if (m->processor = currentProcessor) { // could be NULL if currentProcessor just finished.
-                currentProcessor->resume();
+            if ((m->processor = currentProcessor)) { // could be NULL if currentProcessor just finished.
+                pthread_kill(currentProcessor->thread.native_handle(), SIGCONT);
             }
 
             release(); // release a potential waiting thread.

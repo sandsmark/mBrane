@@ -89,18 +89,19 @@ namespace mBrane
 
 class Node;
 // Message processing thread class.
-class XThread:
-    public Thread,
-    public FastSemaphore
+class XThread : public FastSemaphore
 {
 public:
-    static thread_ret thread_function_call Xec(void *args);
+    static void Xec(XThread *_this);
     Node *const node;
     bool wasSupporting;
 
     XThread(Node *n);
     ~XThread();
     void work(_Payload *p, _Module *c);
+
+    std::thread thread;
+private:
 };
 
 // XThread pool.
@@ -109,7 +110,7 @@ class mbrane_dll Executing
     friend class XThread;
 protected:
 
-    StaticArray<Thread *> xThreads;
+    StaticArray<XThread *> xThreads;
     uint16_t  threadCount;
     Semaphore *supportSync;
 
