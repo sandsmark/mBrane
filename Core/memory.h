@@ -102,7 +102,7 @@ class mBrane_dll Memory
 {
 private:
     static Array<Memory, 16> *Memories;
-    static CriticalSection *CS;
+    static std::mutex s_mutex;
     // Blocks hold contiguous data storage, i.e. an array of segments (byte arrays of size objectSize)
     // When not allocated, a segment contains a pointer to the next free segment: that's its first sizeof(uint8_t *) bytes
     // When deallocated, a segment is not initialized (except the pointer to the next free segment)
@@ -134,7 +134,7 @@ private:
     Block *lastBlock;
     Block *emptyBlock; // address of the empty block in the block list, if any; NULL otherwise
     uint32_t freeObjects;
-    CriticalSection cs;
+    std::mutex m_mutex;
     Memory(size_t objectSize);
     void *operator new(size_t s, uint16_t index);
     void operator delete(void *b);

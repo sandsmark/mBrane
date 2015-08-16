@@ -158,8 +158,6 @@ inline void Memory::Block::dealloc(void *s)
 
 Array<Memory, 16> *Memory::Memories = NULL; // indexed by exponents of 2
 
-CriticalSection *Memory::CS = NULL;
-
 inline size_t Memory::GetNormalizedSize(size_t s, uint8_t &pow2)
 {
     size_t segmentSize = s + sizeof(Block *); // makes room for a pointer to the block
@@ -185,10 +183,7 @@ Memory *Memory::GetStatic(size_t s)  // s>0; called early, once per class, at st
     uint8_t i;
     size_t objectSize = GetNormalizedSize(s, i);
 
-    if (!CS) { // entered once early at class loading time; TODO: dealloc when the app terminates
-        // printf("New CS[%u]!\n", s);
-        // fflush(stdout);
-        CS = new CriticalSection();
+    if (!Memories) { // entered once early at class loading time; TODO: dealloc when the app terminates
         Memories = new Array<Memory, 16>();
     }
 
@@ -212,14 +207,13 @@ Memory *Memory::GetDynamic(size_t s)  // s>0; called anytime, for raw storage
 {
     uint8_t i;
     size_t objectSize = GetNormalizedSize(s, i);
-    CS->enter(); // concurrent access for raw storage requests
+    std::lock_guard<std::mutex> guard(s_mutex); // concurrent access for raw storage requests
     Memory *m = Memories->get(i);
 
     if (m->objectSize == 0) {
         m = new(i) Memory(objectSize);
     }
 
-    CS->leave();
     return m;
 }
 
@@ -262,7 +256,7 @@ void *Memory::alloc()  // concurrent access
 {
     void *allocated;
     Block *b;
-    cs.enter();
+    std::lock_guard<std::mutex> guard(m_mutex);
 
     if (freeObjects) { // get the first block with a free segment
         for (b = firstBlock; !b->freeObjects; b = b->_next); // OPTIMIZATION: either reduce the number of blocks, or keep track of the blocks that still have some room - or both
@@ -281,14 +275,13 @@ void *Memory::alloc()  // concurrent access
     }
 
     allocated = b->alloc();
-    cs.leave();
     return allocated;
 }
 
 void Memory::dealloc(void *o)  // concurrent access
 {
     Block *b;
-    cs.enter();
+    std::lock_guard<std::mutex> guard(m_mutex);
     // find the block holding o
     uint8_t *segment = (uint8_t *)(((uint8_t **)o) - 1);
     b = *(Block **)segment; // o was allocated from a segment in which the first 4 bytes are the address of the block
@@ -320,9 +313,8 @@ void Memory::dealloc(void *o)  // concurrent access
     } else {
         ++freeObjects;
     }
-
-    cs.leave();
 }
+
 }
 }
 #elif defined MEMORY_2
