@@ -224,7 +224,7 @@ typedef	word16						half_word;
 #if defined	WINDOWS
 	typedef	HINSTANCE						shared_object;
 	typedef	HANDLE							thread;
-	#define thread_ret						core::uint32
+	#define thread_ret						uint32
 	#define thread_ret_val(ret)					return ret;
 	typedef	LPTHREAD_START_ROUTINE			thread_function;
 	#define	thread_function_call			WINAPI
@@ -239,7 +239,7 @@ typedef	word16						half_word;
 #elif defined	LINUX
 	typedef void *							shared_object;
 	typedef pthread_t						thread;
-	#define thread_ret						void *
+        #define thread_ret						void *
 	#define thread_ret_val(ret)				pthread_exit((thread_ret)ret);
 	typedef thread_ret (*thread_function)(void *);
 	#define thread_function_call

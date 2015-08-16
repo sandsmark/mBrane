@@ -88,8 +88,8 @@
 
 //	C##_CID needed for use in switches (instead of the non constant expression user_class::CID())
 //	the initialization of C##_metaData triggers the intialization of  C::_MetaData
-#define	MBRANE_MESSAGE_CLASS(C)		static	const	core::uint16_t C##_CID=(core::uint16)__COUNTER__;static	const	uint64_t C##_metaData=ClassRegister::Load<C>(C##_CID);
-#define	MBRANE_STREAM_DATA_CLASS(C)	static	const	core::uint16_t C##_CID=(core::uint16)__COUNTER__;static	const	uint64_t C##_metaData=ClassRegister::Load<C>(C##_CID);
+#define	MBRANE_MESSAGE_CLASS(C)		static	const	uint16_t C##_CID=(uint16)__COUNTER__;static	const	uint64_t C##_metaData=ClassRegister::Load<C>(C##_CID);
+#define	MBRANE_STREAM_DATA_CLASS(C)	static	const	uint16_t C##_CID=(uint16)__COUNTER__;static	const	uint64_t C##_metaData=ClassRegister::Load<C>(C##_CID);
 #include	APPLICATION_CLASSES
 
 #define	CLASS_ID(C)	C##_CID
@@ -98,12 +98,12 @@
 template<class	U>	class	Module:
 public	mBrane::sdk::Object<Memory,module::_Module,U>{
 protected:
-	static	const	core::uint16_t _CID;
+	static	const	uint16_t _CID;
 	Module(bool	canMigrate=true):Object<Memory,module::_Module,U>(){
 		this->_canMigrate=canMigrate;
 	}
 public:
-	static	const	core::uint16_t CID(){	return	_CID;	}
+	static	const	uint16_t CID(){	return	_CID;	}
 	static	module::_Module	*New(){	return	new	U();	}
 	virtual	~Module(){}
 	void	_start(){
@@ -126,7 +126,7 @@ public:
 		default:	return;
 		}
 	}
-	void	notify(core::uint16_t sid,_Payload	*p){
+	void	notify(uint16_t sid,_Payload	*p){
 		switch(p->cid()){
 		#undef MBRANE_MESSAGE_CLASS
 		#undef MBRANE_STREAM_DATA_CLASS
@@ -147,10 +147,10 @@ public:
 		}
 	}
 };
-template<class	U>	const	core::uint16_t Module<U>::_CID=ModuleRegister::Load(New,U::ClassName);
+template<class	U>	const	uint16_t Module<U>::_CID=ModuleRegister::Load(New,U::ClassName);
 
 //	to use in user module cpp files; forces the intitialization of Module<U>::_CID
-#define	LOAD_MODULE(C)	static	core::uint16_t cid_##C=C::CID();
+#define	LOAD_MODULE(C)	static	uint16_t cid_##C=C::CID();
 
 //	force _MetaData initilization in user mBrane_dll.
 #undef MBRANE_MESSAGE_CLASS
@@ -160,8 +160,8 @@ template<class	U>	const	core::uint16_t Module<U>::_CID=ModuleRegister::Load(New,
 //	for retrieving CIDs from names (in specs)
 #undef MBRANE_MESSAGE_CLASS
 #undef MBRANE_STREAM_DATA_CLASS
-#define	MBRANE_MESSAGE_CLASS(C)		static	const	core::uint16_t C##_name=ClassRegister::Load(#C);
-#define	MBRANE_STREAM_DATA_CLASS(C)	static	const	core::uint16_t C##_name=ClassRegister::Load(#C);
+#define	MBRANE_MESSAGE_CLASS(C)		static	const	uint16_t C##_name=ClassRegister::Load(#C);
+#define	MBRANE_STREAM_DATA_CLASS(C)	static	const	uint16_t C##_name=ClassRegister::Load(#C);
 #ifndef	LIBRARY_CLASSES
 	#include	MBRANE_MESSAGE_CLASSES
 #endif
@@ -187,7 +187,7 @@ public:	\
 const	char	*C::ClassName=#C;	\
 extern	"C"{	\
 	mBrane::sdk::module::_Module *	cdecl	New##C(){	return	new	C();	}	\
-	const	core::uint16_t C##_CID(){	return	C::CID();	}	\
+	const	uint16_t C##_CID(){	return	C::CID();	}	\
 }
 
 

@@ -164,7 +164,7 @@ namespace	core{
                 static	void	Sleep(int64_t	ms);
 		static	void	Sleep();	//	inifnite
 		virtual	~Thread();
-                void	start(std::function<void>	f);
+                void	start(std::function<void(void*)>	f);
 		void	suspend();
 		void	resume();
 		void	terminate();
