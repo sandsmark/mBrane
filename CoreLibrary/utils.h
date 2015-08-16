@@ -217,18 +217,6 @@ public:
 
 uint8_t core_dll BSR(uint32_t data); // BitScanReverse
 
-class core_dll Random
-{
-private:
-    static int32_t r250_index;
-    static int32_t r521_index;
-    static uint32_t r250_buffer[R250_LEN];
-    static uint32_t r521_buffer[R521_LEN];
-public:
-    static void Init();
-
-    float operator()(uint32_t range); // returns a value in [0,range].
-};
 }
 
 #include "utils.tpl.cpp"
