@@ -118,4 +118,6 @@ namespace	core{
 		delete	t;
 		return	NULL;
 	}
-}*/
+
+        */
+}

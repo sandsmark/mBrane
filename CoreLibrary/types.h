@@ -187,8 +187,6 @@ typedef	char						int8;
 typedef	unsigned	char			uint8;
 typedef	short						int16;
 typedef	unsigned	short			uint16;
-typedef	float						float;
-typedef	double						double;
 
 typedef	word32						word;
 typedef	word16						half_word;

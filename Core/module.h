@@ -133,10 +133,10 @@ namespace	mBrane{
 				virtual	void		notify(_Payload	*p)=0;	//	called when the module receives a message
                                 virtual	void		notify(uint16_t	sid,_Payload	*p)=0;	//	called when the module receives data from a stream
 				virtual	Decision	dispatch(_Payload	*p)=0;	//	called when the module code is already processed by an XThread and a new message comes in
-			};
-		}
-	}
-}
+                        }; //class object
+                } //namespace module
+        } //namespace sdk
+} //namespace mbrane
 
 
 #endif
