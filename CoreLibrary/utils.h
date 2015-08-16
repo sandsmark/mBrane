@@ -161,9 +161,6 @@ public:
         using namespace std::chrono;
         return duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count();
     }
-
-    static std::string ToString_seconds(uint64_t t); // seconds:milliseconds:microseconds since 01/01/1970.
-    static std::string ToString_year(uint64_t t); // day_name day_number month year hour:minutes:seconds:milliseconds:microseconds GMT since 01/01/1970.
 };
 
 class core_dll Host
