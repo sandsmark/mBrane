@@ -333,7 +333,7 @@ bool UDPInterface::load(XMLNode &n)
 #endif
 
     if (!found) {
-        std::cout << "> Error: NodeConfiguration::Network::" << n.getName() << "::nic " << _nic << "does not exist" << std::endl;
+        std::cout << "> Error: NodeConfiguration::Network::" << n.getName() << "::nic " << _nic << " does not exist" << std::endl;
         return false;
     }
 

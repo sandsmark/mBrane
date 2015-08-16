@@ -32,9 +32,60 @@ set (mBrane_hdrs
 
 add_executable(mBrane ${mBrane_srcs})
 target_link_libraries(mBrane Core pthread CoreLibrary dl)
-add_subdirectory(UDP)
-add_subdirectory(TCP)
+
+# UDP module
+set (UDP_srcs
+    UDP/udp_interface.cpp
+    UDP/udp_channel.cpp
+    UDP/udp.cpp
+    )
+set (UDP_hdrs
+    UDP/udp_interface.h
+    UDP/udp_channel.h
+    UDP/udp.h
+    )
+add_library(udp SHARED ${UDP_srcs})
+
+# TCP module
+set (TCP_srcs
+    TCP/tcp.cpp
+    TCP/tcp_channel.cpp
+    TCP/tcp_interface.cpp
+    )
+set (TCP_hdrs
+    TCP/tcp.h
+    TCP/tcp_channel.h
+    TCP/tcp_interface.h
+    )
+add_library(tcp SHARED ${TCP_srcs})
+
+# pingpong module
+set (Pingpong_srcs
+    pingpong/modules.cpp
+    pingpong/pingpong.cpp
+    )
+set (Pingpong_hdrs
+    pingpong/pingpong.h
+    pingpong/pingpong_class.h
+    pingpong/pingpong_class_def.h
+    pingpong/pingpong_modules.h
+    )
+add_library(pingpong ${Pingpong_srcs})
+
+# Perf module
+set (Perf_srcs
+    Perf/Perf.cpp
+    Perf/modules.cpp
+    )
+set (Perf_hdrs
+    Perf/Perf.h
+    Perf/Perf_class.h
+    Perf/Perf_class_def.h
+    Perf/Perf_modules.h
+    Perf/RR.h
+    )
+add_library(perf ${Perf_srcs})
+
+
 add_subdirectory(Core)
-add_subdirectory(pingpong)
-add_subdirectory(Perf)
 add_subdirectory(CoreLibrary)
