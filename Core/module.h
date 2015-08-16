@@ -79,6 +79,7 @@
 #include "../CoreLibrary/utils.h"
 #include "message.h"
 #include <thread>
+#include <mutex>
 
 using namespace mBrane::sdk::payloads;
 
@@ -103,7 +104,7 @@ class mBrane_dll _Module:
     friend class mBrane::ModuleDescriptor;
 private:
     XThread *processor;
-    FastSemaphore *sync;
+    std::mutex mutex;
     ModuleDescriptor *descriptor;
 protected:
     uint16_t _cid;

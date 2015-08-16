@@ -79,6 +79,7 @@
 #include "utils.h"
 #include "../Core/module.h"
 #include "xml_parser.h"
+#include <mutex>
 
 
 using namespace mBrane::sdk;
@@ -89,12 +90,13 @@ namespace mBrane
 
 class Node;
 // Message processing thread class.
-class XThread : public FastSemaphore
+class XThread
 {
 public:
     static void Xec(XThread *_this);
     Node *const node;
     bool wasSupporting;
+    std::mutex mutex;
 
     XThread(Node *n);
     ~XThread();

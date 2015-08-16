@@ -103,6 +103,8 @@
 
 #include <chrono>
 #include <atomic>
+#include <mutex>
+#include <condition_variable>
 
 #ifdef WINDOWS
 #define SOCKETWOULDBLOCK WSAEWOULDBLOCK
@@ -174,14 +176,33 @@ class core_dll Semaphore
 {
 private:
     sem_t s;
-protected:
-    static const uint32_t Infinite;
+    int count;
+    std::mutex mutex;
+    std::condition_variable_any condition;
+
 public:
-    Semaphore(uint32_t initialCount, uint32_t maxCount);
-    ~Semaphore();
-    bool acquire(uint32_t timeout = Infinite); // returns true if timedout
-    void release(uint32_t count = 1);
-    void reset();
+    Semaphore(uint32_t initialCount = 0) : count(initialCount) {}
+    void acquire(){
+        std::lock_guard<std::mutex> guard(mutex);
+
+        while (count == 0) {
+            condition.wait(mutex);
+        }
+        count--;
+    }
+
+    void release(){
+        std::lock_guard<std::mutex> guard(mutex);
+        count++;
+        condition.notify_one();
+    }
+
+    void reset() {
+        std::lock_guard<std::mutex> guard(mutex);
+        if (count > 0) {
+            count = 0;
+        }
+    }
 };
 
 class core_dll CriticalSection
@@ -203,19 +224,6 @@ public:
 };
 
 uint8_t core_dll BSR(uint32_t data); // BitScanReverse
-
-class core_dll FastSemaphore: // lock-free under no contention
-    public Semaphore
-{
-private:
-    std::atomic_int count; // minus the number of waiting threads
-    const int32_t maxCount; // max number of threads allowed to run
-public:
-    FastSemaphore(uint32_t initialCount, uint32_t maxCount); // initialCount >=0
-    ~FastSemaphore();
-    void acquire();
-    void release();
-};
 
 class core_dll String
 {

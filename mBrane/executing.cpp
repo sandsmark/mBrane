@@ -82,7 +82,7 @@ namespace mBrane
 
 Executing::Executing()
 {
-    supportSync = new Semaphore(0, 65535);
+    supportSync = new Semaphore;
 }
 
 Executing::~Executing()
@@ -155,7 +155,7 @@ check_in:
 
     while (_this->node->isRunning()) {
         Job j = _this->node->jobs.pop();
-        j.m->sync->acquire(); // forces threads processing the same module to run in the order of message arrival, until reaching a preemption point (see work).
+        j.m->mutex.lock(); // forces threads processing the same module to run in the order of message arrival, until reaching a preemption point (see work).
 
         if (j.p == NULL) {
             printf("Xec Payload NULL!!!\n");
@@ -173,7 +173,7 @@ check_in:
     }
 }
 
-XThread::XThread(Node *n) : FastSemaphore(0, 1),
+XThread::XThread(Node *n) :
     node(n),
     wasSupporting(false)
 {
@@ -194,7 +194,7 @@ inline void XThread::work(_Payload *p, _Module *m)
             node->supportSync->release(); // before waiting, unlock a supporting thread to run instead of this.
 
             if (currentProcessor) { // could be NULL if currentProcessor just finished.
-                currentProcessor->acquire();    // wait for the currentProcessor to finish; will be unlocked by currentProcessor (see release() below).
+                currentProcessor->mutex.lock();    // wait for the currentProcessor to finish; will be unlocked by currentProcessor (see release() below).
             }
 
             work(p, m); // recurse to ask again what to do with p (ex: in case currentProcessor was preempting yet another one).
@@ -210,7 +210,7 @@ inline void XThread::work(_Payload *p, _Module *m)
             }
 
             m->processor = this;
-            m->sync->release(); // preemption point.
+            m->mutex.unlock(); // preemption point.
 
             if (p->category() == _Payload::STREAM) {
                 m->notify(p->as_StreamData()->sid(), p);
@@ -226,7 +226,7 @@ inline void XThread::work(_Payload *p, _Module *m)
 #endif
             }
 
-            release(); // release a potential waiting thread.
+            mutex.unlock(); // release a potential waiting thread.
             return;
 
         case _Module::DISCARD:
@@ -235,7 +235,7 @@ inline void XThread::work(_Payload *p, _Module *m)
     }
 
     m->processor = this;
-    m->sync->release(); // preemption point.
+    m->mutex.unlock(); // preemption point.
 
     if (p->category() == _Payload::STREAM) {
         m->notify(p->as_StreamData()->sid(), p);
@@ -246,7 +246,7 @@ inline void XThread::work(_Payload *p, _Module *m)
     }
 
     m->processor = NULL;
-    release(); // release a potential waiting thread.
+    mutex.unlock(); // release a potential waiting thread.
     return;
 }
 }

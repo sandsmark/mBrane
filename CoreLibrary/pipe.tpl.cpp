@@ -80,7 +80,7 @@ namespace core
 {
 
 #ifdef PIPE_1
-template<typename T, uint32_t _S> Pipe11<T, _S>::Pipe11(): Semaphore(0, 65535)
+template<typename T, uint32_t _S> Pipe11<T, _S>::Pipe11(): Semaphore(0)
 {
     head = tail = -1;
     first = last = new Block(NULL);

@@ -87,12 +87,10 @@ namespace module
 
 _Module::_Module(): _Object(), _priority(0), processor(NULL), _ready(false)
 {
-    sync = new FastSemaphore(1, 1);
 }
 
 _Module::~_Module()
 {
-    delete sync;
     Node::Get()->trace(Node::EXECUTION) << "Module " << _cid << "|" << _id << " deleted" << std::endl;
 }
 
