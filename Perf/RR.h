@@ -77,6 +77,7 @@
 
 #ifndef Perf_RR_h
 #define Perf_RR_h
+#include <thread>
 
 uint64_t t1;
 
@@ -316,7 +317,7 @@ typedef bool (*LoomInput)(char *);
 
 MODULE_CLASS_BEGIN(Loom, Module<Loom>)
 public:
-Thread *thread;
+std::thread thread;
 SharedLibrary *lib;
 LoomOutput waitForEvent;
 LoomInput processEvent;
@@ -332,13 +333,13 @@ void start()
         waitForEvent = NULL;
         processEvent = NULL;
     }
-
-    thread = NULL;
 }
 void stop()
 {
-    delete(thread);
-    thread = NULL;
+    if (thread.joinable()) {
+        thread.join();
+    }
+
     delete(lib);
     lib = NULL;
     waitForEvent = NULL;
@@ -352,7 +353,7 @@ template<class T> void react(T *p) {}
 
 void react(SystemReady *p)
 {
-    thread = Thread::New<Thread>(run, this);
+    thread = std::thread(run, this);
     char *data = NULL;
 
     // Output data to Loom
