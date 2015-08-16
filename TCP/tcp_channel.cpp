@@ -136,7 +136,7 @@ bool TCPChannel::setBlockingMode(bool blocking)
 
 TCPChannel::~TCPChannel()
 {
-    tcpCS.enter();
+    std::lock_guard<std::mutex> guard(m_mutex);
 
     if (buffer != NULL) {
         delete(buffer);
@@ -145,7 +145,6 @@ TCPChannel::~TCPChannel()
     bufferLen = 0;
     bufferPos = 0;
     buffer = NULL;
-    tcpCS.leave();
     closesocket(s);
 }
 
@@ -155,7 +154,7 @@ bool TCPChannel::initialiseBuffer(uint32_t len)
         return false;
     }
 
-    tcpCS.enter();
+    std::lock_guard<std::mutex> guard(m_mutex);
 
     if (buffer != NULL) {
         delete(buffer);
@@ -164,7 +163,7 @@ bool TCPChannel::initialiseBuffer(uint32_t len)
     bufferLen = len;
     buffer = new char[len];
     bufferPos = 0;
-    tcpCS.leave();
+
     return true;
 }
 
@@ -190,12 +189,12 @@ int16_t TCPChannel::send(uint8_t *b, size_t s)
 int16_t TCPChannel::recv(uint8_t *b, size_t s, bool peek)
 {
     int32_t err;
-    tcpCS.enter();
+    m_mutex.lock();
 
     while (s > bufferLen) {
-        tcpCS.leave();
+        m_mutex.unlock();
         initialiseBuffer((uint32_t)s * 2);
-        tcpCS.enter();
+        m_mutex.lock();
     }
 
     uint64_t t = Time::Get();
@@ -222,7 +221,7 @@ int16_t TCPChannel::recv(uint8_t *b, size_t s, bool peek)
                 tc++;
             } else {
                 // Error::PrintLastOSErrorMessage("Error: TCPChannel::recv");
-                tcpCS.leave();
+                m_mutex.unlock();
                 return 1;
             }
         } else if (count == 0) {
@@ -251,7 +250,7 @@ int16_t TCPChannel::recv(uint8_t *b, size_t s, bool peek)
         bufferPos -= (uint32_t)s;
     }
 
-    tcpCS.leave();
+    m_mutex.unlock();
 // std::cout<<"Info: Read "<<s<<" bytes from buffer, "<<bufferLen-bufferPos<<" bytes left..."<<std::endl;
     //if (r)
     // printf("Took %u us to read %u bytes into buffer (%ux = %u) [%llu]...\n", Time::Get()-t, r, tc, tw, Time::Get());

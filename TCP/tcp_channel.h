@@ -92,7 +92,7 @@ class TCPChannel:
     public ConnectedCommChannel
 {
 private:
-    CriticalSection tcpCS;
+    std::mutex m_mutex;
     uint32_t bufferLen;
     uint32_t bufferPos;
     char *buffer;
