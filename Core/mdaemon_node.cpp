@@ -140,30 +140,32 @@ bool Node::loadConfig(XMLNode &n)
 void Node::start()
 {
     for (uint32_t i = 0; i < daemons.count(); i++) {
-        daemonThreads[i] = Thread::New<Thread>(Daemon::Run, daemons[i]);
+        daemonThreads[i] = std::thread(Daemon::Run, daemons[i]);
     }
 }
 
 void Node::shutdown()
 {
-    Thread::Wait(daemonThreads.data(), daemonThreads.count());
+    for (int i = 0; i < daemonThreads.count(); i++) {
+        if (daemonThreads[i].joinable()) {
+            daemonThreads[i].join();
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-thread_ret thread_function_call Daemon::Run(void *args)
+void Daemon::Run(Daemon *daemon)
 {
-    uint32_t r;
-    ((Daemon *)args)->init();
+    daemon->init();
 
-    while (((Daemon *)args)->node->isRunning())
-        if (r = ((Daemon *)args)->run()) {
-            ((Daemon *)args)->shutdown();
-            thread_ret_val(r);
+    while (daemon->node->isRunning()) {
+        if (daemon->run() != 0) { // returns 0 if no error
+            break;
         }
+    }
 
-    ((Daemon *)args)->shutdown();
-    thread_ret_val(0);
+    daemon->shutdown();
 }
 
 Daemon::Daemon(Node *node): node(node)

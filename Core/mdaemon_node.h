@@ -80,6 +80,8 @@
 #include "xml_parser.h"
 #include "dynamic_class_loader.h"
 
+#include <thread>
+
 #pragma warning( disable : 4251 )
 
 namespace mBrane
@@ -106,7 +108,7 @@ protected:
     bool volatile _shutdown;
     StaticArray<DynamicClassLoader<Daemon> *> daemonLoaders;
     StaticArray<Daemon *> daemons;
-    StaticArray<Thread *> daemonThreads;
+    StaticArray<std::thread> daemonThreads;
     Node(uint8_t ID = NoID);
     bool loadConfig(XMLNode &n);
     void start();
@@ -135,7 +137,7 @@ protected:
     Daemon(Node *node);
 public:
     typedef Daemon *(*Load)(XMLNode &, Node *); // function exported by the shared library
-    static thread_ret thread_function_call Run(void *args); // args=this daemon
+    static void Run(Daemon *daemon); // args=this daemon
     virtual ~Daemon();
     virtual void init() = 0; // called once, before looping
     virtual uint32_t run() = 0; // called in a loop: while(!node->_shutdown); returns error code (or 0 if none)
