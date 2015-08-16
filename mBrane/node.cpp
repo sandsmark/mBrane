@@ -263,9 +263,9 @@ namespace	mBrane{
 				XMLNode	p=parameters.getChildNode("Parameter",i);
 				const	char	*_type=p.getAttribute("type");
 				const	char	*_value=p.getAttribute("value");
-				if(strcmp(_type,"float32")==0){
+				if(strcmp(_type,"float")==0){
 
-					float32	value=(float32)atof(_value);
+					float	value=(float)atof(_value);
 					numerical_args.push_back(*reinterpret_cast<word32	*>(&value));
 				}else	if(strcmp(_type,"int32")==0)
 					numerical_args.push_back(atoi(_value));
@@ -641,7 +641,7 @@ namespace	mBrane{
 		Messaging::send(dm,network);
 	}
 
-	void	Node::activateModule(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,float32	activationLevel,Network	network){
+	void	Node::activateModule(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,float	activationLevel,Network	network){
 
 		ActivateModule	*a=new	ActivateModule();
 		a->host_id=_ID;
@@ -652,7 +652,7 @@ namespace	mBrane{
 		send(sender,a,network);
 	}
 
-	void	Node::activateSpace(const	_Module	*sender,uint16	space_id,uint16	target_sid,float32	activationLevel,Network	network){
+	void	Node::activateSpace(const	_Module	*sender,uint16	space_id,uint16	target_sid,float	activationLevel,Network	network){
 
 		ActivateSpace	*a=new	ActivateSpace();
 		a->host_id=_ID;
@@ -662,7 +662,7 @@ namespace	mBrane{
 		send(sender,a,network);
 	}
 
-	void	Node::setSpaceThreshold(const	_Module	*sender,uint16	space_id,float32	threshold,Network	network){
+	void	Node::setSpaceThreshold(const	_Module	*sender,uint16	space_id,float	threshold,Network	network){
 
 		SetThreshold	*s=new	SetThreshold();
 		s->host_id=_ID;

@@ -95,7 +95,7 @@ namespace	mBrane{
 			deactivate();
 	}
 
-	template<class	C>	inline	void	Projection<C>::setActivationLevel(float32	a){
+	template<class	C>	inline	void	Projection<C>::setActivationLevel(float	a){
 
 		if(!Projection<C>::space->activationCount){
 
@@ -111,7 +111,7 @@ namespace	mBrane{
 			deactivate();
 	}
 
-	template<class	C>	inline	void	Projection<C>::updateActivationCount(float32	t){
+	template<class	C>	inline	void	Projection<C>::updateActivationCount(float	t){
 
 		if(Projection<C>::activationLevel<Projection<C>::space->getActivationThreshold()	||	Projection<C>::space->reactivated){
 
@@ -156,7 +156,7 @@ namespace	mBrane{
 		projections[hostID][spaceID]=typename List<P<Projection<C> >,16>::Iterator();
 	}
 
-	template<class	C>	inline	void	Projectable<C>::setActivationLevel(uint8	hostID,uint16	spaceID,float32	a){
+	template<class	C>	inline	void	Projectable<C>::setActivationLevel(uint8	hostID,uint16	spaceID,float	a){
 		if(!projections[hostID][spaceID])
 			project(hostID,spaceID);
 		(*projections[hostID][spaceID])->setActivationLevel(a);

@@ -142,11 +142,11 @@ namespace	mBrane{
 					goto	error;
 				}
 				s->initialProjections[i].spaceID=_s->ID;
-				s->initialProjections[i].activationLevel=(float32)atof(_activationLevel);
+				s->initialProjections[i].activationLevel=(float)atof(_activationLevel);
 			}
 		}
 
-		s->initialActivationThreshold=(float32)atof(_activationThreshold);
+		s->initialActivationThreshold=(float)atof(_activationThreshold);
 
 		return	s;
 error:	Space::Config[s->ID]=NULL;
@@ -204,7 +204,7 @@ error:	Space::Config[s->ID]=NULL;
 		return	name;
 	}
 
-	void	Space::setActivationThreshold(float32	thr){
+	void	Space::setActivationThreshold(float	thr){
 
 		_activationThreshold=thr;
 		if(!activationCount)
@@ -212,7 +212,7 @@ error:	Space::Config[s->ID]=NULL;
 		_activate();
 	}
 
-	float32	Space::getActivationThreshold(){
+	float	Space::getActivationThreshold(){
 
 		return	_activationThreshold;
 	}

@@ -348,7 +348,7 @@ namespace	core{
 	// TODO
 #endif
 
-	float64	Time::Period;
+    double	Time::Period;
 	
 	int64	Time::InitTime;
 
@@ -1257,7 +1257,7 @@ namespace	core{
 		r521_index=0;
 	}
 
-	float32	Random::operator	()(uint32	range){
+	float	Random::operator	()(uint32	range){
 		/*
 		I prescale the indices by sizeof(unsigned long) to eliminate
 		four shlwi instructions in the compiled code.  This minor optimization
@@ -1296,8 +1296,8 @@ namespace	core{
 		i2=(i2!=sizeof(uint32)*(R521_LEN-1))?(i2 + sizeof(uint32)):0;
 		r521_index=i2;
 
-		float32	_r=r^s;
-		//return	range*(_r/((float32)ULONG_MAX));
+		float	_r=r^s;
+		//return	range*(_r/((float)ULONG_MAX));
 		return	_r;
 	}
 }

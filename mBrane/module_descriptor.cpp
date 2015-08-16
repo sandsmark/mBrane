@@ -156,9 +156,9 @@ namespace	mBrane{
 					XMLNode	p=parameters.getChildNode("Parameter",i);
 					const	char	*_type=p.getAttribute("type");
 					const	char	*_value=p.getAttribute("value");
-					if(strcmp(_type,"float32")==0){
+					if(strcmp(_type,"float")==0){
 
-						float32	value=(float32)atof(_value);
+						float	value=(float)atof(_value);
 						numerical_args.push_back(*reinterpret_cast<word32	*>(&value));
 					}else	if(strcmp(_type,"int32")==0)
 						numerical_args.push_back(atoi(_value));
@@ -207,7 +207,7 @@ namespace	mBrane{
 					goto	error;
 				}
 				m->initialProjections[i].spaceID=_s->ID;
-				m->initialProjections[i].activationLevel=(float32)atof(_activationLevel);
+				m->initialProjections[i].activationLevel=(float)atof(_activationLevel);
 				uint16	subscriptionCount=projection.nChildNode("Subscription");
 				for(uint16	j=0;j<subscriptionCount;j++){
 
@@ -426,7 +426,7 @@ error:	ModuleDescriptor::Config[CID][m->ID]=NULL;
 		}
 	}
 
-	void	Projection<ModuleDescriptor>::setActivationLevel(float32	a){
+	void	Projection<ModuleDescriptor>::setActivationLevel(float	a){
 
 		if(!space->activationCount){
 
@@ -442,7 +442,7 @@ error:	ModuleDescriptor::Config[CID][m->ID]=NULL;
 			deactivate();
 	}
 
-	void	Projection<ModuleDescriptor>::updateActivationCount(float32	t){
+	void	Projection<ModuleDescriptor>::updateActivationCount(float	t){
 
 		if(activationLevel<space->getActivationThreshold()	||	space->reactivated){
 

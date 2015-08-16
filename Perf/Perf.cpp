@@ -94,7 +94,7 @@ void Init(const	std::vector<word32>	&numbers,const	std::vector<std::string>	&str
 	int32	a = 0;
 	if (numbers.size() > 0) {
 		a=numbers[0];
-		float32	f=*reinterpret_cast<float32	*>(&a);
+		float	f=*reinterpret_cast<float	*>(&a);
 		if ( (numbers.size() > 1) && (strings.size() > 0) )
 			std::cout << "Info: Perf library loaded with parameters:"<<f<<" "<<numbers[1]<<" "<<strings[0]<<std::endl;
 	}
