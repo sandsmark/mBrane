@@ -135,7 +135,7 @@ namespace	core{
 			pthread_cond_t semaphore;
 		};
 	#endif
-/*
+
 	class	core_dll	SharedLibrary{
 	private:
 		shared_object	library;
@@ -145,7 +145,7 @@ namespace	core{
 		~SharedLibrary();
 		SharedLibrary	*load(const	char	*fileName);
 		template<typename	T>	T	getFunction(const	char	*functionName);
-        };*/
+        };
 
         class	core_dll	Thread{
 	private:
@@ -154,7 +154,7 @@ namespace	core{
 	protected:
 		Thread();
 	public:
-                template<class	T>	static	T	*New(std::function<void>	f,void	*args);
+                template<class	T>	static	T	*New(thread_function	f,void	*args);
                 static	void	TerminateAndWait(Thread	**threads,uint32_t	threadCount);
 		static	void	TerminateAndWait(Thread	*_thread);
                 static	void	Wait(Thread	**threads,uint32_t	threadCount);
