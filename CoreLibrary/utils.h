@@ -135,14 +135,6 @@ public:
     static void PrintBinary(void *p, uint32_t size, bool asInt, const char *title = NULL);
 };
 
-#if defined WINDOWS
-#elif defined LINUX
-struct SemaTex {
-    pthread_mutex_t mutex;
-    pthread_cond_t semaphore;
-};
-#endif
-
 class core_dll SharedLibrary
 {
 private:
@@ -224,21 +216,6 @@ public:
 };
 
 uint8_t core_dll BSR(uint32_t data); // BitScanReverse
-
-class core_dll String
-{
-public:
-    static int32_t StartsWith(const std::string &s, const std::string &str);
-    static int32_t EndsWith(const std::string &s, const std::string &str);
-    static void MakeUpper(std::string &str);
-    static void MakeLower(std::string &str);
-    static void Trim(std::string &str, const char *chars2remove = " ");
-    static void TrimLeft(std::string &str, const char *chars2remove = " ");
-    static void TrimRight(std::string &str, const char *chars2remove = " ");
-    static void ReplaceLeading(std::string &str, const char *chars2replace, char c);
-    static std::string Int2String(int64_t i);
-    static std::string Uint2String(uint64_t i);
-};
 
 class core_dll Random
 {
