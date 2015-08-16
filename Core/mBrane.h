@@ -73,13 +73,13 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef	mBrane_h
-#define	mBrane_h
+#ifndef mBrane_h
+#define mBrane_h
 
 
-#include	"module.h"
-#include	"control_messages.h"
-#include	"payload_utils.h"
+#include "module.h"
+#include "control_messages.h"
+#include "payload_utils.h"
 
 
 #endif

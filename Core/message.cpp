@@ -73,17 +73,17 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include	"message.h"
+#include "message.h"
 
 
-namespace	mBrane
+namespace mBrane
 {
-namespace	sdk
+namespace sdk
 {
-namespace	payloads
+namespace payloads
 {
 
-_StreamData::_StreamData(uint16_t	sid): _sid(sid)
+_StreamData::_StreamData(uint16_t sid): _sid(sid)
 {
 }
 
@@ -91,9 +91,9 @@ _StreamData::~_StreamData()
 {
 }
 
-uint16_t	&_StreamData::sid()
+uint16_t &_StreamData::sid()
 {
-    return	_sid;
+    return _sid;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -106,19 +106,19 @@ _Message::~_Message()
 {
 }
 
-uint16_t	&_Message::senderModule_cid()
+uint16_t &_Message::senderModule_cid()
 {
-    return	_senderModuleCID;
+    return _senderModuleCID;
 }
 
-uint16_t	&_Message::senderModule_id()
+uint16_t &_Message::senderModule_id()
 {
-    return	_senderModuleID;
+    return _senderModuleID;
 }
 
-uint16_t	&_Message::senderNodeID()
+uint16_t &_Message::senderNodeID()
 {
-    return	_senderNodeID;
+    return _senderNodeID;
 }
 }
 }

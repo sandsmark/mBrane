@@ -73,77 +73,77 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef	mBrane_sdk_module_node_h
-#define	mBrane_sdk_module_node_h
+#ifndef mBrane_sdk_module_node_h
+#define mBrane_sdk_module_node_h
 
-#include	"payload.h"
-#include	<iostream>
+#include "payload.h"
+#include <iostream>
 
-namespace	mBrane
+namespace mBrane
 {
-namespace	sdk
-{
-
-namespace	module
+namespace sdk
 {
 
-class	_Module;
+namespace module
+{
 
-//	Node API, as seen from the module
-class	mBrane_dll	Node
+class _Module;
+
+// Node API, as seen from the module
+class mBrane_dll Node
 {
 private:
-    static	Node	*Singleton;
+    static Node *Singleton;
 protected:
-    static	std::ostream	*Streams[3];
-    uint8_t	_ID;	//	max: 0x7F
-    Node(uint8_t	ID);
+    static std::ostream *Streams[3];
+    uint8_t _ID; // max: 0x7F
+    Node(uint8_t ID);
     ~Node();
 public:
-    static	const	uint8_t	NoID = 0xFF;
-    typedef	enum {
+    static const uint8_t NoID = 0xFF;
+    typedef enum {
         PRIMARY = 0,
         SECONDARY = 1,
         BOTH = 2,
         LOCAL = 3,
         EITHER = 4
     } Network;
-    typedef	enum {
+    typedef enum {
         EXECUTION = 0,
         NETWORK = 1,
         APPLICATION = 2
     } TraceLevel;
-    static	Node	*Get();
-    static	std::ostream	&trace(TraceLevel	l);
-    uint8_t	id()	const;
-    virtual	const	char	*name() = 0;
-    virtual	void	send(const	_Module	*sender, _Payload	*p, Network	network = PRIMARY) = 0;
-    virtual	void	send(const	_Module	*sender, _Payload	*message, uint8_t	nodeID, Network	network = PRIMARY) = 0;
-    virtual	uint64_t	time()	const = 0;	//	in us since 01/01/70
-    virtual	void	newSpace(const	_Module	*sender, Network	network = PRIMARY) = 0;	//	names are meaningless for dynamic instances
-    virtual	void	newModule(const	_Module	*sender, uint16_t	CID, Network	network = PRIMARY, const	char	*hostName = "local") = 0;
-    virtual	void	deleteSpace(uint16_t	ID, Network	network = PRIMARY) = 0;
-    virtual	void	deleteModule(uint16_t	CID, uint16_t	ID, Network	network = PRIMARY) = 0;
-    virtual	void	activateModule(const	_Module	*sender, uint16_t	module_cid, uint16_t	module_id, uint16_t	space_id, float	activationLevel, Network	network = PRIMARY) = 0;
-    virtual	void	activateSpace(const	_Module	*sender, uint16_t	space_id, uint16_t	target_sid, float	activationLevel, Network	network = PRIMARY) = 0;
-    virtual	void	setSpaceThreshold(const	_Module	*sender, uint16_t	space_id, float	threshold, Network	network = PRIMARY) = 0;
-    virtual	void	subscribeMessage(const	_Module	*sender, uint16_t	module_cid, uint16_t	module_id, uint16_t	space_id, uint16_t	message_cid, Network	network = PRIMARY) = 0;
-    virtual	void	unsubscribeMessage(const	_Module	*sender, uint16_t	module_cid, uint16_t	module_id, uint16_t	space_id, uint16_t	message_cid, Network	network = PRIMARY) = 0;
-    virtual	void	subscribeStream(const	_Module	*sender, uint16_t	module_cid, uint16_t	module_id, uint16_t	space_id, uint16_t	stream_id, Network	network = PRIMARY) = 0;
-    virtual	void	unsubscribeStream(const	_Module	*sender, uint16_t	module_cid, uint16_t	module_id, uint16_t	space_id, uint16_t	stream_id, Network	network = PRIMARY) = 0;
-    virtual	const	char	*getSpaceName(uint16_t	hostID, uint16_t	ID) = 0;
-    virtual	const	char	*getModuleName(uint16_t	CID) = 0;
-    virtual uint8_t	getNodeID(const char *name) = 0;
-    //	Interface for caching.
-    virtual	void		markUnused(_Payload	*p) = 0;
-    virtual	void		addConstantObject(_Payload	*c, const	std::string	&name) = 0;
-    virtual	_Payload	*getConstantObject(uint32_t	OID) = 0;
-    virtual	_Payload	*getConstantObject(const	std::string	&name) = 0;
-    virtual	void		addLookup(uint8_t	sourceNID, uint32_t	OID) = 0;
-    virtual	bool		hasLookup(uint8_t	destinationNID, uint32_t	OID) = 0;
-    virtual	void		addSharedObject(_Payload	*p) = 0;
-    virtual	_Payload	*getSharedObject(uint32_t	OID) = 0;
-    virtual	void		consolidate(_Payload	*p) = 0;
+    static Node *Get();
+    static std::ostream &trace(TraceLevel l);
+    uint8_t id() const;
+    virtual const char *name() = 0;
+    virtual void send(const _Module *sender, _Payload *p, Network network = PRIMARY) = 0;
+    virtual void send(const _Module *sender, _Payload *message, uint8_t nodeID, Network network = PRIMARY) = 0;
+    virtual uint64_t time() const = 0; // in us since 01/01/70
+    virtual void newSpace(const _Module *sender, Network network = PRIMARY) = 0; // names are meaningless for dynamic instances
+    virtual void newModule(const _Module *sender, uint16_t CID, Network network = PRIMARY, const char *hostName = "local") = 0;
+    virtual void deleteSpace(uint16_t ID, Network network = PRIMARY) = 0;
+    virtual void deleteModule(uint16_t CID, uint16_t ID, Network network = PRIMARY) = 0;
+    virtual void activateModule(const _Module *sender, uint16_t module_cid, uint16_t module_id, uint16_t space_id, float activationLevel, Network network = PRIMARY) = 0;
+    virtual void activateSpace(const _Module *sender, uint16_t space_id, uint16_t target_sid, float activationLevel, Network network = PRIMARY) = 0;
+    virtual void setSpaceThreshold(const _Module *sender, uint16_t space_id, float threshold, Network network = PRIMARY) = 0;
+    virtual void subscribeMessage(const _Module *sender, uint16_t module_cid, uint16_t module_id, uint16_t space_id, uint16_t message_cid, Network network = PRIMARY) = 0;
+    virtual void unsubscribeMessage(const _Module *sender, uint16_t module_cid, uint16_t module_id, uint16_t space_id, uint16_t message_cid, Network network = PRIMARY) = 0;
+    virtual void subscribeStream(const _Module *sender, uint16_t module_cid, uint16_t module_id, uint16_t space_id, uint16_t stream_id, Network network = PRIMARY) = 0;
+    virtual void unsubscribeStream(const _Module *sender, uint16_t module_cid, uint16_t module_id, uint16_t space_id, uint16_t stream_id, Network network = PRIMARY) = 0;
+    virtual const char *getSpaceName(uint16_t hostID, uint16_t ID) = 0;
+    virtual const char *getModuleName(uint16_t CID) = 0;
+    virtual uint8_t getNodeID(const char *name) = 0;
+    // Interface for caching.
+    virtual void markUnused(_Payload *p) = 0;
+    virtual void addConstantObject(_Payload *c, const std::string &name) = 0;
+    virtual _Payload *getConstantObject(uint32_t OID) = 0;
+    virtual _Payload *getConstantObject(const std::string &name) = 0;
+    virtual void addLookup(uint8_t sourceNID, uint32_t OID) = 0;
+    virtual bool hasLookup(uint8_t destinationNID, uint32_t OID) = 0;
+    virtual void addSharedObject(_Payload *p) = 0;
+    virtual _Payload *getSharedObject(uint32_t OID) = 0;
+    virtual void consolidate(_Payload *p) = 0;
 };
 }
 }

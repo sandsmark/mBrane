@@ -73,17 +73,17 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include	"CoreTest.h"
+#include "CoreTest.h"
 
-int	main(int	argc, char	**argv)
+int main(int argc, char **argv)
 {
-//	uint32_t test = (uint32_t)BSR(6176);
-//	printf("BSR(6176) = %u\n\n", test);
+// uint32_t test = (uint32_t)BSR(6176);
+// printf("BSR(6176) = %u\n\n", test);
     Time::Init(1000);
     int n;
     printf("Testing single timer...\n");
-    TimeProbe	probe;
-    Timer	_timer;
+    TimeProbe probe;
+    Timer _timer;
 
     for (n = 0; n < 10; n++) {
         probe.set();
@@ -103,5 +103,5 @@ int	main(int	argc, char	**argv)
         std::cout << "probe1: " << probe.us() << std::endl;
     }
 
-    return	0;
+    return 0;
 }

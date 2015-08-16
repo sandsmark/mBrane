@@ -76,40 +76,40 @@
 //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
 
-#ifndef	mBrane_tcp_interface_h
-#define	mBrane_tcp_interface_h
+#ifndef mBrane_tcp_interface_h
+#define mBrane_tcp_interface_h
 
-#include	"utils.h"
-#include	"xml_parser.h"
-#include	"../Core/network_interface.h"
+#include "utils.h"
+#include "xml_parser.h"
+#include "../Core/network_interface.h"
 
-using	namespace	mBrane;
-using	namespace	mBrane::sdk;
+using namespace mBrane;
+using namespace mBrane::sdk;
 
-class	TCPInterface:
-    public	NetworkInterface
+class TCPInterface:
+    public NetworkInterface
 {
 private:
-    static	uint32_t Intialized;
-    static	bool	Init();
-    static	void	Shutdown();
-    core::socket	s;
-    struct in_addr	address;
+    static uint32_t Intialized;
+    static bool Init();
+    static void Shutdown();
+    core::socket s;
+    struct in_addr address;
     uint32_t port;
     TCPInterface();
-    bool	load(XMLNode	&n);
+    bool load(XMLNode &n);
 public:
-    static	TCPInterface	*New(XMLNode	&n);
+    static TCPInterface *New(XMLNode &n);
     ~TCPInterface();
-    bool	operator	==(NetworkInterface	&i);
-    bool	operator	!=(NetworkInterface	&i);
-    bool	canBroadcast();
+    bool operator ==(NetworkInterface &i);
+    bool operator !=(NetworkInterface &i);
+    bool canBroadcast();
     uint16_t start();
     uint16_t stop();
     uint16_t getIDSize();
-    void	fillID(uint8_t *ID);
-    uint16_t newChannel(uint8_t *ID, CommChannel	**channel);
-    uint16_t acceptConnection(ConnectedCommChannel	**channel, int32_t timeout, bool	&timedout);
+    void fillID(uint8_t *ID);
+    uint16_t newChannel(uint8_t *ID, CommChannel **channel);
+    uint16_t acceptConnection(ConnectedCommChannel **channel, int32_t timeout, bool &timedout);
 };
 
 

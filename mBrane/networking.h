@@ -73,44 +73,44 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef	mBrane_networking_h
-#define	mBrane_networking_h
+#ifndef mBrane_networking_h
+#define mBrane_networking_h
 
-#include	"../Core/network_interface.h"
-#include	"network_id.h"
+#include "../Core/network_interface.h"
+#include "network_id.h"
 
-#include	"pipe.h"
-#include	"../Core/list.h"
-#include	"../Core/control_messages.h"
-#include	"messaging.h"
+#include "pipe.h"
+#include "../Core/list.h"
+#include "../Core/control_messages.h"
+#include "messaging.h"
 
-using	namespace	mBrane::sdk;
-using	namespace	mBrane::sdk::mdaemon;
+using namespace mBrane::sdk;
+using namespace mBrane::sdk::mdaemon;
 
-namespace	mBrane
+namespace mBrane
 {
 
-#define CONTROL_PRIMARY_INITIALISED		0x0001
-#define DATA_PRIMARY_INITIALISED		0x0002
-#define STREAM_PRIMARY_INITIALISED		0x0004
-#define CONTROL_SECONDARY_INITIALISED	0x0008
-#define DATA_SECONDARY_INITIALISED		0x0010
-#define STREAM_SECONDARY_INITIALISED	0x0020
-#define CONTROL_PRIMARY_CONNECTED		0x0040
-#define DATA_PRIMARY_CONNECTED			0x0080
-#define STREAM_PRIMARY_CONNECTED		0x0100
-#define CONTROL_SECONDARY_CONNECTED		0x0200
-#define DATA_SECONDARY_CONNECTED		0x0400
-#define STREAM_SECONDARY_CONNECTED		0x0800
+#define CONTROL_PRIMARY_INITIALISED 0x0001
+#define DATA_PRIMARY_INITIALISED 0x0002
+#define STREAM_PRIMARY_INITIALISED 0x0004
+#define CONTROL_SECONDARY_INITIALISED 0x0008
+#define DATA_SECONDARY_INITIALISED 0x0010
+#define STREAM_SECONDARY_INITIALISED 0x0020
+#define CONTROL_PRIMARY_CONNECTED 0x0040
+#define DATA_PRIMARY_CONNECTED 0x0080
+#define STREAM_PRIMARY_CONNECTED 0x0100
+#define CONTROL_SECONDARY_CONNECTED 0x0200
+#define DATA_SECONDARY_CONNECTED 0x0400
+#define STREAM_SECONDARY_CONNECTED 0x0800
 
-class	NodeCon;
+class NodeCon;
 struct ReceiveThreadInfo {
     NodeCon *con;
     CommChannel *channel;
 };
 
-class	Networking;
-class	NodeCon
+class Networking;
+class NodeCon
 {
 public:
     NodeCon(Networking *node);
@@ -127,108 +127,108 @@ public:
     bool startNetworkChannel(CommChannel *c, uint8_t type, bool isCopy = false);
     CommChannel *getNetworkChannel(uint8_t type);
 
-    Networking		*node;
-    NetworkID		*networkID;
-    uint8_t 		sourceNID;
-    char			*name;
-    bool			joined;
-    bool			ready;
+    Networking *node;
+    NetworkID *networkID;
+    uint8_t  sourceNID;
+    char *name;
+    bool joined;
+    bool ready;
 
-    Array<CommChannel *, 6>		commChannels;
-    Array<Thread *, 6>	commThreads;
-    Thread					*pushThread;
+    Array<CommChannel *, 6> commChannels;
+    Array<Thread *, 6> commThreads;
+    Thread *pushThread;
 
-    Pipe11<P<_Payload>, MESSAGE_INPUT_BLOCK_SIZE>	buffer;	//	incoming messages from remote nodes
-    static	thread_ret thread_function_call	ReceiveMessages(void	*args);
-    static	thread_ret thread_function_call	PushJobs(void	*args);
+    Pipe11<P<_Payload>, MESSAGE_INPUT_BLOCK_SIZE> buffer; // incoming messages from remote nodes
+    static thread_ret thread_function_call ReceiveMessages(void *args);
+    static thread_ret thread_function_call PushJobs(void *args);
 };
 
-class	Messaging;
-//	Handles network initialization and connection.
-//	Handles two isolated networks: primary (ex: core computation) and secondary (ex: I/O, signal processing)
-//	Network IDs carry the primary, secondary or both identifications
-//	When receiving a bcast id bearing two, connect to the primary only
-//	When sending to a node, use the primary only if two are available
-//	Receiving is agnostic
+class Messaging;
+// Handles network initialization and connection.
+// Handles two isolated networks: primary (ex: core computation) and secondary (ex: I/O, signal processing)
+// Network IDs carry the primary, secondary or both identifications
+// When receiving a bcast id bearing two, connect to the primary only
+// When sending to a node, use the primary only if two are available
+// Receiving is agnostic
 //
-//	Reference nodes must be on the primary network
+// Reference nodes must be on the primary network
 //
-//	Node boot sequence:
+// Node boot sequence:
 //
-//		1 boot one single node with a timeout (if it times out, it's the ref node)
-//		2 when ready (callback), boot all the other nodes
+// 1 boot one single node with a timeout (if it times out, it's the ref node)
+// 2 when ready (callback), boot all the other nodes
 //
-//	Algorithm for node connection:
+// Algorithm for node connection:
 //
-//		bcast its net ID on discovery channel
-//		accept connections:
-//			if timedout this is ref node, scan IDs on discovery channel
-//			else
-//				the ref node sends (on data channel if control channel is bcast, on control channel otherwise): its own net ID, an assigned NID and the net map (i.e. the list of ready nodes net ID)
-//				connect to each node in the list excepted the sender
-//		if(ref node) send time sync periodically on control channel
-//		start messages sending and receiving threads
+// bcast its net ID on discovery channel
+// accept connections:
+// if timedout this is ref node, scan IDs on discovery channel
+// else
+// the ref node sends (on data channel if control channel is bcast, on control channel otherwise): its own net ID, an assigned NID and the net map (i.e. the list of ready nodes net ID)
+// connect to each node in the list excepted the sender
+// if(ref node) send time sync periodically on control channel
+// start messages sending and receiving threads
 //
-//	When at least one connection to a remote node dies, the node in question is considred dead and the other connections to it are terminated
-//	if the ref node dies, the node with the lowest NID is the new ref node
-class	mbrane_dll	Networking:
-    public	mdaemon::Node, public	Messaging
+// When at least one connection to a remote node dies, the node in question is considred dead and the other connections to it are terminated
+// if the ref node dies, the node with the lowest NID is the new ref node
+class mbrane_dll Networking:
+    public mdaemon::Node, public Messaging
 {
-    friend	class	Messaging;
-    friend	class	RecvThread;
-//	friend	class	Messaging;
-    friend	class	NodeCon;
+    friend class Messaging;
+    friend class RecvThread;
+// friend class Messaging;
+    friend class NodeCon;
 protected:
-    Host::host_name	hostName;
-    uint8_t 		hostNameSize;
+    Host::host_name hostName;
+    uint8_t  hostNameSize;
 
-    typedef	void	(*BootCallback)();
-    SharedLibrary	*callbackLibrary;
-    BootCallback	bootCallback;
+    typedef void (*BootCallback)();
+    SharedLibrary *callbackLibrary;
+    BootCallback bootCallback;
 
-    DynamicClassLoader<NetworkInterface>	*networkInterfaceLoaders[7];
-    NetworkInterface						*networkInterfaces[7];
+    DynamicClassLoader<NetworkInterface> *networkInterfaceLoaders[7];
+    NetworkInterface *networkInterfaces[7];
 
-    Network	network;
-    CriticalSection	acceptConnectionCS;
+    Network network;
+    CriticalSection acceptConnectionCS;
 
-    bool	startInterfaces();
-    void	stopInterfaces();
+    bool startInterfaces();
+    void stopInterfaces();
 
-    int32_t bcastTimeout;	//	in ms
+    int32_t bcastTimeout; // in ms
 
     uint8_t connectedNodeCount;
 
-    NetworkID	*networkID;
+    NetworkID *networkID;
 
-    //class	DataCommChannel{
+    //class DataCommChannel{
     //public:
-    //	DataCommChannel();
-    //	~DataCommChannel();
-    //	typedef	struct{
-    //		CommChannel	*data;
-    //		CommChannel	*stream;
-    //	}CommChannels;
-    //	CommChannels	channels[2];	//	1 for each network
-    //	NetworkID		*networkID;
+    // DataCommChannel();
+    // ~DataCommChannel();
+    // typedef struct{
+    // CommChannel *data;
+    // CommChannel *stream;
+    // }CommChannels;
+    // CommChannels channels[2]; // 1 for each network
+    // NetworkID *networkID;
     //};
-    CommChannel									*discoveryChannel;	//	bcast
-    CommChannel									*broadcastChannel[2];	//	bcast
-//		Array<CommChannel	*,32>					controlChannels[2];	//	for each network: 1 (bcast capable) or many (connected)
-//		Array<DataCommChannel	*,32,ArrayManaged>	dataChannels;
-    CriticalSection								channelsCS;	//	protects controlChannels and dataChannels
-    UNORDERED_MAP<uint8_t, NodeCon *>				nodes;
+    CommChannel *discoveryChannel; // bcast
+    CommChannel *broadcastChannel[2]; // bcast
+// Array<CommChannel *,32> controlChannels[2]; // for each network: 1 (bcast capable) or many (connected)
+// Array<DataCommChannel *,32,ArrayManaged> dataChannels;
+    CriticalSection channelsCS; // protects controlChannels and dataChannels
+    UNORDERED_MAP<uint8_t, NodeCon *> nodes;
 
-    bool	isTimeReference;
+    bool isTimeReference;
     uint8_t referenceNID;
-    void	setNewReference();
+    void setNewReference();
 
-    virtual	void	startReceivingThreads(uint8_t NID) = 0;
-    virtual	void	notifyNodeJoined(uint8_t NID, NetworkID	*networkID) = 0;
-    virtual	void	notifyNodeLeft(uint8_t NID) = 0;
-    virtual	void	shutdown();
+    virtual void startReceivingThreads(uint8_t NID) = 0;
+    virtual void notifyNodeJoined(uint8_t NID, NetworkID *networkID) = 0;
+    virtual void notifyNodeLeft(uint8_t NID) = 0;
+    virtual void shutdown();
 
-    Array<Thread *, 32>	commThreads;
+    Array<Thread *, 32> commThreads;
 
     bool checkSyncProbe(uint8_t syncNodeID);
     void systemReady();
@@ -239,41 +239,41 @@ protected:
     bool allNodesJoined();
     bool allNodesReady();
 
-    static	thread_ret thread_function_call	ScanIDs(void	*args);
-    typedef	struct {
-        Networking			*node;
-        int32_t 			timeout;
-        Network				network;
-        _Payload::Category	category;
+    static thread_ret thread_function_call ScanIDs(void *args);
+    typedef struct {
+        Networking *node;
+        int32_t  timeout;
+        Network network;
+        _Payload::Category category;
     } AcceptConnectionArgs;
-    static	thread_ret thread_function_call	AcceptConnections(void	*args);
-    static	thread_ret thread_function_call	Sync(void	*args);
-    int64_t timeDrift;	//	in ms
-    int64_t syncPeriod;	//	in ms
+    static thread_ret thread_function_call AcceptConnections(void *args);
+    static thread_ret thread_function_call Sync(void *args);
+    int64_t timeDrift; // in ms
+    int64_t syncPeriod; // in ms
 
-    uint16_t sendID(CommChannel	*c, NetworkID	*networkID);
-    uint16_t recvID(CommChannel	*c, NetworkID	*&networkID, bool expectToken = true);
-    uint16_t sendMap(CommChannel	*c);
-    uint16_t recvMap(CommChannel	*c, NetworkID	*fromNetworkID);
-    uint16_t connect(NetworkID	*networkID);
-    uint16_t connect(Network	network, NetworkID	*networkID);
-    void	_broadcastControlMessage(_Payload	*p, Network	network);
-    void	broadcastControlMessage(_Payload	*p, Network	network);
-    void	_sendControlMessage(_Payload	*p, uint8_t destinationNID, Network	network);
-    void	sendControlMessage(_Payload	*p, uint8_t destinationNID, Network	network);
-    void	sendData(uint8_t NID, _Payload	*p, Network	network);
-    void	sendStreamData(uint8_t NID, _Payload	*p, Network	network);
-    void	processError(uint8_t NID);	//	upon send/recv error. Disconnect the node on both networks
+    uint16_t sendID(CommChannel *c, NetworkID *networkID);
+    uint16_t recvID(CommChannel *c, NetworkID *&networkID, bool expectToken = true);
+    uint16_t sendMap(CommChannel *c);
+    uint16_t recvMap(CommChannel *c, NetworkID *fromNetworkID);
+    uint16_t connect(NetworkID *networkID);
+    uint16_t connect(Network network, NetworkID *networkID);
+    void _broadcastControlMessage(_Payload *p, Network network);
+    void broadcastControlMessage(_Payload *p, Network network);
+    void _sendControlMessage(_Payload *p, uint8_t destinationNID, Network network);
+    void sendControlMessage(_Payload *p, uint8_t destinationNID, Network network);
+    void sendData(uint8_t NID, _Payload *p, Network network);
+    void sendStreamData(uint8_t NID, _Payload *p, Network network);
+    void processError(uint8_t NID); // upon send/recv error. Disconnect the node on both networks
     uint8_t addNodeEntry();
 
-    bool	init();
-    virtual	void	start(uint8_t assignedNID, NetworkID	*networkNID, bool	isTimeReference);
-    bool	startSync();
+    bool init();
+    virtual void start(uint8_t assignedNID, NetworkID *networkNID, bool isTimeReference);
+    bool startSync();
 
     Networking();
     ~Networking();
-    bool	loadInterface(XMLNode	&interfaces, XMLNode	&config, const	char	*name, InterfaceType	type);
-    bool	loadConfig(XMLNode	&n);
+    bool loadInterface(XMLNode &interfaces, XMLNode &config, const char *name, InterfaceType type);
+    bool loadConfig(XMLNode &n);
 };
 }
 

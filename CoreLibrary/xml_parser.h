@@ -54,7 +54,7 @@
 #define _XMLWINDOWS
 #endif
 
-#define	_USE_XMLPARSER_DLL
+#define _USE_XMLPARSER_DLL
 
 #ifdef XMLDLLENTRY
 #undef XMLDLLENTRY
@@ -111,7 +111,7 @@
 #define TRUE 1
 #endif /* TRUE */
 
-namespace	core
+namespace core
 {
 // Enumeration for XML parse errors.
 typedef enum XMLError {
@@ -265,10 +265,10 @@ public:
     char isDeclaration() const;                                      // is this node a declaration <? .... ?>
     static XMLNode emptyNode();                                      // return XMLNode::emptyXMLNode;
 
-#pragma	warning(disable:	4800)	//	warning: forcing value to bool
-    bool	operator	!()
+#pragma warning(disable: 4800) // warning: forcing value to bool
+    bool operator !()
     {
-        return	isEmpty();
+        return isEmpty();
     }
 
 // to allow shallow/fast copy:

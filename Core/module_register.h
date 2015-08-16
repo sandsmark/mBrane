@@ -76,38 +76,38 @@
 #ifndef mBrane_sdk_module_register_h
 #define mBrane_sdk_module_register_h
 
-#include	"array.h"
-#include	"module.h"
+#include "array.h"
+#include "module.h"
 
 
-namespace	mBrane
+namespace mBrane
 {
-namespace	sdk
+namespace sdk
 {
 
-//	Allows to retrieve module class data from module class IDs.
-//	Allows to retrieve module class IDs from module class names.
-class	mBrane_dll	ModuleRegister
+// Allows to retrieve module class data from module class IDs.
+// Allows to retrieve module class IDs from module class names.
+class mBrane_dll ModuleRegister
 {
 public:
-    typedef	module::_Module	*(*ModuleBuilder)();
+    typedef module::_Module *(*ModuleBuilder)();
 private:
-    static	Array<ModuleRegister, 1024>	*Modules;
-    static	Array<ModuleRegister, 1024>	*Get();
-    //	Module class data
-    ModuleBuilder	_builder;
-    char			class_name[255];
+    static Array<ModuleRegister, 1024> *Modules;
+    static Array<ModuleRegister, 1024> *Get();
+    // Module class data
+    ModuleBuilder _builder;
+    char class_name[255];
 public:
-    static	uint16_t Load(ModuleBuilder	b, const	char	*className);
-    static	ModuleRegister	*Get(uint16_t CID);
-    static	uint16_t GetCID(const	char	*className);
-    static	uint16_t Count();
+    static uint16_t Load(ModuleBuilder b, const char *className);
+    static ModuleRegister *Get(uint16_t CID);
+    static uint16_t GetCID(const char *className);
+    static uint16_t Count();
     ModuleRegister();
     ~ModuleRegister();
-    module::_Module	*buildModule()	const;
-    const	char	*name()	const;
+    module::_Module *buildModule() const;
+    const char *name() const;
 
-    static	void	Cleanup();
+    static void Cleanup();
 };
 }
 }

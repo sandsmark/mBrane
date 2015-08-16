@@ -73,32 +73,32 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include	"messaging.h"
-#include	"projection.tpl.cpp"
+#include "messaging.h"
+#include "projection.tpl.cpp"
 
-#include	"../Core/control_messages.h"
-#include	"../Core/module_register.h"
+#include "../Core/control_messages.h"
+#include "../Core/module_register.h"
 
-#include	"node.h"
+#include "node.h"
 
-#define	DC	0	//	Data and Control
-#define	ST	1	//	Streams
+#define DC 0 // Data and Control
+#define ST 1 // Streams
 
-using	namespace	mBrane::sdk;
+using namespace mBrane::sdk;
 
-namespace	mBrane
+namespace mBrane
 {
 
-thread_ret thread_function_call	RecvThread::ReceiveMessages(void	*args)
+thread_ret thread_function_call RecvThread::ReceiveMessages(void *args)
 {
-    RecvThread	*_this = (RecvThread *)args;
-    SyncEcho	*echo;
-    _Payload	*p;
+    RecvThread *_this = (RecvThread *)args;
+    SyncEcho *echo;
+    _Payload *p;
 
     while (!_this->node->_shutdown) {
         uint64_t t = Time::Get();
 
-        if (_this->channel	&&	_this->channel->recv(&p, _this->sourceNID)) {
+        if (_this->channel && _this->channel->recv(&p, _this->sourceNID)) {
             _this->node->processError(_this->sourceNID);
             // continue;
             thread_ret_val(0);
@@ -107,11 +107,11 @@ thread_ret thread_function_call	RecvThread::ReceiveMessages(void	*args)
         // printf("RecvThread::ReceiveMessages::recv took %uus...\n", Time::Get()-t);
         uint64_t t0, t1, t2, t3;
         uint64_t start = Time::Get();
-        P<_Payload>	_p = p;
+        P<_Payload> _p = p;
         p->node_recv_ts() = _this->node->time();
 
         switch (p->cid()) {
-        case	SyncEcho_CID:	//	non-ref node, compute drift
+        case SyncEcho_CID: // non-ref node, compute drift
             // Time Sync description for Non-Reference Node (receiver of SyncEcho)
             // t0: SyncProbe node_send_ts (local time)
             // t1: SyncProbe node_recv_ta (remote time)
@@ -126,28 +126,28 @@ thread_ret thread_function_call	RecvThread::ReceiveMessages(void	*args)
             t3 = start;
             _this->node->timeDrift = t0 - t1 - (t3 - t0 - t2 + t1) / 2;
             //printf("*** timeDrift = %llu       RTT = %d (+ %d = %d)\n",
-            //	_this->node->timeDrift, (int32_t)(t3 - t0 - (t2 - t1)),
-            //	(int32_t)(t2 - t1), (int32_t)(t3 - t0));
-            //		((SyncEcho*)p)->t0 - ((SyncEcho*)p)->t1 -
-            //		   (p->node_recv_ts() - ((SyncEcho*)p)->t0 - p->node_send_ts() + ((SyncEcho*)p)->t1)/2;
-            // Time::Get()-((SyncEcho	*)p)->time-(p->node_recv_ts()-p->node_send_ts());
+            // _this->node->timeDrift, (int32_t)(t3 - t0 - (t2 - t1)),
+            // (int32_t)(t2 - t1), (int32_t)(t3 - t0));
+            // ((SyncEcho*)p)->t0 - ((SyncEcho*)p)->t1 -
+            //    (p->node_recv_ts() - ((SyncEcho*)p)->t0 - p->node_send_ts() + ((SyncEcho*)p)->t1)/2;
+            // Time::Get()-((SyncEcho *)p)->time-(p->node_recv_ts()-p->node_send_ts());
             break;
 
-        case	SyncProbe_CID:	//	ref node, echo
+        case SyncProbe_CID: // ref node, echo
             // Now the sending Node is definitely up and running...
             _this->node->checkSyncProbe(((SyncProbe *)p)->node_id);
             // std::cout<<"> Info: Receiving SyncProbe from "<< ((SyncProbe*)p)->node_id <<" "<<std::endl;
-            echo = new	SyncEcho();
+            echo = new SyncEcho();
             // echo->time=Time::Get();
             echo->t0 = p->node_send_ts();
             echo->t1 = start; // this needs local time, not adjusted time
             ((_Payload *)echo)->node_send_ts() = ((_Payload *)echo)->send_ts() = Time::Get();
             _this->channel->send(echo, 0xFF);
-            delete	echo;
+            delete echo;
             break;
 
         default:
-//				 std::cout<<"Pushing buffer["<< (unsigned int)(&_this->buffer) <<"]: "<<_p->cid()<<std::endl;fflush(stdout);
+//  std::cout<<"Pushing buffer["<< (unsigned int)(&_this->buffer) <<"]: "<<_p->cid()<<std::endl;fflush(stdout);
             _this->buffer.push(_p);
             break;
         }
@@ -158,7 +158,7 @@ thread_ret thread_function_call	RecvThread::ReceiveMessages(void	*args)
     thread_ret_val(0);
 }
 
-RecvThread::RecvThread(Node	*node, CommChannel	*channel, uint8_t	sourceNID): Thread(), node(node), channel(channel), sourceNID(sourceNID)
+RecvThread::RecvThread(Node *node, CommChannel *channel, uint8_t sourceNID): Thread(), node(node), channel(channel), sourceNID(sourceNID)
 {
 }
 
@@ -168,18 +168,18 @@ RecvThread::~RecvThread()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-thread_ret thread_function_call	PushThread::PushJobs(void	*args)
+thread_ret thread_function_call PushThread::PushJobs(void *args)
 {
-    PushThread	*_this = (PushThread *)args;
-//		std::cout<<"Starting to look for jobs ["<< (unsigned int)(&_this->source) <<"]..."<<std::endl;
-    P<_Payload>	_p;
+    PushThread *_this = (PushThread *)args;
+// std::cout<<"Starting to look for jobs ["<< (unsigned int)(&_this->source) <<"]..."<<std::endl;
+    P<_Payload> _p;
 
     while (_this->node->isRunning()) {
-//			std::cout<<"Looking for jobs ["<< (unsigned int)(&_this->source) <<"]..."<<std::endl;
+// std::cout<<"Looking for jobs ["<< (unsigned int)(&_this->source) <<"]..."<<std::endl;
         _p = _this->source->pop();
         _p->recv_ts() = _this->node->time();
 
-//			std::cout<<"Pushing job: "<<_p->cid()<<std::endl;
+// std::cout<<"Pushing job: "<<_p->cid()<<std::endl;
         if (_p->category() == _Payload::CONTROL) {
             _this->node->processControlMessage(_p);
         }
@@ -191,7 +191,7 @@ thread_ret thread_function_call	PushThread::PushJobs(void	*args)
     thread_ret_val(0);
 }
 
-PushThread::PushThread(Node	*node, Pipe11<P<_Payload>, MESSAGE_OUTPUT_BLOCK_SIZE>	*source): Thread(), node(node), source(source)
+PushThread::PushThread(Node *node, Pipe11<P<_Payload>, MESSAGE_OUTPUT_BLOCK_SIZE> *source): Thread(), node(node), source(source)
 {
 }
 
@@ -201,37 +201,37 @@ PushThread::~PushThread()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-thread_ret thread_function_call	GarbageCollector::Run(void	*args)
+thread_ret thread_function_call GarbageCollector::Run(void *args)
 {
-    GarbageCollector	*_this = (GarbageCollector *)args;
+    GarbageCollector *_this = (GarbageCollector *)args;
     _this->timer.start(_this->node->GCPeriod * 1000, _this->node->GCPeriod);
 
     while (1) {
         _this->timer.wait();
-        _this->node->pendingDeletionsCS.enter();	//	toggle the 2-buffer.
-        uint8_t	t = _this->node->pendingDeletions_GC;
+        _this->node->pendingDeletionsCS.enter(); // toggle the 2-buffer.
+        uint8_t t = _this->node->pendingDeletions_GC;
         _this->node->pendingDeletions_GC = _this->node->pendingDeletions_SO;
         _this->node->pendingDeletions_SO = t;
         _this->node->pendingDeletionsCS.leave();
-        DeleteSharedObjects	*m = new(_this->node->pendingDeletions[_this->node->pendingDeletions_GC].size())	DeleteSharedObjects();
+        DeleteSharedObjects *m = new(_this->node->pendingDeletions[_this->node->pendingDeletions_GC].size()) DeleteSharedObjects();
         m->node_id = _this->node->id();
-        UNORDERED_SET<_Payload *>::const_iterator	o;
-        uint16_t	i = 0;
+        UNORDERED_SET<_Payload *>::const_iterator o;
+        uint16_t i = 0;
 
         for (o = _this->node->pendingDeletions[_this->node->pendingDeletions_GC].begin(); o != _this->node->pendingDeletions[_this->node->pendingDeletions_GC].end(); ++o, ++i) {
             m->data(i) = (*o)->getOID();
         }
 
-        //	when remote nodes receive this message, they update their lookup table.
-        //	at this time, however, there might be some objects travelling that are now advertised as soon to be deleted.
-        //	recv has to handle this case and consolidate the object.
+        // when remote nodes receive this message, they update their lookup table.
+        // at this time, however, there might be some objects travelling that are now advertised as soon to be deleted.
+        // recv has to handle this case and consolidate the object.
         ((Messaging *)_this->node)->send(m, module::Node::PRIMARY);
     }
 
     thread_ret_val(0);
 }
 
-GarbageCollector::GarbageCollector(Node	*node): Thread(), node(node)
+GarbageCollector::GarbageCollector(Node *node): Thread(), node(node)
 {
 }
 
@@ -247,50 +247,50 @@ Messaging::Messaging(): sendThread(NULL), GC(NULL), pendingAck(0), pendingDeleti
 
 Messaging::~Messaging()
 {
-    for (uint32_t	i = 0; i < recvThreads.count(); i++) {
+    for (uint32_t i = 0; i < recvThreads.count(); i++) {
         if (recvThreads[i]) {
-            delete	recvThreads[i];
+            delete recvThreads[i];
             recvThreads[i] = NULL;
         }
     }
 
     if (sendThread) {
-        delete	sendThread;
+        delete sendThread;
     }
 
     sendThread = NULL;
 
-    for (uint32_t	i = 0; i < pushThreads.count(); i++) {
+    for (uint32_t i = 0; i < pushThreads.count(); i++) {
         if (pushThreads[i]) {
-            delete	pushThreads[i];
+            delete pushThreads[i];
             pushThreads[i] = NULL;
         }
     }
 
-    delete	GC;
+    delete GC;
 }
 
-bool	Messaging::loadConfig(XMLNode	&n)
+bool Messaging::loadConfig(XMLNode &n)
 {
-    XMLNode	gc = n.getChildNode("GarbageCollector");
+    XMLNode gc = n.getChildNode("GarbageCollector");
 
     if (!!gc) {
-        const	char	*_period = gc.getAttribute("period");
+        const char *_period = gc.getAttribute("period");
 
         if (!_period) {
             std::cout << "> Error: " << n.getName() << "::GarbageCollector::period is missing" << std::endl;
-            return	false;
+            return false;
         }
 
         GCPeriod = atoi(_period);
     }
 
-    return	true;
+    return true;
 }
 
-void	Messaging::send(_Payload	*message, module::Node::Network	network)
+void Messaging::send(_Payload *message, module::Node::Network network)
 {
-    MessageSlot	o;
+    MessageSlot o;
     o.destinationNode = 0xFF;
     o.p = message;
     o.network = network;
@@ -299,9 +299,9 @@ void	Messaging::send(_Payload	*message, module::Node::Network	network)
     messageOutputQueue.push(o);
 }
 
-void	Messaging::send(_Payload	*message, uint8_t	nodeID, module::Node::Network	network)
+void Messaging::send(_Payload *message, uint8_t nodeID, module::Node::Network network)
 {
-    MessageSlot	o;
+    MessageSlot o;
     o.destinationNode = nodeID;
     o.p = message;
     o.network = network;
@@ -310,50 +310,50 @@ void	Messaging::send(_Payload	*message, uint8_t	nodeID, module::Node::Network	ne
     messageOutputQueue.push(o);
 }
 
-void	Messaging::start()
+void Messaging::start()
 {
-    GC = new	GarbageCollector((Node *)this);
+    GC = new GarbageCollector((Node *)this);
     sendThread = Thread::New<Thread>(SendMessages, (Node *)this);
-    pushThreads[0] = new	PushThread((Node *)this, &messageInputQueue);
+    pushThreads[0] = new PushThread((Node *)this, &messageInputQueue);
     pushThreads[0]->start(PushThread::PushJobs);
-    //for(uint32_t	i=0;i<recvThreads.count();i++){
-    //	pushThreads[i+1]=new	PushThread((Node*)this,&recvThreads[i]->buffer);
-    //	pushThreads[i+1]->start(PushThread::PushJobs);
+    //for(uint32_t i=0;i<recvThreads.count();i++){
+    // pushThreads[i+1]=new PushThread((Node*)this,&recvThreads[i]->buffer);
+    // pushThreads[i+1]->start(PushThread::PushJobs);
     //}
 }
 
-void	Messaging::shutdown()
+void Messaging::shutdown()
 {
     Thread::TerminateAndWait(sendThread);
 
-    for (uint32_t	i = 0; i < recvThreads.count(); i++) {
+    for (uint32_t i = 0; i < recvThreads.count(); i++) {
         Thread::TerminateAndWait(*recvThreads.get(i));
     }
 
-    for (uint32_t	i = 0; i < pushThreads.count(); i++) {
+    for (uint32_t i = 0; i < pushThreads.count(); i++) {
         Thread::TerminateAndWait(*pushThreads.get(i));
     }
 
-    //	Thread::TerminateAndWait(GC);
+    // Thread::TerminateAndWait(GC);
 }
 
-inline	void	Messaging::pushJobs(_Payload	*p, NodeEntry	&e)
+inline void Messaging::pushJobs(_Payload *p, NodeEntry &e)
 {
-//static	uint32_t	w=0;
-    uint32_t	act;
+//static uint32_t w=0;
+    uint32_t act;
     e.getActivation(act);
 
     //std::cout<<"Pushing job: "<<p->cid()<<std::endl;
     if (act) {
         //std::cout<<"Pushing active job: "<<p->cid()<<std::endl;
-        List<P<ModuleEntry>, 1024>			&modules = e.modules;
+        List<P<ModuleEntry>, 1024> &modules = e.modules;
 
-        for (List<P<ModuleEntry>, 1024>::Iterator	i = modules.begin(); i; ++i) {
+        for (List<P<ModuleEntry>, 1024>::Iterator i = modules.begin(); i; ++i) {
             if (!(*i)->descriptor->module) {
                 continue;
             }
 
-            if ((*i)->descriptor->module->isReady()	&&	(*i)->descriptor->activationCount) {
+            if ((*i)->descriptor->module->isReady() && (*i)->descriptor->activationCount) {
                 //std::cout<<"Pushing active ready job: "<<p->cid()<<std::endl;
                 //std::cout<<"Pushing job: "<<++w<<"|"<<p->cid()<<":"<<(*i)->descriptor->CID<<std::endl;
                 Job j(p, (*i)->descriptor->module);
@@ -363,82 +363,82 @@ inline	void	Messaging::pushJobs(_Payload	*p, NodeEntry	&e)
     }
 }
 
-inline	void	Messaging::pushJobs(_Payload	*p)
+inline void Messaging::pushJobs(_Payload *p)
 {
-    //	find local receiving modules; insert {p,module} pairs in pipeline
+    // find local receiving modules; insert {p,module} pairs in pipeline
     switch (p->category()) {
-    case	_Payload::CONTROL:
-    case	_Payload::DATA:
+    case _Payload::CONTROL:
+    case _Payload::DATA:
         pushJobs(p, NodeEntry::Main[DC][p->cid()][((Node *)this)->_ID]);
         break;
 
-    case	_Payload::STREAM:
+    case _Payload::STREAM:
         pushJobs(p, NodeEntry::Main[ST][p->as_StreamData()->sid()][((Node *)this)->_ID]);
         break;
     }
 }
 
-void	Messaging::processControlMessage(_Payload	*p)
+void Messaging::processControlMessage(_Payload *p)
 {
     switch (p->cid()) {
-    case	SetThreshold_CID:
+    case SetThreshold_CID:
         projectionCS.enter();
         Space::Main[((SetThreshold *)p)->host_id][((SetThreshold *)p)->space_id]->setActivationThreshold(((SetThreshold *)p)->threshold);
         projectionCS.leave();
         break;
 
-    case	ActivateModule_CID:
+    case ActivateModule_CID:
         projectionCS.enter();
         ModuleDescriptor::Main[((ActivateModule *)p)->host_id][((ActivateModule *)p)->module_cid][((ActivateModule *)p)->module_id]->setActivationLevel(((ActivateModule *)p)->host_id, ((ActivateModule *)p)->space_id, ((ActivateModule *)p)->activationLevel);
         projectionCS.leave();
         break;
 
-    case	ActivateSpace_CID:
+    case ActivateSpace_CID:
         projectionCS.enter();
         Space::Main[((ActivateSpace *)p)->host_id][((ActivateSpace *)p)->target_sid]->setActivationLevel(((ActivateSpace *)p)->host_id, ((ActivateSpace *)p)->space_id, ((ActivateSpace *)p)->activationLevel);
         projectionCS.leave();
         break;
 
-    case	SubscribeMessage_CID:
+    case SubscribeMessage_CID:
         projectionCS.enter();
         ModuleDescriptor::Main[((SubscribeMessage *)p)->host_id][((SubscribeMessage *)p)->module_cid][((SubscribeMessage *)p)->module_id]->addSubscription_message(((SubscribeMessage *)p)->host_id, ((SubscribeMessage *)p)->space_id, ((SubscribeMessage *)p)->message_cid);
         projectionCS.leave();
         break;
 
-    case	SubscribeStream_CID:
+    case SubscribeStream_CID:
         projectionCS.enter();
         ModuleDescriptor::Main[((SubscribeMessage *)p)->host_id][((SubscribeMessage *)p)->module_cid][((SubscribeMessage *)p)->module_id]->addSubscription_stream(((SubscribeMessage *)p)->host_id, ((SubscribeStream *)p)->space_id, ((SubscribeStream *)p)->stream_id);
         projectionCS.leave();
         break;
 
-    case	UnsubscribeMessage_CID:
+    case UnsubscribeMessage_CID:
         projectionCS.enter();
         ModuleDescriptor::Main[((UnsubscribeMessage *)p)->host_id][((UnsubscribeMessage *)p)->module_cid][((UnsubscribeMessage *)p)->module_id]->removeSubscription_message(((UnsubscribeMessage *)p)->host_id, ((SubscribeMessage *)p)->space_id, ((SubscribeMessage *)p)->message_cid);
         projectionCS.leave();
         break;
 
-    case	UnsubscribeStream_CID:
+    case UnsubscribeStream_CID:
         projectionCS.enter();
         ModuleDescriptor::Main[((UnsubscribeStream *)p)->host_id][((UnsubscribeStream *)p)->module_cid][((UnsubscribeStream *)p)->module_id]->removeSubscription_stream(((UnsubscribeStream *)p)->host_id, ((SubscribeStream *)p)->space_id, ((SubscribeStream *)p)->stream_id);
         projectionCS.leave();
         break;
 
-    case	CreateModule_CID: {
-        uint16_t	module_cid = ((CreateModule *)p)->module_cid;
-        uint8_t	host_id = ((CreateModule *)p)->host_id;
+    case CreateModule_CID: {
+        uint16_t module_cid = ((CreateModule *)p)->module_cid;
+        uint8_t host_id = ((CreateModule *)p)->host_id;
         moduleCS.enter();
-        uint16_t	module_id = ModuleDescriptor::GetID(host_id, module_cid);
-        ModuleDescriptor::Main[host_id][module_cid][module_id] = new	ModuleDescriptor(((CreateModule *)p)->host_id, module_cid, module_id);
+        uint16_t module_id = ModuleDescriptor::GetID(host_id, module_cid);
+        ModuleDescriptor::Main[host_id][module_cid][module_id] = new ModuleDescriptor(((CreateModule *)p)->host_id, module_cid, module_id);
         moduleCS.leave();
         break;
     }
 
-    case	DeleteModule_CID: {
-        uint16_t	module_cid = ((DeleteModule *)p)->module_cid;
-        uint16_t	module_id = ((DeleteModule *)p)->module_id;
-        uint8_t	host_id = ((DeleteModule *)p)->host_id;
+    case DeleteModule_CID: {
+        uint16_t module_cid = ((DeleteModule *)p)->module_cid;
+        uint16_t module_id = ((DeleteModule *)p)->module_id;
+        uint8_t host_id = ((DeleteModule *)p)->host_id;
         projectionCS.enter();
-        _Module	*m = ModuleDescriptor::Main[host_id][module_cid][module_id]->module;
+        _Module *m = ModuleDescriptor::Main[host_id][module_cid][module_id]->module;
         ModuleDescriptor::Main[host_id][module_cid][module_id] = NULL;
 
         if (m) {
@@ -450,47 +450,47 @@ void	Messaging::processControlMessage(_Payload	*p)
         break;
     }
 
-    case	CreateSpace_CID:
+    case CreateSpace_CID:
         spaceCS.enter();
-        Space::Main[((CreateSpace *)p)->host_id][Space::GetID(((CreateSpace *)p)->host_id)] = new	Space(((CreateSpace *)p)->host_id);
+        Space::Main[((CreateSpace *)p)->host_id][Space::GetID(((CreateSpace *)p)->host_id)] = new Space(((CreateSpace *)p)->host_id);
         spaceCS.leave();
         break;
 
-    case	DeleteSpace_CID:
+    case DeleteSpace_CID:
         projectionCS.enter();
         Space::Main[((DeleteSpace *)p)->host_id][((DeleteSpace *)p)->space_id] = NULL;
         projectionCS.leave();
         break;
 
-    case	DeleteSharedObjects_CID: {	//	remove the objects from the lookup, send ack to the sender.
-        pendingAck = ((Node *)this)->nodeCount;	//	wait for all nodes to reply.
+    case DeleteSharedObjects_CID: { // remove the objects from the lookup, send ack to the sender.
+        pendingAck = ((Node *)this)->nodeCount; // wait for all nodes to reply.
         cacheCS.enter();
 
-        for (uint16_t	i = 0; i < ((DeleteSharedObjects *)p)->getCapacity(); ++i) {
+        for (uint16_t i = 0; i < ((DeleteSharedObjects *)p)->getCapacity(); ++i) {
             lookup[((DeleteSharedObjects *)p)->node_id].erase(((DeleteSharedObjects *)p)->data(i));
         }
 
         cacheCS.leave();
-        AckDeleteSharedObjects	*ack = new	AckDeleteSharedObjects();
+        AckDeleteSharedObjects *ack = new AckDeleteSharedObjects();
         ack->node_id = ((Node *)this)->id();
         send(ack, ((DeleteSharedObjects *)p)->node_id, module::Node::PRIMARY);
         break;
     }
 
-    case	AckDeleteSharedObjects_CID:	//	decrement pendingAck; when 0 remove all doomed objects from lookup and cache (this will delete them).
+    case AckDeleteSharedObjects_CID: // decrement pendingAck; when 0 remove all doomed objects from lookup and cache (this will delete them).
         if (--pendingAck == 0) {
             cacheCS.enter();
-            UNORDERED_SET<_Payload *>::const_iterator	p;
+            UNORDERED_SET<_Payload *>::const_iterator p;
 
             for (p = pendingDeletions[pendingDeletions_GC].begin(); p != pendingDeletions[pendingDeletions_GC].end(); ++p) {
                 lookup[(*p)->getNID()].erase((*p)->getOID());
-                cache.erase((*p)->getOID());	//	delete *p.
+                cache.erase((*p)->getOID()); // delete *p.
             }
 
             cacheCS.leave();
             pendingDeletions[pendingDeletions_GC].clear();
-            pendingDeletionsCS.enter();	//	toggle the 2-buffer.
-            uint8_t	t = pendingDeletions_GC;
+            pendingDeletionsCS.enter(); // toggle the 2-buffer.
+            uint8_t t = pendingDeletions_GC;
             pendingDeletions_GC = pendingDeletions_SO;
             pendingDeletions_SO = t;
             pendingDeletionsCS.leave();
@@ -498,32 +498,32 @@ void	Messaging::processControlMessage(_Payload	*p)
 
         break;
 
-    default:	//	call the plugin if any (e.g. rMem).
+    default: // call the plugin if any (e.g. rMem).
         break;
     }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-thread_ret thread_function_call	Messaging::SendMessages(void	*args)
+thread_ret thread_function_call Messaging::SendMessages(void *args)
 {
-    Node	*node = (Node *)args;
+    Node *node = (Node *)args;
     uint8_t nCount;
-    MessageSlot	out;
-    _Payload	*p;
-    uint32_t		act;
-    uint8_t		nodeCount;
+    MessageSlot out;
+    _Payload *p;
+    uint32_t act;
+    uint8_t nodeCount;
 
     while (!node->_shutdown) {
         out = node->messageOutputQueue.pop();
         p = out.p;
         p->node_send_ts() = node->time();
-        _Payload::Category	cat = p->category();
+        _Payload::Category cat = p->category();
 
         if (out.network == module::Node::LOCAL) {
             p->node_recv_ts() = node->time();
 
-            //	printf("Sending message (%u) locally...\n", p->cid());
+            // printf("Sending message (%u) locally...\n", p->cid());
             if (cat == _Payload::STREAM) {
                 NodeEntry::Main[ST][p->as_StreamData()->sid()][node->_ID].getActivation(act);
             } else {
@@ -534,48 +534,48 @@ thread_ret thread_function_call	Messaging::SendMessages(void	*args)
                 node->messageInputQueue.push(out.p);
             }
         } else {
-            //	printf("Sending message (%u)...\n", p->cid());
+            // printf("Sending message (%u)...\n", p->cid());
             switch (cat) {
-            case	_Payload::CONTROL:
+            case _Payload::CONTROL:
 
-                //		printf("Sending message (%u) as control...\n", p->cid());
+                // printf("Sending message (%u) as control...\n", p->cid());
                 if (out.destinationNode == 0xFF) {
                     node->broadcastControlMessage(p, out.network);
                     p->node_recv_ts() = node->time();
                     node->messageInputQueue.push(out.p);
-                } else {	//	P2P ctrl messages are not pushed locally.
+                } else { // P2P ctrl messages are not pushed locally.
                     node->sendControlMessage(p, out.destinationNode, out.network);
                 }
 
                 break;
 
-            case	_Payload::STREAM: {
-                uint16_t	sid = p->as_StreamData()->sid();
+            case _Payload::STREAM: {
+                uint16_t sid = p->as_StreamData()->sid();
 
-                if (out.destinationNode == 0xFF) {	//	find target remote nodes; send on data/stream channels; push in messageInputQueue if the local node is a target
+                if (out.destinationNode == 0xFF) { // find target remote nodes; send on data/stream channels; push in messageInputQueue if the local node is a target
                     nCount = (uint8_t)NodeEntry::Main[ST][sid].count();
 
                     if (nCount == 0) {
                         printf("*** No activation for any node for stream message cid %u ***\n", p->cid());
                     }
 
-                    for (uint8_t	i = 0; i < nCount; i++) {
+                    for (uint8_t i = 0; i < nCount; i++) {
                         NodeEntry::Main[ST][sid][i].getActivation(act);
 
                         if (act) {
                             if (i == node->_ID) {
-                                //	printf("Sending message (%u) as stream locally...\n", p->cid());
+                                // printf("Sending message (%u) as stream locally...\n", p->cid());
                                 p->node_recv_ts() = node->time();
                                 node->messageInputQueue.push(out.p);
                             } else {
-                                //	printf("Sending message (%u) as stream network...\n", p->cid());
+                                // printf("Sending message (%u) as stream network...\n", p->cid());
                                 node->sendStreamData(i, p, out.network);
                             }
                         } else {
-                            //	printf("No activation for node %u for stream message (%u)...\n", i, p->cid());
+                            // printf("No activation for node %u for stream message (%u)...\n", i, p->cid());
                         }
                     }
-                } else	if (out.destinationNode != node->_ID) {
+                } else if (out.destinationNode != node->_ID) {
                     NodeEntry::Main[ST][sid][out.destinationNode].getActivation(act);
 
                     if (act) {
@@ -586,9 +586,9 @@ thread_ret thread_function_call	Messaging::SendMessages(void	*args)
                 break;
             }
 
-            case	_Payload::DATA: {
+            case _Payload::DATA: {
                 //uint64_t t1 = Time::Get();
-                uint16_t	cid = p->cid();
+                uint16_t cid = p->cid();
 
                 if (out.destinationNode == 0xFF) {
                     nCount = (uint8_t)NodeEntry::Main[DC][cid].count();
@@ -597,23 +597,23 @@ thread_ret thread_function_call	Messaging::SendMessages(void	*args)
                         printf("*** No activation for any node for data message cid %u ***\n", p->cid());
                     }
 
-                    for (uint8_t	i = 0; i < nCount; i++) {
+                    for (uint8_t i = 0; i < nCount; i++) {
                         NodeEntry::Main[DC][cid][i].getActivation(act);
 
                         if (act) {
                             if (i == node->_ID) {
-                                //	printf("Sending message (%u) as data locally...\n", p->cid());
+                                // printf("Sending message (%u) as data locally...\n", p->cid());
                                 p->node_recv_ts() = node->time();
                                 node->messageInputQueue.push(out.p);
                             } else {
-                                //	printf("Sending message (%u) as data network...\n", p->cid());
+                                // printf("Sending message (%u) as data network...\n", p->cid());
                                 node->sendData(i, p, out.network);
                             }
                         } else {
-                            //	printf("No activation for node %u for data message (%u)...\n", i, p->cid());
+                            // printf("No activation for node %u for data message (%u)...\n", i, p->cid());
                         }
                     }
-                } else	if (out.destinationNode != node->_ID) {
+                } else if (out.destinationNode != node->_ID) {
                     NodeEntry::Main[DC][cid][out.destinationNode].getActivation(act);
 
                     if (act) {

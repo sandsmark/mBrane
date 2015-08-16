@@ -75,22 +75,22 @@
 
 #include <stdint.h>
 
-namespace	mBrane
+namespace mBrane
 {
-namespace	sdk
+namespace sdk
 {
 
-template<typename	T, uint16_t	Size>	List<T, Size>::_List::_List(): Array<ListElement<T>, Size>()
+template<typename T, uint16_t Size> List<T, Size>::_List::_List(): Array<ListElement<T>, Size>()
 {
 }
 
-template<typename	T, uint16_t	Size>	List<T, Size>::_List::~_List()
+template<typename T, uint16_t Size> List<T, Size>::_List::~_List()
 {
 }
 
-template<typename	T, uint16_t	Size>	void	List<T, Size>::_List::clear()
+template<typename T, uint16_t Size> void List<T, Size>::_List::clear()
 {
-    for (uint32_t	i = 0; i < Size; i++) {
+    for (uint32_t i = 0; i < Size; i++) {
         if (i > 0) {
             this->block.data[i].prev = this->block.data + i - 1;
         } else {
@@ -105,7 +105,7 @@ template<typename	T, uint16_t	Size>	void	List<T, Size>::_List::clear()
     }
 
     if (this->block.next) {
-        delete	this->block.next;
+        delete this->block.next;
         this->block.next = this->block.prev = NULL;
         this->last = &this->block;
     }
@@ -113,30 +113,30 @@ template<typename	T, uint16_t	Size>	void	List<T, Size>::_List::clear()
     this->_count = Size - 1;
 }
 
-template<typename	T, uint16_t	Size>	ListElement<T>	*List<T, Size>::_List::expand()
+template<typename T, uint16_t Size> ListElement<T> *List<T, Size>::_List::expand()
 {
-    this->last->next = new	Block<ListElement<T>, Size, ArrayUnmanaged>(this->last);
+    this->last->next = new Block<ListElement<T>, Size, ArrayUnmanaged>(this->last);
     this->last = this->last->next;
-    return	this->last->data;
+    return this->last->data;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<typename	T, uint16_t	Size>	List<T, Size>::List()
+template<typename T, uint16_t Size> List<T, Size>::List()
 {
     clear();
 }
 
-template<typename	T, uint16_t	Size>	List<T, Size>::~List()
+template<typename T, uint16_t Size> List<T, Size>::~List()
 {
 }
 
-template<typename	T, uint16_t	Size>	inline	uint32_t	List<T, Size>::elementCount()	const
+template<typename T, uint16_t Size> inline uint32_t List<T, Size>::elementCount() const
 {
-    return	_elementCount;
+    return _elementCount;
 }
 
-template<typename	T, uint16_t	Size>	inline	void	List<T, Size>::clear()
+template<typename T, uint16_t Size> inline void List<T, Size>::clear()
 {
     first = last = NULL;
     _elementCount = 0;
@@ -145,13 +145,13 @@ template<typename	T, uint16_t	Size>	inline	void	List<T, Size>::clear()
     lastFree = data.get(0) + Size - 1;
 }
 
-template<typename	T, uint16_t	Size>	inline	ListElement<T>	*List<T, Size>::getFreeSlot()
+template<typename T, uint16_t Size> inline ListElement<T> *List<T, Size>::getFreeSlot()
 {
     if (!firstFree) {
         firstFree = data.expand();
     }
 
-    ListElement<T>	*freeSlot = firstFree;
+    ListElement<T> *freeSlot = firstFree;
     firstFree = firstFree->next;
     _elementCount++;
 
@@ -168,10 +168,10 @@ template<typename	T, uint16_t	Size>	inline	ListElement<T>	*List<T, Size>::getFre
         last = freeSlot;
     }
 
-    return	freeSlot;
+    return freeSlot;
 }
 
-template<typename	T, uint16_t	Size>	inline	void	List<T, Size>::remove(ListElement<T>	*o)
+template<typename T, uint16_t Size> inline void List<T, Size>::remove(ListElement<T> *o)
 {
     if (o->prev) {
         o->prev->next = o->next;
@@ -196,26 +196,26 @@ template<typename	T, uint16_t	Size>	inline	void	List<T, Size>::remove(ListElemen
     _elementCount--;
 }
 
-template<typename	T, uint16_t	Size>	inline	void	List<T, Size>::removeElement(T	*t)
+template<typename T, uint16_t Size> inline void List<T, Size>::removeElement(T *t)
 {
     remove((ListElement<T> *)t);
 }
 
-template<typename	T, uint16_t	Size>	inline	uint32_t	List<T, Size>::removeReturnNext(ListElement<T>	*o)
+template<typename T, uint16_t Size> inline uint32_t List<T, Size>::removeReturnNext(ListElement<T> *o)
 {
     remove(o);
-    return	o->next;
+    return o->next;
 }
 
-template<typename	T, uint16_t	Size>	inline	uint32_t	List<T, Size>::removeReturnPrevious(ListElement<T>	*o)
+template<typename T, uint16_t Size> inline uint32_t List<T, Size>::removeReturnPrevious(ListElement<T> *o)
 {
     remove(o);
-    return	o->prev;
+    return o->prev;
 }
 
-template<typename	T, uint16_t	Size>	inline	typename	List<T, Size>::Iterator	List<T, Size>::insertAfter(ListElement<T>	*o, T	&t)
+template<typename T, uint16_t Size> inline typename List<T, Size>::Iterator List<T, Size>::insertAfter(ListElement<T> *o, T &t)
 {
-    ListElement<T>	*target = getFreeSlot();
+    ListElement<T> *target = getFreeSlot();
 
     if (o) {
         target->next = o->next;
@@ -236,12 +236,12 @@ template<typename	T, uint16_t	Size>	inline	typename	List<T, Size>::Iterator	List
         last = target;
     }
 
-    return	Iterator(this, target);
+    return Iterator(this, target);
 }
 
-template<typename	T, uint16_t	Size>	inline	typename	List<T, Size>::Iterator	List<T, Size>::insertBefore(ListElement<T>	*o, T	&t)
+template<typename T, uint16_t Size> inline typename List<T, Size>::Iterator List<T, Size>::insertBefore(ListElement<T> *o, T &t)
 {
-    ListElement<T>	target = getFreeSlot();
+    ListElement<T> target = getFreeSlot();
 
     if (o) {
         target->prev = o->prev;
@@ -262,22 +262,22 @@ template<typename	T, uint16_t	Size>	inline	typename	List<T, Size>::Iterator	List
         first = target;
     }
 
-    return	Iterator(this, target);
+    return Iterator(this, target);
 }
 
-template<typename	T, uint16_t	Size>	inline	typename	List<T, Size>::Iterator	List<T, Size>::addElementHead(T	&t)
+template<typename T, uint16_t Size> inline typename List<T, Size>::Iterator List<T, Size>::addElementHead(T &t)
 {
-    return	insertBefore(first, t);
+    return insertBefore(first, t);
 }
 
-template<typename	T, uint16_t	Size>	inline	typename	List<T, Size>::Iterator	List<T, Size>::addElementTail(T	&t)
+template<typename T, uint16_t Size> inline typename List<T, Size>::Iterator List<T, Size>::addElementTail(T &t)
 {
-    return	insertAfter(last, t);
+    return insertAfter(last, t);
 }
 
-template<typename	T, uint16_t	Size>	inline	typename	List<T, Size>::Iterator	List<T, Size>::addElement(T	&t)
+template<typename T, uint16_t Size> inline typename List<T, Size>::Iterator List<T, Size>::addElement(T &t)
 {
-    return	insertBefore(first, t);
+    return insertBefore(first, t);
 }
 }
 }

@@ -75,32 +75,32 @@
 //_/_/
 //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
-#ifndef	pingpong_class_h
-#define	pingpong_class_h
+#ifndef pingpong_class_h
+#define pingpong_class_h
 
-#include	"../Core/mBrane.h"
-#include	"../Core/message.h"
+#include "../Core/mBrane.h"
+#include "../Core/message.h"
 
-using	namespace	mBrane;
-using	namespace	mBrane::sdk;
-using	namespace	mBrane::sdk::payloads;
+using namespace mBrane;
+using namespace mBrane::sdk;
+using namespace mBrane::sdk::payloads;
 
-template<class	U>	class	_Ball:	//	to allow derivation
-    public	payloads::Message<U, Memory>
+template<class U> class _Ball: // to allow derivation
+    public payloads::Message<U, Memory>
 {
 public:
     uint32_t d1;
 };
 
-class	Ball: public		_Ball<Ball>
+class Ball: public _Ball<Ball>
 {
 public:
     int32_t id;
     Ball(): _Ball<Ball>(), id(-1) {}
     Ball(int32_t id): _Ball<Ball>(), id(id) {}
 };
-class	Type1: public	payloads::Message<Type1, Memory> {};
-class	Type2: public	payloads::Message<Type2, Memory> {};
+class Type1: public payloads::Message<Type1, Memory> {};
+class Type2: public payloads::Message<Type2, Memory> {};
 
 
 #endif /* pingpong_class.h */

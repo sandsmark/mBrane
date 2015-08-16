@@ -73,12 +73,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include	<memory>
-#include	"base.h"
-#include	"utils.h"
+#include <memory>
+#include "base.h"
+#include "utils.h"
 
 
-namespace	core
+namespace core
 {
 
 _Object::_Object(): refCount(0)
@@ -89,15 +89,15 @@ _Object::~_Object()
 {
 }
 
-void	_Object::incRef()
+void _Object::incRef()
 {
     Atomic::Increment32(&refCount);
 }
 
-void	_Object::decRef()
+void _Object::decRef()
 {
     if (Atomic::Decrement32(&refCount) == 0) {
-        delete	this;
+        delete this;
     }
 }
 }

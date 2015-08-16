@@ -75,25 +75,25 @@
 //_/_/
 //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
-#include	"tcp_channel.h"
+#include "tcp_channel.h"
 
 #if defined (WINDOWS)
-#include	<iphlpapi.h>
+#include <iphlpapi.h>
 #endif
 
 #if defined (LINUX)
-#include	<unistd.h>
-#include	<fcntl.h>
-#include	<netinet/tcp.h>
-#include	<errno.h>
-#include	<sys/ioctl.h>
-#include	<net/if.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <netinet/tcp.h>
+#include <errno.h>
+#include <sys/ioctl.h>
+#include <net/if.h>
 #endif
 
-using	namespace	mBrane;
-using	namespace	mBrane::sdk;
+using namespace mBrane;
+using namespace mBrane::sdk;
 
-TCPChannel::TCPChannel(core::socket	s): ConnectedCommChannel(), s(s)
+TCPChannel::TCPChannel(core::socket s): ConnectedCommChannel(), s(s)
 {
     bufferLen = 0;
     buffer = NULL;
@@ -149,7 +149,7 @@ TCPChannel::~TCPChannel()
     closesocket(s);
 }
 
-bool	TCPChannel::initialiseBuffer(uint32_t len)
+bool TCPChannel::initialiseBuffer(uint32_t len)
 {
     if (len < 128) {
         return false;
@@ -169,25 +169,25 @@ bool	TCPChannel::initialiseBuffer(uint32_t len)
 }
 
 
-int16_t	TCPChannel::send(uint8_t	*b, size_t	s)
+int16_t TCPChannel::send(uint8_t *b, size_t s)
 {
     setBlockingMode(true);
 
-//	uint64_t t1 = Time::Get();
-//	PrintBinary(b, s, true, "TCP Sending");
+// uint64_t t1 = Time::Get();
+// PrintBinary(b, s, true, "TCP Sending");
     if (::send(this->s, (char *)b, (int)s, 0) == SOCKET_ERROR) {
-//		int err = WSAGetLastError();
-        return	1;
+// int err = WSAGetLastError();
+        return 1;
     }
 
-//	printf("TCP Sent %u bytes...\n", (uint32_t)s);
+// printf("TCP Sent %u bytes...\n", (uint32_t)s);
     WaitForSocketWriteability(this->s, 1000);
     setBlockingMode(false);
-//	printf("TCP Send %u bytes time: %u [%llu]...\n", s, (uint32_t) (Time::Get() - t1), Time::Get());
-    return	0;
+// printf("TCP Send %u bytes time: %u [%llu]...\n", s, (uint32_t) (Time::Get() - t1), Time::Get());
+    return 0;
 }
 
-int16_t	TCPChannel::recv(uint8_t	*b, size_t	s, bool	peek)
+int16_t TCPChannel::recv(uint8_t *b, size_t s, bool peek)
 {
     int32_t err;
     tcpCS.enter();
@@ -208,7 +208,7 @@ int16_t	TCPChannel::recv(uint8_t	*b, size_t	s, bool	peek)
         // read from the socket
         int count = ::recv(this->s, buffer + bufferPos, bufferLen - bufferPos, 0);
 #ifndef WINDOWS
-        //	setsockopt(this->s, IPPROTO_TCP, TCP_QUICKACK, (int[]){0}, sizeof(int));
+        // setsockopt(this->s, IPPROTO_TCP, TCP_QUICKACK, (int[]){0}, sizeof(int));
 #endif
 
         //int count = ::recv(this->s,buffer,s,0);
@@ -221,9 +221,9 @@ int16_t	TCPChannel::recv(uint8_t	*b, size_t	s, bool	peek)
                 tw += (uint32_t)(Time::Get() - t2);
                 tc++;
             } else {
-                //	Error::PrintLastOSErrorMessage("Error: TCPChannel::recv");
+                // Error::PrintLastOSErrorMessage("Error: TCPChannel::recv");
                 tcpCS.leave();
-                return	1;
+                return 1;
             }
         } else if (count == 0) {
             WaitForSocketReadability(this->s, 10);
@@ -232,16 +232,16 @@ int16_t	TCPChannel::recv(uint8_t	*b, size_t	s, bool	peek)
             r += count;
         }
 
-//		Error::PrintBinary(buffer+bufferPos, count, true, "TCP Received");
+// Error::PrintBinary(buffer+bufferPos, count, true, "TCP Received");
         // std::cout<<"Info: Not enough data in buffer, received "<<count<<" bytes from socket..."<<std::endl;
     }
 
     //// Do we now have enough data in the buffer
     //if (bufferContentLen - bufferContentPos < s) {
-    //	// if not, we give up
-    //	tcpCS.leave();
-    //	std::cout<<"TCP Error: Not enough data in buffer, have "<<bufferContentLen-bufferContentPos<<" bytes, need "<<s<<" bytes..."<<std::endl;
-    //	return	1;
+    // // if not, we give up
+    // tcpCS.leave();
+    // std::cout<<"TCP Error: Not enough data in buffer, have "<<bufferContentLen-bufferContentPos<<" bytes, need "<<s<<" bytes..."<<std::endl;
+    // return 1;
     //}
     // if yes, great
     memcpy(b, buffer, s);
@@ -252,15 +252,15 @@ int16_t	TCPChannel::recv(uint8_t	*b, size_t	s, bool	peek)
     }
 
     tcpCS.leave();
-//	std::cout<<"Info: Read "<<s<<" bytes from buffer, "<<bufferLen-bufferPos<<" bytes left..."<<std::endl;
+// std::cout<<"Info: Read "<<s<<" bytes from buffer, "<<bufferLen-bufferPos<<" bytes left..."<<std::endl;
     //if (r)
-    //	printf("Took %u us to read %u bytes into buffer (%ux = %u) [%llu]...\n", Time::Get()-t, r, tc, tw, Time::Get());
+    // printf("Took %u us to read %u bytes into buffer (%ux = %u) [%llu]...\n", Time::Get()-t, r, tc, tw, Time::Get());
     //else
-    //	printf("   Got %u bytes from buffer [%llu]...\n", s, Time::Get());
+    // printf("   Got %u bytes from buffer [%llu]...\n", s, Time::Get());
     return 0;
 }
 
-bool	TCPChannel::isConnected()
+bool TCPChannel::isConnected()
 {
     if (s == INVALID_SOCKET) {
         return false;
@@ -374,7 +374,7 @@ bool	TCPChannel::isConnected()
     return false;
 }
 
-bool	TCPChannel::disconnect()
+bool TCPChannel::disconnect()
 {
     shutdown(s, SD_BOTH);
     closesocket(s);

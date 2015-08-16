@@ -73,156 +73,156 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace	mBrane
+namespace mBrane
 {
-namespace	sdk
+namespace sdk
 {
-namespace	payloads
+namespace payloads
 {
 
-template<class	U>	ControlMessage<U>::ControlMessage()/*:Payload<U,Memory>()*/
+template<class U> ControlMessage<U>::ControlMessage()/*:Payload<U,Memory>()*/
 {
     this->_metaData = ControlMessage<U>::_MetaData | ControlMessage<U>::CONTROL;
 }
 
-template<class	U>	ControlMessage<U>::~ControlMessage()
+template<class U> ControlMessage<U>::~ControlMessage()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class	U, class	M>	inline	StreamData<U, M>::StreamData(uint16_t	sid): Payload<U, M>(), _StreamData(sid)
+template<class U, class M> inline StreamData<U, M>::StreamData(uint16_t sid): Payload<U, M>(), _StreamData(sid)
 {
     this->_metaData = StreamData<U, M>::_MetaData | StreamData<U, M>::STREAM;
 }
 
-template<class	U, class	M>	inline	StreamData<U, M>::~StreamData()
+template<class U, class M> inline StreamData<U, M>::~StreamData()
 {
 }
 
-template<class	U, class	M>	_StreamData	*StreamData<U, M>::as_StreamData()
+template<class U, class M> _StreamData *StreamData<U, M>::as_StreamData()
 {
-    return	(_StreamData *)(((uint8_t *)this) + sizeof(Payload<U, M>));
+    return (_StreamData *)(((uint8_t *)this) + sizeof(Payload<U, M>));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class	U, class	M>	Message<U, M>::Message(): Payload<U, M>(), _Message()
+template<class U, class M> Message<U, M>::Message(): Payload<U, M>(), _Message()
 {
     this->_metaData = Message<U, M>::_MetaData | Message<U, M>::DATA;
 }
 
-template<class	U, class	M>	Message<U, M>::~Message()
+template<class U, class M> Message<U, M>::~Message()
 {
 }
 
-template<class	U, class	M>	_Message	*Message<U, M>::as_Message()
+template<class U, class M> _Message *Message<U, M>::as_Message()
 {
-    return	(_Message *)(((uint8_t *)this) + sizeof(Payload<U, M>));
+    return (_Message *)(((uint8_t *)this) + sizeof(Payload<U, M>));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class	U, class	M>	SharedObject<U, M>::SharedObject(): Message<U, M>()
+template<class U, class M> SharedObject<U, M>::SharedObject(): Message<U, M>()
 {
     module::Node::Get()->addSharedObject(this);
 }
 
-template<class	U, class	M>	SharedObject<U, M>::~SharedObject()
+template<class U, class M> SharedObject<U, M>::~SharedObject()
 {
 }
 
-template<class	U, class	M>	void	SharedObject<U, M>::decRef()
+template<class U, class M> void SharedObject<U, M>::decRef()
 {
-    if (_Payload::getOID() == 0x00FFFFFF	||	isConstant()) {	//	object has not been sent yet: it has not been smart pointed by the cache: treat as a normal object.
+    if (_Payload::getOID() == 0x00FFFFFF || isConstant()) { // object has not been sent yet: it has not been smart pointed by the cache: treat as a normal object.
         _Object::decRef();
     } else {
-        int32_t	ref_count = Atomic::Decrement32(&this->refCount);
+        int32_t ref_count = Atomic::Decrement32(&this->refCount);
 
         switch (ref_count) {
-        case	1:
+        case 1:
             module::Node::Get()->markUnused(this);
             break;
 
-        case	0:
-            delete	this;
+        case 0:
+            delete this;
             break;
         }
     }
 }
 
-template<class	U, class	M>	bool	SharedObject<U, M>::isShared()
+template<class U, class M> bool SharedObject<U, M>::isShared()
 {
-    return	true;
+    return true;
 }
 
-template<class	U, class	M>	bool	SharedObject<U, M>::isConstant()
+template<class U, class M> bool SharedObject<U, M>::isConstant()
 {
-    return	this->getNID() == 0x80;
+    return this->getNID() == 0x80;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class	S, typename	T>	void	*CStorage<S, T>::New(uint32_t	size)
+template<class S, typename T> void *CStorage<S, T>::New(uint32_t size)
 {
-    uint32_t	capacity = size - sizeof(CStorage<S, T>);	//	capacity is now the size of the array
-    capacity = capacity / sizeof(T);	//	now capacity equals the number of elements in the array
-    return	new(capacity)	CStorage<S, T>();
+    uint32_t capacity = size - sizeof(CStorage<S, T>); // capacity is now the size of the array
+    capacity = capacity / sizeof(T); // now capacity equals the number of elements in the array
+    return new(capacity) CStorage<S, T>();
 }
 
-template<class	S, typename	T>	void	*CStorage<S, T>::operator	new(size_t	s)
+template<class S, typename T> void *CStorage<S, T>::operator new(size_t s)
 {
-    return	NULL;
+    return NULL;
 }
 
-template<class	S, typename	T>	void	*CStorage<S, T>::operator	new(size_t	s, uint32_t	capacity)
+template<class S, typename T> void *CStorage<S, T>::operator new(size_t s, uint32_t capacity)
 {
-    uint32_t	normalizedSize;
-    uint32_t	size = sizeof(CStorage<S, T>) + capacity * sizeof(T);
-    CStorage<S, T>	*o = (CStorage<S, T> *)S::Alloc(size, normalizedSize);
+    uint32_t normalizedSize;
+    uint32_t size = sizeof(CStorage<S, T>) + capacity * sizeof(T);
+    CStorage<S, T> *o = (CStorage<S, T> *)S::Alloc(size, normalizedSize);
     o->_size = size;
     o->_capacity = capacity;
     o->_metaData = S::_MetaData;
-    return	o;
+    return o;
 }
 
-template<class	S, typename	T>	void	CStorage<S, T>::operator	delete(void	*o)
+template<class S, typename T> void CStorage<S, T>::operator delete(void *o)
 {
     S::Dealloc(((CStorage<S, T> *)o)->_size, o);
 }
 
-template<class	S, typename	T>	CStorage<S, T>::CStorage(): S()
+template<class S, typename T> CStorage<S, T>::CStorage(): S()
 {
     _data = (T *)(((uint8_t *)this) + sizeof(S) + sizeof(uint32_t) + sizeof(uint32_t) + sizeof(T *));
 }
 
-template<class	S, typename	T>	CStorage<S, T>::~CStorage()
+template<class S, typename T> CStorage<S, T>::~CStorage()
 {
 }
 
-template<class	S, typename	T>	size_t	CStorage<S, T>::size()	const
+template<class S, typename T> size_t CStorage<S, T>::size() const
 {
-    return	_size;
+    return _size;
 }
 
-template<class	S, typename	T>	uint32_t	CStorage<S, T>::getCapacity()	const
+template<class S, typename T> uint32_t CStorage<S, T>::getCapacity() const
 {
-    return	_capacity;
+    return _capacity;
 }
 
-template<class	S, typename	T>	T	&CStorage<S, T>::data(uint32_t	i)	const
+template<class S, typename T> T &CStorage<S, T>::data(uint32_t i) const
 {
-    return	_data[i];
+    return _data[i];
 }
 
-template<class	S, typename	T>	T	&CStorage<S, T>::data(uint32_t	i)
+template<class S, typename T> T &CStorage<S, T>::data(uint32_t i)
 {
-    return	_data[i];
+    return _data[i];
 }
 
-template<class	S, typename	T>	T	*CStorage<S, T>::data()
+template<class S, typename T> T *CStorage<S, T>::data()
 {
-    return	_data;
+    return _data;
 }
 }
 }

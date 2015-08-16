@@ -73,79 +73,79 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include	"module.h"
-#include	"module_node.h"
-#include	"utils.h"
+#include "module.h"
+#include "module_node.h"
+#include "utils.h"
 
 
-namespace	mBrane
+namespace mBrane
 {
-namespace	sdk
+namespace sdk
 {
-namespace	module
+namespace module
 {
 
-_Module::_Module():	_Object(), _priority(0), processor(NULL), _ready(false)
+_Module::_Module(): _Object(), _priority(0), processor(NULL), _ready(false)
 {
-    sync = new	FastSemaphore(1, 1);
+    sync = new FastSemaphore(1, 1);
 }
 
 _Module::~_Module()
 {
-    delete	sync;
+    delete sync;
     Node::Get()->trace(Node::EXECUTION) << "Module " << _cid << "|" << _id << " deleted" << std::endl;
 }
 
-inline	uint8_t	&_Module::priority()
+inline uint8_t &_Module::priority()
 {
-    return	_priority;
+    return _priority;
 }
 
-inline	bool	_Module::canMigrate()
+inline bool _Module::canMigrate()
 {
-    return	_canMigrate;
+    return _canMigrate;
 }
 
-bool	_Module::isReady()
+bool _Module::isReady()
 {
-    return	_ready;
+    return _ready;
 }
 
-uint32_t	_Module::dumpSize()
+uint32_t _Module::dumpSize()
 {
-    return	0;
+    return 0;
 }
 
-_Payload	*_Module::dump()
+_Payload *_Module::dump()
 {
-    return	NULL;
+    return NULL;
 }
 
-void	_Module::load(_Payload	*chunk)
+void _Module::load(_Payload *chunk)
 {
 }
 
-inline	void	_Module::migrateOut()
+inline void _Module::migrateOut()
 {
     _ready = false;
 }
 
-inline	void	_Module::migrateIn()
+inline void _Module::migrateIn()
 {
     _ready = true;
 }
 
-void	_Module::sleep(int64_t	d)
+void _Module::sleep(int64_t d)
 {
     Thread::Sleep(d);
 }
 
-void	_Module::wait(Thread	**threads, uint32_t	threadCount)
+void _Module::wait(Thread **threads, uint32_t threadCount)
 {
     Thread::Wait(threads, threadCount);
 }
 
-void	_Module::wait(Thread	*_thread)
+void _Module::wait(Thread *_thread)
 {
     Thread::Wait(_thread);
 }

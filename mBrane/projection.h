@@ -73,66 +73,66 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef	mBrane_projection_h
-#define	mBrane_projection_h
+#ifndef mBrane_projection_h
+#define mBrane_projection_h
 
-#include	"../Core/object.h"
+#include "../Core/object.h"
 
 
-using	namespace	mBrane::sdk;
+using namespace mBrane::sdk;
 
-namespace	mBrane
+namespace mBrane
 {
 
-//	The following classes are possible values for instatntiating the C parameter of the template classes below.
-class	Space;
-class	ModuleDescriptor;
+// The following classes are possible values for instatntiating the C parameter of the template classes below.
+class Space;
+class ModuleDescriptor;
 
-template<class	C, class	U>	class	_Projection:
-    public	Object<Memory, _Object, U>
+template<class C, class U> class _Projection:
+    public Object<Memory, _Object, U>
 {
 protected:
-    C		*projected;
-    Space	*space;
-    float	activationLevel;
-    _Projection(C	*projected, Space	*space);
+    C *projected;
+    Space *space;
+    float activationLevel;
+    _Projection(C *projected, Space *space);
     ~_Projection();
 };
 
-template<class	C>	class	Projection:
-    public	_Projection<C, Projection<C>>
+template<class C> class Projection:
+    public _Projection<C, Projection<C>>
 {
 public:
-    Projection(C	*projected, Space	*space);
+    Projection(C *projected, Space *space);
     ~Projection();
-    void	activate();
-    void	deactivate();
-    void	setActivationLevel(float	a);
-    void	updateActivationCount(float	t);
+    void activate();
+    void deactivate();
+    void setActivationLevel(float a);
+    void updateActivationCount(float t);
 };
 
-template<class	C>	class	Projectable:
-    public	Object<Memory, _Object, C>
+template<class C> class Projectable:
+    public Object<Memory, _Object, C>
 {
 protected:
-    Array<Array<typename	List<P<Projection<C>>, 16>::Iterator, 32>, 8>	projections;	//	indexed by hostID | space ID; to speed up space updating when deleting projections
+    Array<Array<typename List<P<Projection<C>>, 16>::Iterator, 32>, 8> projections; // indexed by hostID | space ID; to speed up space updating when deleting projections
 public:
-    uint8_t hostID;	//	dynamically assigned; initially set to NoID, then resolved
+    uint8_t hostID; // dynamically assigned; initially set to NoID, then resolved
     uint16_t ID;
     uint32_t activationCount;
-    bool	reactivated;
+    bool reactivated;
     Projectable(uint8_t hostID, uint16_t ID);
     ~Projectable();
-    void	project(uint8_t hostID, uint16_t spaceID);
-    void	unproject(uint8_t hostID, uint16_t spaceID);
-    void	activate();
-    void	deactivate();
-    void	setActivationLevel(uint8_t hostID, uint16_t spaceID, float	a);	//	projects on space if necessary
+    void project(uint8_t hostID, uint16_t spaceID);
+    void unproject(uint8_t hostID, uint16_t spaceID);
+    void activate();
+    void deactivate();
+    void setActivationLevel(uint8_t hostID, uint16_t spaceID, float a); // projects on space if necessary
 };
 }
 
 
-//#include	"projection.tpl.cpp"
+//#include "projection.tpl.cpp"
 
 
 #endif

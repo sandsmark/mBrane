@@ -73,54 +73,54 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include	<memory>
-#include	<cstring>
-#include	"class_register.h"
+#include <memory>
+#include <cstring>
+#include "class_register.h"
 
 
-namespace	mBrane
+namespace mBrane
 {
-namespace	sdk
+namespace sdk
 {
 
-Array<ClassRegister, 128>	*ClassRegister::Classes = NULL;
+Array<ClassRegister, 128> *ClassRegister::Classes = NULL;
 
-Array<ClassRegister, 128>	*ClassRegister::Get()
+Array<ClassRegister, 128> *ClassRegister::Get()
 {
     if (!Classes) {
-        Classes = new	Array<ClassRegister, 128>();
+        Classes = new Array<ClassRegister, 128>();
     }
 
-    return	Classes;
+    return Classes;
 }
 
-const	uint16_t	ClassRegister::NoClass = 0xFFFF;
+const uint16_t ClassRegister::NoClass = 0xFFFF;
 
-inline	ClassRegister	*ClassRegister::Get(uint16_t	CID)
+inline ClassRegister *ClassRegister::Get(uint16_t CID)
 {
-    return	Classes->get(CID);
+    return Classes->get(CID);
 }
 
-inline	uint16_t	ClassRegister::Count()
+inline uint16_t ClassRegister::Count()
 {
-    return	(uint16_t)Classes->count();
+    return (uint16_t)Classes->count();
 }
 
-uint16_t	ClassRegister::Load(const char *className)
+uint16_t ClassRegister::Load(const char *className)
 {
-    static	uint16_t	I = 0;
+    static uint16_t I = 0;
     strcpy(Get(I)->class_name, className);
-    return	I++;
+    return I++;
 }
 
-uint16_t	ClassRegister::GetCID(const	char	*className)
+uint16_t ClassRegister::GetCID(const char *className)
 {
-    for (uint16_t	i = 0; i < Classes->count(); i++)
+    for (uint16_t i = 0; i < Classes->count(); i++)
         if (strcmp(Classes->get(i)->class_name, className) == 0) {
-            return	i;
+            return i;
         }
 
-    return	NoClass;
+    return NoClass;
 }
 
 ClassRegister::ClassRegister(): _allocator(NULL)
@@ -131,19 +131,19 @@ ClassRegister::~ClassRegister()
 {
 }
 
-ClassRegister::Allocator	ClassRegister::allocator()	const
+ClassRegister::Allocator ClassRegister::allocator() const
 {
-    return	_allocator;
+    return _allocator;
 }
 
-size_t	ClassRegister::offset()	const
+size_t ClassRegister::offset() const
 {
-    return	_offset;
+    return _offset;
 }
 
-void	ClassRegister::Cleanup()
+void ClassRegister::Cleanup()
 {
-    delete	Classes;
+    delete Classes;
 }
 }
 }

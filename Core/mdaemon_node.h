@@ -73,73 +73,73 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef	mBrane_sdk_mdaemon_node_h
-#define	mBrane_sdk_mdaemon_node_h
+#ifndef mBrane_sdk_mdaemon_node_h
+#define mBrane_sdk_mdaemon_node_h
 
-#include	"module_node.h"
-#include	"xml_parser.h"
-#include	"dynamic_class_loader.h"
+#include "module_node.h"
+#include "xml_parser.h"
+#include "dynamic_class_loader.h"
 
 #pragma warning( disable : 4251 )
 
-namespace	mBrane
+namespace mBrane
 {
-class	RecvThread;
-class	PushThread;
-class	XThread;
-class	Executing;
-namespace	sdk
+class RecvThread;
+class PushThread;
+class XThread;
+class Executing;
+namespace sdk
 {
-namespace	mdaemon
+namespace mdaemon
 {
 
-class	Daemon;
-//	Node API, as seen from the daemons
-class	mBrane_dll	Node:
-    public	module::Node
+class Daemon;
+// Node API, as seen from the daemons
+class mBrane_dll Node:
+    public module::Node
 {
-    friend	class	RecvThread;
-    friend	class	PushThread;
-    friend	class	XThread;
-    friend	class	Executing;
+    friend class RecvThread;
+    friend class PushThread;
+    friend class XThread;
+    friend class Executing;
 protected:
-    bool	volatile	_shutdown;
-    StaticArray<DynamicClassLoader<Daemon>	*>	daemonLoaders;
-    StaticArray<Daemon *>						daemons;
-    StaticArray<Thread *>						daemonThreads;
+    bool volatile _shutdown;
+    StaticArray<DynamicClassLoader<Daemon> *> daemonLoaders;
+    StaticArray<Daemon *> daemons;
+    StaticArray<Thread *> daemonThreads;
     Node(uint8_t ID = NoID);
-    bool	loadConfig(XMLNode	&n);
-    void	start();
-    virtual	void	shutdown();
+    bool loadConfig(XMLNode &n);
+    void start();
+    virtual void shutdown();
     ~Node();
 public:
-    bool	isRunning();
-    virtual	void				dump(const	char	*fileName) = 0;	//	dumps the current system state; module dump fileNames: module_class_ID.bin: ex: CR1_123.bin
-    virtual	void				load(const	char	*fileName) = 0;	//	initializes itself from a previously saved system state
-    virtual	void				migrate(uint16_t CID, uint16_t ID, uint8_t NID) = 0;	//	identifies the module and the target node
-    //virtual	Array<uint8_t,65535>	&sharedMemorySegment(uint8_t segment)=0;	//	FUTURE DEVELOPMENT: pinned down RAM for RDMA, 16KB-1
-    virtual	module::_Module		*getModule(uint8_t hostID, uint16_t CID, uint16_t ID) = 0;	//	so that the daemons can write module internals and use modules as interfaces to the pub-sub network
-    //	TODO:	define API as pure virtual functions
-    //			-> node map (an array of mBrane::Networking::NetworkID)
-    //			-> profiling data
-    //				- msg throughput
-    //				- routing latencies (send_ts/recv_ts, node_send_ts/node_recv_ts)
-    //				- runtime per module, and its ratio wrt total node runtime, routing time consumption/module runtime
-    //				- logical topology, i.e. affinities between modules; traffic between nodes in light of traffic between modules
+    bool isRunning();
+    virtual void dump(const char *fileName) = 0; // dumps the current system state; module dump fileNames: module_class_ID.bin: ex: CR1_123.bin
+    virtual void load(const char *fileName) = 0; // initializes itself from a previously saved system state
+    virtual void migrate(uint16_t CID, uint16_t ID, uint8_t NID) = 0; // identifies the module and the target node
+    //virtual Array<uint8_t,65535> &sharedMemorySegment(uint8_t segment)=0; // FUTURE DEVELOPMENT: pinned down RAM for RDMA, 16KB-1
+    virtual module::_Module *getModule(uint8_t hostID, uint16_t CID, uint16_t ID) = 0; // so that the daemons can write module internals and use modules as interfaces to the pub-sub network
+    // TODO: define API as pure virtual functions
+    // -> node map (an array of mBrane::Networking::NetworkID)
+    // -> profiling data
+    // - msg throughput
+    // - routing latencies (send_ts/recv_ts, node_send_ts/node_recv_ts)
+    // - runtime per module, and its ratio wrt total node runtime, routing time consumption/module runtime
+    // - logical topology, i.e. affinities between modules; traffic between nodes in light of traffic between modules
 };
 
-class	mBrane_dll	Daemon
+class mBrane_dll Daemon
 {
 protected:
-    Node	*const	node;
-    Daemon(Node	*node);
+    Node *const node;
+    Daemon(Node *node);
 public:
-    typedef	Daemon	*(*Load)(XMLNode &, Node *);	//	function exported by the shared library
-    static	thread_ret thread_function_call	Run(void	*args);	//	args=this daemon
-    virtual	~Daemon();
-    virtual	void	init() = 0;	//	called once, before looping
-    virtual	uint32_t run() = 0;	//	called in a loop: while(!node->_shutdown); returns error code (or 0 if none)
-    virtual	void	shutdown() = 0;	//	called when run returns an error, and when the node shutsdown
+    typedef Daemon *(*Load)(XMLNode &, Node *); // function exported by the shared library
+    static thread_ret thread_function_call Run(void *args); // args=this daemon
+    virtual ~Daemon();
+    virtual void init() = 0; // called once, before looping
+    virtual uint32_t run() = 0; // called in a loop: while(!node->_shutdown); returns error code (or 0 if none)
+    virtual void shutdown() = 0; // called when run returns an error, and when the node shutsdown
 };
 }
 }

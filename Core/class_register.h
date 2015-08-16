@@ -76,50 +76,50 @@
 #ifndef mBrane_sdk_class_register_h
 #define mBrane_sdk_class_register_h
 
-#include	"array.h"
-#include	"object.h"
-#include	"memory.h"
+#include "array.h"
+#include "object.h"
+#include "memory.h"
 
 
-namespace	mBrane
+namespace mBrane
 {
-namespace	sdk
+namespace sdk
 {
 
-class	__Payload;
-class	_RPayload;
-//	Allows to retrieve class data from class IDs.
-//	Allows to retrieve class IDs from class names.
-class	mBrane_dll	ClassRegister
+class __Payload;
+class _RPayload;
+// Allows to retrieve class data from class IDs.
+// Allows to retrieve class IDs from class names.
+class mBrane_dll ClassRegister
 {
 public:
-    typedef	void	*(*Allocator)(uint32_t);
+    typedef void *(*Allocator)(uint32_t);
 private:
-    static	Array<ClassRegister, 128>	*Classes;
-    static	Array<ClassRegister, 128>	*Get();
-    //	Class data
-    Allocator	_allocator;
-    size_t		_offset;	//	from this
+    static Array<ClassRegister, 128> *Classes;
+    static Array<ClassRegister, 128> *Get();
+    // Class data
+    Allocator _allocator;
+    size_t _offset; // from this
 public:
-    char		class_name[255];
-    static	const	uint16_t	NoClass;	//	max: 0xFFFE classes
-    template<class	C>	static	uint64_t	Load(uint16_t	CID);	//	returns class meta data (Cf payload.h)
-    template<class	C>	static	uint64_t	Load();				//	loads the allocator and offset
-    static	uint16_t	Load(const	char	*className);
-    static	ClassRegister	*Get(uint16_t	CID);
-    static	uint16_t	GetCID(const	char	*className);
-    static	uint16_t	Count();
+    char class_name[255];
+    static const uint16_t NoClass; // max: 0xFFFE classes
+    template<class C> static uint64_t Load(uint16_t CID); // returns class meta data (Cf payload.h)
+    template<class C> static uint64_t Load(); // loads the allocator and offset
+    static uint16_t Load(const char *className);
+    static ClassRegister *Get(uint16_t CID);
+    static uint16_t GetCID(const char *className);
+    static uint16_t Count();
     ClassRegister();
     ~ClassRegister();
-    Allocator		allocator()	const;
-    size_t			offset()	const;
-    static	void	Cleanup();
+    Allocator allocator() const;
+    size_t offset() const;
+    static void Cleanup();
 };
 }
 }
 
 
-#include	"class_register.tpl.cpp"
+#include "class_register.tpl.cpp"
 
 
 #endif

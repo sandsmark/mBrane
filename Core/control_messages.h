@@ -73,191 +73,191 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef	mBrane_sdk_control_messages_h
-#define	mBrane_sdk_control_messages_h
+#ifndef mBrane_sdk_control_messages_h
+#define mBrane_sdk_control_messages_h
 
-#include	"message.h"
+#include "message.h"
 
 
-namespace	mBrane
+namespace mBrane
 {
-namespace	sdk
+namespace sdk
 {
-namespace	payloads
+namespace payloads
 {
 
-class	mBrane_dll	SystemReady:	//	sent when all the nodes specified in the node cfg file are up and running
-    public	ControlMessage<SystemReady>
+class mBrane_dll SystemReady: // sent when all the nodes specified in the node cfg file are up and running
+    public ControlMessage<SystemReady>
 {
 };
 
-class	mBrane_dll	SyncProbe:
-    public	ControlMessage<SyncProbe>
+class mBrane_dll SyncProbe:
+    public ControlMessage<SyncProbe>
 {
 public:
-    uint8_t	node_id;
+    uint8_t node_id;
 };
 
-class	mBrane_dll	SyncEcho:
-    public	ControlMessage<SyncEcho>
+class mBrane_dll SyncEcho:
+    public ControlMessage<SyncEcho>
 {
 public:
-    int64_t	t0;	//	from probe node_send_ts
-    int64_t	t1;	//	from probe node_recv_ts
+    int64_t t0; // from probe node_send_ts
+    int64_t t1; // from probe node_recv_ts
     // t2 is recorded in echo node_send_ts
     // t3 is recorded in echo node_recv_ts
 };
 
-class	mBrane_dll	NodeJoined:
-    public	ControlMessage<NodeJoined>
+class mBrane_dll NodeJoined:
+    public ControlMessage<NodeJoined>
 {
 public:
-    uint8_t	node_id;
+    uint8_t node_id;
 };
 
-class	mBrane_dll	NodeLeft:
-    public	ControlMessage<NodeLeft>
+class mBrane_dll NodeLeft:
+    public ControlMessage<NodeLeft>
 {
 public:
-    uint8_t	node_id;
+    uint8_t node_id;
 };
 
-class	mBrane_dll	SetThreshold:
-    public	ControlMessage<SetThreshold>
+class mBrane_dll SetThreshold:
+    public ControlMessage<SetThreshold>
 {
 public:
-    uint8_t	host_id;
-    uint16_t	space_id;
-    float	threshold;
+    uint8_t host_id;
+    uint16_t space_id;
+    float threshold;
 };
 
-class	mBrane_dll	ActivateModule:
-    public	ControlMessage<ActivateModule>
+class mBrane_dll ActivateModule:
+    public ControlMessage<ActivateModule>
 {
 public:
-    uint8_t	host_id;
-    uint16_t	module_cid;
-    uint16_t	module_id;
-    uint16_t	space_id;
-    float	activationLevel;
+    uint8_t host_id;
+    uint16_t module_cid;
+    uint16_t module_id;
+    uint16_t space_id;
+    float activationLevel;
 };
 
-class	mBrane_dll	ActivateSpace:
-    public	ControlMessage<ActivateSpace>
+class mBrane_dll ActivateSpace:
+    public ControlMessage<ActivateSpace>
 {
 public:
-    uint8_t	host_id;
-    uint16_t	space_id;	//	the space on which target space is projected onto
-    uint16_t	target_sid;	//	the space to set the activation for
-    float	activationLevel;
+    uint8_t host_id;
+    uint16_t space_id; // the space on which target space is projected onto
+    uint16_t target_sid; // the space to set the activation for
+    float activationLevel;
 };
 
-template<class	U>	class	Subscribe:
-    public	ControlMessage<U>
+template<class U> class Subscribe:
+    public ControlMessage<U>
 {
 public:
-    uint8_t	host_id;
-    uint16_t	module_cid;
-    uint16_t	module_id;
-    uint16_t	space_id;
+    uint8_t host_id;
+    uint16_t module_cid;
+    uint16_t module_id;
+    uint16_t space_id;
 };
 
-class	mBrane_dll	SubscribeMessage:
-    public	Subscribe<SubscribeMessage>
+class mBrane_dll SubscribeMessage:
+    public Subscribe<SubscribeMessage>
 {
 public:
-    uint16_t	message_cid;
+    uint16_t message_cid;
 };
 
-class	mBrane_dll	UnsubscribeMessage:
-    public	Subscribe<UnsubscribeMessage>
+class mBrane_dll UnsubscribeMessage:
+    public Subscribe<UnsubscribeMessage>
 {
 public:
-    uint16_t	message_cid;
+    uint16_t message_cid;
 };
 
-class	mBrane_dll	SubscribeStream:
-    public	Subscribe<SubscribeStream>
+class mBrane_dll SubscribeStream:
+    public Subscribe<SubscribeStream>
 {
 public:
-    uint16_t	stream_id;
+    uint16_t stream_id;
 };
 
-class	mBrane_dll	UnsubscribeStream:
-    public	Subscribe<UnsubscribeStream>
+class mBrane_dll UnsubscribeStream:
+    public Subscribe<UnsubscribeStream>
 {
 public:
-    uint16_t	stream_id;
+    uint16_t stream_id;
 };
 
-class	mBrane_dll	CreateModule:
-    public	ControlMessage<CreateModule>
+class mBrane_dll CreateModule:
+    public ControlMessage<CreateModule>
 {
 public:
-    uint16_t	sender_cid;
-    uint16_t	sender_id;
-    uint8_t	host_id;
-    uint16_t	module_cid;
+    uint16_t sender_cid;
+    uint16_t sender_id;
+    uint8_t host_id;
+    uint16_t module_cid;
 };
 
-class	mBrane_dll	DeleteModule:
-    public	ControlMessage<DeleteModule>
+class mBrane_dll DeleteModule:
+    public ControlMessage<DeleteModule>
 {
 public:
-    uint8_t	host_id;
-    uint16_t	module_cid;
-    uint16_t	module_id;
+    uint8_t host_id;
+    uint16_t module_cid;
+    uint16_t module_id;
 };
 
-class	mBrane_dll	CreateSpace:
-    public	ControlMessage<CreateSpace>
+class mBrane_dll CreateSpace:
+    public ControlMessage<CreateSpace>
 {
 public:
-    uint16_t	sender_cid;
-    uint16_t	sender_id;
-    uint8_t	host_id;
+    uint16_t sender_cid;
+    uint16_t sender_id;
+    uint8_t host_id;
 };
 
-class	mBrane_dll	DeleteSpace:
-    public	ControlMessage<DeleteSpace>
+class mBrane_dll DeleteSpace:
+    public ControlMessage<DeleteSpace>
 {
 public:
-    uint8_t	host_id;
-    uint16_t	space_id;
+    uint8_t host_id;
+    uint16_t space_id;
 };
 
-class	mBrane_dll	KillModule:	//	internal message issued upon reception of DeleteModule
-    public	ControlMessage<KillModule>
+class mBrane_dll KillModule: // internal message issued upon reception of DeleteModule
+    public ControlMessage<KillModule>
 {
 };
 
-template<class	U>	class	_DeleteSharedObjects:
-    public	ControlMessage<U>
-{
-public:
-    uint8_t	node_id;
-};
-
-class	mBrane_dll	DeleteSharedObjects:	//	issued by the garbage collector. Triggers ack from remote nodes.
-    public	CStorage<_DeleteSharedObjects<DeleteSharedObjects>, uint32_t>
-{
-};
-
-class	mBrane_dll	AckDeleteSharedObjects:
-    public	ControlMessage<AckDeleteSharedObjects>
+template<class U> class _DeleteSharedObjects:
+    public ControlMessage<U>
 {
 public:
-    uint8_t	node_id;
+    uint8_t node_id;
 };
 
-#define	MBRANE_MESSAGE_CLASS(C)	static	const	uint16_t	C##_CID=(uint16_t)__COUNTER__;
-//#define	MBRANE_MESSAGE_CLASS(C)	static	const	uint16_t	C##_CID=ClassRegister::Load<C>(0);
-#include	"mBrane_message_classes.h"
+class mBrane_dll DeleteSharedObjects: // issued by the garbage collector. Triggers ack from remote nodes.
+    public CStorage<_DeleteSharedObjects<DeleteSharedObjects>, uint32_t>
+{
+};
 
-void	mBrane_dll	LoadControlMessageMetaData();	//	overwrites C::_MetaData with actual values (i.e. C_CID dependent) - where C is a Core-defined control message;
-//	Core, mBrane and the user lib have different copies of C::_MetaData (initialized to 0x00FFFFFFFFFFFFF) at Core loading time;
-//	called by mBrane in main();
-//	C::_MetaData is not used by the user lib (no instances of mBrane control messages are created: the user lib only reacts to their occurrences).
+class mBrane_dll AckDeleteSharedObjects:
+    public ControlMessage<AckDeleteSharedObjects>
+{
+public:
+    uint8_t node_id;
+};
+
+#define MBRANE_MESSAGE_CLASS(C) static const uint16_t C##_CID=(uint16_t)__COUNTER__;
+//#define MBRANE_MESSAGE_CLASS(C) static const uint16_t C##_CID=ClassRegister::Load<C>(0);
+#include "mBrane_message_classes.h"
+
+void mBrane_dll LoadControlMessageMetaData(); // overwrites C::_MetaData with actual values (i.e. C_CID dependent) - where C is a Core-defined control message;
+// Core, mBrane and the user lib have different copies of C::_MetaData (initialized to 0x00FFFFFFFFFFFFF) at Core loading time;
+// called by mBrane in main();
+// C::_MetaData is not used by the user lib (no instances of mBrane control messages are created: the user lib only reacts to their occurrences).
 }
 }
 }

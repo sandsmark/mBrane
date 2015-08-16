@@ -78,42 +78,42 @@
 #ifndef Perf_modules_h
 #define Perf_modules_h
 
-#include	"Perf.h"
-#include	"../Core/module_node.h"
+#include "Perf.h"
+#include "../Core/module_node.h"
 
-#define	N		module::Node
-#define	NODE	module::Node::Get()
-#define	OUTPUT	NODE->trace(N::APPLICATION)
+#define N module::Node
+#define NODE module::Node::Get()
+#define OUTPUT NODE->trace(N::APPLICATION)
 
-#include	"RR.h"
+#include "RR.h"
 
 int64_t startTime = 0;
 int64_t endTime = 0;
 int32_t runCount = 0;
 
-class	pong;
+class pong;
 MODULE_CLASS_BEGIN(ping, Module<ping>)
-void	start()
+void start()
 {
 }
-void	stop()
+void stop()
 {
 }
-template<class	T>	Decision	decide(T	*p)
+template<class T> Decision decide(T *p)
 {
-    return	WAIT;
+    return WAIT;
 }
-template<class	T>	void	react(T	*p) 	//	to messages
+template<class T> void react(T *p)  // to messages
 {
     OUTPUT << "ping " << _id << " got another message..." << std::endl;
 }
-void	react(SystemReady	*p)
+void react(SystemReady *p)
 {
     OUTPUT << "ping starting PingPong test, please wait..." << std::endl;
     startTime = Time::Get();
     NODE->send(this, new Ball(0), N::LOCAL);
 }
-void	react(ReturnBall	*p)
+void react(ReturnBall *p)
 {
     int32_t counter = p->id;
 
@@ -138,27 +138,27 @@ void	react(ReturnBall	*p)
 MODULE_CLASS_END(ping)
 
 MODULE_CLASS_BEGIN(pong, Module<pong>)
-void	start()
+void start()
 {
 }
-void	stop()
+void stop()
 {
 }
-template<class	T>	Decision	decide(T	*p)
+template<class T> Decision decide(T *p)
 {
-    return	WAIT;
+    return WAIT;
 }
-template<class	T>	void	react(T	*p) 	//	to messages
+template<class T> void react(T *p)  // to messages
 {
     OUTPUT << "pong " << _id << " got another message..." << std::endl;
 }
-void	react(SystemReady	*p)
+void react(SystemReady *p)
 {
-    //	OUTPUT<<"pong got SystemReady"<<std::endl;
+    // OUTPUT<<"pong got SystemReady"<<std::endl;
 }
-void	react(Ball	*p)
+void react(Ball *p)
 {
-    //	OUTPUT<<"pong "<<_id<<" got the ball '"<<p->id<<"'"<<std::endl;
+    // OUTPUT<<"pong "<<_id<<" got the ball '"<<p->id<<"'"<<std::endl;
     NODE->send(this, new ReturnBall(p->id), N::LOCAL);
 }
 MODULE_CLASS_END(pong)

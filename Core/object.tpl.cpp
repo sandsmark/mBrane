@@ -73,35 +73,35 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace	mBrane
+namespace mBrane
 {
-namespace	sdk
+namespace sdk
 {
 
-template<class	M, class	S, class	U>	M	*Object<M, S, U>::_Allocator = M::GetStatic(U::Size());
+template<class M, class S, class U> M *Object<M, S, U>::_Allocator = M::GetStatic(U::Size());
 
-template<class	M, class	S, class	U>	inline	size_t	Object<M, S, U>::Size()
+template<class M, class S, class U> inline size_t Object<M, S, U>::Size()
 {
-    return	sizeof(U);
+    return sizeof(U);
 }
 
-template<class	M, class	S, class	U>	inline	Object<M, S, U>::Object(): S()
+template<class M, class S, class U> inline Object<M, S, U>::Object(): S()
 {
 }
 
-template<class	M, class	S, class	U>	inline	void	*Object<M, S, U>::operator new(size_t s)
+template<class M, class S, class U> inline void *Object<M, S, U>::operator new(size_t s)
 {
-    return	_Allocator->alloc();
+    return _Allocator->alloc();
 }
 
-template<class	M, class	S, class	U>	inline	void	Object<M, S, U>::operator delete(void *o)
+template<class M, class S, class U> inline void Object<M, S, U>::operator delete(void *o)
 {
     _Allocator->dealloc(o);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-template<class	C, class	M, class	U>	inline	ObjectAdapter<C, M, U>::ObjectAdapter(): Object<M, _Object, U>(), C()
+template<class C, class M, class U> inline ObjectAdapter<C, M, U>::ObjectAdapter(): Object<M, _Object, U>(), C()
 {
 }
 }

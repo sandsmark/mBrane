@@ -76,14 +76,14 @@
 //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
 
-#include	"tcp.h"
-#include	"tcp_interface.h"
+#include "tcp.h"
+#include "tcp_interface.h"
 
 
-NetworkInterface	*Load(XMLNode	&n, mdaemon::Node	*node)
+NetworkInterface *Load(XMLNode &n, mdaemon::Node *node)
 {
-#if defined	BUILD_DLL
+#if defined BUILD_DLL
     // std::cout<<"BUG\n";
 #endif
-    return	TCPInterface::New(n);
+    return TCPInterface::New(n);
 }

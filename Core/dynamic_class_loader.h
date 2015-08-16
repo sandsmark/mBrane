@@ -73,45 +73,45 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef	mBrane_sdk_dynamic_class_loader_h
-#define	mBrane_sdk_dynamic_class_loader_h
+#ifndef mBrane_sdk_dynamic_class_loader_h
+#define mBrane_sdk_dynamic_class_loader_h
 
-#include	"utils.h"
-#include	"xml_parser.h"
-#include	"mdaemon_node.h"
+#include "utils.h"
+#include "xml_parser.h"
+#include "mdaemon_node.h"
 
 
-namespace	mBrane
+namespace mBrane
 {
-namespace	sdk
+namespace sdk
 {
 
-namespace	mdaemon
+namespace mdaemon
 {
-class	Node;
+class Node;
 }
 
-//	Used for loading daemon and network interfaces classes.
-//	Can be used for any other class provided in a sharedLibrary exhibiting a static Load function, e.g.
-//	extern	"C"{
-//	AnyClass	dll_export	*Load(XMLNode	&n,mdaemon::Node	*node);
-//	}
-template<class	C>	class	DynamicClassLoader
+// Used for loading daemon and network interfaces classes.
+// Can be used for any other class provided in a sharedLibrary exhibiting a static Load function, e.g.
+// extern "C"{
+// AnyClass dll_export *Load(XMLNode &n,mdaemon::Node *node);
+// }
+template<class C> class DynamicClassLoader
 {
 private:
-    SharedLibrary	*library;
-    typename	C::Load	load;
-    DynamicClassLoader(SharedLibrary	*library, typename	C::Load	load);
+    SharedLibrary *library;
+    typename C::Load load;
+    DynamicClassLoader(SharedLibrary *library, typename C::Load load);
 public:
-    static	DynamicClassLoader	*New(XMLNode	&n);
+    static DynamicClassLoader *New(XMLNode &n);
     ~DynamicClassLoader();
-    C	*getInstance(XMLNode	&n, mdaemon::Node	*node);
+    C *getInstance(XMLNode &n, mdaemon::Node *node);
 };
 }
 }
 
 
-#include	"dynamic_class_loader.tpl.cpp"
+#include "dynamic_class_loader.tpl.cpp"
 
 
 #endif

@@ -76,47 +76,47 @@
 #ifndef mBrane_sdk_object_h
 #define mBrane_sdk_object_h
 
-#include	<cstdlib>
+#include <cstdlib>
 
-#include	"../CoreLibrary/types.h"
-#include	"../CoreLibrary/base.h"
-#include	"config.h"
+#include "../CoreLibrary/types.h"
+#include "../CoreLibrary/base.h"
+#include "config.h"
 
 
-using	namespace	core;
+using namespace core;
 
-namespace	mBrane
+namespace mBrane
 {
-namespace	sdk
+namespace sdk
 {
 
-class	ClassRegister;
-//	Standard base class for all objects in mBrane.
-//	M: memory allocator class.
-//	S: base class.
-//	U: derived class.
-//	Usage:	template<class	C>	class	DaughterClass:public	Object<Memory,_Object,C>{ ... };
-//			class _DaughterClass:public DaughterClass<_DaughterClass>{};
-//			NB: Memory can be any Allocator class
-template<class	M, class	S, class	U>	class	Object:
-    public	S
+class ClassRegister;
+// Standard base class for all objects in mBrane.
+// M: memory allocator class.
+// S: base class.
+// U: derived class.
+// Usage: template<class C> class DaughterClass:public Object<Memory,_Object,C>{ ... };
+// class _DaughterClass:public DaughterClass<_DaughterClass>{};
+// NB: Memory can be any Allocator class
+template<class M, class S, class U> class Object:
+    public S
 {
-    friend	class	ClassRegister;
+    friend class ClassRegister;
 private:
-    static	M	*_Allocator;
+    static M *_Allocator;
 protected:
     Object();
 public:
-    static	size_t		Size();		//	Total size of an instance as defined by its class
-    void	*operator	new(size_t	s);
-    void	operator	delete(void	*o);
+    static size_t Size(); // Total size of an instance as defined by its class
+    void *operator new(size_t s);
+    void operator delete(void *o);
 };
 
 
-//	Template version of the well-known DP. Adapts C to Object<M,_Object,U>.
-template<class	C, class	M, class	U>	class	ObjectAdapter:
-    public	C,
-    public	Object<M, _Object, U>
+// Template version of the well-known DP. Adapts C to Object<M,_Object,U>.
+template<class C, class M, class U> class ObjectAdapter:
+    public C,
+    public Object<M, _Object, U>
 {
 protected:
     ObjectAdapter();
@@ -125,7 +125,7 @@ protected:
 }
 
 
-#include	"object.tpl.cpp"
+#include "object.tpl.cpp"
 
 
 #endif

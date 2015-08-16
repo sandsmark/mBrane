@@ -76,88 +76,88 @@
 #ifndef mBrane_sdk_payload_utils_h
 #define mBrane_sdk_payload_utils_h
 
-#include	"message.h"
+#include "message.h"
 
 
-namespace	mBrane
+namespace mBrane
 {
-namespace	sdk
+namespace sdk
 {
-namespace	payloads
+namespace payloads
 {
 /*
-			template<typename	T>	class	Array;
-			//	Leads a contiguous raw data storage; the allocated size is not sizeof(Storage<T>), but size; size <=2^30-1
-			//	_metaData is [size(30)|allocation scheme(2)]
-			//	CoreSize is sizeof(Storage<T>); Object<>::CoreSize() is used
-			//	Storage<T> is registered in the ClassRegister (allocator=Storage<T>::New)
-			//	Specialize for any particular T holding pointers: redefine ptrCount, getPtr and setPtr
-			template<typename	T>	class	Storage:
-			public	RPayload<Storage<T>,Memory>{
-			template<typename	TA>	friend	class	Array;
-			private:
-				uint32_t normalizedSize;	//	currently allocated size, in bytes; normalized, i.e. _size = 64*s where s is a power of 2
-				uint32_t count;	//	current max index; maintained by Array<T>
-				T		*data;	//	points to data+sizeof(T*)
-				void	setNormalizedSize(uint32_t size);
-			public:
-				static	void	*New(uint32_t size);	//	to initialize the _vftable on recv()
-				Storage();
-				~Storage();
-				void	*operator	new(size_t	s,uint32_t size,uint32_t &normalizedSize);
-				void	operator	delete(void	*storage);
-				uint32_t getNormalizedSize();
-				T		&operator	[](uint32_t i);
-				size_t	size()	const;
-			};
+ template<typename T> class Array;
+ // Leads a contiguous raw data storage; the allocated size is not sizeof(Storage<T>), but size; size <=2^30-1
+ // _metaData is [size(30)|allocation scheme(2)]
+ // CoreSize is sizeof(Storage<T>); Object<>::CoreSize() is used
+ // Storage<T> is registered in the ClassRegister (allocator=Storage<T>::New)
+ // Specialize for any particular T holding pointers: redefine ptrCount, getPtr and setPtr
+ template<typename T> class Storage:
+ public RPayload<Storage<T>,Memory>{
+ template<typename TA> friend class Array;
+ private:
+ uint32_t normalizedSize; // currently allocated size, in bytes; normalized, i.e. _size = 64*s where s is a power of 2
+ uint32_t count; // current max index; maintained by Array<T>
+ T *data; // points to data+sizeof(T*)
+ void setNormalizedSize(uint32_t size);
+ public:
+ static void *New(uint32_t size); // to initialize the _vftable on recv()
+ Storage();
+ ~Storage();
+ void *operator new(size_t s,uint32_t size,uint32_t &normalizedSize);
+ void operator delete(void *storage);
+ uint32_t getNormalizedSize();
+ T &operator [](uint32_t i);
+ size_t size() const;
+ };
 
-			//	Specialization for pointer storage
-			//	T must be a subclass of __Payload
-			template<typename	T>	class	Storage<P<T> >:
-			public	RPayload<Storage<T>,Memory>{
-			template<typename	TA>	friend	class	Array;
-			private:
-				uint32_t normalizedSize;
-				uint32_t count;
-				P<T>	*data;
-				void	setNormalizedSize(uint32_t size);
-			public:
-				static	void	*New(uint32_t size);
-				Storage();
-				~Storage();
-				void	*operator	new(size_t	s,uint32_t size,uint32_t &normalizedSize);
-				void	operator	delete(void	*storage);
-				uint32_t getNormalizedSize();
-				P<T>	&operator	[](uint32_t i);
-				size_t	size()	const;
-				uint16_t 	ptrCount()	const;
-				__Payload	*getPtr(uint16_t i)	const;
-				void		setPtr(uint16_t i,__Payload	*p);
-			};
+ // Specialization for pointer storage
+ // T must be a subclass of __Payload
+ template<typename T> class Storage<P<T> >:
+ public RPayload<Storage<T>,Memory>{
+ template<typename TA> friend class Array;
+ private:
+ uint32_t normalizedSize;
+ uint32_t count;
+ P<T> *data;
+ void setNormalizedSize(uint32_t size);
+ public:
+ static void *New(uint32_t size);
+ Storage();
+ ~Storage();
+ void *operator new(size_t s,uint32_t size,uint32_t &normalizedSize);
+ void operator delete(void *storage);
+ uint32_t getNormalizedSize();
+ P<T> &operator [](uint32_t i);
+ size_t size() const;
+ uint16_t  ptrCount() const;
+ __Payload *getPtr(uint16_t i) const;
+ void setPtr(uint16_t i,__Payload *p);
+ };
 
-			//	To embed in a payload
-			template<typename	T>	class	Array{
-			protected:
-				uint32_t 		_maxCount;	//	capacity as a number of objects
-				P<Storage<T> >	_data;		//	contiguous data storage allocated via Memory::GetDynamic(needed_size)->alloc()
-			public:
-				Array();
-				~Array();
-				void	ensure(uint32_t count);	//	number of objects
-				uint32_t count()	const;			//	number of objects
-				T		&operator	[](uint32_t i);		//	reallocates if necessary (using ensure())
-				uint8_t *asBytes(uint32_t i);				//	returns the raw data from (and including) i (an index on Ts, not on bytes); no capacity check
-				//	functions to be invoked by the embedding payload class
-				uint16_t 	ptrCount()	const;
-				__Payload	*getPtr(uint16_t i)	const;
-				void		setPtr(uint16_t i,__Payload	*p);
-			};*/
+ // To embed in a payload
+ template<typename T> class Array{
+ protected:
+ uint32_t  _maxCount; // capacity as a number of objects
+ P<Storage<T> > _data; // contiguous data storage allocated via Memory::GetDynamic(needed_size)->alloc()
+ public:
+ Array();
+ ~Array();
+ void ensure(uint32_t count); // number of objects
+ uint32_t count() const; // number of objects
+ T &operator [](uint32_t i); // reallocates if necessary (using ensure())
+ uint8_t *asBytes(uint32_t i); // returns the raw data from (and including) i (an index on Ts, not on bytes); no capacity check
+ // functions to be invoked by the embedding payload class
+ uint16_t  ptrCount() const;
+ __Payload *getPtr(uint16_t i) const;
+ void setPtr(uint16_t i,__Payload *p);
+ };*/
 }
 }
 }
 
 
-#include	"payload_utils.tpl.cpp"
+#include "payload_utils.tpl.cpp"
 
 
 #endif

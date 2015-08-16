@@ -73,30 +73,30 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef	mBrane_config_h
-#define	mBrane_config_h
+#ifndef mBrane_config_h
+#define mBrane_config_h
 
-#include	"../CoreLibrary/types.h"
+#include "../CoreLibrary/types.h"
 
 #if defined WINDOWS
-#if defined	CORE_EXPORTS
-#define mBrane_dll	__declspec(dllexport)
+#if defined CORE_EXPORTS
+#define mBrane_dll __declspec(dllexport)
 #else
-#define mBrane_dll	__declspec(dllimport)
+#define mBrane_dll __declspec(dllimport)
 #endif
 #elif defined LINUX
 #define mBrane_dll
 #endif
 
-#define	MBRANE_VERSION	0.0
+#define MBRANE_VERSION 0.0
 
-//	class version selectors
+// class version selectors
 
-//#define	MEMORY_MALLOC
-#define	MEMORY_1
-//#define	MEMORY_2
+//#define MEMORY_MALLOC
+#define MEMORY_1
+//#define MEMORY_2
 
-#define	PIPE_1
-//#define	PIPE_2
+#define PIPE_1
+//#define PIPE_2
 
 #endif

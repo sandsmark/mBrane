@@ -73,51 +73,51 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef	mBrane_executing_h
-#define	mBrane_executing_h
+#ifndef mBrane_executing_h
+#define mBrane_executing_h
 
-#include	"utils.h"
-#include	"../Core/module.h"
-#include	"xml_parser.h"
+#include "utils.h"
+#include "../Core/module.h"
+#include "xml_parser.h"
 
 
-using	namespace	mBrane::sdk;
-using	namespace	mBrane::sdk::module;
+using namespace mBrane::sdk;
+using namespace mBrane::sdk::module;
 
-namespace	mBrane
+namespace mBrane
 {
 
-class	Node;
-//	Message processing thread class.
-class	XThread:
-    public	Thread,
-    public	FastSemaphore
+class Node;
+// Message processing thread class.
+class XThread:
+    public Thread,
+    public FastSemaphore
 {
 public:
-    static	thread_ret thread_function_call	Xec(void	*args);
-    Node	*const	node;
-    bool	wasSupporting;
+    static thread_ret thread_function_call Xec(void *args);
+    Node *const node;
+    bool wasSupporting;
 
-    XThread(Node	*n);
+    XThread(Node *n);
     ~XThread();
-    void	work(_Payload	*p, _Module	*c);
+    void work(_Payload *p, _Module *c);
 };
 
-//	XThread pool.
-class	mbrane_dll	Executing
+// XThread pool.
+class mbrane_dll Executing
 {
-    friend	class	XThread;
+    friend class XThread;
 protected:
 
-    StaticArray<Thread *>	xThreads;
-    uint16_t 	threadCount;
-    Semaphore	*supportSync;
+    StaticArray<Thread *> xThreads;
+    uint16_t  threadCount;
+    Semaphore *supportSync;
 
     Executing();
     ~Executing();
-    bool	loadConfig(XMLNode	&n);
-    void	start();
-    void	shutdown();
+    bool loadConfig(XMLNode &n);
+    void start();
+    void shutdown();
 };
 }
 

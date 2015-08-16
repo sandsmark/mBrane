@@ -88,37 +88,37 @@ uint64_t t2;
 uint32_t cRun;
 uint32_t cc;
 public:
-void	loadParameters(const	std::vector<int32_t>	&numbers, const	std::vector<std::string>	&strings)
+void loadParameters(const std::vector<int32_t> &numbers, const std::vector<std::string> &strings)
 {
     int32_t a = numbers[0];
-    float	f = *reinterpret_cast<float *>(&a);
+    float f = *reinterpret_cast<float *>(&a);
     std::cout << "RR Module got parameters: " << f << " " << numbers[1] << " " << strings[0] << std::endl;
 }
-void	start()
+void start()
 {
     tStart = 0;
     tEnd = 0;
     t1 = t2 = 0;
     cRun = 0;
     cc = 0;
-    NODE->addConstantObject(new	Shared(), "a_constant");
+    NODE->addConstantObject(new Shared(), "a_constant");
 }
-void	stop() {	}
-template<class	T>	Decision	decide(T	*p)
+void stop() { }
+template<class T> Decision decide(T *p)
 {
-    return	WAIT;
+    return WAIT;
 }
-template<class	T>	void	react(T	*p) {}
+template<class T> void react(T *p) {}
 
-void	react(SystemReady	*p)
+void react(SystemReady *p)
 {
-    //	Thread::Sleep(3000);
+    // Thread::Sleep(3000);
     printf("RRMaster starting RoundRobin test, please wait...\n");
     tStart = t1 = NODE->time();
     NODE->send(this, new Ball1(0), N::PRIMARY);
 }
 
-void	react(Ball9 *p)
+void react(Ball9 *p)
 {
     uint32_t t;
     int32_t counter = p->num;
@@ -129,10 +129,10 @@ void	react(Ball9 *p)
 
     t2 = NODE->time();
 
-    //	printf("Module 9 Send/Rec time:               %u\n", (uint32) (t2 - t1));
-    //	if ((t = (uint32)(t2-t1)) > 10000)
-    //		printf("*** RR[%u] single run test took %uus for the %dth cycle, %.3fus per msg (%p)\n",
-    //			cRun, t, counter, ((double)t)/((double)9), p);
+    // printf("Module 9 Send/Rec time:               %u\n", (uint32) (t2 - t1));
+    // if ((t = (uint32)(t2-t1)) > 10000)
+    // printf("*** RR[%u] single run test took %uus for the %dth cycle, %.3fus per msg (%p)\n",
+    // cRun, t, counter, ((double)t)/((double)9), p);
     if (counter == 10000) {
         tEnd = t2;
         t = (uint32_t)(tEnd - tStart);
@@ -144,10 +144,10 @@ void	react(Ball9 *p)
         t1 = t2;
         NODE->send(this, new Ball1(0), N::PRIMARY);
     } else {
-        //	if (counter % 1000 == 0)
-        //		printf("RR[%u] %d msgs so far (%p)\n",cRun,counter, p);
-        //	if (counter % 100 == 0)
-        //		OUTPUT<<"RR[" << cRun << "] "<<counter<<" msgs so far..."<<std::endl;
+        // if (counter % 1000 == 0)
+        // printf("RR[%u] %d msgs so far (%p)\n",cRun,counter, p);
+        // if (counter % 100 == 0)
+        // OUTPUT<<"RR[" << cRun << "] "<<counter<<" msgs so far..."<<std::endl;
         t1 = t2;
         NODE->send(this, new Ball1(counter + 1), N::PRIMARY);
     }
@@ -155,81 +155,81 @@ void	react(Ball9 *p)
 MODULE_CLASS_END(RRMaster)
 
 MODULE_CLASS_BEGIN(RRModule, Module<RRModule>)
-void	start() {}
-void	stop() {	}
-template<class	T>	Decision	decide(T	*p)
+void start() {}
+void stop() { }
+template<class T> Decision decide(T *p)
 {
-    return	WAIT;
+    return WAIT;
 }
-template<class	T>	void	react(T	*p) {}
+template<class T> void react(T *p) {}
 
-void	react(Ball1 *p)
+void react(Ball1 *p)
 {
     uint64_t now = NODE->time();
     //printf("Module Rec time (%d,%d,%d,%d):                             1   %u\n",
-    //	(uint32) (now - p->send_ts()),
-    //	(uint32) (now - p->node_send_ts()),
-    //	(uint32) (now - p->node_recv_ts()),
-    //	(uint32) (now - p->recv_ts()),
-    //	(uint32) (now - t1));
+    // (uint32) (now - p->send_ts()),
+    // (uint32) (now - p->node_send_ts()),
+    // (uint32) (now - p->node_recv_ts()),
+    // (uint32) (now - p->recv_ts()),
+    // (uint32) (now - t1));
     int32_t counter = p->num;
-//		printf( "Ball1 triggered...\n");
-    //	if (counter % 1000 == 0)
-    //		printf("RR5 %d msgs so far (%p)\n",
-    //			counter, ball);
+// printf( "Ball1 triggered...\n");
+    // if (counter % 1000 == 0)
+    // printf("RR5 %d msgs so far (%p)\n",
+    // counter, ball);
     NODE->send(this, new Ball2(counter), N::PRIMARY);
 }
-void	react(Ball2 *p)
+void react(Ball2 *p)
 {
     uint64_t now = NODE->time();
     //printf("Module Rec time (%d,%d,%d,%d):                             2   %u\n",
-    //	(uint32) (now - p->send_ts()),
-    //	(uint32) (now - p->node_send_ts()),
-    //	(uint32) (now - p->node_recv_ts()),
-    //	(uint32) (now - p->recv_ts()),
-    //	(uint32) (now - t1));
-//		printf( "Ball2 triggered...\n");
+    // (uint32) (now - p->send_ts()),
+    // (uint32) (now - p->node_send_ts()),
+    // (uint32) (now - p->node_recv_ts()),
+    // (uint32) (now - p->recv_ts()),
+    // (uint32) (now - t1));
+// printf( "Ball2 triggered...\n");
     int32_t counter = p->num;
     NODE->send(this, new Ball3(counter), N::PRIMARY);
 }
-void	react(Ball3 *p)
+void react(Ball3 *p)
 {
     uint64_t now = NODE->time();
     //printf("Module Rec time (%d,%d,%d,%d):                             3   %u\n",
-    //	(uint32) (now - p->send_ts()),
-    //	(uint32) (now - p->node_send_ts()),
-    //	(uint32) (now - p->node_recv_ts()),
-    //	(uint32) (now - p->recv_ts()),
-    //	(uint32) (now - t1));
-//		printf( "Ball3 triggered...\n");
+    // (uint32) (now - p->send_ts()),
+    // (uint32) (now - p->node_send_ts()),
+    // (uint32) (now - p->node_recv_ts()),
+    // (uint32) (now - p->recv_ts()),
+    // (uint32) (now - t1));
+// printf( "Ball3 triggered...\n");
     int32_t counter = p->num;
     NODE->send(this, new Ball4(counter), N::PRIMARY);
 }
-void	react(Ball4 *p)
+void react(Ball4 *p)
 {
     uint64_t now = NODE->time();
     //printf("Module Rec time (%d,%d,%d,%d):                             4   %u\n",
-    //	(uint32) (now - p->send_ts()),
-    //	(uint32) (now - p->node_send_ts()),
-    //	(uint32) (now - p->node_recv_ts()),
-    //	(uint32) (now - p->recv_ts()),
-    //	(uint32) (now - t1));
-//		printf( "Ball4 triggered...\n");
+    // (uint32) (now - p->send_ts()),
+    // (uint32) (now - p->node_send_ts()),
+    // (uint32) (now - p->node_recv_ts()),
+    // (uint32) (now - p->recv_ts()),
+    // (uint32) (now - t1));
+// printf( "Ball4 triggered...\n");
     int32_t counter = p->num;
-//		printf( "Ball4 triggered %d...\n", p->num);
+// printf( "Ball4 triggered %d...\n", p->num);
     NODE->send(this, new Ball5(counter), N::PRIMARY);
 }
-void	react(Ball5 *p)
+void react(Ball5 *p)
 {
     uint64_t now = NODE->time();
     //printf("Module Rec time (%d,%d,%d,%d):                             5   %u\n",
-    //	(uint32) (now - p->send_ts()),
-    //	(uint32) (now - p->node_send_ts()),
-    //	(uint32) (now - p->node_recv_ts()),
-    //	(uint32) (now - p->recv_ts()),
-    //	(uint32) (now - t1));
-//		printf( "Ball5 triggered...\n");
-//		printf( "Ball5 triggered %d...\n", p->num);
+    // (uint32) (now - p->send_ts()),
+    // (uint32) (now - p->node_send_ts()),
+    // (uint32) (now - p->node_recv_ts()),
+    // (uint32) (now - p->recv_ts()),
+    // (uint32) (now - t1));
+// printf( "Ball5 triggered...\n");
+// printf( "Ball5 triggered %d...\n", p->num);
     int32_t counter = p->num;
     //ActivateModule* am = new ActivateModule();
     //am->host_id = 1;
@@ -243,41 +243,41 @@ void	react(Ball5 *p)
     //Error::PrintBinary(ball, ball->size(), true, "Ball5 local Message Structure");
     NODE->send(this, new Ball6(counter), N::PRIMARY);
 }
-void	react(Ball6 *p)
+void react(Ball6 *p)
 {
     uint64_t now = NODE->time();
     //printf("Module Rec time (%d,%d,%d,%d):                             6   %u\n",
-    //	(uint32) (now - p->send_ts()),
-    //	(uint32) (now - p->node_send_ts()),
-    //	(uint32) (now - p->node_recv_ts()),
-    //	(uint32) (now - p->recv_ts()),
-    //	(uint32) (now - t1));
+    // (uint32) (now - p->send_ts()),
+    // (uint32) (now - p->node_send_ts()),
+    // (uint32) (now - p->node_recv_ts()),
+    // (uint32) (now - p->recv_ts()),
+    // (uint32) (now - t1));
     int32_t counter = p->num;
     NODE->send(this, new Ball7(counter), N::PRIMARY);
 }
-void	react(Ball7 *p)
+void react(Ball7 *p)
 {
     uint64_t now = NODE->time();
     //printf("Module Rec time (%d,%d,%d,%d):                             7   %u\n",
-    //	(uint32) (now - p->send_ts()),
-    //	(uint32) (now - p->node_send_ts()),
-    //	(uint32) (now - p->node_recv_ts()),
-    //	(uint32) (now - p->recv_ts()),
-    //	(uint32) (now - t1));
-//		printf( "Ball7 triggered...\n");
+    // (uint32) (now - p->send_ts()),
+    // (uint32) (now - p->node_send_ts()),
+    // (uint32) (now - p->node_recv_ts()),
+    // (uint32) (now - p->recv_ts()),
+    // (uint32) (now - t1));
+// printf( "Ball7 triggered...\n");
     int32_t counter = p->num;
     NODE->send(this, new Ball8(counter), N::PRIMARY);
 }
-void	react(Ball8 *p)
+void react(Ball8 *p)
 {
     uint64_t now = NODE->time();
     //printf("Module Rec time (%d,%d,%d,%d):                             8   %u\n",
-    //	(uint32) (now - p->send_ts()),
-    //	(uint32) (now - p->node_send_ts()),
-    //	(uint32) (now - p->node_recv_ts()),
-    //	(uint32) (now - p->recv_ts()),
-    //	(uint32) (now - t1));
-//		printf( "Ball8 triggered %d...\n", p->num);
+    // (uint32) (now - p->send_ts()),
+    // (uint32) (now - p->node_send_ts()),
+    // (uint32) (now - p->node_recv_ts()),
+    // (uint32) (now - p->recv_ts()),
+    // (uint32) (now - t1));
+// printf( "Ball8 triggered %d...\n", p->num);
     int32_t counter = p->num;
     NODE->send(this, new Ball9(counter), N::PRIMARY);
 }
@@ -285,15 +285,15 @@ MODULE_CLASS_END(RRModule)
 
 MODULE_CLASS_BEGIN(SizeTest, Module<SizeTest>)
 public:
-void	start() { }
-void	stop() {	}
-template<class	T>	Decision	decide(T	*p)
+void start() { }
+void stop() { }
+template<class T> Decision decide(T *p)
 {
-    return	WAIT;
+    return WAIT;
 }
-template<class	T>	void	react(T	*p) {}
+template<class T> void react(T *p) {}
 
-void	react(SystemReady	*p)
+void react(SystemReady *p)
 {
     ActivateModule *am = new ActivateModule();
     am->host_id = 1;
@@ -311,8 +311,8 @@ void	react(SystemReady	*p)
 
 MODULE_CLASS_END(SizeTest)
 
-typedef	char *(*LoomOutput)(uint32_t);
-typedef	bool (*LoomInput)(char *);
+typedef char *(*LoomOutput)(uint32_t);
+typedef bool (*LoomInput)(char *);
 
 MODULE_CLASS_BEGIN(Loom, Module<Loom>)
 public:
@@ -321,7 +321,7 @@ SharedLibrary *lib;
 LoomOutput waitForEvent;
 LoomInput processEvent;
 
-void	start()
+void start()
 {
     lib = SharedLibrary::New("modules/mBrane_d.dll");
 
@@ -335,7 +335,7 @@ void	start()
 
     thread = NULL;
 }
-void	stop()
+void stop()
 {
     delete(thread);
     thread = NULL;
@@ -344,13 +344,13 @@ void	stop()
     waitForEvent = NULL;
     processEvent = NULL;
 }
-template<class	T>	Decision	decide(T	*p)
+template<class T> Decision decide(T *p)
 {
-    return	WAIT;
+    return WAIT;
 }
-template<class	T>	void	react(T	*p) {}
+template<class T> void react(T *p) {}
 
-void	react(SystemReady	*p)
+void react(SystemReady *p)
 {
     thread = Thread::New<Thread>(run, this);
     char *data = NULL;
@@ -361,7 +361,7 @@ void	react(SystemReady	*p)
     }
 }
 
-void	react(Ball1	*p)
+void react(Ball1 *p)
 {
     char *data = NULL;
 
@@ -371,7 +371,7 @@ void	react(Ball1	*p)
     }
 }
 
-static thread_ret thread_function_call run(void	*args)
+static thread_ret thread_function_call run(void *args)
 {
     Loom *_this = (Loom *) args;
 

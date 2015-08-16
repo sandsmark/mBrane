@@ -73,109 +73,109 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include	"class_register.h"
+#include "class_register.h"
 
 
-namespace	mBrane
+namespace mBrane
 {
-namespace	sdk
+namespace sdk
 {
 
-template<class	P, class	U, class	M>	uint64_t	___Payload<P, U, M>::_MetaData = ClassRegister::Load<U>();
+template<class P, class U, class M> uint64_t ___Payload<P, U, M>::_MetaData = ClassRegister::Load<U>();
 
-template<class	P, class	U, class	M>	inline	void	*___Payload<P, U, M>::New(uint32_t	size)
+template<class P, class U, class M> inline void *___Payload<P, U, M>::New(uint32_t size)
 {
-    return	new	U();
+    return new U();
 }
 
-template<class	P, class	U, class	M>	inline	uint16_t	___Payload<P, U, M>::CID()
+template<class P, class U, class M> inline uint16_t ___Payload<P, U, M>::CID()
 {
-    return	(uint16_t)(_MetaData >> 16);
+    return (uint16_t)(_MetaData >> 16);
 }
 
-template<class	P, class	U, class	M>	void	*___Payload<P, U, M>::Alloc(uint32_t	requested_size, uint32_t	&normalized_size)
+template<class P, class U, class M> void *___Payload<P, U, M>::Alloc(uint32_t requested_size, uint32_t &normalized_size)
 {
-    return	M::GetDynamic(requested_size)->alloc(normalized_size);
+    return M::GetDynamic(requested_size)->alloc(normalized_size);
 }
 
-template<class	P, class	U, class	M>	void	___Payload<P, U, M>::Dealloc(uint32_t	requested_size, void	*o)
+template<class P, class U, class M> void ___Payload<P, U, M>::Dealloc(uint32_t requested_size, void *o)
 {
     M::GetDynamic(requested_size)->dealloc(o);
 }
 
-template<class	P, class	U, class	M>	inline	void	*___Payload<P, U, M>::operator	new(size_t	s)
+template<class P, class U, class M> inline void *___Payload<P, U, M>::operator new(size_t s)
 {
-    U	*p = (U *)Object<M, P, U>::operator	new(s);
+    U *p = (U *)Object<M, P, U>::operator new(s);
     p->_metaData = _MetaData;
-    return	p;
+    return p;
 }
 
-template<class	P, class	U, class	M>	inline	void	___Payload<P, U, M>::operator	delete(void	*o)
+template<class P, class U, class M> inline void ___Payload<P, U, M>::operator delete(void *o)
 {
-    Object<M, P, U>::operator	delete(o);
+    Object<M, P, U>::operator delete(o);
 }
 
-template<class	P, class	U, class	M>	inline	size_t	___Payload<P, U, M>::Offset()
+template<class P, class U, class M> inline size_t ___Payload<P, U, M>::Offset()
 {
-    return	offsetof(U, _metaData);
+    return offsetof(U, _metaData);
 }
 
-template<class	P, class	U, class	M>	inline	___Payload<P, U, M>::___Payload(): Object<M, P, U>()
+template<class P, class U, class M> inline ___Payload<P, U, M>::___Payload(): Object<M, P, U>()
 {
     this->_metaData = ___Payload<P, U, M>::_MetaData;
 }
 
-template<class	P, class	U, class	M>	inline	___Payload<P, U, M>::~___Payload()
+template<class P, class U, class M> inline ___Payload<P, U, M>::~___Payload()
 {
 }
 
-template<class	P, class	U, class	M>	uint16_t	___Payload<P, U, M>::cid()	const
+template<class P, class U, class M> uint16_t ___Payload<P, U, M>::cid() const
 {
-    return	(uint16_t)(this->_metaData >> 16);
+    return (uint16_t)(this->_metaData >> 16);
 }
 
-template<class	P, class	U, class	M>	size_t	___Payload<P, U, M>::size()	const
+template<class P, class U, class M> size_t ___Payload<P, U, M>::size() const
 {
-    return	sizeof(U);
-}
-
-////////////////////////////////////////////////////////////////////////////////////
-
-template<class	U, class	M>	inline	Payload<U, M>::Payload(): ___Payload<_Payload, U, M>()
-{
-}
-
-template<class	U, class	M>	inline	Payload<U, M>::~Payload()
-{
+    return sizeof(U);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-template<class	U, class	M>	inline	RPayload<U, M>::RPayload(): ___Payload<_RPayload, U, M>()
+template<class U, class M> inline Payload<U, M>::Payload(): ___Payload<_Payload, U, M>()
 {
 }
 
-template<class	U, class	M>	inline	RPayload<U, M>::~RPayload()
+template<class U, class M> inline Payload<U, M>::~Payload()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-template<class	C, class	U, class	M>	inline	PayloadAdapter<C, U, M>::PayloadAdapter(): Payload<U, M>(), C()
+template<class U, class M> inline RPayload<U, M>::RPayload(): ___Payload<_RPayload, U, M>()
 {
 }
 
-template<class	C, class	U, class	M>	inline	PayloadAdapter<C, U, M>::~PayloadAdapter()
+template<class U, class M> inline RPayload<U, M>::~RPayload()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-template<class	C, class	U, class	M>	inline	RPayloadAdapter<C, U, M>::RPayloadAdapter(): RPayload<U, M>(), C()
+template<class C, class U, class M> inline PayloadAdapter<C, U, M>::PayloadAdapter(): Payload<U, M>(), C()
 {
 }
 
-template<class	C, class	U, class	M>	inline	RPayloadAdapter<C, U, M>::~RPayloadAdapter()
+template<class C, class U, class M> inline PayloadAdapter<C, U, M>::~PayloadAdapter()
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+
+template<class C, class U, class M> inline RPayloadAdapter<C, U, M>::RPayloadAdapter(): RPayload<U, M>(), C()
+{
+}
+
+template<class C, class U, class M> inline RPayloadAdapter<C, U, M>::~RPayloadAdapter()
 {
 }
 }

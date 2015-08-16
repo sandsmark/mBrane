@@ -90,13 +90,13 @@
  * So this is probably the best place to acquire global locks on
  * specific resoruce (audio, limbs, etc.)
  */
-void Init(const	std::vector<int32_t>	&numbers, const	std::vector<std::string>	&strings)
+void Init(const std::vector<int32_t> &numbers, const std::vector<std::string> &strings)
 {
-    int32_t	a = 0;
+    int32_t a = 0;
 
     if (numbers.size() > 0) {
         a = numbers[0];
-        float	f = *reinterpret_cast<float *>(&a);
+        float f = *reinterpret_cast<float *>(&a);
 
         if ((numbers.size() > 1) && (strings.size() > 0)) {
             std::cout << "Info: Perf library loaded with parameters:" << f << " " << numbers[1] << " " << strings[0] << std::endl;

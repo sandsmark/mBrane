@@ -73,32 +73,32 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include	"module_node.h"
-#include	<stdio.h>
-#include	<stdarg.h>
+#include "module_node.h"
+#include <stdio.h>
+#include <stdarg.h>
 
-namespace	mBrane
+namespace mBrane
 {
-namespace	sdk
+namespace sdk
 {
-namespace	module
+namespace module
 {
 
-Node	*Node::Singleton = NULL;
+Node *Node::Singleton = NULL;
 
-std::ostream	*Node::Streams[3];
+std::ostream *Node::Streams[3];
 
-Node	*Node::Get()
+Node *Node::Get()
 {
-    return	Singleton;
+    return Singleton;
 }
 
-std::ostream	&Node::trace(TraceLevel	l)
+std::ostream &Node::trace(TraceLevel l)
 {
-    return	(Streams[l] ? *Streams[l] : std::cout);
+    return (Streams[l] ? *Streams[l] : std::cout);
 }
 
-Node::Node(uint8_t	ID): _ID(ID)
+Node::Node(uint8_t ID): _ID(ID)
 {
     Singleton = this;
 }
@@ -108,9 +108,9 @@ Node::~Node()
     Singleton = NULL;
 }
 
-uint8_t	Node::id()	const
+uint8_t Node::id() const
 {
-    return	_ID;
+    return _ID;
 }
 }
 }

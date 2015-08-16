@@ -73,34 +73,34 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include	"space.h"
+#include "space.h"
 
 
-namespace	mBrane
+namespace mBrane
 {
 
-template<class	C, class	U>	inline	_Projection<C, U>::_Projection(C	*projected, Space	*space): Object<Memory, _Object, U>(), projected(projected), space(space), activationLevel(0)
+template<class C, class U> inline _Projection<C, U>::_Projection(C *projected, Space *space): Object<Memory, _Object, U>(), projected(projected), space(space), activationLevel(0)
 {
 }
 
-template<class	C, class	U>	inline	_Projection<C, U>::~_Projection()
+template<class C, class U> inline _Projection<C, U>::~_Projection()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class	C>	inline	Projection<C>::Projection(C	*projected, Space	*space): _Projection<C, Projection<C>>(projected, space)
+template<class C> inline Projection<C>::Projection(C *projected, Space *space): _Projection<C, Projection<C>>(projected, space)
 {
 }
 
-template<class	C>	inline	Projection<C>::~Projection()
+template<class C> inline Projection<C>::~Projection()
 {
     if (Projection<C>::activationLevel >= Projection<C>::space->getActivationThreshold()) {
         deactivate();
     }
 }
 
-template<class	C>	inline	void	Projection<C>::setActivationLevel(float	a)
+template<class C> inline void Projection<C>::setActivationLevel(float a)
 {
     if (!Projection<C>::space->activationCount) {
         Projection<C>::activationLevel = a;
@@ -111,52 +111,52 @@ template<class	C>	inline	void	Projection<C>::setActivationLevel(float	a)
         if ((Projection<C>::activationLevel = a) >= Projection<C>::space->getActivationThreshold()) {
             activate();
         }
-    } else	if ((Projection<C>::activationLevel = a) < Projection<C>::space->getActivationThreshold()) {
+    } else if ((Projection<C>::activationLevel = a) < Projection<C>::space->getActivationThreshold()) {
         deactivate();
     }
 }
 
-template<class	C>	inline	void	Projection<C>::updateActivationCount(float	t)
+template<class C> inline void Projection<C>::updateActivationCount(float t)
 {
-    if (Projection<C>::activationLevel < Projection<C>::space->getActivationThreshold()	||	Projection<C>::space->reactivated) {
+    if (Projection<C>::activationLevel < Projection<C>::space->getActivationThreshold() || Projection<C>::space->reactivated) {
         if (Projection<C>::activationLevel >= t) {
             activate();
         }
-    } else	if (Projection<C>::activationLevel < t) {
+    } else if (Projection<C>::activationLevel < t) {
         deactivate();
     }
 }
 
-template<class	C>	inline	void	Projection<C>::activate()
+template<class C> inline void Projection<C>::activate()
 {
     Projection<C>::projected->activate();
 }
 
-template<class	C>	inline	void	Projection<C>::deactivate()
+template<class C> inline void Projection<C>::deactivate()
 {
     Projection<C>::projected->deactivate();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class	C>	Projectable<C>::Projectable(uint8_t	hostID, uint16_t	ID): Object<Memory, _Object, C>(), activationCount(0), hostID(hostID), ID(ID), reactivated(false)
+template<class C> Projectable<C>::Projectable(uint8_t hostID, uint16_t ID): Object<Memory, _Object, C>(), activationCount(0), hostID(hostID), ID(ID), reactivated(false)
 {
 }
 
-template<class	C>	Projectable<C>::~Projectable()
+template<class C> Projectable<C>::~Projectable()
 {
-    for (uint8_t	i = 0; i < projections.count(); i++)
-        for (uint16_t	j = 0; j < projections[i].count(); j++) {
+    for (uint8_t i = 0; i < projections.count(); i++)
+        for (uint16_t j = 0; j < projections[i].count(); j++) {
             unproject(i, j);
         }
 }
 
-template<class	C>	inline	void	Projectable<C>::project(uint8_t	hostID, uint16_t	spaceID)
+template<class C> inline void Projectable<C>::project(uint8_t hostID, uint16_t spaceID)
 {
-    projections[hostID][spaceID] = Space::Main[hostID][spaceID]->project(new	Projection<C>((C *)this, Space::Main[hostID][spaceID]));
+    projections[hostID][spaceID] = Space::Main[hostID][spaceID]->project(new Projection<C>((C *)this, Space::Main[hostID][spaceID]));
 }
 
-template<class	C>	inline	void	Projectable<C>::unproject(uint8_t	hostID, uint16_t	spaceID)
+template<class C> inline void Projectable<C>::unproject(uint8_t hostID, uint16_t spaceID)
 {
     if (!projections[hostID][spaceID]) {
         return;
@@ -167,7 +167,7 @@ template<class	C>	inline	void	Projectable<C>::unproject(uint8_t	hostID, uint16_t
     projections[hostID][spaceID] = typename List<P<Projection<C>>, 16>::Iterator();
 }
 
-template<class	C>	inline	void	Projectable<C>::setActivationLevel(uint8_t	hostID, uint16_t	spaceID, float	a)
+template<class C> inline void Projectable<C>::setActivationLevel(uint8_t hostID, uint16_t spaceID, float a)
 {
     if (!projections[hostID][spaceID]) {
         project(hostID, spaceID);
@@ -176,7 +176,7 @@ template<class	C>	inline	void	Projectable<C>::setActivationLevel(uint8_t	hostID,
     (*projections[hostID][spaceID])->setActivationLevel(a);
 }
 
-template<class	C>	inline	void	Projectable<C>::activate()
+template<class C> inline void Projectable<C>::activate()
 {
     if (++activationCount == 1) {
         // Node::Get()->trace(Node::EXECUTION)<<" activated"<<std::endl;
@@ -186,7 +186,7 @@ template<class	C>	inline	void	Projectable<C>::activate()
     }
 }
 
-template<class	C>	inline	void	Projectable<C>::deactivate()
+template<class C> inline void Projectable<C>::deactivate()
 {
     if (--activationCount == 0) {
         // Node::Get()->trace(Node::EXECUTION)<<" deactivated"<<std::endl;

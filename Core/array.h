@@ -76,116 +76,116 @@
 #ifndef mBrane_sdk_array_h
 #define mBrane_sdk_array_h
 
-#include	"../CoreLibrary/types.h"
-#include	<string.h>
+#include "../CoreLibrary/types.h"
+#include <string.h>
 
-using	namespace	core;
+using namespace core;
 
-namespace	mBrane
+namespace mBrane
 {
-namespace	sdk
+namespace sdk
 {
 
-template<typename	T>	class	StaticArray
+template<typename T> class StaticArray
 {
 private:
-    uint32_t	_count;
-    T		*_array;
-    bool	_once;
+    uint32_t _count;
+    T *_array;
+    bool _once;
 public:
     StaticArray();
     ~StaticArray();
-    void	alloc(uint32_t	count);	//	to be called only once
-    uint32_t	count()	const;
-    T	&operator	[](uint32_t	i);	//	unprotected, i.e. do not let i>=count()
-    T	*data()	const;
+    void alloc(uint32_t count); // to be called only once
+    uint32_t count() const;
+    T &operator [](uint32_t i); // unprotected, i.e. do not let i>=count()
+    T *data() const;
 };
 
-class	ArrayManaged {};
-class	ArrayUnmanaged {};
+class ArrayManaged {};
+class ArrayUnmanaged {};
 
-template<typename	T, uint16_t	Size, class	Managed>	class	Block
+template<typename T, uint16_t Size, class Managed> class Block
 {
 public:
-    Block(Block	*prev = NULL): next(NULL), prev(prev) {}
+    Block(Block *prev = NULL): next(NULL), prev(prev) {}
     ~Block()
     {
-        if (next)	{
-            delete	next;
+        if (next) {
+            delete next;
         }
     }
-    T		data[Size];
-    Block	*next;
-    Block	*prev;
+    T data[Size];
+    Block *next;
+    Block *prev;
 };
 
-//	Specialization of Block<T,Size> holding pointers and managing objects.
-template<typename	T, uint16_t	Size>	class	Block<T *, Size, ArrayManaged>
+// Specialization of Block<T,Size> holding pointers and managing objects.
+template<typename T, uint16_t Size> class Block<T *, Size, ArrayManaged>
 {
 public:
-    Block(Block	*prev = NULL): next(NULL), prev(prev)
+    Block(Block *prev = NULL): next(NULL), prev(prev)
     {
         memset(data, 0, Size * sizeof(T));
     }
     ~Block()
     {
-        for (uint32_t	i = 0; i < Size; i++)if (data[i]) {
-                delete	data[i];
+        for (uint32_t i = 0; i < Size; i++)if (data[i]) {
+                delete data[i];
             }
 
-        if (next)	{
-            delete	next;
+        if (next) {
+            delete next;
         }
     }
-    T		*data[Size];
-    Block	*next;
-    Block	*prev;
+    T *data[Size];
+    Block *next;
+    Block *prev;
 };
 
-template<typename	T, uint16_t	Size, class	Managed>	class	_Array
+template<typename T, uint16_t Size, class Managed> class _Array
 {
 protected:
-    uint32_t					_count;
-    Block<T, Size, Managed>	block;
-    Block<T, Size, Managed>	*last;
-    //	navigation optimization
-    Block<T, Size, Managed>	*current;
-    uint32_t					minIndex;
-    uint32_t					maxIndex;
+    uint32_t _count;
+    Block<T, Size, Managed> block;
+    Block<T, Size, Managed> *last;
+    // navigation optimization
+    Block<T, Size, Managed> *current;
+    uint32_t minIndex;
+    uint32_t maxIndex;
     _Array();
 public:
-    virtual	~_Array();
-    uint32_t	count()	const;
+    virtual ~_Array();
+    uint32_t count() const;
 };
 
-//	Dynamic array, i.e. a linked list of Block<T,Size>.
-template<typename	T, uint16_t	Size, class	Managed = ArrayUnmanaged>	class	Array:
-    public	_Array<T, Size, Managed>
+// Dynamic array, i.e. a linked list of Block<T,Size>.
+template<typename T, uint16_t Size, class Managed = ArrayUnmanaged> class Array:
+    public _Array<T, Size, Managed>
 {
 public:
     Array();
     ~Array();
-    T	*get(uint32_t	i);	//	no allocation performed
-    T	&operator	[](uint32_t	i);	//	changes counts, i.e. makes sure that there's room. Doesn't mean any object has been assigned to the ith position
+    T *get(uint32_t i); // no allocation performed
+    T &operator [](uint32_t i); // changes counts, i.e. makes sure that there's room. Doesn't mean any object has been assigned to the ith position
 };
 
-//	Specialization of _Array<T,Size> holding pointers and managing objects.
-//	Array<T*,Size> instantiates pointed objects (calling T()) whenever needed upon calls to operator [].
-//	Array<T*,Size> deletes pointed objects.
-template<typename	T, uint16_t	Size>	class	Array<T *, Size, ArrayManaged>:
-    public	_Array<T *, Size, ArrayManaged>
+// Specialization of _Array<T,Size> holding pointers and managing objects.
+// Array<T*,Size> instantiates pointed objects (calling T()) whenever needed upon calls to operator [].
+// Array<T*,Size> deletes pointed objects.
+template<typename T, uint16_t Size> class Array<T *, Size, ArrayManaged>:
+    public _Array<T *, Size, ArrayManaged>
 {
 public:
     Array();
     ~Array();
-    T	**get(uint32_t	i);	//	no allocation performed
-    T	*&operator	[](uint32_t	i);	//	changes counts, i.e. makes sure that there's room. Doesn't mean any object has been assigned to the ith position
+    T **get(uint32_t i); // no allocation performed
+    T *&operator [](uint32_t i); // changes counts, i.e. makes sure that there's room. Doesn't mean any object has been assigned to the ith position
 };
 }
 }
 
 
-#include	"array.tpl.cpp"
+#include "array.tpl.cpp"
 
 
 #endif

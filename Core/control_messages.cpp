@@ -73,20 +73,20 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include	"control_messages.h"
+#include "control_messages.h"
 
 
-namespace	mBrane
+namespace mBrane
 {
-namespace	sdk
+namespace sdk
 {
-namespace	payloads
+namespace payloads
 {
 
-void	LoadControlMessageMetaData()
+void LoadControlMessageMetaData()
 {
-#define	MBRANE_MESSAGE_CLASS(C)	ClassRegister::Load<C>(C##_CID);
-#include	"mBrane_message_classes.h"
+#define MBRANE_MESSAGE_CLASS(C) ClassRegister::Load<C>(C##_CID);
+#include "mBrane_message_classes.h"
 }
 }
 }

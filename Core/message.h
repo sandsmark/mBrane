@@ -73,141 +73,141 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef	mBrane_sdk_message_h
-#define	mBrane_sdk_message_h
+#ifndef mBrane_sdk_message_h
+#define mBrane_sdk_message_h
 
-#include	"payload.h"
-#include	"memory.h"
-#include	"module_node.h"
+#include "payload.h"
+#include "memory.h"
+#include "module_node.h"
 
 
-//	Root classes for defining applicative message classes
-namespace	mBrane
+// Root classes for defining applicative message classes
+namespace mBrane
 {
-namespace	sdk
-{
-
-class	CommChannel;
-
-namespace	payloads
+namespace sdk
 {
 
-template<class	U>	class	ControlMessage:
-    public	Payload<U, Memory>
+class CommChannel;
+
+namespace payloads
+{
+
+template<class U> class ControlMessage:
+    public Payload<U, Memory>
 {
 protected:
     ControlMessage();
 public:
-    virtual	~ControlMessage();
+    virtual ~ControlMessage();
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-class	mBrane_dll	_StreamData
+class mBrane_dll _StreamData
 {
 protected:
-    uint16_t	_sid;	//	stream identifer
-    _StreamData(uint16_t	sid);
+    uint16_t _sid; // stream identifer
+    _StreamData(uint16_t sid);
 public:
-    virtual	~_StreamData();
-    uint16_t	&sid();
+    virtual ~_StreamData();
+    uint16_t &sid();
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class	U, class	M>	class	StreamData:
-    public	Payload<U, M>,
-    public	_StreamData
+template<class U, class M> class StreamData:
+    public Payload<U, M>,
+    public _StreamData
 {
 protected:
-    StreamData(uint16_t	sid = 0);
+    StreamData(uint16_t sid = 0);
 public:
-    virtual	~StreamData();
-    _StreamData	*as_StreamData();
+    virtual ~StreamData();
+    _StreamData *as_StreamData();
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-class	mBrane_dll	_Message
+class mBrane_dll _Message
 {
 protected:
-    uint16_t	_senderModuleCID;
-    uint16_t	_senderModuleID;
-    uint16_t	_senderNodeID;
+    uint16_t _senderModuleCID;
+    uint16_t _senderModuleID;
+    uint16_t _senderNodeID;
     _Message();
 public:
-    virtual	~_Message();
-    uint16_t	&senderModule_cid();
-    uint16_t	&senderModule_id();
-    uint16_t	&senderNodeID();
+    virtual ~_Message();
+    uint16_t &senderModule_cid();
+    uint16_t &senderModule_id();
+    uint16_t &senderNodeID();
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class	U, class	M>	class	Message:
-    public	Payload<U, M>,
-    public	_Message
+template<class U, class M> class Message:
+    public Payload<U, M>,
+    public _Message
 {
 protected:
     Message();
 public:
-    virtual	~Message();
-    _Message	*as_Message();
+    virtual ~Message();
+    _Message *as_Message();
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-//	Shared objects are cached. The first 32 bits of their metadata is NID(7 bits)|ID(24 bits). The most significant bit of the OID is 0 (1 for constants).
-//	Shared objects are supposed not to change once created.
-//	Constant objects are duplicated on each node.
-template<class	U, class	M>	class	SharedObject:
-    public	Message<U, M>
+// Shared objects are cached. The first 32 bits of their metadata is NID(7 bits)|ID(24 bits). The most significant bit of the OID is 0 (1 for constants).
+// Shared objects are supposed not to change once created.
+// Constant objects are duplicated on each node.
+template<class U, class M> class SharedObject:
+    public Message<U, M>
 {
 protected:
-    void	decRef();	//	notifies the node when the ref count drops to 1: doomed for deletion.
+    void decRef(); // notifies the node when the ref count drops to 1: doomed for deletion.
     SharedObject();
 public:
-    virtual	~SharedObject();
-    bool	isShared();
-    bool	isConstant();
+    virtual ~SharedObject();
+    bool isShared();
+    bool isConstant();
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-//	CStorage stands for contiguous storage.
-//	S. superclass, T: type of the data to be stored contiguously.
-//	Typical use: data compacted dynamically, i.e. whose size is not an integral constant (e.g. that could not parameterize a template), e.g. archives, compressed images, etc.
-//	Usage sample:
-//		template<class	U>	class CoreData:public	Message<U,Memory>{...};
-//		class ACStorage:public CStorage<CoreData<ACStorage,int32_t> >{...};
-//		ACStorage	*acs=new(32) ACStorage(); // acs contains an array of 32 int32.
-//	Do not declare any data in subclasses of CStorage: such subclasses shall only contain logic, e.g. functions to exploit CoreData (if any) and the array of Ts.
-template<class	S, typename	T>	class	CStorage:
-    public	S
+// CStorage stands for contiguous storage.
+// S. superclass, T: type of the data to be stored contiguously.
+// Typical use: data compacted dynamically, i.e. whose size is not an integral constant (e.g. that could not parameterize a template), e.g. archives, compressed images, etc.
+// Usage sample:
+// template<class U> class CoreData:public Message<U,Memory>{...};
+// class ACStorage:public CStorage<CoreData<ACStorage,int32_t> >{...};
+// ACStorage *acs=new(32) ACStorage(); // acs contains an array of 32 int32.
+// Do not declare any data in subclasses of CStorage: such subclasses shall only contain logic, e.g. functions to exploit CoreData (if any) and the array of Ts.
+template<class S, typename T> class CStorage:
+    public S
 {
 protected:
-    uint32_t	_size;		//	of the whole instance (not normalized)
-    uint32_t	_capacity;	//	max number of elements in the array
-    T		*_data;		//	points to ((T	*)(((uint8_t *)this)+offsetof(CStorage<S,T>,_data)+sizeof(T	*)));
+    uint32_t _size; // of the whole instance (not normalized)
+    uint32_t _capacity; // max number of elements in the array
+    T *_data; // points to ((T *)(((uint8_t *)this)+offsetof(CStorage<S,T>,_data)+sizeof(T *)));
     CStorage();
 public:
-    static	void		*New(uint32_t	size);					//	total size of the instance; called upon sending
-    void	*operator	new(size_t	s);						//	unused; need for compilation of ___Payload<U,P,M>::New
-    void	*operator	new(size_t	s, uint32_t	capacity);	//	overrides Object<U,M>::new
-    void	operator	delete(void	*o);					//	overrides Object<U,M>::delete
-    virtual	~CStorage();
-    size_t	size()	const;
-    uint32_t	getCapacity()	const;
-    T		&data(uint32_t	i);
-    T		&data(uint32_t	i)	const;
-    T		*data();
+    static void *New(uint32_t size); // total size of the instance; called upon sending
+    void *operator new(size_t s); // unused; need for compilation of ___Payload<U,P,M>::New
+    void *operator new(size_t s, uint32_t capacity); // overrides Object<U,M>::new
+    void operator delete(void *o); // overrides Object<U,M>::delete
+    virtual ~CStorage();
+    size_t size() const;
+    uint32_t getCapacity() const;
+    T &data(uint32_t i);
+    T &data(uint32_t i) const;
+    T *data();
 };
 }
 }
 }
 
 
-#include	"message.tpl.cpp"
+#include "message.tpl.cpp"
 
 
 #endif

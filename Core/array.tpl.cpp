@@ -73,177 +73,177 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace	mBrane
+namespace mBrane
 {
-namespace	sdk
+namespace sdk
 {
 
-template<typename	T>	StaticArray<T>::StaticArray(): _count(0), _array(NULL), _once(false)
+template<typename T> StaticArray<T>::StaticArray(): _count(0), _array(NULL), _once(false)
 {
 }
 
-template<typename	T>	StaticArray<T>::~StaticArray()
+template<typename T> StaticArray<T>::~StaticArray()
 {
     if (_array) {
-        delete[]	_array;
+        delete[] _array;
     }
 }
 
-template<typename	T>	inline	T	*StaticArray<T>::data()	const
+template<typename T> inline T *StaticArray<T>::data() const
 {
-    return	_array;
+    return _array;
 }
 
-template<typename	T>	inline	uint32_t	StaticArray<T>::count()	const
+template<typename T> inline uint32_t StaticArray<T>::count() const
 {
-    return	_count;
+    return _count;
 }
 
-template<typename	T>	void	StaticArray<T>::alloc(uint32_t	count)
+template<typename T> void StaticArray<T>::alloc(uint32_t count)
 {
     if (_once) {
         return;
     }
 
-    _array = new	T[(_count = count) * sizeof(T)];
+    _array = new T[(_count = count) * sizeof(T)];
     _once = true;
 }
 
-template<typename	T>	inline	T	&StaticArray<T>::operator	[](uint32_t	i)
+template<typename T> inline T &StaticArray<T>::operator [](uint32_t i)
 {
-    return	_array[i];
+    return _array[i];
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<typename	T, uint16_t	Size, class	Managed>	_Array<T, Size, Managed>::_Array(): _count(0), current(&block), minIndex(0), maxIndex(Size - 1), last(&block)
+template<typename T, uint16_t Size, class Managed> _Array<T, Size, Managed>::_Array(): _count(0), current(&block), minIndex(0), maxIndex(Size - 1), last(&block)
 {
 }
 
-template<typename	T, uint16_t	Size, class	Managed>	_Array<T, Size, Managed>::~_Array()
+template<typename T, uint16_t Size, class Managed> _Array<T, Size, Managed>::~_Array()
 {
 }
 
-template<typename	T, uint16_t	Size, class	Managed>	inline	uint32_t	_Array<T, Size, Managed>::count()	const
+template<typename T, uint16_t Size, class Managed> inline uint32_t _Array<T, Size, Managed>::count() const
 {
-    return	_count;
+    return _count;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<typename	T, uint16_t	Size, class	Managed>	Array<T, Size, Managed>::Array(): _Array<T, Size, Managed>()
+template<typename T, uint16_t Size, class Managed> Array<T, Size, Managed>::Array(): _Array<T, Size, Managed>()
 {
 }
 
-template<typename	T, uint16_t	Size, class	Managed>	Array<T, Size, Managed>::~Array()
+template<typename T, uint16_t Size, class Managed> Array<T, Size, Managed>::~Array()
 {
 }
 
-template<typename	T, uint16_t	Size, class	Managed>	inline	T	*Array<T, Size, Managed>::get(uint32_t	i)
+template<typename T, uint16_t Size, class Managed> inline T *Array<T, Size, Managed>::get(uint32_t i)
 {
     if (i < this->minIndex) {
         if (this->current->prev) {
             this->minIndex -= Size;
             this->maxIndex -= Size;
             this->current = this->current->prev;
-            return	get(i);
+            return get(i);
         }
 
-        return	NULL;
-    } else	if (i > this->maxIndex) {
+        return NULL;
+    } else if (i > this->maxIndex) {
         if (this->current->next) {
             this->minIndex += Size;
             this->maxIndex += Size;
             this->current = this->current->next;
-            return	get(i);
+            return get(i);
         }
 
-        return	NULL;
+        return NULL;
     } else {
-        return	this->current->data + i - this->minIndex;
+        return this->current->data + i - this->minIndex;
     }
 }
 
-template<typename	T, uint16_t	Size, class	Managed>	inline	T	&Array<T, Size, Managed>::operator	[](uint32_t	i)
+template<typename T, uint16_t Size, class Managed> inline T &Array<T, Size, Managed>::operator [](uint32_t i)
 {
     if (i < this->minIndex) {
         if (this->current->prev) {
             this->minIndex -= Size;
             this->maxIndex -= Size;
             this->current = this->current->prev;
-            return	(*this)[i];
+            return (*this)[i];
         }
-    } else	if (i > this->maxIndex) {
+    } else if (i > this->maxIndex) {
         if (!this->current->next) {
-            this->last = this->current->next = new	Block<T, Size, Managed>(this->current);
+            this->last = this->current->next = new Block<T, Size, Managed>(this->current);
         }
 
         this->minIndex += Size;
         this->maxIndex += Size;
         this->current = this->current->next;
-        return	(*this)[i];
+        return (*this)[i];
     }
 
     if (i >= this->_count) {
         this->_count = i + 1;
     }
 
-    return	this->current->data[i - this->minIndex];
+    return this->current->data[i - this->minIndex];
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<typename	T, uint16_t	Size>	Array<T *, Size, ArrayManaged>::Array(): _Array<T *, Size, ArrayManaged>()
+template<typename T, uint16_t Size> Array<T *, Size, ArrayManaged>::Array(): _Array<T *, Size, ArrayManaged>()
 {
 }
 
-template<typename	T, uint16_t	Size>	Array<T *, Size, ArrayManaged>::~Array()
+template<typename T, uint16_t Size> Array<T *, Size, ArrayManaged>::~Array()
 {
 }
 
-template<typename	T, uint16_t	Size>	inline	T	**Array<T *, Size, ArrayManaged>::get(uint32_t	i)
+template<typename T, uint16_t Size> inline T **Array<T *, Size, ArrayManaged>::get(uint32_t i)
 {
     if (i < this->minIndex) {
         if (this->current->prev) {
             this->minIndex -= Size;
             this->maxIndex -= Size;
             this->current = this->current->prev;
-            return	get(i);
+            return get(i);
         }
 
-        return	NULL;
-    } else	if (i > this->maxIndex) {
+        return NULL;
+    } else if (i > this->maxIndex) {
         if (this->current->next) {
             this->minIndex += Size;
             this->maxIndex += Size;
             this->current = this->current->next;
-            return	get(i);
+            return get(i);
         }
 
-        return	NULL;
+        return NULL;
     } else {
-        return	this->current->data + i - this->minIndex;
+        return this->current->data + i - this->minIndex;
     }
 }
 
-template<typename	T, uint16_t	Size>	inline	T	*&Array<T *, Size, ArrayManaged>::operator	[](uint32_t	i)
+template<typename T, uint16_t Size> inline T *&Array<T *, Size, ArrayManaged>::operator [](uint32_t i)
 {
     if (i < this->minIndex) {
         if (this->current->prev) {
             this->minIndex -= Size;
             this->maxIndex -= Size;
             this->current = this->current->prev;
-            return	(*this)[i];
+            return (*this)[i];
         }
-    } else	if (i > this->maxIndex) {
+    } else if (i > this->maxIndex) {
         if (!this->current->next) {
-            this->last = this->current->next = new	Block<T *, Size, ArrayManaged>(this->current);
+            this->last = this->current->next = new Block<T *, Size, ArrayManaged>(this->current);
         }
 
         this->minIndex += Size;
         this->maxIndex += Size;
         this->current = this->current->next;
-        return	(*this)[i];
+        return (*this)[i];
     }
 
     if (i >= this->_count) {
@@ -251,9 +251,9 @@ template<typename	T, uint16_t	Size>	inline	T	*&Array<T *, Size, ArrayManaged>::o
     }
 
     if (!this->current->data[i - this->minIndex]) {
-        return	this->current->data[i - this->minIndex] = new	T();
+        return this->current->data[i - this->minIndex] = new T();
     } else {
-        return	this->current->data[i - this->minIndex];
+        return this->current->data[i - this->minIndex];
     }
 }
 }

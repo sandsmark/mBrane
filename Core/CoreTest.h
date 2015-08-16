@@ -73,18 +73,18 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef	_coretest_h_
-#define	_coretest_h_
+#ifndef _coretest_h_
+#define _coretest_h_
 
-#include	<iostream>
+#include <iostream>
 
 #if defined(WINDOWS)
-#include	<conio.h>
+#include <conio.h>
 #endif
 
-#include	"payload_utils.h"
+#include "payload_utils.h"
 
-using	namespace	mBrane;
-using	namespace	mBrane::sdk;
+using namespace mBrane;
+using namespace mBrane::sdk;
 
 #endif // _coretest_h_

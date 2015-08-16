@@ -76,130 +76,130 @@
 #ifndef mBrane_sdk_list_h
 #define mBrane_sdk_list_h
 
-#include	"array.h"
+#include "array.h"
 
-namespace	mBrane
+namespace mBrane
 {
-namespace	sdk
+namespace sdk
 {
 
-template<typename	T>	class	ListElement
+template<typename T> class ListElement
 {
 public:
-    T			data;
-    ListElement	*next;
-    ListElement	*prev;
+    T data;
+    ListElement *next;
+    ListElement *prev;
 };
 
-template<typename	T, uint16_t Size>	class	List
+template<typename T, uint16_t Size> class List
 {
 public:
-    class	Iterator
+    class Iterator
     {
-        friend	class	List;
+        friend class List;
     private:
-        List			*list;
-        ListElement<T>	*object;
-        Iterator(List	*l, ListElement<T>	*object): list(l), object(object) {}
+        List *list;
+        ListElement<T> *object;
+        Iterator(List *l, ListElement<T> *object): list(l), object(object) {}
     public:
         Iterator(): list(NULL), object(NULL) {}
-        Iterator(const Iterator	&i): list(i.list), object(i.object) {}
+        Iterator(const Iterator &i): list(i.list), object(i.object) {}
         ~Iterator() {}
-        Iterator	&operator	=(const Iterator	&i)
+        Iterator &operator =(const Iterator &i)
         {
             list = i.list;
             object = i.object;
-            return	*this;
+            return *this;
         }
-        Iterator	&operator	++()
+        Iterator &operator ++()
         {
             object = object->next;
-            return	*this;
+            return *this;
         }
-        Iterator	&operator	--()
+        Iterator &operator --()
         {
             object = object->prev;
-            return	*this;
+            return *this;
         }
-        bool	operator	==(const	Iterator	&i)	const
+        bool operator ==(const Iterator &i) const
         {
-            return	object == i.object;
+            return object == i.object;
         }
-        bool	operator	!=(const	Iterator	&i)	const
+        bool operator !=(const Iterator &i) const
         {
-            return	object != i.object;
+            return object != i.object;
         }
-        operator	ListElement<T>	*()
+        operator ListElement<T> *()
         {
-            return	object;
+            return object;
         }
-        T		&operator	*()	const
+        T &operator *() const
         {
-            return	object->data;
+            return object->data;
         }
-        Iterator	insertAfter(T	&t)	const
+        Iterator insertAfter(T &t) const
         {
             list->insertAfter(object, t);
-            return	Iterator(list, object->next);
+            return Iterator(list, object->next);
         }
-        Iterator	insertBefore(T	&t)	const
+        Iterator insertBefore(T &t) const
         {
             list->insertBefore(object, t);
-            return	Iterator(list, object->prev);
+            return Iterator(list, object->prev);
         }
-        void		remove()
+        void remove()
         {
             list->remove(object);
             object = NULL;
         }
-        void		removeJumpNext()
+        void removeJumpNext()
         {
             object = list->removeReturnNext(object);
         }
-        void		removeJumpPrevious()
+        void removeJumpPrevious()
         {
             object = list->removeReturnPrevious(object);
         }
     };
 protected:
-    class	_List:
-        public	Array<ListElement<T>, Size>
+    class _List:
+        public Array<ListElement<T>, Size>
     {
     public:
         _List();
         ~_List();
-        void	clear();
-        ListElement<T>	*expand();
+        void clear();
+        ListElement<T> *expand();
     };
 
-    _List	data;
+    _List data;
 
-    ListElement<T>	*first;
-    ListElement<T>	*last;
-    uint32_t 		_elementCount;
-    ListElement<T>	*firstFree;
-    ListElement<T>	*lastFree;
-    ListElement<T>	*getFreeSlot();
-    void		remove(ListElement<T>	*o);
-    uint32_t 	removeReturnNext(ListElement<T>	*o);
-    uint32_t 	removeReturnPrevious(ListElement<T>	*o);
-    Iterator	insertAfter(ListElement<T>	*o, T	&t);	//	returns the index of the new element
-    Iterator	insertBefore(ListElement<T>	*o, T	&t);
+    ListElement<T> *first;
+    ListElement<T> *last;
+    uint32_t  _elementCount;
+    ListElement<T> *firstFree;
+    ListElement<T> *lastFree;
+    ListElement<T> *getFreeSlot();
+    void remove(ListElement<T> *o);
+    uint32_t  removeReturnNext(ListElement<T> *o);
+    uint32_t  removeReturnPrevious(ListElement<T> *o);
+    Iterator insertAfter(ListElement<T> *o, T &t); // returns the index of the new element
+    Iterator insertBefore(ListElement<T> *o, T &t);
 public:
     List();
     ~List();
-    uint32_t 	elementCount()	const;
-    void		clear();
-    Iterator	addElementHead(T	&t);	//	returns the index of the new element
-    Iterator	addElementTail(T	&t);
-    Iterator	addElement(T	&t);	//	inserts in order with respect to the B function (i.e. new element "before" current element)
-    void		removeElement(T	*t);
-    Iterator	begin()
+    uint32_t  elementCount() const;
+    void clear();
+    Iterator addElementHead(T &t); // returns the index of the new element
+    Iterator addElementTail(T &t);
+    Iterator addElement(T &t); // inserts in order with respect to the B function (i.e. new element "before" current element)
+    void removeElement(T *t);
+    Iterator begin()
     {
         Iterator i(this, first);
         return i;
     }
-    Iterator	end()
+    Iterator end()
     {
         Iterator i(this, last);
         return i;
@@ -209,7 +209,7 @@ public:
 }
 
 
-#include	"list.tpl.cpp"
+#include "list.tpl.cpp"
 
 
 #endif

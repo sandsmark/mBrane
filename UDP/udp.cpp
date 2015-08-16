@@ -76,11 +76,11 @@
 //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
 
-#include	"udp.h"
-#include	"udp_interface.h"
+#include "udp.h"
+#include "udp_interface.h"
 
 
-NetworkInterface	*Load(XMLNode	&n, mdaemon::Node	*node)
+NetworkInterface *Load(XMLNode &n, mdaemon::Node *node)
 {
-    return	UDPInterface::New(n);
+    return UDPInterface::New(n);
 }

@@ -73,87 +73,87 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include	"mdaemon_node.h"
+#include "mdaemon_node.h"
 
 
-namespace	mBrane
+namespace mBrane
 {
-namespace	sdk
+namespace sdk
 {
-namespace	mdaemon
+namespace mdaemon
 {
 
-Node::Node(uint8_t	ID): module::Node(ID), _shutdown(false)
+Node::Node(uint8_t ID): module::Node(ID), _shutdown(false)
 {
 }
 
 Node::~Node()
 {
-    for (uint32_t	i = 0; i < daemonLoaders.count(); i++) {
+    for (uint32_t i = 0; i < daemonLoaders.count(); i++) {
         if (daemonLoaders[i]) {
-            delete	daemonLoaders[i];
+            delete daemonLoaders[i];
         }
 
         if (daemons[i]) {
-            delete	daemons[i];
+            delete daemons[i];
         }
     }
 }
 
-inline	bool	Node::isRunning()
+inline bool Node::isRunning()
 {
-    return	!_shutdown;
+    return !_shutdown;
 }
 
-bool	Node::loadConfig(XMLNode	&n)
+bool Node::loadConfig(XMLNode &n)
 {
-    XMLNode	daemons = n.getChildNode("Daemons");
+    XMLNode daemons = n.getChildNode("Daemons");
 
     if (!!daemons) {
-        uint32_t	daemonCount = daemons.nChildNode("Daemon");
+        uint32_t daemonCount = daemons.nChildNode("Daemon");
         daemonLoaders.alloc(daemonCount);
         this->daemons.alloc(daemonCount);
         daemonThreads.alloc(daemonCount);
 
-        for (uint32_t	i = 0; i < daemonCount; i++) {
-            XMLNode	n = daemons.getChildNode(i);
-            DynamicClassLoader<Daemon>	*dl;
+        for (uint32_t i = 0; i < daemonCount; i++) {
+            XMLNode n = daemons.getChildNode(i);
+            DynamicClassLoader<Daemon> *dl;
 
             if (!(dl = DynamicClassLoader<Daemon>::New(n))) {
-                return	false;
+                return false;
             }
 
             daemonLoaders[i] = dl;
-            Daemon	*d;
+            Daemon *d;
 
             if (!(d = dl->getInstance(n, this))) {
-                return	false;
+                return false;
             }
 
             this->daemons[i] = d;
         }
     }
 
-    return	true;
+    return true;
 }
 
-void	Node::start()
+void Node::start()
 {
-    for (uint32_t	i = 0; i < daemons.count(); i++) {
+    for (uint32_t i = 0; i < daemons.count(); i++) {
         daemonThreads[i] = Thread::New<Thread>(Daemon::Run, daemons[i]);
     }
 }
 
-void	Node::shutdown()
+void Node::shutdown()
 {
     Thread::Wait(daemonThreads.data(), daemonThreads.count());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-thread_ret thread_function_call	Daemon::Run(void	*args)
+thread_ret thread_function_call Daemon::Run(void *args)
 {
-    uint32_t	r;
+    uint32_t r;
     ((Daemon *)args)->init();
 
     while (((Daemon *)args)->node->isRunning())
@@ -166,7 +166,7 @@ thread_ret thread_function_call	Daemon::Run(void	*args)
     thread_ret_val(0);
 }
 
-Daemon::Daemon(Node	*node): node(node)
+Daemon::Daemon(Node *node): node(node)
 {
 }
 

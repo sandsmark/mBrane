@@ -75,42 +75,42 @@
 //_/_/
 //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
-#ifndef	Perf_class_h
-#define	Perf_class_h
+#ifndef Perf_class_h
+#define Perf_class_h
 
-#include	"../Core/mBrane.h"
-#include	"../Core/message.h"
+#include "../Core/mBrane.h"
+#include "../Core/message.h"
 
-using	namespace	mBrane;
-using	namespace	mBrane::sdk;
-using	namespace	mBrane::sdk::payloads;
+using namespace mBrane;
+using namespace mBrane::sdk;
+using namespace mBrane::sdk::payloads;
 
-template<class	U>	class	_Ball:	//	to allow derivation
-    public	payloads::Message<U, Memory>
+template<class U> class _Ball: // to allow derivation
+    public payloads::Message<U, Memory>
 {
 public:
     uint32_t d1;
     uint32_t padding;
 };
 
-class	Ball: public		_Ball<Ball>
+class Ball: public _Ball<Ball>
 {
 public:
     int32_t id;
     Ball(): _Ball<Ball>(), id(-1) {}
     Ball(int32_t id): _Ball<Ball>(), id(id) {}
 };
-class	ReturnBall: public		_Ball<ReturnBall>
+class ReturnBall: public _Ball<ReturnBall>
 {
 public:
     int32_t id;
     ReturnBall(): _Ball<ReturnBall>(), id(-1) {}
     ReturnBall(int32_t id): _Ball<ReturnBall>(), id(id) {}
 };
-class	Type1: public	payloads::Message<Type1, Memory> {};
-class	Type2: public	payloads::Message<Type2, Memory> {};
+class Type1: public payloads::Message<Type1, Memory> {};
+class Type2: public payloads::Message<Type2, Memory> {};
 
-class	Ball1: public _Ball<Ball1>
+class Ball1: public _Ball<Ball1>
 {
 public:
     int32_t num;
@@ -119,7 +119,7 @@ public:
     Ball1(int32_t num): _Ball<Ball1>(), num(num), num2(num + 1) {}
 };
 
-class	Ball2: public _Ball<Ball2>
+class Ball2: public _Ball<Ball2>
 {
 public:
     int32_t num;
@@ -128,7 +128,7 @@ public:
     Ball2(int32_t num): _Ball<Ball2>(), num(num), num2(num + 1) {}
 };
 
-class	Ball3: public _Ball<Ball3>
+class Ball3: public _Ball<Ball3>
 {
 public:
     int32_t num;
@@ -137,7 +137,7 @@ public:
     Ball3(int32_t num): _Ball<Ball3>(), num(num), num2(num + 1) {}
 };
 
-class	Ball4: public _Ball<Ball4>
+class Ball4: public _Ball<Ball4>
 {
 public:
     int32_t num;
@@ -146,7 +146,7 @@ public:
     Ball4(int32_t num): _Ball<Ball4>(), num(num), num2(num + 1) {}
 };
 
-class	Ball5: public _Ball<Ball5>
+class Ball5: public _Ball<Ball5>
 {
 public:
     int32_t num;
@@ -155,7 +155,7 @@ public:
     Ball5(int32_t num): _Ball<Ball5>(), num(num), num2(num + 1) {}
 };
 
-class	Ball6: public _Ball<Ball6>
+class Ball6: public _Ball<Ball6>
 {
 public:
     int32_t num;
@@ -164,7 +164,7 @@ public:
     Ball6(int32_t num): _Ball<Ball6>(), num(num), num2(num + 1) {}
 };
 
-class	Ball7: public _Ball<Ball7>
+class Ball7: public _Ball<Ball7>
 {
 public:
     int32_t num;
@@ -173,7 +173,7 @@ public:
     Ball7(int32_t num): _Ball<Ball7>(), num(num), num2(num + 1) {}
 };
 
-class	Ball8: public _Ball<Ball8>
+class Ball8: public _Ball<Ball8>
 {
 public:
     int32_t num;
@@ -182,7 +182,7 @@ public:
     Ball8(int32_t num): _Ball<Ball8>(), num(num), num2(num + 1) {}
 };
 
-class	Ball9: public _Ball<Ball9>
+class Ball9: public _Ball<Ball9>
 {
 public:
     int32_t num;
@@ -191,9 +191,9 @@ public:
     Ball9(int32_t num): _Ball<Ball9>(), num(num), num2(num + 1) {}
 };
 
-//	For testing the cache.
+// For testing the cache.
 
-class	Shared: public	SharedObject<Shared, Memory>
+class Shared: public SharedObject<Shared, Memory>
 {
 public:
 };

@@ -73,30 +73,30 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include	"utils.h"
+#include "utils.h"
 
-#if defined	WINDOWS
-#include	<intrin.h>
-#pragma	intrinsic (_InterlockedDecrement)
-#pragma	intrinsic (_InterlockedIncrement)
-#pragma	intrinsic (_InterlockedExchange)
-#pragma	intrinsic (_InterlockedExchange64)
-#pragma	intrinsic (_InterlockedCompareExchange)
-#pragma	intrinsic (_InterlockedCompareExchange64)
+#if defined WINDOWS
+#include <intrin.h>
+#pragma intrinsic (_InterlockedDecrement)
+#pragma intrinsic (_InterlockedIncrement)
+#pragma intrinsic (_InterlockedExchange)
+#pragma intrinsic (_InterlockedExchange64)
+#pragma intrinsic (_InterlockedCompareExchange)
+#pragma intrinsic (_InterlockedCompareExchange64)
 #elif defined LINUX
 #endif
 
-#include	<algorithm>
-#include	<cctype>
-#include	<ctime>
+#include <algorithm>
+#include <cctype>
+#include <ctime>
 
 
-#define	R250_IA	(sizeof(uint32_t)*103)
-#define	R250_IB	(sizeof(uint32_t)*R250_LEN-R250_IA)
-#define	R521_IA	(sizeof(uint32_t)*168)
-#define	R521_IB	(sizeof(uint32_t)*R521_LEN-R521_IA)
+#define R250_IA (sizeof(uint32_t)*103)
+#define R250_IB (sizeof(uint32_t)*R250_LEN-R250_IA)
+#define R521_IA (sizeof(uint32_t)*168)
+#define R521_IB (sizeof(uint32_t)*R521_LEN-R521_IA)
 
-namespace	core
+namespace core
 {
 
 #if defined LINUX
@@ -157,15 +157,15 @@ void Error::PrintBinary(void *p, uint32_t size, bool asInt, const char *title)
     printf("\n");
 }
 
-SharedLibrary	*SharedLibrary::New(const	char	*fileName)
+SharedLibrary *SharedLibrary::New(const char *fileName)
 {
-    SharedLibrary	*sl = new	SharedLibrary();
+    SharedLibrary *sl = new SharedLibrary();
 
     if (sl->load(fileName)) {
-        return	sl;
+        return sl;
     } else {
-        delete	sl;
-        return	NULL;
+        delete sl;
+        return NULL;
     }
 }
 
@@ -175,7 +175,7 @@ SharedLibrary::SharedLibrary(): library(NULL)
 
 SharedLibrary::~SharedLibrary()
 {
-#if defined	WINDOWS
+#if defined WINDOWS
 
     if (library) {
         FreeLibrary(library);
@@ -190,15 +190,15 @@ SharedLibrary::~SharedLibrary()
 #endif
 }
 
-SharedLibrary	*SharedLibrary::load(const	char	*fileName)
+SharedLibrary *SharedLibrary::load(const char *fileName)
 {
-#if defined	WINDOWS
+#if defined WINDOWS
     library = LoadLibrary(TEXT(fileName));
 
     if (!library) {
-        DWORD	error = GetLastError();
+        DWORD error = GetLastError();
         std::cerr << "> Error: unable to load shared library " << fileName << " :" << error << std::endl;
-        return	NULL;
+        return NULL;
     }
 
 #elif defined LINUX
@@ -229,24 +229,24 @@ SharedLibrary	*SharedLibrary::load(const	char	*fileName)
 
     free(libraryName);
 #endif
-    return	this;
+    return this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-void	Thread::TerminateAndWait(Thread	**threads, uint32_t threadCount)
+void Thread::TerminateAndWait(Thread **threads, uint32_t threadCount)
 {
     if (!threads) {
         return;
     }
 
-    for (uint32_t	i = 0; i < threadCount; i++) {
+    for (uint32_t i = 0; i < threadCount; i++) {
         threads[i]->terminate();
         Thread::Wait(threads[i]);
     }
 }
 
-void	Thread::TerminateAndWait(Thread	*_thread)
+void Thread::TerminateAndWait(Thread *_thread)
 {
     if (!_thread) {
         return;
@@ -256,43 +256,43 @@ void	Thread::TerminateAndWait(Thread	*_thread)
     Thread::Wait(_thread);
 }
 
-void	Thread::Wait(Thread	**threads, uint32_t threadCount)
+void Thread::Wait(Thread **threads, uint32_t threadCount)
 {
     if (!threads) {
         return;
     }
 
-#if defined	WINDOWS
+#if defined WINDOWS
 
-    for (uint32_t	i = 0; i < threadCount; i++) {
+    for (uint32_t i = 0; i < threadCount; i++) {
         WaitForSingleObject(threads[i]->_thread, INFINITE);
     }
 
 #elif defined LINUX
 
-    for (uint32_t	i = 0; i < threadCount; i++) {
+    for (uint32_t i = 0; i < threadCount; i++) {
         pthread_join(threads[i]->_thread, NULL);
     }
 
 #endif
 }
 
-void	Thread::Wait(Thread	*_thread)
+void Thread::Wait(Thread *_thread)
 {
     if (!_thread) {
         return;
     }
 
-#if defined	WINDOWS
+#if defined WINDOWS
     WaitForSingleObject(_thread->_thread, INFINITE);
 #elif defined LINUX
     pthread_join(_thread->_thread, NULL);
 #endif
 }
 
-void	Thread::Sleep(int64_t ms)
+void Thread::Sleep(int64_t ms)
 {
-#if defined	WINDOWS
+#if defined WINDOWS
     ::Sleep((uint32_t)ms);
 #elif defined LINUX
     // we are actually being passed millisecond, so multiply up
@@ -300,9 +300,9 @@ void	Thread::Sleep(int64_t ms)
 #endif
 }
 
-void	Thread::Sleep()
+void Thread::Sleep()
 {
-#if defined	WINDOWS
+#if defined WINDOWS
     ::Sleep(INFINITE);
 #elif defined LINUX
 
@@ -320,49 +320,49 @@ Thread::Thread(): is_meaningful(false)
 
 Thread::~Thread()
 {
-#if defined	WINDOWS
+#if defined WINDOWS
 
-//		ExitThread(0);
+// ExitThread(0);
     if (is_meaningful) {
         CloseHandle(_thread);
     }
 
 #elif defined LINUX
-//		delete(_thread);
+// delete(_thread);
 #endif
 }
 
-void	Thread::start(thread_function	f)
+void Thread::start(thread_function f)
 {
-#if defined	WINDOWS
-    _thread = CreateThread(NULL, 65536, f, this, 0, NULL);	//	64KB: minimum initial stack size
+#if defined WINDOWS
+    _thread = CreateThread(NULL, 65536, f, this, 0, NULL); // 64KB: minimum initial stack size
 #elif defined LINUX
     pthread_create(&_thread, NULL, f, this);
 #endif
     is_meaningful = true;
 }
 
-void	Thread::suspend()
+void Thread::suspend()
 {
-#if defined	WINDOWS
+#if defined WINDOWS
     SuspendThread(_thread);
 #elif defined LINUX
     pthread_kill(_thread, SIGSTOP);
 #endif
 }
 
-void	Thread::resume()
+void Thread::resume()
 {
-#if defined	WINDOWS
+#if defined WINDOWS
     ResumeThread(_thread);
 #elif defined LINUX
     pthread_kill(_thread, SIGCONT);
 #endif
 }
 
-void	Thread::terminate()
+void Thread::terminate()
 {
-#if defined	WINDOWS
+#if defined WINDOWS
     TerminateThread(_thread, 0);
 #elif defined LINUX
     pthread_cancel(_thread);
@@ -371,17 +371,17 @@ void	Thread::terminate()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-void	TimeProbe::set()
+void TimeProbe::set()
 {
     cpu_counts = getCounts();
 }
 
 int64_t TimeProbe::getCounts()
 {
-#if defined	WINDOWS
-    LARGE_INTEGER	counter;
+#if defined WINDOWS
+    LARGE_INTEGER counter;
     QueryPerformanceCounter(&counter);
-    return	counter.QuadPart;
+    return counter.QuadPart;
 #elif defined LINUX
     static struct timeval tv;
     static struct timezone tz;
@@ -390,105 +390,105 @@ int64_t TimeProbe::getCounts()
 #endif
 }
 
-void	TimeProbe::check()
+void TimeProbe::check()
 {
     cpu_counts = getCounts() - cpu_counts;
 }
 
 uint64_t TimeProbe::us()
 {
-    return	(uint64_t)(cpu_counts * Time::Period);
+    return (uint64_t)(cpu_counts * Time::Period);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if defined	WINDOWS
+#if defined WINDOWS
 typedef LONG NTSTATUS;
 typedef NTSTATUS(__stdcall *NSTR)(ULONG, BOOLEAN, PULONG);
 #define STATUS_SUCCESS ((NTSTATUS)0x00000000L)
-bool	NtSetTimerResolution(IN	ULONG	RequestedResolution, IN	BOOLEAN	Set, OUT	PULONG	ActualResolution);
+bool NtSetTimerResolution(IN ULONG RequestedResolution, IN BOOLEAN Set, OUT PULONG ActualResolution);
 #elif defined LINUX
 // TODO
 #endif
 
-double	Time::Period;
+double Time::Period;
 
-int64_t	Time::InitTime;
+int64_t Time::InitTime;
 
-void	Time::Init(uint32_t r)
+void Time::Init(uint32_t r)
 {
-#if defined	WINDOWS
-    NTSTATUS	nts;
-    HMODULE	NTDll =::LoadLibrary("NTDLL");
-    ULONG	actualResolution = 0;
+#if defined WINDOWS
+    NTSTATUS nts;
+    HMODULE NTDll =::LoadLibrary("NTDLL");
+    ULONG actualResolution = 0;
 
     if (NTDll) {
-        NSTR	pNSTR = (NSTR)::GetProcAddress(NTDll, "NtSetTimerResolution");	//	undocumented win xp sys internals
+        NSTR pNSTR = (NSTR)::GetProcAddress(NTDll, "NtSetTimerResolution"); // undocumented win xp sys internals
 
         if (pNSTR) {
-            nts = (*pNSTR)(10 * r, true, &actualResolution);    //	in 100 ns units
+            nts = (*pNSTR)(10 * r, true, &actualResolution);    // in 100 ns units
         }
     }
 
-    LARGE_INTEGER	f;
+    LARGE_INTEGER f;
     QueryPerformanceFrequency(&f);
-    Period = 1000000.0 / f.QuadPart;	//	in us
-    struct	_timeb	local_time;
+    Period = 1000000.0 / f.QuadPart; // in us
+    struct _timeb local_time;
     _ftime(&local_time);
-    InitTime = (int64_t)(local_time.time * 1000 + local_time.millitm) * 1000;	//	in us
+    InitTime = (int64_t)(local_time.time * 1000 + local_time.millitm) * 1000; // in us
 #elif defined LINUX
     // we are actually setup a timer resolution of 1ms
     // we can simulate this by performing a gettimeofday call
     struct timeval tv;
     gettimeofday(&tv, NULL);
     InitTime = (((int64_t)tv.tv_sec) * 1000000) + (int64_t)tv.tv_usec;
-    Period = 1;	//	we measure all time in us anyway, so conversion is 1-to-1
+    Period = 1; // we measure all time in us anyway, so conversion is 1-to-1
 #endif
 }
 
 uint64_t Time::Get()
 {
-#if defined	WINDOWS
-    LARGE_INTEGER	counter;
+#if defined WINDOWS
+    LARGE_INTEGER counter;
     QueryPerformanceCounter(&counter);
-    return	(uint64_t)(InitTime + counter.QuadPart * Period);
+    return (uint64_t)(InitTime + counter.QuadPart * Period);
 #elif defined LINUX
     timeval perfCount;
     struct timezone tmzone;
     gettimeofday(&perfCount, &tmzone);
     int64_t r = (((int64_t)perfCount.tv_sec) * 1000000) + (int64_t)perfCount.tv_usec;
-    return	r;
+    return r;
 #endif
 }
 
-std::string	Time::ToString_seconds(uint64_t	t)
+std::string Time::ToString_seconds(uint64_t t)
 {
-    uint64_t	us = t % 1000;
-    uint64_t	ms = t / 1000;
-    uint64_t	s = ms / 1000;
+    uint64_t us = t % 1000;
+    uint64_t ms = t / 1000;
+    uint64_t s = ms / 1000;
     ms = ms % 1000;
-    std::string	_s = String::Uint2String(s);
+    std::string _s = String::Uint2String(s);
     _s += "s:";
     _s += String::Uint2String(ms);
     _s += "ms:";
     _s += String::Uint2String(us);
     _s += "us";
-    return	_s;
+    return _s;
 }
 
-std::string	Time::ToString_year(uint64_t	t)
+std::string Time::ToString_year(uint64_t t)
 {
-    uint64_t	us = t % 1000;
-    uint64_t	ms = t / 1000;
-    uint64_t	s = ms / 1000;
+    uint64_t us = t % 1000;
+    uint64_t ms = t / 1000;
+    uint64_t s = ms / 1000;
     ms = ms % 1000;
-    time_t	_gmt_time;
+    time_t _gmt_time;
     time(&_gmt_time);
     struct tm   *_t = gmtime(&_gmt_time);
-    std::string	_s = asctime(_t);	//	_s is: Www Mmm dd hh:mm:ss yyyy but we want: Www Mmm dd yyyy hh:mm:ss:msmsms:ususus
-    std::string	year = _s.substr(_s.length() - 5, 4);
+    std::string _s = asctime(_t); // _s is: Www Mmm dd hh:mm:ss yyyy but we want: Www Mmm dd yyyy hh:mm:ss:msmsms:ususus
+    std::string year = _s.substr(_s.length() - 5, 4);
     _s.erase(_s.length() - 6, 5);
-    std::string	hh_mm_ss = _s.substr(_s.length() - 9, 8);
+    std::string hh_mm_ss = _s.substr(_s.length() - 9, 8);
     hh_mm_ss += ":";
     hh_mm_ss += String::Uint2String(ms);
     hh_mm_ss += ":";
@@ -498,17 +498,17 @@ std::string	Time::ToString_year(uint64_t	t)
     _s += " ";
     _s += hh_mm_ss;
     _s += " GMT";
-    return	_s;
+    return _s;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-uint8_t	Host::Name(char	*name)
+uint8_t Host::Name(char *name)
 {
-#if defined	WINDOWS
-    DWORD	s = 255;
+#if defined WINDOWS
+    DWORD s = 255;
     GetComputerName(name, &s);
-    return	(uint8_t)s;
+    return (uint8_t)s;
 #elif defined LINUX
     struct utsname utsname;
     uname(&utsname);
@@ -519,20 +519,20 @@ uint8_t	Host::Name(char	*name)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if defined	WINDOWS
-const	uint32_t	Semaphore::Infinite = INFINITE;
+#if defined WINDOWS
+const uint32_t Semaphore::Infinite = INFINITE;
 #elif defined LINUX
 /*
  * Normally this should be SEM_VALUE_MAX but apparently the <semaphore.h> header
  * does not define it. The documents I have read indicate that on Linux it is
  * always equal to INT_MAX - so use that instead.
  */
-const	uint32_t	Semaphore::Infinite = INT_MAX;
+const uint32_t Semaphore::Infinite = INT_MAX;
 #endif
 
 Semaphore::Semaphore(uint32_t initialCount, uint32_t maxCount)
 {
-#if defined	WINDOWS
+#if defined WINDOWS
     s = CreateSemaphore(NULL, initialCount, maxCount, NULL);
 #elif defined LINUX
     sem_init(&s, 0, initialCount);
@@ -541,18 +541,18 @@ Semaphore::Semaphore(uint32_t initialCount, uint32_t maxCount)
 
 Semaphore::~Semaphore()
 {
-#if defined	WINDOWS
+#if defined WINDOWS
     CloseHandle(s);
 #elif defined LINUX
     sem_destroy(&s);
 #endif
 }
 
-bool	Semaphore::acquire(uint32_t	timeout)
+bool Semaphore::acquire(uint32_t timeout)
 {
-#if defined	WINDOWS
-    uint32_t	r = WaitForSingleObject(s, timeout);
-    return	r == WAIT_TIMEOUT;
+#if defined WINDOWS
+    uint32_t r = WaitForSingleObject(s, timeout);
+    return r == WAIT_TIMEOUT;
 #elif defined LINUX
     struct timespec t;
     int r;
@@ -562,9 +562,9 @@ bool	Semaphore::acquire(uint32_t	timeout)
 #endif
 }
 
-void	Semaphore::release(uint32_t	count)
+void Semaphore::release(uint32_t count)
 {
-#if defined	WINDOWS
+#if defined WINDOWS
     ReleaseSemaphore(s, count, NULL);
 #elif defined LINUX
 
@@ -575,17 +575,17 @@ void	Semaphore::release(uint32_t	count)
 #endif
 }
 
-void	Semaphore::reset()
+void Semaphore::reset()
 {
-#if defined	WINDOWS
-    bool	r;
+#if defined WINDOWS
+    bool r;
 
     do {
         r = acquire(0);
     } while (!r);
 
 #elif defined LINUX
-    bool	r;
+    bool r;
 
     do {
         r = acquire(0);
@@ -596,20 +596,20 @@ void	Semaphore::reset()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if defined	WINDOWS
-const	uint32_t	Mutex::Infinite = INFINITE;
+#if defined WINDOWS
+const uint32_t Mutex::Infinite = INFINITE;
 #elif defined LINUX
 /*
  * Normally this should be SEM_VALUE_MAX but apparently the <semaphore.h> header
  * does not define it. The documents I have read indicate that on Linux it is
  * always equal to INT_MAX - so use that instead.
  */
-const	uint32_t	Mutex::Infinite = INT_MAX;
+const uint32_t Mutex::Infinite = INT_MAX;
 #endif
 
 Mutex::Mutex()
 {
-#if defined	WINDOWS
+#if defined WINDOWS
     m = CreateMutex(NULL, false, NULL);
 #elif defined LINUX
     pthread_mutex_init(&m, NULL);
@@ -618,18 +618,18 @@ Mutex::Mutex()
 
 Mutex::~Mutex()
 {
-#if defined	WINDOWS
+#if defined WINDOWS
     CloseHandle(m);
 #elif defined LINUX
     pthread_mutex_destroy(&m);
 #endif
 }
 
-bool	Mutex::acquire(uint32_t timeout)
+bool Mutex::acquire(uint32_t timeout)
 {
-#if defined	WINDOWS
-    uint32_t	r = WaitForSingleObject(m, timeout);
-    return	r == WAIT_TIMEOUT;
+#if defined WINDOWS
+    uint32_t r = WaitForSingleObject(m, timeout);
+    return r == WAIT_TIMEOUT;
 #elif defined LINUX
     int64_t start = Time::Get();
     int64_t uTimeout = timeout * 1000;
@@ -646,9 +646,9 @@ bool	Mutex::acquire(uint32_t timeout)
 #endif
 }
 
-void	Mutex::release()
+void Mutex::release()
 {
-#if defined	WINDOWS
+#if defined WINDOWS
     ReleaseMutex(m);
 #elif defined LINUX
     pthread_mutex_unlock(&m);
@@ -659,7 +659,7 @@ void	Mutex::release()
 
 CriticalSection::CriticalSection()
 {
-#if defined	WINDOWS
+#if defined WINDOWS
     InitializeCriticalSection(&cs);
 #elif defined LINUX
     pthread_mutex_init(&cs, NULL);
@@ -668,25 +668,25 @@ CriticalSection::CriticalSection()
 
 CriticalSection::~CriticalSection()
 {
-#if defined	WINDOWS
+#if defined WINDOWS
     DeleteCriticalSection(&cs);
 #elif defined LINUX
     pthread_mutex_destroy(&cs);
 #endif
 }
 
-void	CriticalSection::enter()
+void CriticalSection::enter()
 {
-#if defined	WINDOWS
+#if defined WINDOWS
     EnterCriticalSection(&cs);
 #elif defined LINUX
     pthread_mutex_lock(&cs);
 #endif
 }
 
-void	CriticalSection::leave()
+void CriticalSection::leave()
 {
-#if defined	WINDOWS
+#if defined WINDOWS
     LeaveCriticalSection(&cs);
 #elif defined LINUX
     pthread_mutex_unlock(&cs);
@@ -695,10 +695,10 @@ void	CriticalSection::leave()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if defined	WINDOWS
-const	uint32_t	Timer::Infinite = INFINITE;
+#if defined WINDOWS
+const uint32_t Timer::Infinite = INFINITE;
 #elif defined LINUX
-const	uint32_t	Timer::Infinite = INT_MAX;
+const uint32_t Timer::Infinite = INT_MAX;
 
 static void timer_signal_handler(int sig, siginfo_t *siginfo, void *context)
 {
@@ -716,7 +716,7 @@ static void timer_signal_handler(int sig, siginfo_t *siginfo, void *context)
 
 Timer::Timer()
 {
-#if defined	WINDOWS
+#if defined WINDOWS
     t = CreateWaitableTimer(NULL, false, NULL);
 
     if (t == NULL) {
@@ -746,7 +746,7 @@ Timer::Timer()
 
 Timer::~Timer()
 {
-#if defined	WINDOWS
+#if defined WINDOWS
     CloseHandle(t);
 #elif defined LINUX
     pthread_cond_destroy(&sematex.semaphore);
@@ -755,12 +755,12 @@ Timer::~Timer()
 #endif
 }
 
-void	Timer::start(uint64_t deadline, uint32_t period)
+void Timer::start(uint64_t deadline, uint32_t period)
 {
-#if defined	WINDOWS
-    LARGE_INTEGER	_deadline;	//	in 100 ns intervals
-    _deadline.QuadPart = -10LL * deadline;	//	negative means relative
-    bool	r = SetWaitableTimer(t, &_deadline, (long)period, NULL, NULL, 0);
+#if defined WINDOWS
+    LARGE_INTEGER _deadline; // in 100 ns intervals
+    _deadline.QuadPart = -10LL * deadline; // negative means relative
+    bool r = SetWaitableTimer(t, &_deadline, (long)period, NULL, NULL, 0);
 
     if (!r) {
         printf("Error arming timer\n");
@@ -787,11 +787,11 @@ void	Timer::start(uint64_t deadline, uint32_t period)
 #endif
 }
 
-bool	Timer::wait(uint32_t	timeout)
+bool Timer::wait(uint32_t timeout)
 {
-#if defined	WINDOWS
-    uint32_t	r = WaitForSingleObject(t, timeout);
-    return	r == WAIT_TIMEOUT;
+#if defined WINDOWS
+    uint32_t r = WaitForSingleObject(t, timeout);
+    return r == WAIT_TIMEOUT;
 #elif defined LINUX
     bool res;
     struct timespec ttimeout;
@@ -809,71 +809,71 @@ bool	Timer::wait(uint32_t	timeout)
 #endif
 }
 
-bool	Timer::wait(uint64_t	&us, uint32_t	timeout)
+bool Timer::wait(uint64_t &us, uint32_t timeout)
 {
-    TimeProbe	probe;
+    TimeProbe probe;
     probe.set();
-    bool	r = wait((uint64_t)timeout);
+    bool r = wait((uint64_t)timeout);
     probe.check();
     us = probe.us();
-    return	r;
+    return r;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 Event::Event()
 {
-#if defined	WINDOWS
+#if defined WINDOWS
     e = CreateEvent(NULL, true, false, NULL);
 #elif defined LINUX
-    //	TODO.
+    // TODO.
 #endif
 }
 
 Event::~Event()
 {
-#if defined	WINDOWS
+#if defined WINDOWS
     CloseHandle(e);
 #elif defined LINUX
-    //	TODO.
+    // TODO.
 #endif
 }
 
-void	Event::wait()
+void Event::wait()
 {
-#if defined	WINDOWS
+#if defined WINDOWS
     WaitForSingleObject(e, INFINITE);
 #elif defined LINUX
-    //	TODO.
+    // TODO.
 #endif
 }
 
-void	Event::fire()
+void Event::fire()
 {
-#if defined	WINDOWS
+#if defined WINDOWS
     SetEvent(e);
 #elif defined LINUX
-    //	TODO.
+    // TODO.
 #endif
 }
 
-void	Event::reset()
+void Event::reset()
 {
-#if defined	WINDOWS
+#if defined WINDOWS
     ResetEvent(e);
 #elif defined LINUX
-    //	TODO.
+    // TODO.
 #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-void	SignalHandler::Add(sighandler_t h)
+void SignalHandler::Add(sighandler_t h)
 {
-#if defined	WINDOWS
+#if defined WINDOWS
 
     if (SetConsoleCtrlHandler(h, true) == 0) {
-        int	e = GetLastError();
+        int e = GetLastError();
         std::cerr << "Error: " << e << " failed to add signal handler" << std::endl;
         return;
     }
@@ -892,9 +892,9 @@ void	SignalHandler::Add(sighandler_t h)
 #endif
 }
 
-void	SignalHandler::Remove(signal_handler	h)
+void SignalHandler::Remove(signal_handler h)
 {
-#if defined	WINDOWS
+#if defined WINDOWS
     SetConsoleCtrlHandler(h, false);
 #elif defined LINUX
     signal(SIGABRT, SIG_IGN);
@@ -912,106 +912,106 @@ void	SignalHandler::Remove(signal_handler	h)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-int32_t	Atomic::Increment32(int32_t	volatile	*v)
+int32_t Atomic::Increment32(int32_t volatile *v)
 {
-#if defined	WINDOWS
-    return	InterlockedIncrement((long *)v);
+#if defined WINDOWS
+    return InterlockedIncrement((long *)v);
 #elif defined LINUX
     __sync_add_and_fetch(v, 1);
-    return	*v;
+    return *v;
 #endif
 };
 
-int32_t	Atomic::Decrement32(int32_t	volatile	*v)
+int32_t Atomic::Decrement32(int32_t volatile *v)
 {
-#if defined	WINDOWS
-    return	InterlockedDecrement((long *)v);
+#if defined WINDOWS
+    return InterlockedDecrement((long *)v);
 #elif defined LINUX
     __sync_add_and_fetch(v, -1);
-    return	*v;
+    return *v;
 #endif
 };
 
-int32_t	Atomic::CompareAndSwap32(int32_t	volatile	*target, int32_t	v1, int32_t	v2)
+int32_t Atomic::CompareAndSwap32(int32_t volatile *target, int32_t v1, int32_t v2)
 {
-#if defined	WINDOWS
-    return	_InterlockedCompareExchange((long *)target, v2, v1);
+#if defined WINDOWS
+    return _InterlockedCompareExchange((long *)target, v2, v1);
 #elif defined LINUX
     // note that v1 and v2 are swapped for Linux!!!
     return __sync_val_compare_and_swap(target, v1, v2);
 #endif
 }
 
-int64_t	Atomic::CompareAndSwap64(int64_t	volatile	*target, int64_t	v1, int64_t	v2)
+int64_t Atomic::CompareAndSwap64(int64_t volatile *target, int64_t v1, int64_t v2)
 {
-#if defined	WINDOWS
-    return	_InterlockedCompareExchange64(target, v2, v1);
+#if defined WINDOWS
+    return _InterlockedCompareExchange64(target, v2, v1);
 #elif defined LINUX
     // note that v1 and v2 are swapped for Linux!!!
     return __sync_val_compare_and_swap(target, v1, v2);
 #endif
 }
 
-//	word	Atomic::CompareAndSwap(word	volatile	*target,word	v1,word	v2){
-//#if defined	ARCH_32
-//		return	CompareAndSwap32(target,v1,v2);
+// word Atomic::CompareAndSwap(word volatile *target,word v1,word v2){
+//#if defined ARCH_32
+// return CompareAndSwap32(target,v1,v2);
 //#elif defined ARCH_64
-//		return	CompareAndSwap32((uint32_t*)target,v1,v2);
+// return CompareAndSwap32((uint32_t*)target,v1,v2);
 //#endif
-//	}
+// }
 
-int32_t	Atomic::Swap32(int32_t	volatile	*target, int32_t	v)
+int32_t Atomic::Swap32(int32_t volatile *target, int32_t v)
 {
-#if defined	WINDOWS
-    return	_InterlockedExchange((long *)target, v);
+#if defined WINDOWS
+    return _InterlockedExchange((long *)target, v);
 #elif defined LINUX
     return __sync_fetch_and_sub(target, v);
 #endif
 }
 
-int64_t	Atomic::Swap64(int64_t	volatile	*target, int64_t	v)
+int64_t Atomic::Swap64(int64_t volatile *target, int64_t v)
 {
-#if defined	WINDOWS
-    return	CompareAndSwap64(target, v, v);
+#if defined WINDOWS
+    return CompareAndSwap64(target, v, v);
 #elif defined LINUX
     return __sync_fetch_and_sub(target, v);
 #endif
 }
 
-//	word	Atomic::Swap(word	volatile	*target,word	v){
-//#if defined	ARCH_32
-//		return	Swap32(target,v);
+// word Atomic::Swap(word volatile *target,word v){
+//#if defined ARCH_32
+// return Swap32(target,v);
 //#elif defined ARCH_64
-//		return	Swap32((uint32_t*)target,v);
+// return Swap32((uint32_t*)target,v);
 //#endif
-//	}
+// }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-uint8_t	BSR(uint32_t	data)
+uint8_t BSR(uint32_t data)
 {
-#if defined	WINDOWS
-#if defined	ARCH_32
-    DWORD	index;
+#if defined WINDOWS
+#if defined ARCH_32
+    DWORD index;
     _BitScanReverse(&index, data);
-    return	(uint8_t)index;
-#elif defined	ARCH_64
-    uint64_t	index;
+    return (uint8_t)index;
+#elif defined ARCH_64
+    uint64_t index;
     _BitScanReverse64(&index, data);
-    return	(uint8_t)index;
+    return (uint8_t)index;
 #endif
 #elif defined LINUX
-#if defined	ARCH_32
-    return	(uint8_t)(31 - __builtin_clz((uint32_t)data));
-#elif defined	ARCH_64
-    return	(uint8_t)(63 - __builtin_clzll((uint64_t)data));
+#if defined ARCH_32
+    return (uint8_t)(31 - __builtin_clz((uint32_t)data));
+#elif defined ARCH_64
+    return (uint8_t)(63 - __builtin_clzll((uint64_t)data));
 #endif
 #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-FastSemaphore::FastSemaphore(uint32_t	initialCount, uint32_t	maxCount): Semaphore(initialCount > 0 ? 1 : 0, 1), count(initialCount), maxCount(maxCount)
+FastSemaphore::FastSemaphore(uint32_t initialCount, uint32_t maxCount): Semaphore(initialCount > 0 ? 1 : 0, 1), count(initialCount), maxCount(maxCount)
 {
 }
 
@@ -1019,20 +1019,20 @@ FastSemaphore::~FastSemaphore()
 {
 }
 
-void	FastSemaphore::acquire()
+void FastSemaphore::acquire()
 {
-    int32_t	c;
+    int32_t c;
 
-    while ((c = Atomic::Decrement32(&count)) >= maxCount);	//	release calls can bring count over maxCount: acquire has to exhaust these extras
+    while ((c = Atomic::Decrement32(&count)) >= maxCount); // release calls can bring count over maxCount: acquire has to exhaust these extras
 
     if (c < 0) {
         Semaphore::acquire();
     }
 }
 
-void	FastSemaphore::release()
+void FastSemaphore::release()
 {
-    int32_t	c = Atomic::Increment32(&count);
+    int32_t c = Atomic::Increment32(&count);
 
     if (c <= 0) {
         Semaphore::release();
@@ -1041,29 +1041,29 @@ void	FastSemaphore::release()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-	FastMutex::FastMutex(uint32_t	initialCount):Semaphore(initialCount,1),count(initialCount){
-	}
+ FastMutex::FastMutex(uint32_t initialCount):Semaphore(initialCount,1),count(initialCount){
+ }
 
-	FastMutex::~FastMutex(){
-	}
+ FastMutex::~FastMutex(){
+ }
 
-	void	FastMutex::acquire(){
+ void FastMutex::acquire(){
 
-		int32_t	former=Atomic::Swap32(&count,0);
-		if(former==0)
-			Semaphore::acquire();
-	}
+ int32_t former=Atomic::Swap32(&count,0);
+ if(former==0)
+ Semaphore::acquire();
+ }
 
-	void	FastMutex::release(){
+ void FastMutex::release(){
 
-		int32_t	former=Atomic::Swap32(&count,1);
-		if(former==0)
-			Semaphore::release();
-	}
-	*/
+ int32_t former=Atomic::Swap32(&count,1);
+ if(former==0)
+ Semaphore::release();
+ }
+ */
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool	Error::PrintLastOSErrorMessage(const char *title)
+bool Error::PrintLastOSErrorMessage(const char *title)
 {
     int32_t err = Error::GetLastOSErrorNumber();
     char buf[1024];
@@ -1088,7 +1088,7 @@ int32_t Error::GetLastOSErrorNumber()
 #endif
 }
 
-bool	Error::GetOSErrorMessage(char *buffer, uint32_t buflen, int32_t err)
+bool Error::GetOSErrorMessage(char *buffer, uint32_t buflen, int32_t err)
 {
     if (buffer == NULL) {
         return false;
@@ -1226,7 +1226,7 @@ bool WaitForSocketWriteability(socket s, int32_t timeout)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-int32_t	String::StartsWith(const std::string &s, const std::string &str)
+int32_t String::StartsWith(const std::string &s, const std::string &str)
 {
     std::string::size_type pos = s.find_first_of(str);
 
@@ -1237,7 +1237,7 @@ int32_t	String::StartsWith(const std::string &s, const std::string &str)
     }
 }
 
-int32_t	String::EndsWith(const std::string &s, const std::string &str)
+int32_t String::EndsWith(const std::string &s, const std::string &str)
 {
     std::string::size_type pos = s.find_last_of(str);
 
@@ -1248,23 +1248,23 @@ int32_t	String::EndsWith(const std::string &s, const std::string &str)
     }
 }
 
-void	String::MakeUpper(std::string &str)
+void String::MakeUpper(std::string &str)
 {
     std::transform(str.begin(), str.end(), str.begin(), toupper);
 }
 
-void	String::MakeLower(std::string &str)
+void String::MakeLower(std::string &str)
 {
     std::transform(str.begin(), str.end(), str.begin(), tolower);
 }
 
-void	String::Trim(std::string &str, const char *chars2remove)
+void String::Trim(std::string &str, const char *chars2remove)
 {
     TrimLeft(str, chars2remove);
     TrimRight(str, chars2remove);
 }
 
-void	String::TrimLeft(std::string &str, const char *chars2remove)
+void String::TrimLeft(std::string &str, const char *chars2remove)
 {
     if (!str.empty()) {
         std::string::size_type pos = str.find_first_not_of(chars2remove);
@@ -1277,7 +1277,7 @@ void	String::TrimLeft(std::string &str, const char *chars2remove)
     }
 }
 
-void	String::TrimRight(std::string &str, const char *chars2remove)
+void String::TrimRight(std::string &str, const char *chars2remove)
 {
     if (!str.empty()) {
         std::string::size_type pos = str.find_last_not_of(chars2remove);
@@ -1291,7 +1291,7 @@ void	String::TrimRight(std::string &str, const char *chars2remove)
 }
 
 
-void	String::ReplaceLeading(std::string &str, const char *chars2replace, char c)
+void String::ReplaceLeading(std::string &str, const char *chars2replace, char c)
 {
     if (!str.empty()) {
         std::string::size_type pos = str.find_first_not_of(chars2replace);
@@ -1305,14 +1305,14 @@ void	String::ReplaceLeading(std::string &str, const char *chars2replace, char c)
     }
 }
 
-std::string	String::Int2String(int64_t i)
+std::string String::Int2String(int64_t i)
 {
     char buffer[1024];
     sprintf(buffer, "%d", i);
     return std::string(buffer);
 }
 
-std::string	String::Uint2String(uint64_t i)
+std::string String::Uint2String(uint64_t i)
 {
     char buffer[1024];
     sprintf(buffer, "%u", i);
@@ -1321,16 +1321,16 @@ std::string	String::Uint2String(uint64_t i)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-int32_t	Random::r250_index;
-int32_t	Random::r521_index;
-uint32_t	Random::r250_buffer[R250_LEN];
-uint32_t	Random::r521_buffer[R521_LEN];
+int32_t Random::r250_index;
+int32_t Random::r521_index;
+uint32_t Random::r250_buffer[R250_LEN];
+uint32_t Random::r521_buffer[R521_LEN];
 
-void	Random::Init()
+void Random::Init()
 {
-    int32_t	i = R521_LEN;
-    uint32_t	mask1 = 1;
-    uint32_t	mask2 = 0xFFFFFFFF;
+    int32_t i = R521_LEN;
+    uint32_t mask1 = 1;
+    uint32_t mask2 = 0xFFFFFFFF;
 
     while (i-- > R250_LEN) {
         r521_buffer[i] = rand();
@@ -1341,11 +1341,11 @@ void	Random::Init()
         r521_buffer[i] = rand();
     }
 
-    //	Establish linear independence of the bit columns
-    //	by setting the diagonal bits and clearing all bits above
+    // Establish linear independence of the bit columns
+    // by setting the diagonal bits and clearing all bits above
     while (i-- > 0) {
-        r250_buffer[i] = (rand()	|	mask1)	&	mask2;
-        r521_buffer[i] = (rand()	|	mask1)	&	mask2;
+        r250_buffer[i] = (rand() | mask1) & mask2;
+        r521_buffer[i] = (rand() | mask1) & mask2;
         mask2 ^= mask1;
         mask1 >>= 1;
     }
@@ -1356,7 +1356,7 @@ void	Random::Init()
     r521_index = 0;
 }
 
-float	Random::operator()(uint32_t	range)
+float Random::operator()(uint32_t range)
 {
     /*
     I prescale the indices by sizeof(unsigned long) to eliminate
@@ -1368,13 +1368,13 @@ float	Random::operator()(uint32_t	range)
     j1/j2 branches are mispredicted, but nevertheless these optimizations
     increased perf by another 10%.
     */
-    int32_t	i1 = r250_index;
-    int32_t	i2 = r521_index;
-    uint8_t	*b1 = (uint8_t *)r250_buffer;
-    uint8_t	*b2 = (uint8_t *)r521_buffer;
-    uint32_t	*tmp1, *tmp2;
-    uint32_t	r, s;
-    int32_t	j1, j2;
+    int32_t i1 = r250_index;
+    int32_t i2 = r521_index;
+    uint8_t *b1 = (uint8_t *)r250_buffer;
+    uint8_t *b2 = (uint8_t *)r521_buffer;
+    uint32_t *tmp1, *tmp2;
+    uint32_t r, s;
+    int32_t j1, j2;
     j1 = i1 - R250_IB;
 
     if (j1 < 0) {
@@ -1397,8 +1397,8 @@ float	Random::operator()(uint32_t	range)
     r250_index = i1;
     i2 = (i2 != sizeof(uint32_t) * (R521_LEN - 1)) ? (i2 + sizeof(uint32_t)) : 0;
     r521_index = i2;
-    float	_r = r ^ s;
-    //return	range*(_r/((float)ULONG_MAX));
-    return	_r;
+    float _r = r ^ s;
+    //return range*(_r/((float)ULONG_MAX));
+    return _r;
 }
 }

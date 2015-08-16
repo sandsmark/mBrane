@@ -76,164 +76,164 @@
 #ifndef mBrane_sdk_payload_h
 #define mBrane_sdk_payload_h
 
-#include	"object.h"
+#include "object.h"
 #include "config.h"
 
 
-namespace	mBrane
+namespace mBrane
 {
-namespace	sdk
+namespace sdk
 {
 
-namespace	payloads
+namespace payloads
 {
-class	_Message;
-class	_StreamData;
+class _Message;
+class _StreamData;
 }
 
-//	Base interface for payloads
-class	mBrane_dll	__Payload:
-    public	_Object
+// Base interface for payloads
+class mBrane_dll __Payload:
+    public _Object
 {
 protected:
     __Payload();
 public:
-    virtual	~__Payload();
-    virtual	uint16_t		cid()	const = 0;
-    virtual	void		init();								//	called upon reception
-    virtual	size_t		size()	const = 0;					//	returns the size of the whole instance; called upon sending
-    virtual	uint16_t		ptrCount()	const;					//	number of pointers to payloads
-    virtual	__Payload	*getPtr(uint16_t	i)	const;			//	iterates the pointers to payloads
-    virtual	void		setPtr(uint16_t	i, __Payload	*p);	//	iterates the pointers to payloads
+    virtual ~__Payload();
+    virtual uint16_t cid() const = 0;
+    virtual void init(); // called upon reception
+    virtual size_t size() const = 0; // returns the size of the whole instance; called upon sending
+    virtual uint16_t ptrCount() const; // number of pointers to payloads
+    virtual __Payload *getPtr(uint16_t i) const; // iterates the pointers to payloads
+    virtual void setPtr(uint16_t i, __Payload *p); // iterates the pointers to payloads
 
-    virtual	bool	isShared()		const;	//	called upon reception and transmission.
-    virtual	bool	isConstant()	const;	//	called upon reception and transmission.
+    virtual bool isShared() const; // called upon reception and transmission.
+    virtual bool isConstant() const; // called upon reception and transmission.
 };
 
-//	Convenience for writing getPtr and setPtr
-#define	PTR(Class,Member)	(__Payload	*)(((uint8_t	*)this)+offsetof(Class,Member));
+// Convenience for writing getPtr and setPtr
+#define PTR(Class,Member) (__Payload *)(((uint8_t *)this)+offsetof(Class,Member));
 
 namespace payloads
 {
-class	_StreamData;
-class	_Message;
+class _StreamData;
+class _Message;
 }
 
-class	mBrane_dll	_Payload:
-    public	__Payload
+class mBrane_dll _Payload:
+    public __Payload
 {
 public:
-    typedef	enum {
+    typedef enum {
         CONTROL = 0,
         DATA = 1,
         STREAM = 2
     } Category;
 private:
-    static	uint32_t	LastConstantOID;
-    static	uint32_t	LastSharedOID;
+    static uint32_t LastConstantOID;
+    static uint32_t LastSharedOID;
 protected:
-    uint64_t	_node_recv_ts;	//	not transmitted
-    uint64_t	_recv_ts;		//	not transmitted
-    uint64_t	_metaData;		//	[oid(32)|cid(16)|reserved(14)|category(2)]; oid==0x00FFFFFF means non shared object, or shared object not sent yet.
-    uint64_t	_node_send_ts;
-    uint64_t	_send_ts;
+    uint64_t _node_recv_ts; // not transmitted
+    uint64_t _recv_ts; // not transmitted
+    uint64_t _metaData; // [oid(32)|cid(16)|reserved(14)|category(2)]; oid==0x00FFFFFF means non shared object, or shared object not sent yet.
+    uint64_t _node_send_ts;
+    uint64_t _send_ts;
     _Payload();
 public:
-    virtual	~_Payload();
-    Category	category()	const;
-    uint64_t		&node_send_ts();	//	send timestamp: time of emission from a node
-    uint64_t		&node_recv_ts();	//	recv timestamp: time of reception by a node
-    uint64_t		&send_ts();			//	send timestamp: time of emission from a module (< than node_send_ts)
-    uint64_t		&recv_ts();			//	recv timestamp: time of reception by a module (> than node_recv_ts)
-    //	down_casting; return NULL by default
-    virtual	payloads::_Message		*as_Message();
-    virtual	payloads::_StreamData	*as_StreamData();
-    //	caching.
-    void	setOID(uint8_t	NID);	//	for shared objects.
-    void	setOID();				//	for constant objects.
-    uint32_t	getOID()	const;		//	full OID: 32 bits.
-    uint32_t	getID()		const;		//	object ID: 24 bits.
-    uint8_t	getNID()	const;		//	0x80 for constant objects.
+    virtual ~_Payload();
+    Category category() const;
+    uint64_t &node_send_ts(); // send timestamp: time of emission from a node
+    uint64_t &node_recv_ts(); // recv timestamp: time of reception by a node
+    uint64_t &send_ts(); // send timestamp: time of emission from a module (< than node_send_ts)
+    uint64_t &recv_ts(); // recv timestamp: time of reception by a module (> than node_recv_ts)
+    // down_casting; return NULL by default
+    virtual payloads::_Message *as_Message();
+    virtual payloads::_StreamData *as_StreamData();
+    // caching.
+    void setOID(uint8_t NID); // for shared objects.
+    void setOID(); // for constant objects.
+    uint32_t getOID() const; // full OID: 32 bits.
+    uint32_t getID() const; // object ID: 24 bits.
+    uint8_t getNID() const; // 0x80 for constant objects.
 };
 
-class	mBrane_dll	_RPayload:
-    public	__Payload
+class mBrane_dll _RPayload:
+    public __Payload
 {
 protected:
-    uint64_t	_metaData;	//	[reserved(32)|cid(16)|reserved(16)]
+    uint64_t _metaData; // [reserved(32)|cid(16)|reserved(16)]
     _RPayload();
 public:
-    virtual	~_RPayload();
+    virtual ~_RPayload();
 };
 
-//	Base class for all payloads.
-template<class	P, class	U, class	M>	class	___Payload:	//	P: payload class, U: final class, M: memory
-    public	Object<M, P, U>
+// Base class for all payloads.
+template<class P, class U, class M> class ___Payload: // P: payload class, U: final class, M: memory
+    public Object<M, P, U>
 {
 protected:
-    //	convenience for accessing the Memory from subclasses unaware of M
-    static	void	*Alloc(uint32_t	requested_size, uint32_t	&normalized_size);
-    static	void	Dealloc(uint32_t	requested_size, void	*o);
+    // convenience for accessing the Memory from subclasses unaware of M
+    static void *Alloc(uint32_t requested_size, uint32_t &normalized_size);
+    static void Dealloc(uint32_t requested_size, void *o);
     ___Payload();
 public:
-    static	uint64_t		_MetaData;
-    static	void		*New(uint32_t	size);	//	to initialize the _vftable on recv(); size used for non-standard cases (like Storage<T>), i.e. when the actual size is not sizeof the class
-    static	uint16_t		CID();
-    static	size_t		Offset();	//	to metadata from this
-    void	*operator	new(size_t	s);
-    void	operator	delete(void	*o);
-    virtual	~___Payload();
-    uint16_t				cid()	const;
-    virtual	size_t		size()	const;	//	default; returns sizeof(U)
+    static uint64_t _MetaData;
+    static void *New(uint32_t size); // to initialize the _vftable on recv(); size used for non-standard cases (like Storage<T>), i.e. when the actual size is not sizeof the class
+    static uint16_t CID();
+    static size_t Offset(); // to metadata from this
+    void *operator new(size_t s);
+    void operator delete(void *o);
+    virtual ~___Payload();
+    uint16_t cid() const;
+    virtual size_t size() const; // default; returns sizeof(U)
 };
 
-template<class	U, class	M>	class	Payload:
-    public	___Payload<_Payload, U, M>
+template<class U, class M> class Payload:
+    public ___Payload<_Payload, U, M>
 {
 protected:
     Payload();
 public:
-    virtual	~Payload();
+    virtual ~Payload();
 };
 
-//	Template variant of the well-known DP. Adapts C to Payload<U,M>.
-//	Usage:	class	Some3rdPartyClass{ ... };
-//			class Some3rdPartyClassAdapted:public PayloadAdapter<Some3rdPartyClass,Some3rdPartyClassAdapted>{ ... };
-template<class	C, class	U, class	M>	class	PayloadAdapter:
-    public	C,
-    public	Payload<U, M>
+// Template variant of the well-known DP. Adapts C to Payload<U,M>.
+// Usage: class Some3rdPartyClass{ ... };
+// class Some3rdPartyClassAdapted:public PayloadAdapter<Some3rdPartyClass,Some3rdPartyClassAdapted>{ ... };
+template<class C, class U, class M> class PayloadAdapter:
+    public C,
+    public Payload<U, M>
 {
 protected:
     PayloadAdapter();
 public:
-    virtual	~PayloadAdapter();
+    virtual ~PayloadAdapter();
 };
 
-//	Standard raw payload (no transmission information) to embed in any payload.
-template<class	U, class	M>	class	RPayload:
-    public	___Payload<_RPayload, U, M>
+// Standard raw payload (no transmission information) to embed in any payload.
+template<class U, class M> class RPayload:
+    public ___Payload<_RPayload, U, M>
 {
 protected:
     RPayload();
 public:
-    virtual	~RPayload();
+    virtual ~RPayload();
 };
 
-//	Template variant of the well-known DP. Adapts C to RPayload<U,M>.
-template<class	C, class	U, class	M>	class	RPayloadAdapter:
-    public	C,
-    public	RPayload<U, M>
+// Template variant of the well-known DP. Adapts C to RPayload<U,M>.
+template<class C, class U, class M> class RPayloadAdapter:
+    public C,
+    public RPayload<U, M>
 {
 protected:
     RPayloadAdapter();
 public:
-    virtual	~RPayloadAdapter();
+    virtual ~RPayloadAdapter();
 };
 }
 }
 
 
-#include	"payload.tpl.cpp"
+#include "payload.tpl.cpp"
 
 
 #endif

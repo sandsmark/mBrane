@@ -73,129 +73,129 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef	_library_h_
-#define	_library_h_
+#ifndef _library_h_
+#define _library_h_
 
-#include	"module_register.h"
-#include	"class_register.h"
-#include	"module_node.h"
-#include	"module.h"
-
-
-#define	MBRANE_MESSAGE_CLASSES	"mBrane_message_classes.h"
-
-//	C##_CID needed for use in switches (instead of the non constant expression user_class::CID())
-//	C##_metaData forces the intialization of  C::_MetaData
-#define	MBRANE_MESSAGE_CLASS(C)		static	const	uint16_t C##_CID=(uint16)__COUNTER__;static	const	uint64_t C##_metaData=ClassRegister::Load<C>(C##_CID);
-#define	MBRANE_STREAM_DATA_CLASS(C)	static	const	uint16_t C##_CID=(uint16)__COUNTER__;static	const	uint64_t C##_metaData=ClassRegister::Load<C>(C##_CID);
-#include	LIBRARY_CLASSES
-
-#define	CLASS_ID(C)	C##_CID
+#include "module_register.h"
+#include "class_register.h"
+#include "module_node.h"
+#include "module.h"
 
 
-template<class	U>	class	LibraryModule:
-    public	Object<Memory, module::_Module, U>
+#define MBRANE_MESSAGE_CLASSES "mBrane_message_classes.h"
+
+// C##_CID needed for use in switches (instead of the non constant expression user_class::CID())
+// C##_metaData forces the intialization of  C::_MetaData
+#define MBRANE_MESSAGE_CLASS(C) static const uint16_t C##_CID=(uint16)__COUNTER__;static const uint64_t C##_metaData=ClassRegister::Load<C>(C##_CID);
+#define MBRANE_STREAM_DATA_CLASS(C) static const uint16_t C##_CID=(uint16)__COUNTER__;static const uint64_t C##_metaData=ClassRegister::Load<C>(C##_CID);
+#include LIBRARY_CLASSES
+
+#define CLASS_ID(C) C##_CID
+
+
+template<class U> class LibraryModule:
+    public Object<Memory, module::_Module, U>
 {
 protected:
-    static	const	uint16_t _CID;
-    LibraryModule(bool	canMigrate = true): Object<Memory, module::_Module, U>()
+    static const uint16_t _CID;
+    LibraryModule(bool canMigrate = true): Object<Memory, module::_Module, U>()
     {
         this->_canMigrate = canMigrate;
     }
 public:
-    static	const	uint16_t CID()
+    static const uint16_t CID()
     {
-        return	_CID;
+        return _CID;
     }
-    static	module::_Module	*New()
+    static module::_Module *New()
     {
-        return	new	U();
+        return new U();
     }
-    virtual	~LibraryModule() {}
-    void	_start()
+    virtual ~LibraryModule() {}
+    void _start()
     {
         this->_ready = true;
         module::Node::Get()->trace(module::Node::EXECUTION) << "> Info: Module " << this->_cid << "|" << this->_id << " started" << std::endl;
         ((U *)this)->start();
     }
-    void	_stop()
+    void _stop()
     {
         ((U *)this)->stop();
         this->_ready = false;
         module::Node::Get()->trace(module::Node::EXECUTION) << "> Info: Module " << this->_cid << "|" << this->_id << " stopped" << std::endl;
     }
-    void	notify(_Payload	*p)
+    void notify(_Payload *p)
     {
         switch (p->cid()) {
 #undef MBRANE_MESSAGE_CLASS
 #undef MBRANE_STREAM_DATA_CLASS
-#define	MBRANE_MESSAGE_CLASS(C)	case	C##_CID:	((U	*)this)->react((C	*)p);	return;
-#define	MBRANE_STREAM_DATA_CLASS(C)
+#define MBRANE_MESSAGE_CLASS(C) case C##_CID: ((U *)this)->react((C *)p); return;
+#define MBRANE_STREAM_DATA_CLASS(C)
 #include "classes.h"
 
         default:
             return;
         }
     }
-    void	notify(uint16_t sid, _Payload	*p)
+    void notify(uint16_t sid, _Payload *p)
     {
         switch (p->cid()) {
 #undef MBRANE_MESSAGE_CLASS
 #undef MBRANE_STREAM_DATA_CLASS
-#define	MBRANE_MESSAGE_CLASS(C)
-#define	MBRANE_STREAM_DATA_CLASS(C)	case	CLASS_ID(C):	((U	*)this)->react(sid,(C	*)p);	return;
+#define MBRANE_MESSAGE_CLASS(C)
+#define MBRANE_STREAM_DATA_CLASS(C) case CLASS_ID(C): ((U *)this)->react(sid,(C *)p); return;
 #include "classes.h"
 
         default:
             return;
         }
     }
-    module::_Module::Decision	dispatch(_Payload	*p)
+    module::_Module::Decision dispatch(_Payload *p)
     {
         switch (p->cid()) {
 #undef MBRANE_MESSAGE_CLASS
 #undef MBRANE_STREAM_DATA_CLASS
-#define	MBRANE_MESSAGE_CLASS(C)		case	C##_CID:	return	((U	*)this)->decide((C	*)p);
-#define	MBRANE_STREAM_DATA_CLASS(C)	case	C##_CID:	return	((U	*)this)->decide((C	*)p);
+#define MBRANE_MESSAGE_CLASS(C) case C##_CID: return ((U *)this)->decide((C *)p);
+#define MBRANE_STREAM_DATA_CLASS(C) case C##_CID: return ((U *)this)->decide((C *)p);
 #include "classes.h"
 
         default:
-            return	module::_Module::DISCARD;
+            return module::_Module::DISCARD;
         }
     }
 };
-template<class	U>	const uint16_t Module<U>::_CID = ModuleRegister::Load(New, U::ClassName);
+template<class U> const uint16_t Module<U>::_CID = ModuleRegister::Load(New, U::ClassName);
 
 
-//	for retrieving CIDs from names (in specs)
+// for retrieving CIDs from names (in specs)
 #undef MBRANE_MESSAGE_CLASS
 #undef MBRANE_STREAM_DATA_CLASS
-#define	MBRANE_MESSAGE_CLASS(C)		static	const	uint16_t C##_name=ClassRegister::Load(#C);
-#define	MBRANE_STREAM_DATA_CLASS(C)	static	const	uint16_t C##_name=ClassRegister::Load(#C);
-#include	MBRANE_MESSAGE_CLASSES
-#include	LIBRARY_CLASSES
+#define MBRANE_MESSAGE_CLASS(C) static const uint16_t C##_name=ClassRegister::Load(#C);
+#define MBRANE_STREAM_DATA_CLASS(C) static const uint16_t C##_name=ClassRegister::Load(#C);
+#include MBRANE_MESSAGE_CLASSES
+#include LIBRARY_CLASSES
 
 
-#define	MODULE_CLASS_BEGIN(C,S)	\
-class	C:	\
-public S{	\
-public:	\
-	static	const	char	*ClassName;	\
-	C():S(){}	\
-	~C(){}	\
-	Decision	decide(KillModule	*p){	\
-		return	WAIT;	\
-	}	\
-	void	react(KillModule	*p){	\
-		delete	this;	\
-	}
+#define MODULE_CLASS_BEGIN(C,S) \
+class C: \
+public S{ \
+public: \
+ static const char *ClassName; \
+ C():S(){} \
+ ~C(){} \
+ Decision decide(KillModule *p){ \
+ return WAIT; \
+ } \
+ void react(KillModule *p){ \
+ delete this; \
+ }
 
-#define	MODULE_CLASS_END(C)	\
-};	\
-const	char	*C::ClassName=#C;	\
-extern	"C"{	\
-	mBrane::sdk::module::_Module *	cdecl	New##C(){	return	new	C();	}	\
-	const	uint16_t C##_CID(){	return	C::CID();	}	\
+#define MODULE_CLASS_END(C) \
+}; \
+const char *C::ClassName=#C; \
+extern "C"{ \
+ mBrane::sdk::module::_Module * cdecl New##C(){ return new C(); } \
+ const uint16_t C##_CID(){ return C::CID(); } \
 }
 
 

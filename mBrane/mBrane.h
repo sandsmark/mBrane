@@ -79,10 +79,10 @@
 #include "types.h"
 
 #if defined WINDOWS
-#if defined	MBRANELIB_EXPORTS
-#define mbrane_dll	__declspec(dllexport)
+#if defined MBRANELIB_EXPORTS
+#define mbrane_dll __declspec(dllexport)
 #else
-#define mbrane_dll	__declspec(dllimport)
+#define mbrane_dll __declspec(dllimport)
 #endif
 #elif defined LINUX
 #define mbrane_dll

@@ -73,29 +73,29 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace	mBrane
+namespace mBrane
 {
-namespace	sdk
+namespace sdk
 {
 
-template<class	C>	uint64_t	ClassRegister::Load()
+template<class C> uint64_t ClassRegister::Load()
 {
     /*
-    ClassRegister	*r=&Get()->operator [](Get()->count());
+    ClassRegister *r=&Get()->operator [](Get()->count());
     r->_allocator=C::New;
     r->_offset=C::Offset();
     */
-    return	0x00FFFFFFFFFFFFFF;
+    return 0x00FFFFFFFFFFFFFF;
 }
 
-template<class	C>	uint64_t	ClassRegister::Load(uint16_t	CID)
+template<class C> uint64_t ClassRegister::Load(uint16_t CID)
 {
-    ClassRegister	*r = &Get()->operator [](CID);
+    ClassRegister *r = &Get()->operator [](CID);
     r->_allocator = C::New;
     r->_offset = C::Offset();
-    uint64_t	metaData = 0x00FFFFFF00000000 + (CID << 16);
+    uint64_t metaData = 0x00FFFFFF00000000 + (CID << 16);
     C::_MetaData = metaData;
-    return	metaData;
+    return metaData;
 }
 }
 }

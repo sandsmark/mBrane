@@ -73,53 +73,53 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include	<memory>
-#include	<cstring>
-#include	"module_register.h"
+#include <memory>
+#include <cstring>
+#include "module_register.h"
 
 
-namespace	mBrane
+namespace mBrane
 {
-namespace	sdk
+namespace sdk
 {
 
-Array<ModuleRegister, 1024>	*ModuleRegister::Modules = NULL;
+Array<ModuleRegister, 1024> *ModuleRegister::Modules = NULL;
 
-Array<ModuleRegister, 1024>	*ModuleRegister::Get()
+Array<ModuleRegister, 1024> *ModuleRegister::Get()
 {
     if (!Modules) {
-        Modules = new	Array<ModuleRegister, 1024>();
+        Modules = new Array<ModuleRegister, 1024>();
     }
 
-    return	Modules;
+    return Modules;
 }
 
-ModuleRegister	*ModuleRegister::Get(uint16_t	CID)
+ModuleRegister *ModuleRegister::Get(uint16_t CID)
 {
-    return	Get()->get(CID);
+    return Get()->get(CID);
 }
 
-uint16_t	ModuleRegister::GetCID(const	char	*className)
+uint16_t ModuleRegister::GetCID(const char *className)
 {
-    for (uint16_t	i = 0; i < Modules->count(); i++)
+    for (uint16_t i = 0; i < Modules->count(); i++)
         if (strcmp(Modules->get(i)->class_name, className) == 0) {
-            return	i;
+            return i;
         }
 
-    return	ClassRegister::NoClass;
+    return ClassRegister::NoClass;
 }
 
-inline	uint16_t	ModuleRegister::Count()
+inline uint16_t ModuleRegister::Count()
 {
-    return	(uint16_t)Modules->count();
+    return (uint16_t)Modules->count();
 }
 
-uint16_t	ModuleRegister::Load(ModuleBuilder	b, const	char	*className)
+uint16_t ModuleRegister::Load(ModuleBuilder b, const char *className)
 {
-    ModuleRegister	*r = &Get()->operator	[](Get()->count());
+    ModuleRegister *r = &Get()->operator [](Get()->count());
     r->_builder = b;
     strcpy(r->class_name, className);
-    return	(uint16_t)(Modules->count() - 1);
+    return (uint16_t)(Modules->count() - 1);
 }
 
 ModuleRegister::ModuleRegister(): _builder(NULL)
@@ -130,19 +130,19 @@ ModuleRegister::~ModuleRegister()
 {
 }
 
-module::_Module	*ModuleRegister::buildModule()	const
+module::_Module *ModuleRegister::buildModule() const
 {
-    return	_builder();
+    return _builder();
 }
 
-const	char	*ModuleRegister::name()	const
+const char *ModuleRegister::name() const
 {
-    return	class_name;
+    return class_name;
 }
 
-void	ModuleRegister::Cleanup()
+void ModuleRegister::Cleanup()
 {
-    delete	Modules;
+    delete Modules;
 }
 }
 }

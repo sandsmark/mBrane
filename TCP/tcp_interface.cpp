@@ -75,49 +75,49 @@
 //_/_/
 //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
-#include	"tcp_interface.h"
-#include	"tcp_channel.h"
+#include "tcp_interface.h"
+#include "tcp_channel.h"
 
 #if defined (WINDOWS)
-#include	<iphlpapi.h>
+#include <iphlpapi.h>
 #endif
 
-#include	<cstring>
+#include <cstring>
 
 #if defined (LINUX)
-#include	<unistd.h>
-#include	<fcntl.h>
-#include	<netinet/tcp.h>
-#include	<errno.h>
-#include	<sys/ioctl.h>
-#include	<net/if.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <netinet/tcp.h>
+#include <errno.h>
+#include <sys/ioctl.h>
+#include <net/if.h>
 #endif
 
-uint32_t	TCPInterface::Intialized = 0;
+uint32_t TCPInterface::Intialized = 0;
 
-bool	TCPInterface::Init()
+bool TCPInterface::Init()
 {
     if (Intialized) {
         Intialized++;
-        return	true;
+        return true;
     }
 
 #if defined (WINDOWS)
-    WSADATA	wsaData;
-    int32_t	r;
+    WSADATA wsaData;
+    int32_t r;
     r = WSAStartup(MAKEWORD(2, 2), &wsaData);
 
     if (r) {
         std::cout << "> Error: WSAStartup failed: " << r << std::endl;
-        return	false;
+        return false;
     }
 
 #endif
     Intialized++;
-    return	true;
+    return true;
 }
 
-void	TCPInterface::Shutdown()
+void TCPInterface::Shutdown()
 {
     if (!--Intialized) {
 #if defined (WINDOWS)
@@ -126,21 +126,21 @@ void	TCPInterface::Shutdown()
     }
 }
 
-TCPInterface	*TCPInterface::New(XMLNode &n)
+TCPInterface *TCPInterface::New(XMLNode &n)
 {
     if (!Init()) {
-        return	NULL;
+        return NULL;
     }
 
-    TCPInterface	*i = new	TCPInterface();
+    TCPInterface *i = new TCPInterface();
 
     if (!i->load(n)) {
-        delete	i;
+        delete i;
         Shutdown();
-        return	NULL;
+        return NULL;
     }
 
-    return	i;
+    return i;
 }
 
 TCPInterface::TCPInterface(): NetworkInterface(TCP)
@@ -151,19 +151,19 @@ TCPInterface::~TCPInterface()
 {
 }
 
-bool	TCPInterface::load(XMLNode	&n)
+bool TCPInterface::load(XMLNode &n)
 {
-    const	char	*_nic = n.getAttribute("nic");
+    const char *_nic = n.getAttribute("nic");
 
     if (!_nic) {
         std::cout << "> Error: NodeConfiguration::Network::" << n.getName() << "::nic is missing" << std::endl;
-        return	false;
+        return false;
     }
 
     unsigned char *socketAddr;
     char ipAddressString[16];
-    bool	found = false;
-    bool	gotIPAddress = false;
+    bool found = false;
+    bool gotIPAddress = false;
 #if defined (WINDOWS)
     char adaptorString[128];
     PIP_ADAPTER_ADDRESSES pAddresses = NULL;
@@ -336,103 +336,103 @@ bool	TCPInterface::load(XMLNode	&n)
 
     if (!found) {
         std::cout << "> Error: NodeConfiguration::Network::" << n.getName() << "::nic " << _nic << "does not exist" << std::endl;
-        return	false;
+        return false;
     }
 
-    const	char	*_port = n.getAttribute("port");
+    const char *_port = n.getAttribute("port");
 
     if (!_port) {
         std::cout << "> Error: NodeConfiguration::Network::" << n.getName() << "::port is missing" << std::endl;
-        return	false;
+        return false;
     }
 
     port = atoi(_port);
-    return	true;
+    return true;
 }
 
-bool	TCPInterface::operator	==(NetworkInterface	&i)
+bool TCPInterface::operator ==(NetworkInterface &i)
 {
     if (i.protocol() != protocol()) {
-        return	false;
+        return false;
     }
 
-    return	strcmp(inet_ntoa(address), inet_ntoa(((TCPInterface *)&i)->address)) == 0	&&	port == ((TCPInterface *)&i)->port;
+    return strcmp(inet_ntoa(address), inet_ntoa(((TCPInterface *)&i)->address)) == 0 && port == ((TCPInterface *)&i)->port;
 }
 
-bool	TCPInterface::operator	!=(NetworkInterface	&i)
+bool TCPInterface::operator !=(NetworkInterface &i)
 {
-    return	!operator	==(i);
+    return !operator ==(i);
 }
 
-bool	TCPInterface::canBroadcast()
+bool TCPInterface::canBroadcast()
 {
-    return	false;
+    return false;
 }
 
-uint16_t	TCPInterface::start()
+uint16_t TCPInterface::start()
 {
     if ((s =::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET) {
         Shutdown();
-        return	1;
+        return 1;
     }
 
 #ifndef WINDOWS
     /*
-    	This socket option tells the kernel that even if this port is busy (in
-    	the TIME_WAIT state), go ahead and reuse it anyway.  If it is busy,
-    	but with another state, you will still get an address already in use
-    	error.  It is useful if your server has been shut down, and then
-    	restarted right away while sockets are still active on its port.  You
-    	should be aware that if any unexpected data comes in, it may confuse
-    	your server, but while this is possible, it is not likely.
+     This socket option tells the kernel that even if this port is busy (in
+     the TIME_WAIT state), go ahead and reuse it anyway.  If it is busy,
+     but with another state, you will still get an address already in use
+     error.  It is useful if your server has been shut down, and then
+     restarted right away while sockets are still active on its port.  You
+     should be aware that if any unexpected data comes in, it may confuse
+     your server, but while this is possible, it is not likely.
     */
     int one = 1;
     setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
 #endif
-    struct	sockaddr_in	addr;
+    struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = address.s_addr;
     addr.sin_port = htons((uint16_t)port);
 
-    if (bind(s, (SOCKADDR *)&addr, sizeof(struct	sockaddr_in)) == SOCKET_ERROR) {
+    if (bind(s, (SOCKADDR *)&addr, sizeof(struct sockaddr_in)) == SOCKET_ERROR) {
         std::cout << "> Error: unable to bind to port " << port << std::endl;
         closesocket(s);
         Shutdown();
-        return	1;
+        return 1;
     }
 
     std::cout << "> Info: TCP bound to port " << port << std::endl;
-    return	0;
+    return 0;
 }
 
-uint16_t	TCPInterface::stop()
+uint16_t TCPInterface::stop()
 {
     std::cout << "> Info: Closing TCP bound to port " << port << std::endl;
     closesocket(s);
     Shutdown();
-    return	0;
+    return 0;
 }
 
-uint16_t	TCPInterface::getIDSize()
+uint16_t TCPInterface::getIDSize()
 {
-    return	sizeof(struct	in_addr) + sizeof(uint32_t);
+    return sizeof(struct in_addr) + sizeof(uint32_t);
 }
 
-void	TCPInterface::fillID(uint8_t	*ID) 	//	address|port
+void TCPInterface::fillID(uint8_t *ID)  // address|port
 {
-    memcpy(ID, &address, sizeof(struct	in_addr));
-    memcpy(ID + sizeof(struct	in_addr), &port, sizeof(uint32_t));
+    memcpy(ID, &address, sizeof(struct in_addr));
+    memcpy(ID + sizeof(struct in_addr), &port, sizeof(uint32_t));
 }
 
-uint16_t	TCPInterface::newChannel(uint8_t	*ID, CommChannel	**channel) 	//	connect to a server
+uint16_t TCPInterface::newChannel(uint8_t *ID, CommChannel **channel)  // connect to a server
 {
-    core::socket	s;
+    core::socket s;
 
     if ((s =::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET) {
         std::cout << "> Error: Could not create TCP socket to " << inet_ntoa(*(struct in_addr *)ID) <<
                   ":" << (unsigned short)*((uint32_t *)(ID + sizeof(struct in_addr))) << std::endl;
         Shutdown();
-        return	1;
+        return 1;
     }
 
     //struct linger ling = {1, 0};
@@ -442,9 +442,9 @@ uint16_t	TCPInterface::newChannel(uint8_t	*ID, CommChannel	**channel) 	//	connec
     //char buffsize = 1;
     //setsockopt(s, SOL_SOCKET, SO_SNDBUF, &buffsize, sizeof(buffsize));
     char errbuf[1024];
-    struct sockaddr_in	addr;
+    struct sockaddr_in addr;
     addr.sin_family = AF_INET;
-    addr.sin_addr = *((struct	in_addr *)ID);
+    addr.sin_addr = *((struct in_addr *)ID);
     addr.sin_port = htons((unsigned short) * ((uint32_t *)(ID + sizeof(struct in_addr))));
 
     if (connect(s, (SOCKADDR *)&addr, sizeof(struct sockaddr_in)) == SOCKET_ERROR) {
@@ -453,16 +453,16 @@ uint16_t	TCPInterface::newChannel(uint8_t	*ID, CommChannel	**channel) 	//	connec
                   ":" << (unsigned short)*((uint32_t *)(ID + sizeof(struct in_addr))) << " - " << errbuf << std::endl;
         closesocket(s);
         Shutdown();
-        return	1;
+        return 1;
     }
 
     //std::cout<<"> Info: Opened TCP connection to "<<inet_ntoa(*(struct in_addr *)ID)<<
-    //	":" << (unsigned short)*((uint32_t *)(ID+sizeof(struct in_addr))) << std::endl;
-    *channel = new	TCPChannel(s);
-    return	0;
+    // ":" << (unsigned short)*((uint32_t *)(ID+sizeof(struct in_addr))) << std::endl;
+    *channel = new TCPChannel(s);
+    return 0;
 }
 
-uint16_t	TCPInterface::acceptConnection(ConnectedCommChannel	**channel, int32_t	timeout, bool	&timedout)
+uint16_t TCPInterface::acceptConnection(ConnectedCommChannel **channel, int32_t timeout, bool &timedout)
 {
     // std::cout<<"> Info: Listening for TCP connection on port " << port << std::endl;
     // Set blocking mode
@@ -519,13 +519,13 @@ uint16_t	TCPInterface::acceptConnection(ConnectedCommChannel	**channel, int32_t	
     //char buffer[1024];
     //int count = ::recv(_s,buffer,1,0);
     //if(count==SOCKET_ERROR) {
-    //	std::cout<<"Error: TCPChannel::recv ["<<(int)_s<<"] code "<< getLastOSErrorNumber()<<std::endl;
-    //	return	1;
+    // std::cout<<"Error: TCPChannel::recv ["<<(int)_s<<"] code "<< getLastOSErrorNumber()<<std::endl;
+    // return 1;
     //}
     timedout = false;
-    *channel = new	TCPChannel(_s);
+    *channel = new TCPChannel(_s);
     std::cout << "> Info: Accepted TCP connection [" << (int)_s << "] to port " << port << std::endl;
-    return	0;
+    return 0;
 }
 
 

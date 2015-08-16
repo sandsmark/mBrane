@@ -91,7 +91,7 @@
 #include <stdlib.h>
 #include "types.h"
 
-namespace	core
+namespace core
 {
 
 XMLCSTR XMLNode::getVersion()

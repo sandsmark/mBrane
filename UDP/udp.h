@@ -76,18 +76,18 @@
 //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
 
-#ifndef	mBrane_udp_h
-#define	mBrane_udp_h
+#ifndef mBrane_udp_h
+#define mBrane_udp_h
 
-#include	"xml_parser.h"
-#include	"../Core/network_interface.h"
+#include "xml_parser.h"
+#include "../Core/network_interface.h"
 
 
-using	namespace	mBrane;
-using	namespace	mBrane::sdk;
+using namespace mBrane;
+using namespace mBrane::sdk;
 
-extern	"C" {
-    NetworkInterface	dll_export	*Load(XMLNode	&n, mdaemon::Node	*node);
+extern "C" {
+    NetworkInterface dll_export *Load(XMLNode &n, mdaemon::Node *node);
 }
 
 

@@ -73,54 +73,54 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace	mBrane
+namespace mBrane
 {
-namespace	sdk
+namespace sdk
 {
 
-template<class	C>	DynamicClassLoader<C>	*DynamicClassLoader<C>::New(XMLNode	&n)
+template<class C> DynamicClassLoader<C> *DynamicClassLoader<C>::New(XMLNode &n)
 {
-    const	char	*l = n.getAttribute("shared_library");
+    const char *l = n.getAttribute("shared_library");
 
     if (!l) {
         std::cout << "> Error: " << n.getName() << "::shared_library is missing\n";
-        return	NULL;
+        return NULL;
     }
 
-    SharedLibrary	*library;
+    SharedLibrary *library;
 
     if (library = SharedLibrary::New(l)) {
-        typename C::Load	load;
+        typename C::Load load;
 
         if (!(load = library->getFunction<typename C::Load>("Load"))) {
             std::cout << "> Error: " << n.getName() << ": could not find function Load\n";
-            return	NULL;
+            return NULL;
         }
 
-        return	new	DynamicClassLoader(library, load);
+        return new DynamicClassLoader(library, load);
     }
 
-    return	NULL;
+    return NULL;
 }
 
-template<class	C>	DynamicClassLoader<C>::DynamicClassLoader(SharedLibrary	*library, typename	C::Load	load): library(library), load(load)
+template<class C> DynamicClassLoader<C>::DynamicClassLoader(SharedLibrary *library, typename C::Load load): library(library), load(load)
 {
 }
 
-template<class	C>	DynamicClassLoader<C>::~DynamicClassLoader()
+template<class C> DynamicClassLoader<C>::~DynamicClassLoader()
 {
     if (library) {
-        delete	library;
+        delete library;
     }
 }
 
-template<class	C>	C	*DynamicClassLoader<C>::getInstance(XMLNode	&n, mdaemon::Node	*node)
+template<class C> C *DynamicClassLoader<C>::getInstance(XMLNode &n, mdaemon::Node *node)
 {
     if (load) {
-        return	load(n, node);
+        return load(n, node);
     }
 
-    return	NULL;
+    return NULL;
 }
 }
 }

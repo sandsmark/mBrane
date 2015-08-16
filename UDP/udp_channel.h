@@ -75,36 +75,36 @@
 //_/_/
 //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
-#ifndef	mBrane_udp_channel_h
-#define	mBrane_udp_channel_h
+#ifndef mBrane_udp_channel_h
+#define mBrane_udp_channel_h
 
-#include	"../Core/network_interface.h"
+#include "../Core/network_interface.h"
 #include <errno.h>
 #include <string.h>
 
 
-using	namespace	mBrane;
-using	namespace	mBrane::sdk;
+using namespace mBrane;
+using namespace mBrane::sdk;
 
-class	UDPChannel:
-    public	BroadcastCommChannel
+class UDPChannel:
+    public BroadcastCommChannel
 {
 private:
-    core::socket	s;
-    sockaddr_in		bcast_address;
+    core::socket s;
+    sockaddr_in bcast_address;
     uint32_t bufferLen;
     char *buffer;
     uint32_t bufferContentLen;
     uint32_t bufferContentPos;
-    CriticalSection	udpCS;
-    bool	initialiseBuffer(uint32_t len);
+    CriticalSection udpCS;
+    bool initialiseBuffer(uint32_t len);
 public:
-    UDPChannel(core::socket	s, uint32_t port);
+    UDPChannel(core::socket s, uint32_t port);
     ~UDPChannel();
-    int16_t send(uint8_t *b, size_t	s);
-    int16_t recv(uint8_t *b, size_t	s, bool	peek = false);
-    bool	isConnected();
-    bool	disconnect();
+    int16_t send(uint8_t *b, size_t s);
+    int16_t recv(uint8_t *b, size_t s, bool peek = false);
+    bool isConnected();
+    bool disconnect();
 };
 
 

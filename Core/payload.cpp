@@ -73,13 +73,13 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include	<memory>
-#include	"payload.h"
+#include <memory>
+#include "payload.h"
 
 
-namespace	mBrane
+namespace mBrane
 {
-namespace	sdk
+namespace sdk
 {
 
 __Payload::__Payload()
@@ -90,38 +90,38 @@ __Payload::~__Payload()
 {
 }
 
-void	__Payload::init()
+void __Payload::init()
 {
 }
 
-uint16_t	__Payload::ptrCount()	const
+uint16_t __Payload::ptrCount() const
 {
-    return	0;
+    return 0;
 }
 
-__Payload	*__Payload::getPtr(uint16_t	i)	const
+__Payload *__Payload::getPtr(uint16_t i) const
 {
-    return	NULL;
+    return NULL;
 }
 
-void	__Payload::setPtr(uint16_t	i, __Payload	*p)
+void __Payload::setPtr(uint16_t i, __Payload *p)
 {
 }
 
-bool	__Payload::isShared()	const
+bool __Payload::isShared() const
 {
-    return	false;
+    return false;
 }
 
-bool	__Payload::isConstant()	const
+bool __Payload::isConstant() const
 {
-    return	false;
+    return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-uint32_t	_Payload::LastConstantOID = 0;
-uint32_t	_Payload::LastSharedOID = 0;
+uint32_t _Payload::LastConstantOID = 0;
+uint32_t _Payload::LastSharedOID = 0;
 
 _Payload::_Payload(): __Payload()
 {
@@ -131,71 +131,71 @@ _Payload::~_Payload()
 {
 }
 
-_Payload::Category	_Payload::category()	const
+_Payload::Category _Payload::category() const
 {
-    return	(_Payload::Category)(_metaData	&	0x0000000000000003);
+    return (_Payload::Category)(_metaData & 0x0000000000000003);
 }
 
-uint64_t	&_Payload::node_send_ts()
+uint64_t &_Payload::node_send_ts()
 {
-    return	_node_send_ts;
+    return _node_send_ts;
 }
 
-uint64_t	&_Payload::node_recv_ts()
+uint64_t &_Payload::node_recv_ts()
 {
-    return	_node_recv_ts;
+    return _node_recv_ts;
 }
 
-uint64_t	&_Payload::send_ts()
+uint64_t &_Payload::send_ts()
 {
-    return	_send_ts;
+    return _send_ts;
 }
 
-uint64_t	&_Payload::recv_ts()
+uint64_t &_Payload::recv_ts()
 {
-    return	_recv_ts;
+    return _recv_ts;
 }
 
-payloads::_Message	*_Payload::as_Message()
+payloads::_Message *_Payload::as_Message()
 {
-    return	NULL;
+    return NULL;
 }
 
-payloads::_StreamData	*_Payload::as_StreamData()
+payloads::_StreamData *_Payload::as_StreamData()
 {
-    return	NULL;
+    return NULL;
 }
 
-void	_Payload::setOID(uint8_t	NID)
+void _Payload::setOID(uint8_t NID)
 {
-    uint64_t	oid = NID	&	0x7F;
+    uint64_t oid = NID & 0x7F;
     oid <<= 24;
     oid |= LastSharedOID++;
     _metaData &= 0x00000000FFFFFFFF;
     _metaData |= (oid << 32);
 }
 
-void	_Payload::setOID()
+void _Payload::setOID()
 {
-    uint64_t	oid = 0x80000000;
+    uint64_t oid = 0x80000000;
     oid |= LastConstantOID++;
     _metaData &= 0x00000000FFFFFFFF;
     _metaData |= (oid << 32);
 }
 
-uint32_t	_Payload::getOID()	const
+uint32_t _Payload::getOID() const
 {
-    return	_metaData >> 32;
+    return _metaData >> 32;
 }
 
-uint32_t	_Payload::getID()	const
+uint32_t _Payload::getID() const
 {
-    return	(_metaData >> 32)	&	0x00FFFFFF;
+    return (_metaData >> 32) & 0x00FFFFFF;
 }
 
-uint8_t	_Payload::getNID()	const
+uint8_t _Payload::getNID() const
 {
-    return	_metaData >> 56;
+    return _metaData >> 56;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

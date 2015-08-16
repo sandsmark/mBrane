@@ -76,11 +76,11 @@
 //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
 
-#include	"udp_interface.h"
-#include	"udp_channel.h"
+#include "udp_interface.h"
+#include "udp_channel.h"
 
 #if defined (WINDOWS)
-#include	<iphlpapi.h>
+#include <iphlpapi.h>
 #endif
 
 #if defined (LINUX)
@@ -88,33 +88,33 @@
 #include <net/if.h>
 #endif
 
-#include	<cstring>
+#include <cstring>
 
-uint32_t	UDPInterface::Intialized = 0;
+uint32_t UDPInterface::Intialized = 0;
 
-bool	UDPInterface::Init()
+bool UDPInterface::Init()
 {
     if (Intialized) {
         Intialized++;
-        return	true;
+        return true;
     }
 
 #if defined (WINDOWS)
-    WSADATA	wsaData;
-    int32_t	r;
+    WSADATA wsaData;
+    int32_t r;
     r = WSAStartup(MAKEWORD(2, 2), &wsaData);
 
     if (r) {
         std::cout << "> Error: WSAStartup failed: " << r << std::endl;
-        return	false;
+        return false;
     }
 
 #endif
     Intialized++;
-    return	true;
+    return true;
 }
 
-void	UDPInterface::Shutdown()
+void UDPInterface::Shutdown()
 {
     if (!--Intialized) {
 #if defined (WINDOWS)
@@ -123,21 +123,21 @@ void	UDPInterface::Shutdown()
     }
 }
 
-UDPInterface	*UDPInterface::New(XMLNode &n)
+UDPInterface *UDPInterface::New(XMLNode &n)
 {
     if (!Init()) {
-        return	NULL;
+        return NULL;
     }
 
-    UDPInterface	*i = new	UDPInterface();
+    UDPInterface *i = new UDPInterface();
 
     if (!i->load(n)) {
-        delete	i;
+        delete i;
         Shutdown();
-        return	NULL;
+        return NULL;
     }
 
-    return	i;
+    return i;
 }
 
 UDPInterface::UDPInterface(): NetworkInterface(UDP)
@@ -149,19 +149,19 @@ UDPInterface::~UDPInterface()
     Shutdown();
 }
 
-bool	UDPInterface::load(XMLNode	&n)
+bool UDPInterface::load(XMLNode &n)
 {
-    const	char	*_nic = n.getAttribute("nic");
+    const char *_nic = n.getAttribute("nic");
 
     if (!_nic) {
         std::cout << "> Error: NodeConfiguration::Network::" << n.getName() << "::nic is missing" << std::endl;
-        return	false;
+        return false;
     }
 
     unsigned char *socketAddr;
     char ipAddressString[16];
-    bool	found = false;
-    bool	gotIPAddress = false;
+    bool found = false;
+    bool gotIPAddress = false;
 #if defined (WINDOWS)
     char adaptorString[128];
     PIP_ADAPTER_ADDRESSES pAddresses = NULL;
@@ -334,78 +334,78 @@ bool	UDPInterface::load(XMLNode	&n)
 
     if (!found) {
         std::cout << "> Error: NodeConfiguration::Network::" << n.getName() << "::nic " << _nic << "does not exist" << std::endl;
-        return	false;
+        return false;
     }
 
-    const	char	*_port = n.getAttribute("port");
+    const char *_port = n.getAttribute("port");
 
     if (!_port) {
         std::cout << "> Error: NodeConfiguration::Network::" << n.getName() << "::port is missing" << std::endl;
-        return	false;
+        return false;
     }
 
     port = atoi(_port);
-    return	true;
+    return true;
 }
 
-bool	UDPInterface::operator	==(NetworkInterface	&i)
+bool UDPInterface::operator ==(NetworkInterface &i)
 {
     if (i.protocol() != protocol()) {
-        return	false;
+        return false;
     }
 
-    return	strcmp(inet_ntoa(address), inet_ntoa(((UDPInterface *)&i)->address)) == 0	&&	port == ((UDPInterface *)&i)->port;
+    return strcmp(inet_ntoa(address), inet_ntoa(((UDPInterface *)&i)->address)) == 0 && port == ((UDPInterface *)&i)->port;
 }
 
-bool	UDPInterface::operator	!=(NetworkInterface	&i)
+bool UDPInterface::operator !=(NetworkInterface &i)
 {
-    return	!operator	==(i);
+    return !operator ==(i);
 }
 
-bool	UDPInterface::canBroadcast()
+bool UDPInterface::canBroadcast()
 {
-    return	true;
+    return true;
 }
 
-uint16_t	UDPInterface::start()
+uint16_t UDPInterface::start()
 {
-    return	0;
+    return 0;
 }
 
-uint16_t	UDPInterface::stop()
+uint16_t UDPInterface::stop()
 {
     Shutdown();
-    return	0;
+    return 0;
 }
 
-uint16_t	UDPInterface::getIDSize()
+uint16_t UDPInterface::getIDSize()
 {
-    return	sizeof(struct	in_addr) + sizeof(uint32_t);
+    return sizeof(struct in_addr) + sizeof(uint32_t);
 }
 
-void	UDPInterface::fillID(uint8_t	*ID) 	//	address|port
+void UDPInterface::fillID(uint8_t *ID)  // address|port
 {
-    memcpy(ID, &address, sizeof(struct	in_addr));
-    memcpy(ID + sizeof(struct	in_addr), &port, sizeof(uint32_t));
+    memcpy(ID, &address, sizeof(struct in_addr));
+    memcpy(ID + sizeof(struct in_addr), &port, sizeof(uint32_t));
 }
 
-uint16_t	UDPInterface::newChannel(uint8_t	*ID, CommChannel	**channel)
+uint16_t UDPInterface::newChannel(uint8_t *ID, CommChannel **channel)
 {
-    core::socket	s;
+    core::socket s;
 
     if ((s =::socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == SOCKET_ERROR) {
         closesocket(s);
         Shutdown();
-        return	1;
+        return 1;
     }
 
-    //bool	on=true;
+    //bool on=true;
     int one = 1;
     setsockopt(s, SOL_SOCKET, SO_BROADCAST, (char *)&one, sizeof(one));
     /* we also need to bind the listener to the right port */
     struct sockaddr_in if_addr;
     if_addr.sin_family = AF_INET;
-    if_addr.sin_addr.s_addr = INADDR_ANY;		// Since this is a server, any address will do
+    if_addr.sin_addr.s_addr = INADDR_ANY; // Since this is a server, any address will do
     if_addr.sin_port = htons((unsigned short)port);
 
     if (bind(s, (struct sockaddr *)&if_addr, sizeof(struct sockaddr_in)) < 0) {
@@ -414,11 +414,11 @@ uint16_t	UDPInterface::newChannel(uint8_t	*ID, CommChannel	**channel)
     }
 
     std::cout << "> Info: UDP bound to port " << port << std::endl;
-    *channel = new	UDPChannel(s, port);
-    return	0;
+    *channel = new UDPChannel(s, port);
+    return 0;
 }
 
-uint16_t	UDPInterface::acceptConnection(ConnectedCommChannel	**channel, int32_t	timeout, bool	&timedout)
+uint16_t UDPInterface::acceptConnection(ConnectedCommChannel **channel, int32_t timeout, bool &timedout)
 {
-    return	1;
+    return 1;
 }
