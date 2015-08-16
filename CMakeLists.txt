@@ -24,7 +24,6 @@ set (mBrane_srcs
     Core/network_interface.cpp
     Core/mdaemon_node.cpp
     Core/control_messages.cpp
-    Core/CoreTest.cpp
     Core/memory.cpp
     Core/module.cpp
     TCP/tcp_channel.cpp

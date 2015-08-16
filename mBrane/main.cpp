@@ -227,7 +227,6 @@ int main(int argc, char **argv)
     //Error::PrintBinary(probe, probe->size(), true, "SyncProbe Content");
     //exit(0);
     LoadControlMessageMetaData();
-    Time::Init(1000);
 #ifndef SAND_BOX
     SignalHandler::Add((signal_handler)Handler);
 

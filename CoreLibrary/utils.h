@@ -101,6 +101,7 @@
 // #define HANDLE pthread_cond_t*
 #endif
 
+#include <chrono>
 #include <atomic>
 
 #ifdef WINDOWS
@@ -152,26 +153,14 @@ public:
     template<typename T> T getFunction(const char *functionName);
 };
 
-class core_dll TimeProbe  // requires Time::Init()
-{
-private:
-    int64_t cpu_counts;
-    int64_t getCounts();
-public:
-    void set(); // initialize
-    void check(); // gets the cpu count elapsed between set() and check()
-    uint64_t us(); // converts cpu counts in us
-};
-
 class core_dll Time  // TODO: make sure time stamps are consistent when computed by different cores
 {
-    friend class TimeProbe;
-private:
-    static double Period;
-    static int64_t InitTime;
 public:
-    static void Init(uint32_t r); // detects the hardware timing capabilities; r: time resolution in us (on windows xp: max ~1000; use 1000, 2000, 5000 or 10000)
-    static uint64_t Get(); // in us since 01/01/1970
+    /// in us since 01/01/1970
+    static uint64_t Get() {
+        using namespace std::chrono;
+        return duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count();
+    }
 
     static std::string ToString_seconds(uint64_t t); // seconds:milliseconds:microseconds since 01/01/1970.
     static std::string ToString_year(uint64_t t); // day_name day_number month year hour:minutes:seconds:milliseconds:microseconds GMT since 01/01/1970.
@@ -207,25 +196,6 @@ public:
     ~CriticalSection();
     void enter();
     void leave();
-};
-
-class core_dll Timer
-{
-private:
-#if defined WINDOWS
-    timer t;
-#elif defined LINUX
-    timer_t timer;
-    struct SemaTex sematex;
-#endif
-protected:
-    static const uint32_t Infinite;
-public:
-    Timer();
-    ~Timer();
-    void start(uint64_t deadline, uint32_t period = 0); // deadline in us, period in ms.
-    bool wait(uint32_t timeout = Infinite); // timeout in ms; returns true if timedout.
-    bool wait(uint64_t &us, uint32_t timeout = Infinite); // idem; updates the us actually spent.
 };
 
 class core_dll SignalHandler

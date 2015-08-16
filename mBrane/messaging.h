@@ -130,8 +130,6 @@ public:
 
 class GarbageCollector
 {
-private:
-    Timer timer;
 public:
     static void Run(GarbageCollector *_this);
     Node *const node;

@@ -95,8 +95,6 @@ void RecvThread::ReceiveMessages(RecvThread *_this)
     _Payload *p;
 
     while (!_this->node->_shutdown) {
-        uint64_t t = Time::Get();
-
         if (_this->channel && _this->channel->recv(&p, _this->sourceNID)) {
             _this->node->processError(_this->sourceNID);
             // continue;
