@@ -197,11 +197,11 @@ void GarbageCollector::Run(GarbageCollector *_this)
 {
     while (_this->node->isRunning()) {
         std::this_thread::sleep_for(std::chrono::milliseconds(_this->node->GCPeriod));
-        _this->node->pendingDeletionsCS.enter(); // toggle the 2-buffer.
+        _this->node->pendingDeletionsMutex.lock(); // toggle the 2-buffer.
         uint8_t t = _this->node->pendingDeletions_GC;
         _this->node->pendingDeletions_GC = _this->node->pendingDeletions_SO;
         _this->node->pendingDeletions_SO = t;
-        _this->node->pendingDeletionsCS.leave();
+        _this->node->pendingDeletionsMutex.unlock();
         DeleteSharedObjects *m = new(_this->node->pendingDeletions[_this->node->pendingDeletions_GC].size()) DeleteSharedObjects();
         m->node_id = _this->node->id();
         UNORDERED_SET<_Payload *>::const_iterator o;
@@ -369,54 +369,54 @@ void Messaging::processControlMessage(_Payload *p)
 {
     switch (p->cid()) {
     case SetThreshold_CID:
-        projectionCS.enter();
+        projectionMutex.lock();
         Space::Main[((SetThreshold *)p)->host_id][((SetThreshold *)p)->space_id]->setActivationThreshold(((SetThreshold *)p)->threshold);
-        projectionCS.leave();
+        projectionMutex.unlock();
         break;
 
     case ActivateModule_CID:
-        projectionCS.enter();
+        projectionMutex.lock();
         ModuleDescriptor::Main[((ActivateModule *)p)->host_id][((ActivateModule *)p)->module_cid][((ActivateModule *)p)->module_id]->setActivationLevel(((ActivateModule *)p)->host_id, ((ActivateModule *)p)->space_id, ((ActivateModule *)p)->activationLevel);
-        projectionCS.leave();
+        projectionMutex.unlock();
         break;
 
     case ActivateSpace_CID:
-        projectionCS.enter();
+        projectionMutex.lock();
         Space::Main[((ActivateSpace *)p)->host_id][((ActivateSpace *)p)->target_sid]->setActivationLevel(((ActivateSpace *)p)->host_id, ((ActivateSpace *)p)->space_id, ((ActivateSpace *)p)->activationLevel);
-        projectionCS.leave();
+        projectionMutex.unlock();
         break;
 
     case SubscribeMessage_CID:
-        projectionCS.enter();
+        projectionMutex.lock();
         ModuleDescriptor::Main[((SubscribeMessage *)p)->host_id][((SubscribeMessage *)p)->module_cid][((SubscribeMessage *)p)->module_id]->addSubscription_message(((SubscribeMessage *)p)->host_id, ((SubscribeMessage *)p)->space_id, ((SubscribeMessage *)p)->message_cid);
-        projectionCS.leave();
+        projectionMutex.unlock();
         break;
 
     case SubscribeStream_CID:
-        projectionCS.enter();
+        projectionMutex.lock();
         ModuleDescriptor::Main[((SubscribeMessage *)p)->host_id][((SubscribeMessage *)p)->module_cid][((SubscribeMessage *)p)->module_id]->addSubscription_stream(((SubscribeMessage *)p)->host_id, ((SubscribeStream *)p)->space_id, ((SubscribeStream *)p)->stream_id);
-        projectionCS.leave();
+        projectionMutex.unlock();
         break;
 
     case UnsubscribeMessage_CID:
-        projectionCS.enter();
+        projectionMutex.lock();
         ModuleDescriptor::Main[((UnsubscribeMessage *)p)->host_id][((UnsubscribeMessage *)p)->module_cid][((UnsubscribeMessage *)p)->module_id]->removeSubscription_message(((UnsubscribeMessage *)p)->host_id, ((SubscribeMessage *)p)->space_id, ((SubscribeMessage *)p)->message_cid);
-        projectionCS.leave();
+        projectionMutex.unlock();
         break;
 
     case UnsubscribeStream_CID:
-        projectionCS.enter();
+        projectionMutex.lock();
         ModuleDescriptor::Main[((UnsubscribeStream *)p)->host_id][((UnsubscribeStream *)p)->module_cid][((UnsubscribeStream *)p)->module_id]->removeSubscription_stream(((UnsubscribeStream *)p)->host_id, ((SubscribeStream *)p)->space_id, ((SubscribeStream *)p)->stream_id);
-        projectionCS.leave();
+        projectionMutex.unlock();
         break;
 
     case CreateModule_CID: {
         uint16_t module_cid = ((CreateModule *)p)->module_cid;
         uint8_t host_id = ((CreateModule *)p)->host_id;
-        moduleCS.enter();
+        moduleMutex.lock();
         uint16_t module_id = ModuleDescriptor::GetID(host_id, module_cid);
         ModuleDescriptor::Main[host_id][module_cid][module_id] = new ModuleDescriptor(((CreateModule *)p)->host_id, module_cid, module_id);
-        moduleCS.leave();
+        moduleMutex.unlock();
         break;
     }
 
@@ -424,7 +424,7 @@ void Messaging::processControlMessage(_Payload *p)
         uint16_t module_cid = ((DeleteModule *)p)->module_cid;
         uint16_t module_id = ((DeleteModule *)p)->module_id;
         uint8_t host_id = ((DeleteModule *)p)->host_id;
-        projectionCS.enter();
+        projectionMutex.lock();
         _Module *m = ModuleDescriptor::Main[host_id][module_cid][module_id]->module;
         ModuleDescriptor::Main[host_id][module_cid][module_id] = NULL;
 
@@ -433,31 +433,31 @@ void Messaging::processControlMessage(_Payload *p)
             jobs.push(j);
         }
 
-        projectionCS.leave();
+        projectionMutex.unlock();
         break;
     }
 
     case CreateSpace_CID:
-        spaceCS.enter();
+        spaceMutex.lock();
         Space::Main[((CreateSpace *)p)->host_id][Space::GetID(((CreateSpace *)p)->host_id)] = new Space(((CreateSpace *)p)->host_id);
-        spaceCS.leave();
+        spaceMutex.unlock();
         break;
 
     case DeleteSpace_CID:
-        projectionCS.enter();
+        projectionMutex.lock();
         Space::Main[((DeleteSpace *)p)->host_id][((DeleteSpace *)p)->space_id] = NULL;
-        projectionCS.leave();
+        projectionMutex.unlock();
         break;
 
     case DeleteSharedObjects_CID: { // remove the objects from the lookup, send ack to the sender.
         pendingAck = ((Node *)this)->nodeCount; // wait for all nodes to reply.
-        cacheCS.enter();
+        cacheMutex.lock();
 
         for (uint16_t i = 0; i < ((DeleteSharedObjects *)p)->getCapacity(); ++i) {
             lookup[((DeleteSharedObjects *)p)->node_id].erase(((DeleteSharedObjects *)p)->data(i));
         }
 
-        cacheCS.leave();
+        cacheMutex.unlock();
         AckDeleteSharedObjects *ack = new AckDeleteSharedObjects();
         ack->node_id = ((Node *)this)->id();
         send(ack, ((DeleteSharedObjects *)p)->node_id, module::Node::PRIMARY);
@@ -466,7 +466,7 @@ void Messaging::processControlMessage(_Payload *p)
 
     case AckDeleteSharedObjects_CID: // decrement pendingAck; when 0 remove all doomed objects from lookup and cache (this will delete them).
         if (--pendingAck == 0) {
-            cacheCS.enter();
+            cacheMutex.lock();
             UNORDERED_SET<_Payload *>::const_iterator p;
 
             for (p = pendingDeletions[pendingDeletions_GC].begin(); p != pendingDeletions[pendingDeletions_GC].end(); ++p) {
@@ -474,13 +474,13 @@ void Messaging::processControlMessage(_Payload *p)
                 cache.erase((*p)->getOID()); // delete *p.
             }
 
-            cacheCS.leave();
+            cacheMutex.unlock();
             pendingDeletions[pendingDeletions_GC].clear();
-            pendingDeletionsCS.enter(); // toggle the 2-buffer.
+            pendingDeletionsMutex.lock(); // toggle the 2-buffer.
             uint8_t t = pendingDeletions_GC;
             pendingDeletions_GC = pendingDeletions_SO;
             pendingDeletions_SO = t;
-            pendingDeletionsCS.leave();
+            pendingDeletionsMutex.unlock();
         }
 
         break;

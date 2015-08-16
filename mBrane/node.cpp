@@ -792,49 +792,45 @@ _Payload *Node::getConstantObject(const std::string &name)
 
 void Node::addLookup(uint8_t sourceNID, uint32_t OID)
 {
-    Messaging::cacheCS.enter();
+    Messaging::cacheMutex.lock();
 
     if (Messaging::lookup.size() <= sourceNID) {
         Messaging::lookup.resize(sourceNID + 1);
     }
 
     Messaging::lookup[sourceNID].insert(OID);
-    Messaging::cacheCS.leave();
+    Messaging::cacheMutex.unlock();
 }
 
 bool Node::hasLookup(uint8_t destinationNID, uint32_t OID)
 {
-    Messaging::cacheCS.enter();
+    std::lock_guard<std::mutex> guard(Messaging::cacheMutex);
     UNORDERED_SET<uint32_t>::const_iterator oid = Messaging::lookup[destinationNID].find(OID);
 
     if (oid == Messaging::lookup[destinationNID].end()) {
-        Messaging::cacheCS.leave();
         return false;
     }
 
-    Messaging::cacheCS.leave();
     return true;
 }
 
 void Node::addSharedObject(_Payload *o)
 {
-    Messaging::cacheCS.enter();
+    Messaging::cacheMutex.lock();
     o->setOID(id());
     Messaging::cache[o->getOID()] = o;
-    Messaging::cacheCS.leave();
+    Messaging::cacheMutex.unlock();
 }
 
 _Payload *Node::getSharedObject(uint32_t OID)
 {
-    Messaging::cacheCS.enter();
+    std::lock_guard<std::mutex> guard(Messaging::cacheMutex);
     UNORDERED_MAP<uint32_t, P<_Payload>>::const_iterator o = Messaging::cache.find(OID);
 
     if (o == Messaging::cache.end()) {
-        Messaging::cacheCS.leave();
         return NULL;
     }
 
-    Messaging::cacheCS.leave();
     return o->second;
 }
 

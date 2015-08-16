@@ -148,9 +148,10 @@ class mbrane_dll Messaging
     friend class Executing;
     friend class GarbageCollector;
 private:
-    CriticalSection moduleCS; // control access to spaces, modules descriptors and projections in processControlMessages.
-    CriticalSection spaceCS;
-    CriticalSection projectionCS;
+    /// control access to spaces, modules descriptors and projections in processControlMessages.
+    std::mutex moduleMutex;
+    std::mutex spaceMutex;
+    std::mutex projectionMutex;
 protected:
     typedef struct {
         module::Node::Network network;
@@ -181,14 +182,14 @@ protected:
     std::vector<ConstantEntry> constants; // indexed by the IDs.
     UNORDERED_MAP<uint32_t, P<_Payload>> cache; // shared objects residing on the node (local if they have been sent at least once, and foreign); indexed by full IDs.
     std::vector<UNORDERED_SET<uint32_t>> lookup; // shared objects's full IDs known as being held by remote nodes; vector indexed by NIDs.
-    CriticalSection cacheCS; // concurrency: Messaging::processControlMessage, CommChannel::send, CommChannel::recv.
+    std::mutex cacheMutex; // concurrency: Messaging::processControlMessage, CommChannel::send, CommChannel::recv.
 
     // Deletion handling.
     uint8_t  pendingAck; // number of ack to wait for.
     UNORDERED_SET<_Payload *> pendingDeletions[2]; // 2-buffered list of objects to be deleted. Any object in here is smart pointed by the cache, and its ref count is 1.
     uint8_t  pendingDeletions_GC; // index for access from GC::Run.
     uint8_t  pendingDeletions_SO; // index for access from SharedObject::decRef.
-    CriticalSection pendingDeletionsCS; // concurrency GarbageCollector::Run, CommChannel::recv.
+    std::mutex pendingDeletionsMutex; // concurrency GarbageCollector::Run, CommChannel::recv.
     uint32_t  GCPeriod; // at which the GC kicks in; in ms.
     GarbageCollector *GC;
 
