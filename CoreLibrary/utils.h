@@ -101,6 +101,8 @@
 // #define HANDLE pthread_cond_t*
 #endif
 
+#include <atomic>
+
 #ifdef WINDOWS
 #define SOCKETWOULDBLOCK WSAEWOULDBLOCK
 #else
@@ -249,32 +251,13 @@ public:
     static void Remove(sighandler_t h);
 };
 
-class core_dll Atomic
-{
-public:
-    static int32_t Increment32(int32_t volatile *v); // return the final value of *v
-    static int32_t Decrement32(int32_t volatile *v); // return the final value of *v
-    static int32_t CompareAndSwap32(int32_t volatile *target, int32_t v1, int32_t v2); // compares *target with v1, if equal, replace it with v2; return the initial value of *target
-    static int64_t CompareAndSwap64(int64_t volatile *target, int64_t v1, int64_t v2);
-// static int CompareAndSwap(int volatile *target,int v1,int v2); // uses the right version according to ARCH_xx
-    static int32_t Swap32(int32_t volatile *target, int32_t v); // writes v at target; return the initial value of *target
-    static int64_t Swap64(int64_t volatile *target, int64_t v); // ifndef ARCH_64, calls CompareAndSwap64(target,v,v)
-// static int Swap(int volatile *target,int v); // uses the right version according to ARCH_xx
-#if defined ARCH_64
-    static int64_t Increment64(int64_t volatile *v);
-    static int64_t Decrement64(int64_t volatile *v);
-    static int32_t Add32(int32_t volatile *target, int32_t v); // adds v to *target; return the final value of *target
-    static int64_t Add64(int64_t volatile *target, int64_t v);
-#endif
-};
-
 uint8_t core_dll BSR(uint32_t data); // BitScanReverse
 
 class core_dll FastSemaphore: // lock-free under no contention
     public Semaphore
 {
 private:
-    int32_t volatile count; // minus the number of waiting threads
+    std::atomic_int count; // minus the number of waiting threads
     const int32_t maxCount; // max number of threads allowed to run
 public:
     FastSemaphore(uint32_t initialCount, uint32_t maxCount); // initialCount >=0

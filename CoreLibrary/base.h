@@ -77,6 +77,7 @@
 #define core_base_h
 
 #include <cstdlib>
+#include <atomic>
 
 #include "types.h"
 
@@ -125,7 +126,7 @@ protected:
 #ifdef ARCH_32
     uint32_t __vfptr_padding_Object;
 #endif
-    int32_t volatile refCount;
+    std::atomic_int refCount;
     _Object();
 public:
     virtual ~_Object();

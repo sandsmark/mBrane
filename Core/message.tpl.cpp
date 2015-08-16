@@ -137,7 +137,7 @@ template<class U, class M> void SharedObject<U, M>::decRef()
     if (_Payload::getOID() == 0x00FFFFFF || isConstant()) { // object has not been sent yet: it has not been smart pointed by the cache: treat as a normal object.
         _Object::decRef();
     } else {
-        int32_t ref_count = Atomic::Decrement32(&this->refCount);
+        int32_t ref_count = --this->refCount;
 
         switch (ref_count) {
         case 1:

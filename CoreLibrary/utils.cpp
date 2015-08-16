@@ -714,81 +714,6 @@ void SignalHandler::Remove(signal_handler h)
 #endif
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////
-
-int32_t Atomic::Increment32(int32_t volatile *v)
-{
-#if defined WINDOWS
-    return InterlockedIncrement((long *)v);
-#elif defined LINUX
-    __sync_add_and_fetch(v, 1);
-    return *v;
-#endif
-};
-
-int32_t Atomic::Decrement32(int32_t volatile *v)
-{
-#if defined WINDOWS
-    return InterlockedDecrement((long *)v);
-#elif defined LINUX
-    __sync_add_and_fetch(v, -1);
-    return *v;
-#endif
-};
-
-int32_t Atomic::CompareAndSwap32(int32_t volatile *target, int32_t v1, int32_t v2)
-{
-#if defined WINDOWS
-    return _InterlockedCompareExchange((long *)target, v2, v1);
-#elif defined LINUX
-    // note that v1 and v2 are swapped for Linux!!!
-    return __sync_val_compare_and_swap(target, v1, v2);
-#endif
-}
-
-int64_t Atomic::CompareAndSwap64(int64_t volatile *target, int64_t v1, int64_t v2)
-{
-#if defined WINDOWS
-    return _InterlockedCompareExchange64(target, v2, v1);
-#elif defined LINUX
-    // note that v1 and v2 are swapped for Linux!!!
-    return __sync_val_compare_and_swap(target, v1, v2);
-#endif
-}
-
-// word Atomic::CompareAndSwap(word volatile *target,word v1,word v2){
-//#if defined ARCH_32
-// return CompareAndSwap32(target,v1,v2);
-//#elif defined ARCH_64
-// return CompareAndSwap32((uint32_t*)target,v1,v2);
-//#endif
-// }
-
-int32_t Atomic::Swap32(int32_t volatile *target, int32_t v)
-{
-#if defined WINDOWS
-    return _InterlockedExchange((long *)target, v);
-#elif defined LINUX
-    return __sync_fetch_and_sub(target, v);
-#endif
-}
-
-int64_t Atomic::Swap64(int64_t volatile *target, int64_t v)
-{
-#if defined WINDOWS
-    return CompareAndSwap64(target, v, v);
-#elif defined LINUX
-    return __sync_fetch_and_sub(target, v);
-#endif
-}
-
-// word Atomic::Swap(word volatile *target,word v){
-//#if defined ARCH_32
-// return Swap32(target,v);
-//#elif defined ARCH_64
-// return Swap32((uint32_t*)target,v);
-//#endif
-// }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -827,7 +752,7 @@ void FastSemaphore::acquire()
 {
     int32_t c;
 
-    while ((c = Atomic::Decrement32(&count)) >= maxCount); // release calls can bring count over maxCount: acquire has to exhaust these extras
+    while ((c = --count) >= maxCount); // release calls can bring count over maxCount: acquire has to exhaust these extras
 
     if (c < 0) {
         Semaphore::acquire();
@@ -836,7 +761,7 @@ void FastSemaphore::acquire()
 
 void FastSemaphore::release()
 {
-    int32_t c = Atomic::Increment32(&count);
+    int32_t c = ++count;
 
     if (c <= 0) {
         Semaphore::release();
