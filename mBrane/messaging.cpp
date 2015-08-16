@@ -197,10 +197,8 @@ PushThread::~PushThread()
 
 void GarbageCollector::Run(GarbageCollector *_this)
 {
-    _this->timer.start(_this->node->GCPeriod * 1000, _this->node->GCPeriod);
-
-    while (1) {
-        _this->timer.wait();
+    while (_this->node->isRunning()) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(_this->node->GCPeriod));
         _this->node->pendingDeletionsCS.enter(); // toggle the 2-buffer.
         uint8_t t = _this->node->pendingDeletions_GC;
         _this->node->pendingDeletions_GC = _this->node->pendingDeletions_SO;
@@ -224,6 +222,7 @@ void GarbageCollector::Run(GarbageCollector *_this)
 
 GarbageCollector::GarbageCollector(Node *node): node(node)
 {
+    thread = std::thread(Run, this);
 }
 
 GarbageCollector::~GarbageCollector()
