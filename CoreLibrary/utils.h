@@ -167,7 +167,6 @@ public:
 class core_dll Semaphore
 {
 private:
-    sem_t s;
     int count;
     std::mutex mutex;
     std::condition_variable_any condition;

@@ -114,7 +114,7 @@ protected:
 
     StaticArray<XThread *> xThreads;
     uint16_t  threadCount;
-    Semaphore *supportSync;
+    std::mutex supportSync;
 
     Executing();
     ~Executing();

@@ -82,17 +82,12 @@ namespace mBrane
 
 Executing::Executing()
 {
-    supportSync = new Semaphore;
 }
 
 Executing::~Executing()
 {
     for (uint32_t i = 0; i < xThreads.count(); i++) {
         delete xThreads[i];
-    }
-
-    if (supportSync) {
-        delete supportSync;
     }
 }
 
@@ -150,7 +145,7 @@ void XThread::Xec(XThread *_this)
 {
     if (_this->wasSupporting) {
 check_in:
-        _this->node->supportSync->acquire();
+        _this->node->supportSync.lock();
     }
 
     while (_this->node->isRunning()) {
@@ -191,7 +186,7 @@ inline void XThread::work(_Payload *p, _Module *m)
     if (currentProcessor) {
         switch (m->dispatch(p)) {
         case _Module::WAIT:
-            node->supportSync->release(); // before waiting, unlock a supporting thread to run instead of this.
+            node->supportSync.unlock(); // before waiting, unlock a supporting thread to run instead of this.
 
             if (currentProcessor) { // could be NULL if currentProcessor just finished.
                 currentProcessor->mutex.lock();    // wait for the currentProcessor to finish; will be unlocked by currentProcessor (see release() below).
