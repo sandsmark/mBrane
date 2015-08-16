@@ -84,7 +84,7 @@
 #include "pipe.h"
 #include "../Core/list.h"
 #include "../Core/control_messages.h"
-
+#include <thread>
 #include "module_descriptor.h"
 
 using namespace mBrane::sdk;
@@ -104,40 +104,40 @@ typedef struct _Job {
 
 class Node;
 
-class RecvThread:
-    public Thread
+class RecvThread
 {
 public:
-    static thread_ret thread_function_call ReceiveMessages(void *args);
+    static void ReceiveMessages(RecvThread *_this);
     Pipe11<P<_Payload>, MESSAGE_INPUT_BLOCK_SIZE> buffer; // incoming messages from remote nodes
     Node *node;
     CommChannel *channel;
     uint8_t  sourceNID;
     RecvThread(Node *node, CommChannel *channel, uint8_t sourceNID);
     ~RecvThread();
+    std::thread thread;
 };
 
-class PushThread:
-    public Thread
+class PushThread
 {
 public:
-    static thread_ret thread_function_call PushJobs(void *args);
+    static void PushJobs(PushThread *_this);
     Node *const node;
     Pipe11<P<_Payload>, MESSAGE_OUTPUT_BLOCK_SIZE> *source;
     PushThread(Node *node, Pipe11<P<_Payload>, MESSAGE_OUTPUT_BLOCK_SIZE> *source);
     ~PushThread();
+    std::thread thread;
 };
 
-class GarbageCollector:
-    public Thread
+class GarbageCollector
 {
 private:
     Timer timer;
 public:
-    static thread_ret thread_function_call Run(void *args);
+    static void Run(GarbageCollector *_this);
     Node *const node;
     GarbageCollector(Node *node);
     ~GarbageCollector();
+    std::thread thread;
 };
 
 class Executing;
@@ -165,8 +165,8 @@ protected:
     PipeNN<Job, JOBS_BLOCK_SIZE> jobs;
 
     Array<RecvThread *, MESSAGE_INPUT_BLOCK_SIZE> recvThreads;
-    Thread *sendThread;
-    static thread_ret thread_function_call SendMessages(void *args);
+    std::thread sendThread;
+    static void SendMessages(Node *node);
     Array<PushThread *, MESSAGE_INPUT_BLOCK_SIZE> pushThreads; // one for each message source (recvThread->buffer plus input queue); push jobs in the job pipe
 
     //TODO: add a pointer to processControlMessage plugin here.

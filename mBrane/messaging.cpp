@@ -89,9 +89,8 @@ using namespace mBrane::sdk;
 namespace mBrane
 {
 
-thread_ret thread_function_call RecvThread::ReceiveMessages(void *args)
+void RecvThread::ReceiveMessages(RecvThread *_this)
 {
-    RecvThread *_this = (RecvThread *)args;
     SyncEcho *echo;
     _Payload *p;
 
@@ -101,7 +100,7 @@ thread_ret thread_function_call RecvThread::ReceiveMessages(void *args)
         if (_this->channel && _this->channel->recv(&p, _this->sourceNID)) {
             _this->node->processError(_this->sourceNID);
             // continue;
-            thread_ret_val(0);
+            return;
         }
 
         // printf("RecvThread::ReceiveMessages::recv took %uus...\n", Time::Get()-t);
@@ -154,11 +153,9 @@ thread_ret thread_function_call RecvThread::ReceiveMessages(void *args)
 
         _p = NULL;
     }
-
-    thread_ret_val(0);
 }
 
-RecvThread::RecvThread(Node *node, CommChannel *channel, uint8_t sourceNID): Thread(), node(node), channel(channel), sourceNID(sourceNID)
+RecvThread::RecvThread(Node *node, CommChannel *channel, uint8_t sourceNID): node(node), channel(channel), sourceNID(sourceNID)
 {
 }
 
@@ -168,9 +165,8 @@ RecvThread::~RecvThread()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-thread_ret thread_function_call PushThread::PushJobs(void *args)
+void PushThread::PushJobs(PushThread *_this)
 {
-    PushThread *_this = (PushThread *)args;
 // std::cout<<"Starting to look for jobs ["<< (unsigned int)(&_this->source) <<"]..."<<std::endl;
     P<_Payload> _p;
 
@@ -187,11 +183,9 @@ thread_ret thread_function_call PushThread::PushJobs(void *args)
         _this->node->pushJobs(_p);
         _p = NULL;
     }
-
-    thread_ret_val(0);
 }
 
-PushThread::PushThread(Node *node, Pipe11<P<_Payload>, MESSAGE_OUTPUT_BLOCK_SIZE> *source): Thread(), node(node), source(source)
+PushThread::PushThread(Node *node, Pipe11<P<_Payload>, MESSAGE_OUTPUT_BLOCK_SIZE> *source): node(node), source(source)
 {
 }
 
@@ -201,9 +195,8 @@ PushThread::~PushThread()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-thread_ret thread_function_call GarbageCollector::Run(void *args)
+void GarbageCollector::Run(GarbageCollector *_this)
 {
-    GarbageCollector *_this = (GarbageCollector *)args;
     _this->timer.start(_this->node->GCPeriod * 1000, _this->node->GCPeriod);
 
     while (1) {
@@ -227,11 +220,9 @@ thread_ret thread_function_call GarbageCollector::Run(void *args)
         // recv has to handle this case and consolidate the object.
         ((Messaging *)_this->node)->send(m, module::Node::PRIMARY);
     }
-
-    thread_ret_val(0);
 }
 
-GarbageCollector::GarbageCollector(Node *node): Thread(), node(node)
+GarbageCollector::GarbageCollector(Node *node): node(node)
 {
 }
 
@@ -241,7 +232,7 @@ GarbageCollector::~GarbageCollector()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-Messaging::Messaging(): sendThread(NULL), GC(NULL), pendingAck(0), pendingDeletions_GC(0), pendingDeletions_SO(1)
+Messaging::Messaging(): GC(NULL), pendingAck(0), pendingDeletions_GC(0), pendingDeletions_SO(1)
 {
 }
 
@@ -253,12 +244,6 @@ Messaging::~Messaging()
             recvThreads[i] = NULL;
         }
     }
-
-    if (sendThread) {
-        delete sendThread;
-    }
-
-    sendThread = NULL;
 
     for (uint32_t i = 0; i < pushThreads.count(); i++) {
         if (pushThreads[i]) {
@@ -313,9 +298,9 @@ void Messaging::send(_Payload *message, uint8_t nodeID, module::Node::Network ne
 void Messaging::start()
 {
     GC = new GarbageCollector((Node *)this);
-    sendThread = Thread::New<Thread>(SendMessages, (Node *)this);
+    sendThread = std::thread(SendMessages, (Node *)this);
     pushThreads[0] = new PushThread((Node *)this, &messageInputQueue);
-    pushThreads[0]->start(PushThread::PushJobs);
+    pushThreads[0]->thread = std::thread(PushThread::PushJobs, pushThreads[0]);
     //for(uint32_t i=0;i<recvThreads.count();i++){
     // pushThreads[i+1]=new PushThread((Node*)this,&recvThreads[i]->buffer);
     // pushThreads[i+1]->start(PushThread::PushJobs);
@@ -324,14 +309,19 @@ void Messaging::start()
 
 void Messaging::shutdown()
 {
-    Thread::TerminateAndWait(sendThread);
-
+    if (sendThread.joinable()) {
+        sendThread.join();
+    }
     for (uint32_t i = 0; i < recvThreads.count(); i++) {
-        Thread::TerminateAndWait(*recvThreads.get(i));
+        if (recvThreads[i]->thread.joinable()) {
+            recvThreads[i]->thread.join();
+        }
     }
 
     for (uint32_t i = 0; i < pushThreads.count(); i++) {
-        Thread::TerminateAndWait(*pushThreads.get(i));
+        if (pushThreads[i]->thread.joinable()) {
+            pushThreads[i]->thread.join();
+        }
     }
 
     // Thread::TerminateAndWait(GC);
@@ -505,9 +495,8 @@ void Messaging::processControlMessage(_Payload *p)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-thread_ret thread_function_call Messaging::SendMessages(void *args)
+void Messaging::SendMessages(Node *node)
 {
-    Node *node = (Node *)args;
     uint8_t nCount;
     MessageSlot out;
     _Payload *p;
@@ -629,7 +618,5 @@ thread_ret thread_function_call Messaging::SendMessages(void *args)
 
         out.p = NULL;
     }
-
-    thread_ret_val(0);
 }
 }
