@@ -78,6 +78,7 @@
 
 #include "../CoreLibrary/utils.h"
 #include "message.h"
+#include <thread>
 
 using namespace mBrane::sdk::payloads;
 
@@ -112,8 +113,8 @@ protected:
     bool _ready; // set to false after stop and migrateOut, set to true after start and migrateIn
     _Module();
     void sleep(int64_t d);
-    void wait(Thread **threads, uint32_t threadCount);
-    void wait(Thread *_thread);
+    void wait(std::thread *threads[], uint32_t threadCount);
+    void wait(std::thread *_thread);
 public:
     typedef enum {
         DISCARD = 0,

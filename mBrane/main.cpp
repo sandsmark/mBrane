@@ -80,6 +80,8 @@
 #endif
 
 #include "node.h"
+#include <thread>
+#include <chrono>
 
 using namespace core;
 using namespace mBrane;
@@ -234,7 +236,8 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    Thread::Sleep(atoi(argv[1]));
+    std::this_thread::sleep_for(std::chrono::milliseconds(atoi(argv[1])));
+
     node = mBrane::Node::New(argv[2], SL, atoi(argv[3]));
 
     // We could not initialise everything, bailing out

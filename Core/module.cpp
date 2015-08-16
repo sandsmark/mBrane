@@ -76,7 +76,7 @@
 #include "module.h"
 #include "module_node.h"
 #include "utils.h"
-
+#include <chrono>
 
 namespace mBrane
 {
@@ -137,17 +137,23 @@ inline void _Module::migrateIn()
 
 void _Module::sleep(int64_t d)
 {
-    Thread::Sleep(d);
+    std::this_thread::sleep_for(std::chrono::milliseconds(d));
 }
 
-void _Module::wait(Thread **threads, uint32_t threadCount)
+void _Module::wait(std::thread *threads[], uint32_t threadCount)
 {
-    Thread::Wait(threads, threadCount);
+    for (int i = 0; i < threadCount; i++) {
+        if (threads[i]->joinable()) {
+            threads[i]->join();
+        }
+    }
 }
 
-void _Module::wait(Thread *_thread)
+void _Module::wait(std::thread *_thread)
 {
-    Thread::Wait(_thread);
+    if (_thread->joinable()) {
+        _thread->join();
+    }
 }
 }
 }

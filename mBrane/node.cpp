@@ -349,8 +349,13 @@ void Node::run()
         return;
     }
 
+
+    //TODO: WTF
+    while (true) {
+        std::this_thread::sleep_for(std::chrono::hours::max());
+    }
     // std::cout<<"> Running"<<std::endl;
-    Thread::Sleep();
+//    Thread::Sleep();
 }
 
 void Node::start(uint8_t assignedNID, NetworkID *networkID, bool isTimeReference)
