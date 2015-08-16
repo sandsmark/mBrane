@@ -96,7 +96,7 @@ private:
     char *buffer;
     uint32_t bufferContentLen;
     uint32_t bufferContentPos;
-    CriticalSection udpCS;
+    std::mutex m_mutex;
     bool initialiseBuffer(uint32_t len);
 public:
     UDPChannel(core::socket s, uint32_t port);

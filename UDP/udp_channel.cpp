@@ -96,7 +96,8 @@ UDPChannel::UDPChannel(core::socket s, uint32_t port): BroadcastCommChannel(), s
 
 UDPChannel::~UDPChannel()
 {
-    udpCS.enter();
+    std::lock_guard<std::mutex> guard(m_mutex);
+
     disconnect();
 
     if (buffer != NULL) {
@@ -107,7 +108,6 @@ UDPChannel::~UDPChannel()
     bufferContentLen = 0;
     bufferContentPos = 0;
     buffer = NULL;
-    udpCS.leave();
 }
 
 bool UDPChannel::initialiseBuffer(uint32_t len)
@@ -116,7 +116,7 @@ bool UDPChannel::initialiseBuffer(uint32_t len)
         return false;
     }
 
-    udpCS.enter();
+    std::lock_guard<std::mutex> guard(m_mutex);
 
     if (buffer != NULL) {
         delete(buffer);
@@ -126,7 +126,7 @@ bool UDPChannel::initialiseBuffer(uint32_t len)
     buffer = new char[len];
     bufferContentLen = 0;
     bufferContentPos = 0;
-    udpCS.leave();
+
     return true;
 }
 
@@ -141,12 +141,12 @@ int16_t UDPChannel::send(uint8_t *b, size_t s)
 
 int16_t UDPChannel::recv(uint8_t *b, size_t s, bool peek)
 {
-    udpCS.enter();
+    m_mutex.lock();
 
     if (s > bufferLen) {
-        udpCS.leave();
+        m_mutex.unlock();
         initialiseBuffer(s * 2);
-        udpCS.enter();
+        m_mutex.lock();
     }
 
     // Do we have enough data in the buffer already
@@ -158,7 +158,7 @@ int16_t UDPChannel::recv(uint8_t *b, size_t s, bool peek)
 
         if (count == SOCKET_ERROR) {
             // Error::PrintLastOSErrorMessage("Error: UDPChannel::recv");
-            udpCS.leave();
+            m_mutex.unlock();
             return 1;
         }
 
@@ -169,7 +169,7 @@ int16_t UDPChannel::recv(uint8_t *b, size_t s, bool peek)
     // Do we now have enough data in the buffer
     if (bufferContentLen - bufferContentPos < s) {
         // if not, we give up
-        udpCS.leave();
+        m_mutex.unlock();
         // std::cout<<"UDP Error: Not enough data in buffer, have "<<bufferContentLen-bufferContentPos<<" bytes, need "<<s<<" bytes..."<<std::endl;
         return 1;
     }
@@ -181,7 +181,7 @@ int16_t UDPChannel::recv(uint8_t *b, size_t s, bool peek)
         bufferContentPos += s;
     }
 
-    udpCS.leave();
+    m_mutex.unlock();
 // std::cout<<"Info: Read "<<s<<" bytes from buffer, "<<bufferContentLen-bufferContentPos<<" bytes left..."<<std::endl;
     return 0;
 }
