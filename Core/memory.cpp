@@ -88,6 +88,8 @@ namespace mBrane
 namespace sdk
 {
 
+std::mutex Memory::s_mutex;
+
 inline void *Memory::Block::operator new(size_t s, size_t objectSize, uint16_t objectCount)
 {
     void *a = malloc(s + objectCount * objectSize); // OPTIMIZATION: allocate from a private heap

@@ -80,7 +80,7 @@
 namespace core
 {
 
-/* template<typename T> T SharedLibrary::getFunction(const char *functionName){
+template<typename T> T SharedLibrary::getFunction(const char *functionName){
  T function=NULL;
 #if defined WINDOWS
  if(library){
@@ -102,7 +102,7 @@ namespace core
 #endif
  return function;
  }
-*/
+
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 }
