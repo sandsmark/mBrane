@@ -461,67 +461,6 @@ void Semaphore::reset()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if defined WINDOWS
-const uint32_t Mutex::Infinite = INFINITE;
-#elif defined LINUX
-/*
- * Normally this should be SEM_VALUE_MAX but apparently the <semaphore.h> header
- * does not define it. The documents I have read indicate that on Linux it is
- * always equal to INT_MAX - so use that instead.
- */
-const uint32_t Mutex::Infinite = INT_MAX;
-#endif
-
-Mutex::Mutex()
-{
-#if defined WINDOWS
-    m = CreateMutex(NULL, false, NULL);
-#elif defined LINUX
-    pthread_mutex_init(&m, NULL);
-#endif
-}
-
-Mutex::~Mutex()
-{
-#if defined WINDOWS
-    CloseHandle(m);
-#elif defined LINUX
-    pthread_mutex_destroy(&m);
-#endif
-}
-
-bool Mutex::acquire(uint32_t timeout)
-{
-#if defined WINDOWS
-    uint32_t r = WaitForSingleObject(m, timeout);
-    return r == WAIT_TIMEOUT;
-#elif defined LINUX
-    int64_t start = Time::Get();
-    int64_t uTimeout = timeout * 1000;
-
-    while (pthread_mutex_trylock(&m) != 0) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
-        if (Time::Get() - start >= uTimeout) {
-            return false;
-        }
-    }
-
-    return true;
-#endif
-}
-
-void Mutex::release()
-{
-#if defined WINDOWS
-    ReleaseMutex(m);
-#elif defined LINUX
-    pthread_mutex_unlock(&m);
-#endif
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-
 CriticalSection::CriticalSection()
 {
 #if defined WINDOWS

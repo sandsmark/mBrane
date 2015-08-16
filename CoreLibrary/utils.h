@@ -196,19 +196,6 @@ public:
     void reset();
 };
 
-class core_dll Mutex
-{
-private:
-    mutex m;
-protected:
-    static const uint32_t Infinite;
-public:
-    Mutex();
-    ~Mutex();
-    bool acquire(uint32_t timeout = Infinite); // returns true if timedout
-    void release();
-};
-
 class core_dll CriticalSection
 {
 private:
