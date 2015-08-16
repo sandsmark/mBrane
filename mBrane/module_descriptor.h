@@ -100,32 +100,32 @@ public:
     ~ModuleEntry();
 };
 
-class NodeEntry:
-    public CriticalSection  // guards against Messaging::SendMessages.
+class NodeEntry
 {
 private:
-    uint32_t activationCount;
+    std::mutex mutex; // guards against Messaging::SendMessages.
+    uint32_t activationCount; // TODO: std::atomic
 public:
     static Array<Array<NodeEntry, 32>, 128> Main[2]; // 0: Data and Control: message class -> nodes -> modules, 1: Streams: stream id -> nodes -> modules
     NodeEntry();
     ~NodeEntry();
     void incActivation()
     {
-        enter();
+        mutex.lock();
         activationCount++;
-        leave();
+        mutex.unlock();
     }
     void decActivation()
     {
-        enter();
+        mutex.lock();
         activationCount--;
-        leave();
+        mutex.unlock();
     }
     void getActivation(uint32_t &a)
     {
-        enter();
+        mutex.lock();
         a = activationCount;
-        leave();
+        mutex.unlock();
     }
     List<P<ModuleEntry>, 1024> modules;
 };
