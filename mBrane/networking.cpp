@@ -80,6 +80,7 @@
 #include "node.h"
 
 #include <cstring>
+#include <chrono>
 
 using namespace mBrane::sdk::payloads;
 
@@ -95,10 +96,8 @@ NodeCon::NodeCon(Networking *node)
 
     for (uint32_t i = 0; i < 6; i++) {
         commChannels[i] = NULL;
-        commThreads[i] = NULL;
     }
 
-    pushThread = NULL;
     name = NULL;
     joined = false;
     ready = false;
@@ -171,7 +170,7 @@ uint32_t NodeCon::getConnectionStatus()
 
 bool NodeCon::isInUse()
 {
-    return (pushThread != NULL);
+    return pushThread.joinable();
 }
 
 bool NodeCon::isConnected(module::Node::Network network)
@@ -205,12 +204,10 @@ bool NodeCon::isConnected(module::Node::Network network)
 bool NodeCon::disconnect()
 {
     CommChannel *comm;
-    Thread *t;
 
     for (uint32_t i = 0; i < 6; i++) {
-        if (t = commThreads[i]) {
-            Thread::TerminateAndWait(t);
-            delete t;
+        if (commThreads[i].joinable()) {
+            commThreads[i].join();
         }
 
         if (comm = commChannels[i]) {
@@ -219,13 +216,10 @@ bool NodeCon::disconnect()
         }
 
         commChannels[i] = NULL;
-        commThreads[i] = NULL;
     }
 
-    if (pushThread) {
-        Thread::TerminateAndWait(pushThread);
-        delete pushThread;
-        pushThread = NULL;
+    if (pushThread.joinable()) {
+        pushThread.join();
     }
 
     return true;
@@ -258,16 +252,14 @@ bool NodeCon::startNetworkChannel(CommChannel *c, uint8_t type, bool isCopy)
         return false;
     }
 
-    if (!pushThread) {
-        pushThread = Thread::New<Thread>(PushJobs, this);
+    if (!pushThread.joinable()) {
+        pushThread = std::thread(PushJobs, this);
     }
 
     CommChannel *comm;
-    Thread *t;
 
-    if (t = commThreads[type]) {
-        Thread::TerminateAndWait(t);
-        delete t;
+    if (commThreads[type].joinable()) {
+        commThreads[type].join();
     }
 
     if (comm = commChannels[type]) {
@@ -281,9 +273,9 @@ bool NodeCon::startNetworkChannel(CommChannel *c, uint8_t type, bool isCopy)
         ReceiveThreadInfo *info = new ReceiveThreadInfo;
         info->con = this;
         info->channel = c;
-        commThreads[type] = Thread::New<Thread>(ReceiveMessages, info);
+        commThreads[type] = std::thread(ReceiveMessages, info);
     } else {
-        commThreads[type] = NULL;
+        commThreads[type] = std::thread();
     }
 
     return true;
@@ -294,20 +286,17 @@ CommChannel *NodeCon::getNetworkChannel(uint8_t type)
     return commChannels[type];
 }
 
-thread_ret thread_function_call NodeCon::ReceiveMessages(void *args)
+void NodeCon::ReceiveMessages(ReceiveThreadInfo *info)
 {
-    ReceiveThreadInfo *info = (ReceiveThreadInfo *)args;
     SyncEcho *echo;
     _Payload *p;
 
     while (info->con->node->isRunning()) {
-        uint64_t t = Time::Get();
-
         if (info->channel && info->channel->recv(&p, info->con->sourceNID)) {
             info->con->node->processError(info->con->sourceNID);
             // continue;
             delete(info);
-            thread_ret_val(0);
+            return;
         }
 
         // printf("RecvThread::ReceiveMessages::recv took %uus...\n", Time::Get()-t);
@@ -362,12 +351,10 @@ thread_ret thread_function_call NodeCon::ReceiveMessages(void *args)
     }
 
     delete(info);
-    thread_ret_val(0);
 }
 
-thread_ret thread_function_call NodeCon::PushJobs(void *args)
+void NodeCon::PushJobs(NodeCon *_this)
 {
-    NodeCon *_this = (NodeCon *)args;
 // std::cout<<"Starting to look for jobs ["<< (unsigned int)(&_this->source) <<"]..."<<std::endl;
     P<_Payload> _p;
 
@@ -384,8 +371,6 @@ thread_ret thread_function_call NodeCon::PushJobs(void *args)
         _this->node->pushJobs(_p);
         _p = NULL;
     }
-
-    thread_ret_val(0);
 }
 
 
@@ -513,7 +498,6 @@ Networking::Networking(): Node(), Messaging(), isTimeReference(false), timeDrift
 
     for (uint8_t i = 0; i < 32; i++) {
         nodes[i] = NULL;
-        commThreads[i] = NULL;
     }
 
     discoveryChannel = NULL;
@@ -559,9 +543,8 @@ Networking::~Networking()
     broadcastChannel[1] = NULL;
 
     for (uint8_t i = 0; i < commThreads.count(); i++) {
-        if (commThreads[i]) {
-            delete commThreads[i];
-            commThreads[i] = NULL;
+        if (commThreads[i].joinable()) {
+            commThreads[i].join();
         }
 
         if (nodes[i]) {
@@ -847,7 +830,7 @@ bool Networking::init()
             args->node = this;
             args->network = PRIMARY;
             args->category = _Payload::CONTROL;
-            commThreads[commThreads.count()] = Thread::New<Thread>(AcceptConnections, args);
+            commThreads[commThreads.count()] = std::thread(AcceptConnections, args);
         }
 
         if (*networkInterfaces[DATA_PRIMARY] != *networkInterfaces[CONTROL_PRIMARY]) {
@@ -856,7 +839,7 @@ bool Networking::init()
             args->node = this;
             args->network = PRIMARY;
             args->category = _Payload::DATA;
-            commThreads[commThreads.count()] = Thread::New<Thread>(AcceptConnections, args);
+            commThreads[commThreads.count()] = std::thread(AcceptConnections, args);
         }
 
         if (*networkInterfaces[STREAM_PRIMARY] != *networkInterfaces[DATA_PRIMARY]) {
@@ -865,7 +848,7 @@ bool Networking::init()
             args->node = this;
             args->network = PRIMARY;
             args->category = _Payload::STREAM;
-            commThreads[commThreads.count()] = Thread::New<Thread>(AcceptConnections, args);
+            commThreads[commThreads.count()] = std::thread(AcceptConnections, args);
         }
     }
 
@@ -886,7 +869,7 @@ bool Networking::init()
             args->node = this;
             args->network = SECONDARY;
             args->category = _Payload::CONTROL;
-            commThreads[commThreads.count()] = Thread::New<Thread>(AcceptConnections, args);
+            commThreads[commThreads.count()] = std::thread(AcceptConnections, args);
         }
 
         if (*networkInterfaces[DATA_SECONDARY] != *networkInterfaces[CONTROL_SECONDARY]) {
@@ -895,7 +878,7 @@ bool Networking::init()
             args->node = this;
             args->network = SECONDARY;
             args->category = _Payload::DATA;
-            commThreads[commThreads.count()] = Thread::New<Thread>(AcceptConnections, args);
+            commThreads[commThreads.count()] = std::thread(AcceptConnections, args);
         }
 
         if (*networkInterfaces[STREAM_SECONDARY] != *networkInterfaces[DATA_SECONDARY]) {
@@ -904,11 +887,11 @@ bool Networking::init()
             args->node = this;
             args->network = SECONDARY;
             args->category = _Payload::STREAM;
-            commThreads[commThreads.count()] = Thread::New<Thread>(AcceptConnections, args);
+            commThreads[commThreads.count()] = std::thread(AcceptConnections, args);
         }
     }
 
-    Thread::Sleep(50);
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
     //std::cout<<"> Info: Sending network greeting ["<<networkID->name()<<","<<(*(uint16_t*)networkID->data)<<"]..."<<std::endl;
     uint16_t mBraneToken = MBRANETOKEN;
 
@@ -956,7 +939,7 @@ void Networking::start(uint8_t assignedNID, NetworkID *networkNID, bool isTimeRe
 // nodes[i] = new NodeCon(this, assignedNID);
 
     if (isTimeReference) {
-        commThreads[commThreads.count()] = Thread::New<Thread>(ScanIDs, this);
+        commThreads[commThreads.count()] = std::thread(ScanIDs, this);
     }
 
     // Delay startSync, now called from node.cpp
@@ -967,7 +950,7 @@ void Networking::start(uint8_t assignedNID, NetworkID *networkNID, bool isTimeRe
 bool Networking::startSync()
 {
     if (!isTimeReference) {
-        commThreads[commThreads.count()] = Thread::New<Thread>(Sync, this);
+        commThreads[commThreads.count()] = std::thread(ScanIDs, this);
     }
 
     return true;
@@ -1387,7 +1370,9 @@ inline void Networking::processError(uint8_t entry)
 void Networking::shutdown()
 {
     for (uint32_t i = 0; i < commThreads.count(); i++) {
-        Thread::TerminateAndWait(*commThreads.get(i));
+        if (commThreads[i].joinable()) {
+            commThreads[i].join();
+        }
     }
 
     stopInterfaces();
@@ -1395,9 +1380,8 @@ void Networking::shutdown()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-thread_ret thread_function_call Networking::AcceptConnections(void *args)
+void Networking::AcceptConnections(AcceptConnectionArgs *acargs)
 {
-    AcceptConnectionArgs *acargs = (AcceptConnectionArgs *)args;
     Networking *node = acargs->node;
     Network network = acargs->network;
     uint8_t offset = network * 3;
@@ -1540,19 +1524,17 @@ thread_ret thread_function_call Networking::AcceptConnections(void *args)
 
     delete acargs;
     node->acceptConnectionCS.leave();
-    thread_ret_val(0);
+    return;
 err0:
     delete c;
 err1:
     node->shutdown();
     delete acargs;
     node->acceptConnectionCS.leave();
-    thread_ret_val(r);
 }
 
-thread_ret thread_function_call Networking::ScanIDs(void *args)
+void Networking::ScanIDs(Networking *node)
 {
-    Networking *node = (Networking *)args;
     uint16_t r;
     NetworkID *networkID;
 
@@ -1578,15 +1560,12 @@ thread_ret thread_function_call Networking::ScanIDs(void *args)
             }
         }
     }
-
-    thread_ret_val(0);
 }
 
-thread_ret thread_function_call Networking::Sync(void *args)  // executed by non-time ref nodes
+void Networking::Sync(Networking *node)  // executed by non-time ref nodes
 {
-    Thread::Sleep(100);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
     //printf("Starting Network Sync...\n");
-    Networking *node = (Networking *)args;
     uint64_t t = Time::Get();
     CommChannel *c;
     SyncProbe *probe;
@@ -1615,15 +1594,13 @@ thread_ret thread_function_call Networking::Sync(void *args)  // executed by non
                 break;
             }
 
-            Thread::Sleep(node->syncPeriod);
+            std::this_thread::sleep_for(std::chrono::milliseconds(node->syncPeriod));
             //std::cout<<"> Slept for "<<(uint32_t)(Time::Get() - t)<<" usec ("<<(uint64_t)(&t)<<")..."<<std::endl;
             //Thread::Sleep(1000000);
         } else {
-            Thread::Sleep(100);
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
     }
-
-    return 0;
 }
 
 }

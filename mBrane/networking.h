@@ -83,6 +83,7 @@
 #include "../Core/list.h"
 #include "../Core/control_messages.h"
 #include "messaging.h"
+#include <thread>
 
 using namespace mBrane::sdk;
 using namespace mBrane::sdk::mdaemon;
@@ -135,12 +136,12 @@ public:
     bool ready;
 
     Array<CommChannel *, 6> commChannels;
-    Array<Thread *, 6> commThreads;
-    Thread *pushThread;
+    Array<std::thread, 6> commThreads;
+    std::thread pushThread;
 
     Pipe11<P<_Payload>, MESSAGE_INPUT_BLOCK_SIZE> buffer; // incoming messages from remote nodes
-    static thread_ret thread_function_call ReceiveMessages(void *args);
-    static thread_ret thread_function_call PushJobs(void *args);
+    static void ReceiveMessages(ReceiveThreadInfo *info);
+    static void PushJobs(NodeCon *_this);
 };
 
 class Messaging;
@@ -228,7 +229,7 @@ protected:
     virtual void notifyNodeLeft(uint8_t NID) = 0;
     virtual void shutdown();
 
-    Array<Thread *, 32> commThreads;
+    Array<std::thread, 32> commThreads;
 
     bool checkSyncProbe(uint8_t syncNodeID);
     void systemReady();
@@ -239,15 +240,15 @@ protected:
     bool allNodesJoined();
     bool allNodesReady();
 
-    static thread_ret thread_function_call ScanIDs(void *args);
+    static void ScanIDs(Networking *node);
     typedef struct {
         Networking *node;
         int32_t  timeout;
         Network network;
         _Payload::Category category;
     } AcceptConnectionArgs;
-    static thread_ret thread_function_call AcceptConnections(void *args);
-    static thread_ret thread_function_call Sync(void *args);
+    static void AcceptConnections(AcceptConnectionArgs *acargs);
+    static void Sync(Networking *node);
     int64_t timeDrift; // in ms
     int64_t syncPeriod; // in ms
 
