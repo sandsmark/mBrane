@@ -76,9 +76,9 @@
 #ifndef mBrane_executing_h
 #define mBrane_executing_h
 
-#include "utils.h"
-#include "../Core/module.h"
-#include "xml_parser.h"
+#include <CoreLibrary/utils.h>
+#include <Core/module.h>
+#include <CoreLibrary/xml_parser.h>
 #include <mutex>
 
 

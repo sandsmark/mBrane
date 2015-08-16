@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 2.8)
 if(UNIX)
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w -std=gnu++0x -fPIC -g")# -Wfatal-errors")
 endif()
-include_directories(${PROJECT_SOURCE_DIR}/ ${PROJECT_SOURCE_DIR}/CoreLibrary ${PROJECT_SOURCE_DIR}/Core)
+include_directories(${PROJECT_SOURCE_DIR}/)
 
 set (mBrane_srcs
     mBrane/messaging.cpp

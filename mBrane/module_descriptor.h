@@ -76,9 +76,9 @@
 #ifndef mBrane_module_descriptor_h
 #define mBrane_module_descriptor_h
 
-#include "../Core/list.h"
-#include "../Core/module.h"
-#include "xml_parser.h"
+#include <Core/list.h>
+#include <Core/module.h>
+#include <CoreLibrary/xml_parser.h>
 
 #include "projection.h"
 

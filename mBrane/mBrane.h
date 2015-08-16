@@ -76,7 +76,7 @@
 #ifndef mbrane_h
 #define mbrane_h
 
-#include "types.h"
+#include <CoreLibrary/types.h>
 
 #if defined WINDOWS
 #if defined MBRANELIB_EXPORTS

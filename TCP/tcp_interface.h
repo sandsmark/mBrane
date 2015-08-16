@@ -79,9 +79,9 @@
 #ifndef mBrane_tcp_interface_h
 #define mBrane_tcp_interface_h
 
-#include "utils.h"
-#include "xml_parser.h"
-#include "../Core/network_interface.h"
+#include <CoreLibrary/utils.h>
+#include <CoreLibrary/xml_parser.h>
+#include <Core/network_interface.h>
 
 using namespace mBrane;
 using namespace mBrane::sdk;

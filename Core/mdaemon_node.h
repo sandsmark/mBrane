@@ -77,7 +77,7 @@
 #define mBrane_sdk_mdaemon_node_h
 
 #include "module_node.h"
-#include "xml_parser.h"
+#include <CoreLibrary/xml_parser.h>
 #include "dynamic_class_loader.h"
 
 #include <thread>

@@ -76,12 +76,12 @@
 #ifndef mBrane_networking_h
 #define mBrane_networking_h
 
-#include "../Core/network_interface.h"
+#include <Core/network_interface.h>
 #include "network_id.h"
 
-#include "pipe.h"
-#include "../Core/list.h"
-#include "../Core/control_messages.h"
+#include <CoreLibrary/pipe.h>
+#include <Core/list.h>
+#include <Core/control_messages.h>
 #include "messaging.h"
 #include <thread>
 

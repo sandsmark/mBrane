@@ -76,8 +76,9 @@
 #ifndef mBrane_sdk_network_interface_h
 #define mBrane_sdk_network_interface_h
 
-#include "utils.h"
-#include "xml_parser.h"
+#include <CoreLibrary/utils.h>
+#include <CoreLibrary/xml_parser.h>
+
 #include "mdaemon_node.h"
 
 

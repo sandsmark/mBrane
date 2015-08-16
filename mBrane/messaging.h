@@ -81,9 +81,9 @@
 #define JOBS_BLOCK_SIZE 128
 
 #include "mBrane.h"
-#include "pipe.h"
-#include "../Core/list.h"
-#include "../Core/control_messages.h"
+#include <CoreLibrary/pipe.h>
+#include <Core/list.h>
+#include <Core/control_messages.h>
 #include <thread>
 #include "module_descriptor.h"
 

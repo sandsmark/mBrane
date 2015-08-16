@@ -79,8 +79,8 @@
 #ifndef mBrane_tcp_channel_h
 #define mBrane_tcp_channel_h
 
-#include "../Core/network_interface.h"
-#include "utils.h"
+#include <Core/network_interface.h>
+#include <CoreLibrary/utils.h>
 #include <errno.h>
 #include <string.h>
 #include <fcntl.h>

@@ -73,8 +73,8 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "module_register.h"
-#include "class_register.h"
+#include <Core/module_register.h>
+#include <Core/class_register.h>
 
 #include "module_descriptor.h"
 #include "projection.tpl.cpp"

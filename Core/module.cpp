@@ -75,7 +75,7 @@
 
 #include "module.h"
 #include "module_node.h"
-#include "utils.h"
+#include <CoreLibrary/utils.h>
 #include <chrono>
 
 namespace mBrane
