@@ -124,10 +124,9 @@ inline int16_t CommChannel::_send(__Payload *c, uint8_t destinationNID)
     int16_t r;
     uint32_t size = (uint32_t)c->size();
     //std::cout<<"Info: Sending payload type '"<<CR->class_name<<"' ["<<c->cid()<<"] size '"<<size<<"'..."<<std::endl;
-    commSendCS.enter();
+    std::lock_guard<std::mutex> guard(commSendMutex);
 
     if (r = bufferedSend((uint8_t *)&size, sizeof(uint32_t))) { // send the total size first (includes the size of the non transmitted data): will be used to alloc on the recv side
-        commSendCS.leave();
         return r;
     }
 
@@ -137,23 +136,19 @@ inline int16_t CommChannel::_send(__Payload *c, uint8_t destinationNID)
         }
 
         if (r = bufferedSend(((uint8_t *)c) + CR->offset(), sizeof(uint64_t))) { // send the metadata.
-            commSendCS.leave();
             return r;
         }
 
         if (c->isConstant()) {
             if (r = bufferedSend(NULL, 0, true)) {
-                commSendCS.leave();
                 return r;
             }
 
-            commSendCS.leave();
             return 0;
         }
 
         if (!Node::Get()->hasLookup(destinationNID, ((_Payload *)c)->getOID())) { // the destination node does not have the object already.
             if (r = bufferedSend(((uint8_t *)c) + CR->offset(), size - CR->offset() - sizeof(uint64_t))) { // send the rest of the object.
-                commSendCS.leave();
                 return r;
             }
 
@@ -161,7 +156,6 @@ inline int16_t CommChannel::_send(__Payload *c, uint8_t destinationNID)
             // the receiver also knows now that we have it.
         }
     } else if (r = bufferedSend(((uint8_t *)c) + CR->offset(), size - CR->offset())) { // send in full.
-        commSendCS.leave();
         return r;
     }
 
@@ -176,18 +170,15 @@ inline int16_t CommChannel::_send(__Payload *c, uint8_t destinationNID)
         }
 
         if (r = _send(p, destinationNID)) {
-            commSendCS.leave();
             return r;
         }
     }
 
     // printf("CommChannel Send time:    %u\n", (uint32_t) (Time::Get() - t1));
     if (r = bufferedSend(NULL, 0, true)) {
-        commSendCS.leave();
         return r;
     }
 
-    commSendCS.leave();
     return 0;
 }
 
@@ -223,16 +214,14 @@ inline int16_t CommChannel::_recv(__Payload **c, uint8_t sourceNID)
     uint64_t metaData;
     int16_t r;
     uint32_t size;
-    commRecvCS.enter();
+    std::lock_guard<std::mutex> guard(commRecvMutex);
 
     if (r = recv((uint8_t *)&size, sizeof(uint32_t))) { // receive the total size (includes the size of the non transmitted data)
-        commRecvCS.leave();
         return r;
     }
 
     //Error::PrintBinary((char*)&size, sizeof(uint32_t), true, "Received Size");
     if (r = recv((uint8_t *)&metaData, sizeof(uint64_t), true)) { // receive __Payload::_metaData
-        commRecvCS.leave();
         return r;
     }
 
@@ -241,7 +230,6 @@ inline int16_t CommChannel::_recv(__Payload **c, uint8_t sourceNID)
     ClassRegister *CR = ClassRegister::Get((uint16_t)(metaData >> 16));
 
     if (CR == NULL) {
-        commRecvCS.leave();
         return -1;
     }
 
@@ -252,7 +240,6 @@ inline int16_t CommChannel::_recv(__Payload **c, uint8_t sourceNID)
 
         if (OID & 0x80000000) { // constant object.
             *c = Node::Get()->getConstantObject(OID);
-            commRecvCS.leave();
             return 0;
         }
 
@@ -261,7 +248,6 @@ inline int16_t CommChannel::_recv(__Payload **c, uint8_t sourceNID)
                 // no need to recv anything.
                 *c = Node::Get()->getSharedObject(OID);
                 Node::Get()->consolidate((_Payload *)*c); // handles the case where c has been doomed after being sent by the source node: ressuscitate it if no advertisement has been made yet.
-                commRecvCS.leave();
                 return 0;
             }
 
@@ -273,7 +259,6 @@ inline int16_t CommChannel::_recv(__Payload **c, uint8_t sourceNID)
     *c = (__Payload *)(*CR->allocator())(size); // calls UserDefinedClass::New(size)
 
     if (r = recv(((uint8_t *)*c) + CR->offset(), size - CR->offset())) { // metadata only peeked: read from the offset, and not from offset+sizeof(_metaData)
-        commRecvCS.leave();
         return r;
     }
 
@@ -286,7 +271,6 @@ inline int16_t CommChannel::_recv(__Payload **c, uint8_t sourceNID)
             if (s) { // object was already there but the sender didn't know: discard what has been received and use the known object instead.
                 delete c;
                 *c = s;
-                commRecvCS.leave();
                 return 0;
             }
 
@@ -300,7 +284,6 @@ inline int16_t CommChannel::_recv(__Payload **c, uint8_t sourceNID)
     for (uint8_t i = 0; i < ptrCount; i++) {
         if (r = _recv(&p, sourceNID)) {
             delete *c;
-            commRecvCS.leave();
             return r;
         }
 
@@ -308,7 +291,6 @@ inline int16_t CommChannel::_recv(__Payload **c, uint8_t sourceNID)
     }
 
     (*c)->init();
-    commRecvCS.leave();
     return 0;
 }
 

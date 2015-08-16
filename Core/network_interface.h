@@ -122,8 +122,8 @@ protected:
     CommChannel(); // initialization to be performed in subclasses' constructors
     int16_t _send(__Payload *c, uint8_t destinationNID);
     int16_t _recv(__Payload **c, uint8_t sourceNID);
-    CriticalSection commSendCS;
-    CriticalSection commRecvCS;
+    std::mutex commSendMutex;
+    std::mutex commRecvMutex;
     uint8_t *sendBuffer;
     uint32_t sendBufferLen;
     uint32_t sendBufferPos;
