@@ -191,7 +191,7 @@ protected:
     NetworkInterface *networkInterfaces[7];
 
     Network network;
-    CriticalSection acceptConnectionCS;
+    std::mutex acceptConnectionMutex;
 
     bool startInterfaces();
     void stopInterfaces();
@@ -217,7 +217,7 @@ protected:
     CommChannel *broadcastChannel[2]; // bcast
 // Array<CommChannel *,32> controlChannels[2]; // for each network: 1 (bcast capable) or many (connected)
 // Array<DataCommChannel *,32,ArrayManaged> dataChannels;
-    CriticalSection channelsCS; // protects controlChannels and dataChannels
+    std::mutex channelsMutex; // protects controlChannels and dataChannels
     UNORDERED_MAP<uint8_t, NodeCon *> nodes;
 
     bool isTimeReference;

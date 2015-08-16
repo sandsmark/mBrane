@@ -1249,7 +1249,7 @@ uint16_t Networking::connect(NetworkID *networkID)
 
 uint8_t Networking::addNodeEntry()  // assigns the first free slot
 {
-    channelsCS.enter();
+    std::lock_guard<std::mutex> guard(channelsMutex);
 
     for (uint8_t i = 0; i < nodeCount; i++) {
         if (i == _ID) {
@@ -1257,12 +1257,10 @@ uint8_t Networking::addNodeEntry()  // assigns the first free slot
         }
 
         if ((nodes[i] == NULL) || (!nodes[i]->isInUse())) {
-            channelsCS.leave();
             return i;
         }
     }
 
-    channelsCS.leave();
     return (uint8_t)nodeCount;
 }
 
@@ -1350,7 +1348,8 @@ void Networking::sendStreamData(uint8_t NID, _Payload *p, Network network)
 
 inline void Networking::processError(uint8_t entry)
 {
-    channelsCS.enter();
+    std::lock_guard<std::mutex> guard(channelsMutex);
+
     notifyNodeLeft(entry);
     NodeCon *con = nodes[entry];
 
@@ -1363,8 +1362,6 @@ inline void Networking::processError(uint8_t entry)
     if (entry == referenceNID) {
         setNewReference();
     }
-
-    channelsCS.leave();
 }
 
 void Networking::shutdown()
@@ -1410,20 +1407,18 @@ void Networking::AcceptConnections(AcceptConnectionArgs *acargs)
 
         // std::cout<<"   ---- 1 ---- AcceptConnection "<< (uint32_t)networkInterface->protocol()<<"..."<<std::endl;
         // ######### if we already have received a connection, don't startup as ref node
-        node->acceptConnectionCS.enter();
+        std::lock_guard<std::mutex> guard(node->acceptConnectionMutex);
         // std::cout<<"   ---- 2 ---- AcceptConnection "<< (uint32_t)networkInterface->protocol()<<"..."<<std::endl;
 
         if ((!decidedRefNode) && (category == _Payload::CONTROL) && (timedout)) { // reference node
             std::cout << "> Info: *** Starting up as Reference Node ***" << std::endl;
             node->start(0, 0, true);
             decidedRefNode = true;
-            node->acceptConnectionCS.leave();
             //thread_ret_val(0);
             continue;
         }
 
         if (timedout) {
-            node->acceptConnectionCS.leave();
             continue;
         }
 
@@ -1518,19 +1513,16 @@ void Networking::AcceptConnections(AcceptConnectionArgs *acargs)
         }
 
         //std::cout<<"   ---- 6 ---- AcceptConnection "<< (uint32_t)networkInterface->protocol()<<"..."<<std::endl;
-        node->acceptConnectionCS.leave();
         // std::cout<<"   ---- 7 ---- AcceptConnection "<< (uint32_t)networkInterface->protocol()<<"..."<<std::endl;
     }
 
     delete acargs;
-    node->acceptConnectionCS.leave();
     return;
 err0:
     delete c;
 err1:
     node->shutdown();
     delete acargs;
-    node->acceptConnectionCS.leave();
 }
 
 void Networking::ScanIDs(Networking *node)
