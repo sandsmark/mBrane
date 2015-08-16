@@ -80,12 +80,12 @@ namespace	mBrane{
 	namespace	sdk{
 		namespace	mdaemon{
 
-			Node::Node(uint8	ID):module::Node(ID),_shutdown(false){
+			Node::Node(uint8_t	ID):module::Node(ID),_shutdown(false){
 			}
 
 			Node::~Node(){
 
-				for(uint32	i=0;i<daemonLoaders.count();i++){
+				for(uint32_t	i=0;i<daemonLoaders.count();i++){
 
 					if(daemonLoaders[i])
 						delete	daemonLoaders[i];
@@ -104,12 +104,12 @@ namespace	mBrane{
 				XMLNode	daemons=n.getChildNode("Daemons");
 				if(!!daemons){
 
-					uint32	daemonCount=daemons.nChildNode("Daemon");
+					uint32_t	daemonCount=daemons.nChildNode("Daemon");
 					daemonLoaders.alloc(daemonCount);
 					this->daemons.alloc(daemonCount);
 					daemonThreads.alloc(daemonCount);
 
-					for(uint32	i=0;i<daemonCount;i++){
+					for(uint32_t	i=0;i<daemonCount;i++){
 
 						XMLNode	n=daemons.getChildNode(i);
 						DynamicClassLoader<Daemon>	*dl;
@@ -128,7 +128,7 @@ namespace	mBrane{
 
 			void	Node::start(){
 
-				for(uint32	i=0;i<daemons.count();i++)
+				for(uint32_t	i=0;i<daemons.count();i++)
 					daemonThreads[i]=Thread::New<Thread>(Daemon::Run,daemons[i]);
 			}
 
@@ -141,7 +141,7 @@ namespace	mBrane{
 
 			thread_ret thread_function_call	Daemon::Run(void	*args){
 
-				uint32	r;
+				uint32_t	r;
 				((Daemon	*)args)->init();
 				while(((Daemon	*)args)->node->isRunning())
 					if(r=((Daemon	*)args)->run()){

@@ -79,20 +79,20 @@
 
 namespace	mBrane{
 
-	uint16	NetworkID::DiscoveryIDSize=0;
+	uint16_t	NetworkID::DiscoveryIDSize=0;
 
-	uint16	NetworkID::Size=0;
+	uint16_t	NetworkID::Size=0;
 	
-	uint16	NetworkID::CtrlIDSize[2]={	0,	0	};
+	uint16_t	NetworkID::CtrlIDSize[2]={	0,	0	};
 	
-	uint16	NetworkID::DataIDSize[2]={	0,	0	};
+	uint16_t	NetworkID::DataIDSize[2]={	0,	0	};
 	
-	uint16	NetworkID::StreamIDSize[2]={	0,	0	};
+	uint16_t	NetworkID::StreamIDSize[2]={	0,	0	};
 	
 	NetworkID::NetworkID():data(NULL){
 	}
 
-	NetworkID::NetworkID(uint8	NID,Node::Network	description,uint8	nameSize,char	*name){
+	NetworkID::NetworkID(uint8_t	NID,Node::Network	description,uint8_t	nameSize,char	*name){
 
 		Size=DiscoveryIDSize;
 		headerSize=3+nameSize;
@@ -101,7 +101,7 @@ namespace	mBrane{
 		case	Node::SECONDARY:	Size+=CtrlIDSize[Node::SECONDARY]+DataIDSize[Node::SECONDARY]+StreamIDSize[Node::SECONDARY];	break;
 		case	Node::BOTH:			Size+=CtrlIDSize[Node::PRIMARY]+DataIDSize[Node::PRIMARY]+StreamIDSize[Node::PRIMARY]+CtrlIDSize[Node::SECONDARY]+DataIDSize[Node::SECONDARY]+StreamIDSize[Node::SECONDARY];	break;
 		}
-		data=new	uint8[headerSize+Size];
+        data=new	uint8_t[headerSize+Size];
 		data[0]=NID;
 		data[1]=description;
 		data[2]=nameSize;
@@ -114,12 +114,12 @@ namespace	mBrane{
 			delete	data;
 	}
 
-	uint8	NetworkID::NID()	const{
+	uint8_t	NetworkID::NID()	const{
 
 		return	data[0];
 	}
 
-	uint8	NetworkID::setNID(uint8 newNID)	{
+	uint8_t	NetworkID::setNID(uint8_t newNID)	{
 
 		data[0]=newNID;
 		return 0;
@@ -135,7 +135,7 @@ namespace	mBrane{
 		return	(char	*)(data+3);
 	}
 
-	uint8	*NetworkID::at(InterfaceType	t)	const{
+	uint8_t	*NetworkID::at(InterfaceType	t)	const{
 
 		switch(t){
 		case	DISCOVERY:				return	data+headerSize;

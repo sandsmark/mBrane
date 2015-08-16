@@ -91,15 +91,15 @@
 #include	<ctime>
 
 
-#define	R250_IA	(sizeof(uint32)*103)
-#define	R250_IB	(sizeof(uint32)*R250_LEN-R250_IA)
-#define	R521_IA	(sizeof(uint32)*168)
-#define	R521_IB	(sizeof(uint32)*R521_LEN-R521_IA)
+#define	R250_IA	(sizeof(uint32_t)*103)
+#define	R250_IB	(sizeof(uint32_t)*R250_LEN-R250_IA)
+#define	R521_IA	(sizeof(uint32_t)*168)
+#define	R521_IB	(sizeof(uint32_t)*R521_LEN-R521_IA)
 
 namespace	core{
 
 	#if defined LINUX
-		bool CalcTimeout(struct timespec &timeout, uint32 ms) {
+		bool CalcTimeout(struct timespec &timeout, uint32_t ms) {
 
 			struct timeval now;
 			if (gettimeofday(&now, NULL) != 0)
@@ -115,7 +115,7 @@ namespace	core{
 			return true;
 		}
 
-		uint64 GetTime() {
+		uint64_t GetTime() {
 			struct timeval tv; 
 			if ( gettimeofday(&tv, NULL))
 				return 0; 
@@ -123,11 +123,11 @@ namespace	core{
 		}
 	#endif
 
-	void Error::PrintBinary(void* p, uint32 size, bool asInt, const char* title) {
+	void Error::PrintBinary(void* p, uint32_t size, bool asInt, const char* title) {
 		if (title != NULL)
 			printf("--- %s %u ---\n", title, size);
 		unsigned char c;
-		for (uint32 n=0; n<size; n++) {
+		for (uint32_t n=0; n<size; n++) {
 			c = *(((unsigned char*)p)+n);
 			if (asInt)
 				printf("[%u] ", (unsigned int)c);
@@ -203,7 +203,7 @@ namespace	core{
         void	Thread::TerminateAndWait(Thread	**threads, uint32_t threadCount){
 		if(!threads)
 			return;
-		for(uint32	i=0;i<threadCount;i++) {
+		for(uint32_t	i=0;i<threadCount;i++) {
 			threads[i]->terminate();
 			Thread::Wait(threads[i]);
 		}
@@ -221,10 +221,10 @@ namespace	core{
 		if(!threads)
 			return;
 #if defined	WINDOWS
-		for(uint32	i=0;i<threadCount;i++)
+		for(uint32_t	i=0;i<threadCount;i++)
 			WaitForSingleObject(threads[i]->_thread,INFINITE);
 #elif defined LINUX
-		for(uint32	i=0;i<threadCount;i++)
+		for(uint32_t	i=0;i<threadCount;i++)
 			pthread_join(threads[i]->_thread, NULL);
 #endif
 	}
@@ -242,7 +242,7 @@ namespace	core{
 
         void	Thread::Sleep(int64_t ms){
 #if defined	WINDOWS
-		::Sleep((uint32)ms);
+		::Sleep((uint32_t)ms);
 #elif defined LINUX
 		// we are actually being passed millisecond, so multiply up
 		usleep(ms*1000);
@@ -321,7 +321,7 @@ namespace	core{
 		static struct timeval tv;
 		static struct timezone tz;
 		gettimeofday(&tv, &tz);
-		return (((int64)tv.tv_sec)*1000000) + (int64)tv.tv_usec;
+		return (((int64_t)tv.tv_sec)*1000000) + (int64_t)tv.tv_usec;
 #endif
 	}
 
@@ -332,7 +332,7 @@ namespace	core{
 
         uint64_t TimeProbe::us(){
 
-		return	(uint64)(cpu_counts*Time::Period);
+		return	(uint64_t)(cpu_counts*Time::Period);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
@@ -348,7 +348,7 @@ namespace	core{
 
     double	Time::Period;
 	
-	int64	Time::InitTime;
+	int64_t	Time::InitTime;
 
         void	Time::Init(uint32_t r){
 #if defined	WINDOWS
@@ -366,13 +366,13 @@ namespace	core{
 	Period=1000000.0/f.QuadPart;	//	in us
 	struct	_timeb	local_time;
 	_ftime(&local_time);
-	InitTime=(int64)(local_time.time*1000+local_time.millitm)*1000;	//	in us
+	InitTime=(int64_t)(local_time.time*1000+local_time.millitm)*1000;	//	in us
 #elif defined LINUX
 	// we are actually setup a timer resolution of 1ms
 	// we can simulate this by performing a gettimeofday call
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
-	InitTime = (((int64)tv.tv_sec) * 1000000) + (int64)tv.tv_usec;
+	InitTime = (((int64_t)tv.tv_sec) * 1000000) + (int64_t)tv.tv_usec;
 	Period=1;	//	we measure all time in us anyway, so conversion is 1-to-1
 #endif
 	}
@@ -381,21 +381,21 @@ namespace	core{
 #if defined	WINDOWS
 		LARGE_INTEGER	counter;
 		QueryPerformanceCounter(&counter);
-		return	(uint64)(InitTime+counter.QuadPart*Period);
+		return	(uint64_t)(InitTime+counter.QuadPart*Period);
 #elif defined LINUX
 		timeval perfCount;
 		struct timezone tmzone;
 		gettimeofday(&perfCount, &tmzone);
-		int64 r = (((int64)perfCount.tv_sec) * 1000000) + (int64)perfCount.tv_usec;
+		int64_t r = (((int64_t)perfCount.tv_sec) * 1000000) + (int64_t)perfCount.tv_usec;
 		return	r;
 #endif
 	}
 
-	std::string	Time::ToString_seconds(uint64	t){
+	std::string	Time::ToString_seconds(uint64_t	t){
 
-		uint64	us=t%1000;
-		uint64	ms=t/1000;
-		uint64	s=ms/1000;
+		uint64_t	us=t%1000;
+		uint64_t	ms=t/1000;
+		uint64_t	s=ms/1000;
 		ms=ms%1000;
 
 		std::string	_s=String::Uint2String(s);
@@ -408,11 +408,11 @@ namespace	core{
 		return	_s;
 	}
 
-	std::string	Time::ToString_year(uint64	t){
+	std::string	Time::ToString_year(uint64_t	t){
 
-		uint64	us=t%1000;
-		uint64	ms=t/1000;
-		uint64	s=ms/1000;
+		uint64_t	us=t%1000;
+		uint64_t	ms=t/1000;
+		uint64_t	s=ms/1000;
 		ms=ms%1000;
 
 		time_t	_gmt_time;
@@ -439,11 +439,11 @@ namespace	core{
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	uint8	Host::Name(char	*name){
+	uint8_t	Host::Name(char	*name){
 #if defined	WINDOWS
 		DWORD	s=255;
 		GetComputerName(name,&s);
-		return	(uint8)s;
+		return	(uint8_t)s;
 #elif defined LINUX
 		struct utsname utsname;
 		uname(&utsname);
@@ -455,14 +455,14 @@ namespace	core{
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if defined	WINDOWS
-	const	uint32	Semaphore::Infinite=INFINITE;
+	const	uint32_t	Semaphore::Infinite=INFINITE;
 #elif defined LINUX
 	/*
 	 * Normally this should be SEM_VALUE_MAX but apparently the <semaphore.h> header
 	 * does not define it. The documents I have read indicate that on Linux it is
 	 * always equal to INT_MAX - so use that instead.
 	 */
-	const	uint32	Semaphore::Infinite=INT_MAX;
+	const	uint32_t	Semaphore::Infinite=INT_MAX;
 #endif
 
         Semaphore::Semaphore(uint32_t initialCount, uint32_t maxCount){
@@ -481,9 +481,9 @@ namespace	core{
 #endif
 	}
 
-	bool	Semaphore::acquire(uint32	timeout){
+	bool	Semaphore::acquire(uint32_t	timeout){
 #if defined	WINDOWS
-		uint32	r=WaitForSingleObject(s,timeout);
+		uint32_t	r=WaitForSingleObject(s,timeout);
 		return	r==WAIT_TIMEOUT;
 #elif defined LINUX
 		struct timespec t;
@@ -495,11 +495,11 @@ namespace	core{
 #endif
 	}
 
-	void	Semaphore::release(uint32	count){
+	void	Semaphore::release(uint32_t	count){
 #if defined	WINDOWS
 		ReleaseSemaphore(s,count,NULL);
 #elif defined LINUX
-		for (uint32 c = 0; c < count; c++)
+		for (uint32_t c = 0; c < count; c++)
 			sem_post(&s);
 #endif
 	}
@@ -521,14 +521,14 @@ namespace	core{
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if defined	WINDOWS
-	const	uint32	Mutex::Infinite=INFINITE;
+	const	uint32_t	Mutex::Infinite=INFINITE;
 #elif defined LINUX
 	/*
 	 * Normally this should be SEM_VALUE_MAX but apparently the <semaphore.h> header
 	 * does not define it. The documents I have read indicate that on Linux it is
 	 * always equal to INT_MAX - so use that instead.
 	 */
-	const	uint32	Mutex::Infinite=INT_MAX;
+	const	uint32_t	Mutex::Infinite=INT_MAX;
 #endif
 
 	Mutex::Mutex(){
@@ -549,11 +549,11 @@ namespace	core{
 
         bool	Mutex::acquire(uint32_t timeout){
 #if defined	WINDOWS
-		uint32	r=WaitForSingleObject(m,timeout);
+		uint32_t	r=WaitForSingleObject(m,timeout);
 		return	r==WAIT_TIMEOUT;
 #elif defined LINUX
-		int64 start = Time::Get();
-		int64 uTimeout = timeout*1000;
+		int64_t start = Time::Get();
+		int64_t uTimeout = timeout*1000;
 
 		while (pthread_mutex_trylock(&m) != 0) {
 			Thread::Sleep(10);
@@ -610,9 +610,9 @@ namespace	core{
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if defined	WINDOWS
-	const	uint32	Timer::Infinite=INFINITE;
+	const	uint32_t	Timer::Infinite=INFINITE;
 #elif defined LINUX
-	const	uint32	Timer::Infinite=INT_MAX;
+	const	uint32_t	Timer::Infinite=INT_MAX;
 
 	static void timer_signal_handler(int sig, siginfo_t *siginfo, void *context) { 
 		SemaTex* sematex = (SemaTex*) siginfo->si_value.sival_ptr;
@@ -674,8 +674,8 @@ namespace	core{
 		struct itimerspec newtv;
 		sigset_t allsigs;
 
-		uint64 t = deadline;
-		uint64 p = period * 1000;
+		uint64_t t = deadline;
+		uint64_t p = period * 1000;
 		newtv.it_interval.tv_sec = p / 1000000; 
 		newtv.it_interval.tv_nsec = (p % 1000000)*1000; 
 		newtv.it_value.tv_sec = t / 1000000; 
@@ -693,9 +693,9 @@ namespace	core{
 	#endif
 	}
 
-	bool	Timer::wait(uint32	timeout){
+	bool	Timer::wait(uint32_t	timeout){
 	#if defined	WINDOWS
-		uint32	r=WaitForSingleObject(t,timeout);
+		uint32_t	r=WaitForSingleObject(t,timeout);
 		return	r==WAIT_TIMEOUT;
 	#elif defined LINUX
 		bool res;
@@ -714,11 +714,11 @@ namespace	core{
 	#endif
 	}
 
-	bool	Timer::wait(uint64	&us,uint32	timeout){
+	bool	Timer::wait(uint64_t	&us,uint32_t	timeout){
 
 		TimeProbe	probe;
 		probe.set();
-		bool	r=wait((uint64)timeout);
+		bool	r=wait((uint64_t)timeout);
 		probe.check();
 		us=probe.us();
 		return	r;
@@ -809,7 +809,7 @@ namespace	core{
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	int32	Atomic::Increment32(int32	volatile	*v){
+	int32_t	Atomic::Increment32(int32_t	volatile	*v){
 #if defined	WINDOWS
 		return	InterlockedIncrement((long*)v);
 #elif defined LINUX
@@ -818,7 +818,7 @@ namespace	core{
 #endif
 	};
 
-	int32	Atomic::Decrement32(int32	volatile	*v){
+	int32_t	Atomic::Decrement32(int32_t	volatile	*v){
 #if defined	WINDOWS
 		return	InterlockedDecrement((long*)v);
 #elif defined LINUX
@@ -827,7 +827,7 @@ namespace	core{
 #endif
 	};
 
-	int32	Atomic::CompareAndSwap32(int32	volatile	*target,int32	v1,int32	v2){
+	int32_t	Atomic::CompareAndSwap32(int32_t	volatile	*target,int32_t	v1,int32_t	v2){
 #if defined	WINDOWS
 		return	_InterlockedCompareExchange((long*)target,v2,v1);
 #elif defined LINUX
@@ -836,7 +836,7 @@ namespace	core{
 #endif
 	}
 
-	int64	Atomic::CompareAndSwap64(int64	volatile	*target,int64	v1,int64	v2){
+	int64_t	Atomic::CompareAndSwap64(int64_t	volatile	*target,int64_t	v1,int64_t	v2){
 #if defined	WINDOWS
 		return	_InterlockedCompareExchange64(target,v2,v1);
 #elif defined LINUX
@@ -849,11 +849,11 @@ namespace	core{
 //#if defined	ARCH_32
 //		return	CompareAndSwap32(target,v1,v2);
 //#elif defined ARCH_64
-//		return	CompareAndSwap32((uint32*)target,v1,v2);
+//		return	CompareAndSwap32((uint32_t*)target,v1,v2);
 //#endif
 //	}
 
-	int32	Atomic::Swap32(int32	volatile	*target,int32	v){
+	int32_t	Atomic::Swap32(int32_t	volatile	*target,int32_t	v){
 #if defined	WINDOWS
 		return	_InterlockedExchange((long*)target,v);
 #elif defined LINUX
@@ -861,7 +861,7 @@ namespace	core{
 #endif
 	}
 
-	int64	Atomic::Swap64(int64	volatile	*target,int64	v){
+	int64_t	Atomic::Swap64(int64_t	volatile	*target,int64_t	v){
 #if defined	WINDOWS
 		return	CompareAndSwap64(target,v,v);
 #elif defined LINUX
@@ -873,35 +873,35 @@ namespace	core{
 //#if defined	ARCH_32
 //		return	Swap32(target,v);
 //#elif defined ARCH_64
-//		return	Swap32((uint32*)target,v);
+//		return	Swap32((uint32_t*)target,v);
 //#endif
 //	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	uint8	BSR(word	data){
+    uint8_t	BSR(uint32_t	data){
 #if defined	WINDOWS
 #if defined	ARCH_32
 		DWORD	index;
 		_BitScanReverse(&index,data);
-		return	(uint8)index;
+		return	(uint8_t)index;
 #elif defined	ARCH_64
-		uint64	index;
+		uint64_t	index;
 		_BitScanReverse64(&index,data);
-		return	(uint8)index;
+		return	(uint8_t)index;
 #endif
 #elif defined LINUX
 #if defined	ARCH_32
-		return	(uint8)(31-__builtin_clz((uint32_t)data));
+		return	(uint8_t)(31-__builtin_clz((uint32_t)data));
 #elif defined	ARCH_64
-		return	(uint8)(63-__builtin_clzll((uint64_t)data));
+		return	(uint8_t)(63-__builtin_clzll((uint64_t)data));
 #endif
 #endif
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	FastSemaphore::FastSemaphore(uint32	initialCount,uint32	maxCount):Semaphore(initialCount>0?1:0,1),count(initialCount),maxCount(maxCount){
+	FastSemaphore::FastSemaphore(uint32_t	initialCount,uint32_t	maxCount):Semaphore(initialCount>0?1:0,1),count(initialCount),maxCount(maxCount){
 	}
 
 	FastSemaphore::~FastSemaphore(){
@@ -909,7 +909,7 @@ namespace	core{
 
 	void	FastSemaphore::acquire(){
 
-		int32	c;
+		int32_t	c;
 		while((c=Atomic::Decrement32(&count))>=maxCount);	//	release calls can bring count over maxCount: acquire has to exhaust these extras
 		if(c<0)
 			Semaphore::acquire();
@@ -917,14 +917,14 @@ namespace	core{
 
 	void	FastSemaphore::release(){
 
-		int32	c=Atomic::Increment32(&count);
+		int32_t	c=Atomic::Increment32(&count);
 		if(c<=0)
 			Semaphore::release();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-	FastMutex::FastMutex(uint32	initialCount):Semaphore(initialCount,1),count(initialCount){
+	FastMutex::FastMutex(uint32_t	initialCount):Semaphore(initialCount,1),count(initialCount){
 	}
 
 	FastMutex::~FastMutex(){
@@ -932,14 +932,14 @@ namespace	core{
 
 	void	FastMutex::acquire(){
 
-		int32	former=Atomic::Swap32(&count,0);
+		int32_t	former=Atomic::Swap32(&count,0);
 		if(former==0)
 			Semaphore::acquire();
 	}
 
 	void	FastMutex::release(){
 
-		int32	former=Atomic::Swap32(&count,1);
+		int32_t	former=Atomic::Swap32(&count,1);
 		if(former==0)
 			Semaphore::release();
 	}
@@ -947,7 +947,7 @@ namespace	core{
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
 	bool	Error::PrintLastOSErrorMessage(const char* title) {
-		int32 err = Error::GetLastOSErrorNumber();
+		int32_t err = Error::GetLastOSErrorNumber();
 		char buf[1024];
 		if (!Error::GetOSErrorMessage(buf, 1024, err))
 			printf("%s: [%d] (could not get error message)\n", title, err);
@@ -958,15 +958,15 @@ namespace	core{
 
         int32_t Error::GetLastOSErrorNumber() {
 		#ifdef WINDOWS
-			int32 err = WSAGetLastError();
+			int32_t err = WSAGetLastError();
 			WSASetLastError(0);
 			return err;
 		#else
-			return (int32) errno;
+			return (int32_t) errno;
 		#endif
 	}
 
-	bool	Error::GetOSErrorMessage(char* buffer, uint32 buflen, int32 err) {
+	bool	Error::GetOSErrorMessage(char* buffer, uint32_t buflen, int32_t err) {
 		if (buffer == NULL)
 			return false;
 		if (buflen < 512) {
@@ -1071,7 +1071,7 @@ namespace	core{
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	bool WaitForSocketReadability(socket s, int32 timeout) {
+	bool WaitForSocketReadability(socket s, int32_t timeout) {
 
 		int maxfd = 0;
 
@@ -1101,7 +1101,7 @@ namespace	core{
 		return(ret > 0);
 	}
 
-	bool WaitForSocketWriteability(socket s, int32 timeout) {
+	bool WaitForSocketWriteability(socket s, int32_t timeout) {
 
 		int maxfd = 0;
 
@@ -1132,7 +1132,7 @@ namespace	core{
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	int32	String::StartsWith(const std::string &s, const std::string &str) {
+	int32_t	String::StartsWith(const std::string &s, const std::string &str) {
 		std::string::size_type pos = s.find_first_of(str);
 		if (pos == 0)
 			return 0;
@@ -1140,7 +1140,7 @@ namespace	core{
 			return -1;
 	}
 
-	int32	String::EndsWith(const std::string &s, const std::string &str) {
+	int32_t	String::EndsWith(const std::string &s, const std::string &str) {
 		std::string::size_type pos = s.find_last_of(str);
 		if (pos == s.size()-str.size())
 			return pos;
@@ -1213,7 +1213,7 @@ namespace	core{
 		return std::string(buffer);
 	}
 
-	std::string	String::Uint2String(uint64 i) {
+	std::string	String::Uint2String(uint64_t i) {
 		char buffer[1024];
 		sprintf(buffer,"%u",i);
 		return std::string(buffer);
@@ -1221,16 +1221,16 @@ namespace	core{
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	int32	Random::r250_index;
-	int32	Random::r521_index;
-	uint32	Random::r250_buffer[R250_LEN];
-	uint32	Random::r521_buffer[R521_LEN];
+	int32_t	Random::r250_index;
+	int32_t	Random::r521_index;
+	uint32_t	Random::r250_buffer[R250_LEN];
+	uint32_t	Random::r521_buffer[R521_LEN];
 
 	void	Random::Init(){
 
-		int32	i=R521_LEN;
-		uint32	mask1=1;
-		uint32	mask2=0xFFFFFFFF;
+		int32_t	i=R521_LEN;
+		uint32_t	mask1=1;
+		uint32_t	mask2=0xFFFFFFFF;
 		
 		while(i-->R250_LEN)
 			r521_buffer[i]=rand();
@@ -1255,7 +1255,7 @@ namespace	core{
 		r521_index=0;
 	}
 
-	float	Random::operator	()(uint32	range){
+	float	Random::operator	()(uint32_t	range){
 		/*
 		I prescale the indices by sizeof(unsigned long) to eliminate
 		four shlwi instructions in the compiled code.  This minor optimization
@@ -1267,13 +1267,13 @@ namespace	core{
 		increased perf by another 10%.
 		*/
 	    
-		int32	i1=r250_index;
-		int32	i2=r521_index;
-		uint8	*b1=(uint8	*)r250_buffer;
-		uint8	*b2=(uint8	*)r521_buffer;
-		uint32	*tmp1,*tmp2;
-		uint32	r,s;
-		int32	j1,j2;
+		int32_t	i1=r250_index;
+		int32_t	i2=r521_index;
+		uint8_t	*b1=(uint8_t	*)r250_buffer;
+		uint8_t	*b2=(uint8_t	*)r521_buffer;
+		uint32_t	*tmp1,*tmp2;
+		uint32_t	r,s;
+		int32_t	j1,j2;
 	    
 		j1=i1-R250_IB;
 		if(j1<0)
@@ -1282,16 +1282,16 @@ namespace	core{
 		if(j2<0)
 			j2=i2+R521_IA;
 	    
-		tmp1=(uint32	*)(b1+i1);
-		r=(*(uint32	*)(b1+j1))^(*tmp1);
+		tmp1=(uint32_t	*)(b1+i1);
+		r=(*(uint32_t	*)(b1+j1))^(*tmp1);
 		*tmp1=r;
-		tmp2=(uint32	*)(b2+i2);
-		s=(*(uint32	*)(b2+j2))^(*tmp2);
+		tmp2=(uint32_t	*)(b2+i2);
+		s=(*(uint32_t	*)(b2+j2))^(*tmp2);
 		*tmp2=s;
 	    
-		i1=(i1!= sizeof(uint32)*(R250_LEN-1))?(i1 + sizeof(uint32)):0;
+		i1=(i1!= sizeof(uint32_t)*(R250_LEN-1))?(i1 + sizeof(uint32_t)):0;
 		r250_index=i1;
-		i2=(i2!=sizeof(uint32)*(R521_LEN-1))?(i2 + sizeof(uint32)):0;
+		i2=(i2!=sizeof(uint32_t)*(R521_LEN-1))?(i2 + sizeof(uint32_t)):0;
 		r521_index=i2;
 
 		float	_r=r^s;

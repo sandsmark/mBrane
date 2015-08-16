@@ -123,7 +123,7 @@ namespace	mBrane{
 			return	NULL;
 		}
 
-		uint16	CID=ModuleRegister::GetCID(_class);
+		uint16_t	CID=ModuleRegister::GetCID(_class);
 		if(CID==ClassRegister::NoClass){
 
 			std::cout<<"> Error: class: "<<_class<<" does not exist"<<std::endl;
@@ -148,10 +148,10 @@ namespace	mBrane{
 			XMLNode	parameters=n.getChildNode("Parameters");
 			if(!!parameters){
 
-				uint32						_parameterCount=parameters.nChildNode();
-				std::vector<word32>			numerical_args;
+				uint32_t						_parameterCount=parameters.nChildNode();
+				std::vector<int32_t>			numerical_args;
 				std::vector<std::string>	string_args;
-				for(uint32	i=0;i<_parameterCount;++i){
+				for(uint32_t	i=0;i<_parameterCount;++i){
 
 					XMLNode	p=parameters.getChildNode("Parameter",i);
 					const	char	*_type=p.getAttribute("type");
@@ -159,7 +159,7 @@ namespace	mBrane{
 					if(strcmp(_type,"float")==0){
 
 						float	value=(float)atof(_value);
-						numerical_args.push_back(*reinterpret_cast<word32	*>(&value));
+						numerical_args.push_back(*reinterpret_cast<int32_t	*>(&value));
 					}else	if(strcmp(_type,"int32")==0)
 						numerical_args.push_back(atoi(_value));
 					else	if(strcmp(_type,"string")==0)
@@ -174,18 +174,18 @@ namespace	mBrane{
 			}
 		}
 
-		uint16	ID=(uint16)ModuleDescriptor::Config[CID].count();
+		uint16_t	ID=(uint16_t)ModuleDescriptor::Config[CID].count();
 		ModuleDescriptor	*m=new	ModuleDescriptor(_host,_m,CID,name);
 		ModuleDescriptor::Config[CID][ID]=m;
 
-		uint16	projectionCount=n.nChildNode("Projection");
+		uint16_t	projectionCount=n.nChildNode("Projection");
 		if(!projectionCount){	//	when no projection is defined, the module is projected on root at the highest activation level.
 
 			m->initialProjections[0].spaceID=0;
 			m->initialProjections[0].activationLevel=1.0;
 		}else{
 			
-			for(uint16	i=0;i<projectionCount;i++){
+			for(uint16_t	i=0;i<projectionCount;i++){
 
 				XMLNode	projection=n.getChildNode("Projection",i);
 				const	char	*spaceName=projection.getAttribute("space");	//	to be projected on.
@@ -208,8 +208,8 @@ namespace	mBrane{
 				}
 				m->initialProjections[i].spaceID=_s->ID;
 				m->initialProjections[i].activationLevel=(float)atof(_activationLevel);
-				uint16	subscriptionCount=projection.nChildNode("Subscription");
-				for(uint16	j=0;j<subscriptionCount;j++){
+				uint16_t	subscriptionCount=projection.nChildNode("Subscription");
+				for(uint16_t	j=0;j<subscriptionCount;j++){
 
 					XMLNode	subscription=projection.getChildNode("Subscription",j);
 					const	char	*_messageClass=subscription.getAttribute("message_class");
@@ -221,7 +221,7 @@ namespace	mBrane{
 					}
 					if(_messageClass){
 
-						uint16	MCID=ClassRegister::GetCID(_messageClass);
+						uint16_t	MCID=ClassRegister::GetCID(_messageClass);
 						if(MCID==ClassRegister::NoClass){
 
 							std::cout<<"> Error: Module::"<<name<<" Projection::"<<spaceName<<" Subscription::message_class: "<<_messageClass<<" does not exist"<<std::endl;
@@ -244,11 +244,11 @@ error:	ModuleDescriptor::Config[CID][m->ID]=NULL;
 		return	NULL;
 	}
 
-	void	ModuleDescriptor::Init(uint8	hostID){
+	void	ModuleDescriptor::Init(uint8_t	hostID){
 
 		ModuleDescriptor	*md;
-		for(uint32	i=0;i<ModuleDescriptor::Config.count();i++)	//	resolve host names into NID
-			for(uint32	j=0;j<ModuleDescriptor::Config[i].count();j++){
+		for(uint32_t	i=0;i<ModuleDescriptor::Config.count();i++)	//	resolve host names into NID
+			for(uint32_t	j=0;j<ModuleDescriptor::Config[i].count();j++){
 				
 				Node::Get()->trace(Node::EXECUTION)<<"> Info: Module init '"<<ModuleDescriptor::Config[i][j]->getName()<<"' for host '"<<ModuleDescriptor::Config[i][j]->hostName<<"'"<<std::endl;
 				if(	stricmp(ModuleDescriptor::Config[i][j]->hostName,Node::Get()->name())==0	||
@@ -266,16 +266,16 @@ error:	ModuleDescriptor::Config[CID][m->ID]=NULL;
 			}
 	}
 
-	uint16	ModuleDescriptor::GetID(uint8	hostID,uint16	CID){
+	uint16_t	ModuleDescriptor::GetID(uint8_t	hostID,uint16_t	CID){
 
-		for(uint16	i=0;i<Main[hostID][CID].count();i++)
+		for(uint16_t	i=0;i<Main[hostID][CID].count();i++)
 			if(Main[hostID][CID][i]==NULL)
 				return	i;
-		return	(uint16)Main[hostID][CID].count();
+		return	(uint16_t)Main[hostID][CID].count();
 	}
 
 	char noname[1];
-	const char*	ModuleDescriptor::GetName(uint16	cid, uint16 id){
+	const char*	ModuleDescriptor::GetName(uint16_t	cid, uint16_t id){
 		noname[0] = 0;
 		ModuleDescriptor	*m=ModuleDescriptor::Config[cid][id];
 		if (m == NULL)
@@ -284,7 +284,7 @@ error:	ModuleDescriptor::Config[CID][m->ID]=NULL;
 			return m->getName();
 	}
 
-	ModuleDescriptor::ModuleDescriptor(const	char	*hostName,_Module	*m,uint16	CID,const	char	*name):Projectable<ModuleDescriptor>(module::Node::NoID,(uint16)ModuleDescriptor::Config[CID].count()),module(m),CID(CID){
+	ModuleDescriptor::ModuleDescriptor(const	char	*hostName,_Module	*m,uint16_t	CID,const	char	*name):Projectable<ModuleDescriptor>(module::Node::NoID,(uint16_t)ModuleDescriptor::Config[CID].count()),module(m),CID(CID){
 
 		if(m){
 
@@ -305,7 +305,7 @@ error:	ModuleDescriptor::Config[CID][m->ID]=NULL;
 			Node::Get()->trace(Node::EXECUTION)<<"> Info: Module "<<CID<<"|"<<ID<<" created"<<std::endl;
 	}
 
-	ModuleDescriptor::ModuleDescriptor(uint8	hostID,uint16	CID,uint16	ID):Projectable<ModuleDescriptor>(hostID,ID),module(NULL),CID(CID),name(NULL){
+	ModuleDescriptor::ModuleDescriptor(uint8_t	hostID,uint16_t	CID,uint16_t	ID):Projectable<ModuleDescriptor>(hostID,ID),module(NULL),CID(CID),name(NULL){
 
 		if(hostID==Node::Get()->id()){
 
@@ -331,7 +331,7 @@ error:	ModuleDescriptor::Config[CID][m->ID]=NULL;
 		return	name;
 	}
 
-	void	ModuleDescriptor::addSubscription_message(uint8	hostID,uint16	spaceID,uint16	MCID){
+	void	ModuleDescriptor::addSubscription_message(uint8_t	hostID,uint16_t	spaceID,uint16_t	MCID){
 		if(!projections[hostID][spaceID])
 			project(hostID,spaceID);
 		P<ModuleEntry>	p=new	ModuleEntry(NodeEntry::Main[DC][MCID].get(this->hostID),this);
@@ -339,7 +339,7 @@ error:	ModuleDescriptor::Config[CID][m->ID]=NULL;
 		p=NULL;
 	}
 
-	void	ModuleDescriptor::addSubscription_stream(uint8	hostID,uint16	spaceID,uint16	SID){
+	void	ModuleDescriptor::addSubscription_stream(uint8_t	hostID,uint16_t	spaceID,uint16_t	SID){
 
 		if(!projections[hostID][spaceID])
 			project(hostID,spaceID);
@@ -348,30 +348,30 @@ error:	ModuleDescriptor::Config[CID][m->ID]=NULL;
 		p=NULL;
 	}
 
-	void	ModuleDescriptor::removeSubscription_message(uint8	hostID,uint16	spaceID,uint16	MCID){
+	void	ModuleDescriptor::removeSubscription_message(uint8_t	hostID,uint16_t	spaceID,uint16_t	MCID){
 		(*projections[hostID][spaceID])->removeSubscription(DC,MCID);
 		if(!(*projections[hostID][spaceID])->subscriptionCount[DC]	&&	!(*projections[hostID][spaceID])->subscriptionCount[ST])
 			unproject(hostID,spaceID);
 	}
 
-	void	ModuleDescriptor::removeSubscription_stream(uint8	hostID,uint16	spaceID,uint16	SID){
+	void	ModuleDescriptor::removeSubscription_stream(uint8_t	hostID,uint16_t	spaceID,uint16_t	SID){
 
 		(*projections[hostID][spaceID])->removeSubscription(ST,SID);
 		if(!(*projections[hostID][spaceID])->subscriptionCount[DC]	&&	!(*projections[hostID][spaceID])->subscriptionCount[ST])
 			unproject(hostID,spaceID);
 	}
 
-	void	ModuleDescriptor::removeSubscriptions_message(uint8	hostID,uint16	spaceID){
+	void	ModuleDescriptor::removeSubscriptions_message(uint8_t	hostID,uint16_t	spaceID){
 
-		for(uint16	i=0;i<NodeEntry::Main[DC].count();i++)
+		for(uint16_t	i=0;i<NodeEntry::Main[DC].count();i++)
 			removeSubscription_message(hostID,spaceID,i);
 		if(!(*projections[hostID][spaceID])->subscriptionCount[ST])
 			unproject(hostID,spaceID);
 	}
 
-	void	ModuleDescriptor::removeSubscriptions_stream(uint8	hostID,uint16	spaceID){
+	void	ModuleDescriptor::removeSubscriptions_stream(uint8_t	hostID,uint16_t	spaceID){
 
-		for(uint16	i=0;i<NodeEntry::Main[ST].count();i++)
+		for(uint16_t	i=0;i<NodeEntry::Main[ST].count();i++)
 			removeSubscription_stream(hostID,spaceID,i);
 		if(!(*projections[hostID][spaceID])->subscriptionCount[DC])
 			unproject(hostID,spaceID);
@@ -383,12 +383,12 @@ error:	ModuleDescriptor::Config[CID][m->ID]=NULL;
 	void	ModuleDescriptor::_deactivate(){
 	}
 
-	void	ModuleDescriptor::applyInitialProjections(uint8	hostID){
+	void	ModuleDescriptor::applyInitialProjections(uint8_t	hostID){
 
-		for(uint32	i=0;i<initialProjections.count();i++){
+		for(uint32_t	i=0;i<initialProjections.count();i++){
 
 			setActivationLevel(hostID,initialProjections[i].spaceID,initialProjections[i].activationLevel);
-			for(uint32	j=0;j<initialProjections[i].subscriptions.count();j++){
+			for(uint32_t	j=0;j<initialProjections[i].subscriptions.count();j++){
 
 				if(initialProjections[i].subscriptions[j].MCID==ClassRegister::NoClass)
 					addSubscription_stream(hostID,initialProjections[i].spaceID,initialProjections[i].subscriptions[j].SID);
@@ -410,14 +410,14 @@ error:	ModuleDescriptor::Config[CID][m->ID]=NULL;
 		if(activationLevel>=space->getActivationThreshold())
 			deactivate();
 
-		for(uint32	i=0;i<subscriptions[DC].count();i++){
+		for(uint32_t	i=0;i<subscriptions[DC].count();i++){
 
 			if(!subscriptions[DC][i])
 				continue;
 			(*subscriptions[DC][i])=NULL;
 			subscriptions[DC][i].remove();
 		}
-		for(uint32	i=0;i<subscriptions[ST].count();i++){
+		for(uint32_t	i=0;i<subscriptions[ST].count();i++){
 
 			if(!subscriptions[ST][i])
 				continue;
@@ -456,13 +456,13 @@ error:	ModuleDescriptor::Config[CID][m->ID]=NULL;
 
 		projected->activate();
 
-		for(uint32	i=0;i<subscriptions[DC].count();i++){
+		for(uint32_t	i=0;i<subscriptions[DC].count();i++){
 
 			if(!subscriptions[DC][i])
 				continue;
 			(*subscriptions[DC][i])->node->incActivation();
 		}
-		for(uint32	i=0;i<subscriptions[ST].count();i++){
+		for(uint32_t	i=0;i<subscriptions[ST].count();i++){
 
 			if(!subscriptions[ST][i])
 				continue;
@@ -474,13 +474,13 @@ error:	ModuleDescriptor::Config[CID][m->ID]=NULL;
 
 		projected->deactivate();
 
-		for(uint32	i=0;i<subscriptions[DC].count();i++){
+		for(uint32_t	i=0;i<subscriptions[DC].count();i++){
 
 			if(!subscriptions[DC][i])
 				continue;
 			(*subscriptions[DC][i])->node->decActivation();
 		}
-		for(uint32	i=0;i<subscriptions[ST].count();i++){
+		for(uint32_t	i=0;i<subscriptions[ST].count();i++){
 
 			if(!subscriptions[ST][i])
 				continue;
@@ -488,7 +488,7 @@ error:	ModuleDescriptor::Config[CID][m->ID]=NULL;
 		}
 	}
 
-	void	Projection<ModuleDescriptor>::addSubscription(uint8	payloadType,uint16	ID,List<P<ModuleEntry>,1024>::Iterator	i){
+	void	Projection<ModuleDescriptor>::addSubscription(uint8_t	payloadType,uint16_t	ID,List<P<ModuleEntry>,1024>::Iterator	i){
 
 		subscriptions[payloadType][ID]=i;
 		if(space->activationCount	&&	activationLevel>=space->getActivationThreshold())
@@ -496,7 +496,7 @@ error:	ModuleDescriptor::Config[CID][m->ID]=NULL;
 		subscriptionCount[payloadType]++;
 	}
 
-	void	Projection<ModuleDescriptor>::removeSubscription(uint8	payloadType,uint16	ID){
+	void	Projection<ModuleDescriptor>::removeSubscription(uint8_t	payloadType,uint16_t	ID){
 
 		if(space->activationCount	&&	activationLevel>=space->getActivationThreshold())
 			(*subscriptions[payloadType][ID])->node->decActivation();

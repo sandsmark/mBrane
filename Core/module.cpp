@@ -93,7 +93,7 @@ namespace	mBrane{
 				Node::Get()->trace(Node::EXECUTION)<<"Module "<<_cid<<"|"<<_id<<" deleted"<<std::endl;
 			}
 
-			inline	uint8	&_Module::priority(){
+			inline	uint8_t	&_Module::priority(){
 
 				return	_priority;
 			}
@@ -108,7 +108,7 @@ namespace	mBrane{
 				return	_ready;
 			}
 
-			uint32	_Module::dumpSize(){
+			uint32_t	_Module::dumpSize(){
 
 				return	0;
 			}
@@ -131,12 +131,12 @@ namespace	mBrane{
 				_ready=true;
 			}
 
-			void	_Module::sleep(int64	d){
+			void	_Module::sleep(int64_t	d){
 
 				Thread::Sleep(d);
 			}
 
-			void	_Module::wait(Thread	**threads,uint32	threadCount){
+			void	_Module::wait(Thread	**threads,uint32_t	threadCount){
 
 				Thread::Wait(threads,threadCount);
 			}

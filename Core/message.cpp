@@ -80,13 +80,13 @@ namespace	mBrane{
 	namespace	sdk{
 		namespace	payloads{
 
-			_StreamData::_StreamData(uint16	sid):_sid(sid){
+			_StreamData::_StreamData(uint16_t	sid):_sid(sid){
 			}
 
 			_StreamData::~_StreamData(){
 			}
 
-			uint16	&_StreamData::sid(){
+			uint16_t	&_StreamData::sid(){
 
 				return	_sid;
 			}
@@ -99,17 +99,17 @@ namespace	mBrane{
 			_Message::~_Message(){
 			}
 
-			uint16	&_Message::senderModule_cid(){
+			uint16_t	&_Message::senderModule_cid(){
 
 				return	_senderModuleCID;
 			}
 
-			uint16	&_Message::senderModule_id(){
+			uint16_t	&_Message::senderModule_id(){
 
 				return	_senderModuleID;
 			}
 
-			uint16	&_Message::senderNodeID(){
+			uint16_t	&_Message::senderNodeID(){
 
 				return	_senderNodeID;
 			}

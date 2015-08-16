@@ -86,7 +86,7 @@ namespace	mBrane{
 
 	Executing::~Executing(){
 
-		for(uint32	i=0;i<xThreads.count();i++)
+		for(uint32_t	i=0;i<xThreads.count();i++)
 			delete	xThreads[i];
 		if(supportSync)
 			delete	supportSync;
@@ -116,7 +116,7 @@ namespace	mBrane{
 	void	Executing::start(){
 
 		xThreads.alloc(threadCount*1);	//	twice the requested amount: to keep extra threads in our sleeve when some are waiting
-		for(uint32	i=0;i<xThreads.count();i++){
+		for(uint32_t	i=0;i<xThreads.count();i++){
 
 			XThread	*t=new	XThread((Node	*)this);
 			xThreads[i]=t;
@@ -165,7 +165,7 @@ check_in:	_this->node->supportSync->acquire();
 	}
 
 	inline	void	XThread::work(_Payload	*p,_Module	*m){
-//static	uint32	w=0;
+//static	uint32_t	w=0;
 		XThread	*currentProcessor=(XThread	*)m->processor;
 		if(currentProcessor){
 

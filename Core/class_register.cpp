@@ -90,28 +90,28 @@ namespace	mBrane{
 			return	Classes;
 		}
 
-		const	uint16	ClassRegister::NoClass=0xFFFF;
+		const	uint16_t	ClassRegister::NoClass=0xFFFF;
 
-		inline	ClassRegister	*ClassRegister::Get(uint16	CID){
+		inline	ClassRegister	*ClassRegister::Get(uint16_t	CID){
 
 			return	Classes->get(CID);
 		}
 
-		inline	uint16	ClassRegister::Count(){
+		inline	uint16_t	ClassRegister::Count(){
 
-			return	(uint16)Classes->count();
+			return	(uint16_t)Classes->count();
 		}
 
-		uint16	ClassRegister::Load(const char *className){
+		uint16_t	ClassRegister::Load(const char *className){
 
-			static	uint16	I=0;
+			static	uint16_t	I=0;
 			strcpy(Get(I)->class_name,className);
 			return	I++;
 		}
 
-		uint16	ClassRegister::GetCID(const	char	*className){
+		uint16_t	ClassRegister::GetCID(const	char	*className){
 
-			for(uint16	i=0;i<Classes->count();i++)
+			for(uint16_t	i=0;i<Classes->count();i++)
 				if(strcmp(Classes->get(i)->class_name,className)==0)
 					return	i;
 			return	NoClass;

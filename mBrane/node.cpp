@@ -86,7 +86,7 @@ using	namespace	mBrane::sdk::payloads;
 
 namespace	mBrane{
 
-	Node	*Node::New(const	char	*configFileName,SharedLibrary	&userLibrary,uint8	traceLevels){
+	Node	*Node::New(const	char	*configFileName,SharedLibrary	&userLibrary,uint8_t	traceLevels){
 
 		Node	*n=new	Node(traceLevels);
 		if(n->loadConfigFile(configFileName)){
@@ -97,7 +97,7 @@ namespace	mBrane{
 		return	NULL;
 	}
 
-	Node	*Node::NewXML(const	char	*configXML,SharedLibrary	&userLibrary,uint8	traceLevels){
+	Node	*Node::NewXML(const	char	*configXML,SharedLibrary	&userLibrary,uint8_t	traceLevels){
 
 		Node	*n=new	Node(traceLevels);
 		if(n->loadConfigXML(configXML)){
@@ -108,7 +108,7 @@ namespace	mBrane{
 		return	NULL;
 	}
 
-	Node::Node(uint8	traceLevels):Networking(),Executing(){
+	Node::Node(uint8_t	traceLevels):Networking(),Executing(){
 
 		if(!(traceLevels	&	0x01))
 			Streams[0]=new	NoStream();
@@ -187,7 +187,7 @@ namespace	mBrane{
 		if(!mdaemon::Node::loadConfig(mainNode))
 			return	NULL;
 
-		uint16 entry = 0;
+		uint16_t entry = 0;
 		XMLNode	nodeList=mainNode.getChildNode("Nodes");
 		if(!nodeList)
 			nodeCount=0;
@@ -198,8 +198,8 @@ namespace	mBrane{
 		//	strcpy(nodeNames[0],hostName);
 		//	nodeStatus[0] = 2; // Do not wait for connection...
 		//	printf("--- Node 0: '%s' ---\n", hostName);
-			uint16 nCount=nodeList.nChildNode("Node");
-			for(uint16	i=0;i<nCount;i++){
+			uint16_t nCount=nodeList.nChildNode("Node");
+			for(uint16_t	i=0;i<nCount;i++){
 
 				XMLNode	n=nodeList.getChildNode(i);
 				const	char	*_n=n.getAttribute("hostname");
@@ -252,13 +252,13 @@ namespace	mBrane{
 		if(!(userLibrary=SharedLibrary::New(ul)))
 			return	false;
 
-		std::vector<word32>			numerical_args;
+		std::vector<int32_t>			numerical_args;
 		std::vector<std::string>	string_args;
 		XMLNode	parameters=mainNode.getChildNode("Parameters");
 		if(!!parameters){
 
-			uint32	_parameterCount=parameters.nChildNode();
-			for(uint32	i=0;i<_parameterCount;++i){
+			uint32_t	_parameterCount=parameters.nChildNode();
+			for(uint32_t	i=0;i<_parameterCount;++i){
 
 				XMLNode	p=parameters.getChildNode("Parameter",i);
 				const	char	*_type=p.getAttribute("type");
@@ -266,7 +266,7 @@ namespace	mBrane{
 				if(strcmp(_type,"float")==0){
 
 					float	value=(float)atof(_value);
-					numerical_args.push_back(*reinterpret_cast<word32	*>(&value));
+					numerical_args.push_back(*reinterpret_cast<int32_t	*>(&value));
 				}else	if(strcmp(_type,"int32")==0)
 					numerical_args.push_back(atoi(_value));
 				else	if(strcmp(_type,"string")==0)
@@ -279,15 +279,15 @@ namespace	mBrane{
 			}
 		}
 
-		typedef	void	(*UserInitFunction)(const	std::vector<word32>	&,const	std::vector<std::string>	&);
+		typedef	void	(*UserInitFunction)(const	std::vector<int32_t>	&,const	std::vector<std::string>	&);
 		UserInitFunction	userInitFunction=userLibrary->getFunction<UserInitFunction>("Init");
 		if(!userInitFunction)
 			return	false;
 		userInitFunction(numerical_args,string_args);
 		std::cout<<"> Info: User library '"<<ul<<"' loaded"<<std::endl;
 
-		uint16	spaceCount=mainNode.nChildNode("Space");
-		for(uint16	i=0;i<spaceCount;i++){
+		uint16_t	spaceCount=mainNode.nChildNode("Space");
+		for(uint16_t	i=0;i<spaceCount;i++){
 
 			XMLNode	spaceNode=mainNode.getChildNode("Space",i);
 			Space	*s=Space::New(spaceNode);
@@ -295,8 +295,8 @@ namespace	mBrane{
 				return	false;
 		}
 
-		uint16	moduleCount=mainNode.nChildNode("Module");
-		for(uint16	i=0;i<moduleCount;i++){
+		uint16_t	moduleCount=mainNode.nChildNode("Module");
+		for(uint16_t	i=0;i<moduleCount;i++){
 
 			XMLNode				moduleNode=mainNode.getChildNode("Module",i);
 			ModuleDescriptor	*m=ModuleDescriptor::New(moduleNode);
@@ -325,7 +325,7 @@ namespace	mBrane{
 		Thread::Sleep();
 	}
 
-	void	Node::start(uint8	assignedNID,NetworkID	*networkID,bool	isTimeReference){
+	void	Node::start(uint8_t	assignedNID,NetworkID	*networkID,bool	isTimeReference){
 
 		// we only need to do this once.
 
@@ -340,7 +340,7 @@ namespace	mBrane{
 
 		Networking::start(assignedNID,networkID,isTimeReference);
 
-		//uint32 recThreadCount = 0;
+		//uint32_t recThreadCount = 0;
 		//if(network==PRIMARY	||	network==BOTH){
 
 		//	if(networkInterfaces[CONTROL_PRIMARY]->canBroadcast()){
@@ -399,9 +399,9 @@ namespace	mBrane{
 	}
 
 
-	void	Node::notifyNodeJoined(uint8	NID,NetworkID	*networkID){
+	void	Node::notifyNodeJoined(uint8_t	NID,NetworkID	*networkID){
 
-		// static	uint16	ToJoin=nodeCount; // using nodeJoined instead
+		// static	uint16_t	ToJoin=nodeCount; // using nodeJoined instead
 
 		// if(nodeCount && (nodeJoined == nodeCount)){	//	a node is joining after startup
 	//	if (allNodesJoined()) {
@@ -410,7 +410,7 @@ namespace	mBrane{
 	//	}else {	//	a node is joining during startup
 
 			bool alreadyJoined = false;
-			for(uint8	i=0;i<nodeCount;i++) {
+			for(uint8_t	i=0;i<nodeCount;i++) {
 				// printf("Node join check '%s' == '%s'... \n", nodeNames[i],networkID->name());
 				if (nodes[i] && (stricmp(nodes[i]->name,networkID->name())==0)){
 				//	Node::Get()->trace(Node::NETWORK)<<"> Node join status: "<<networkID->name()<<": '"<<nodeStatus[i]<<"'"<<std::endl;
@@ -426,8 +426,8 @@ namespace	mBrane{
 				Node::Get()->trace(Node::NETWORK)<<"> Info: Node join init: "<<networkID->name()<<":"<<(unsigned int)NID<<std::endl;
 				Space::Init(NID);
 
-				for(uint32	i=0;i<ModuleDescriptor::Config.count();i++)	{ //	resolve host names into NID
-					for(uint32	j=0;j<ModuleDescriptor::Config[i].count();j++){
+				for(uint32_t	i=0;i<ModuleDescriptor::Config.count();i++)	{ //	resolve host names into NID
+					for(uint32_t	j=0;j<ModuleDescriptor::Config[i].count();j++){
 
 						if(stricmp(ModuleDescriptor::Config[i][j]->hostName,networkID->name())==0){
 
@@ -453,7 +453,7 @@ namespace	mBrane{
 		Node::Get()->trace(Node::NETWORK)<<"> Info: Node joined: "<<networkID->name()<<" (ID: "<<(unsigned int)NID<<")"<<std::endl;
 	}
 
-	void	Node::notifyNodeLeft(uint8	NID){
+	void	Node::notifyNodeLeft(uint8_t	NID){
 
 		//if(	controlChannels[PRIMARY][NID]				||
 		//	dataChannels[NID]->channels[PRIMARY].data	||	
@@ -476,9 +476,9 @@ namespace	mBrane{
 		}
 	}
 
-	void	Node::startReceivingThreads(uint8	NID){
+	void	Node::startReceivingThreads(uint8_t	NID){
 
-		//uint32 recThreadCount = 0;
+		//uint32_t recThreadCount = 0;
 		//if(network==PRIMARY	||	network==BOTH){
 
 		//	if(!networkInterfaces[CONTROL_PRIMARY]->canBroadcast()){
@@ -564,7 +564,7 @@ namespace	mBrane{
 //		unloadApplication();
 	}
 
-	inline	uint64	Node::time()	const{
+	inline	uint64_t	Node::time()	const{
 
 		if(isTimeReference)
 			return	Time::Get();
@@ -572,14 +572,14 @@ namespace	mBrane{
 			return	Time::Get()-timeDrift;
 	}
 
-	void	Node::send(const	_Module	*sender,_Payload	*message, Array<uint8, 128>	*nodeIDs,Network	network){
+    void	Node::send(const	_Module	*sender, _Payload	*message, Array<uint8_t, 128> *nodeIDs, Network	network){
 
-		for (uint16 n=0; n<nodeIDs->count(); n++) {
+		for (uint16_t n=0; n<nodeIDs->count(); n++) {
 			send(sender, message, *nodeIDs->get(n), network);
 		}
 	}
 
-	void	Node::send(const	_Module	*sender,_Payload	*message, uint8	nodeID,Network	network){
+	void	Node::send(const	_Module	*sender,_Payload	*message, uint8_t	nodeID,Network	network){
 
 		message->send_ts()=this->time();
 		if(message->category()==_Payload::DATA){
@@ -614,7 +614,7 @@ namespace	mBrane{
 		Messaging::send(cs,network);
 	}
 
-	void	Node::newModule(const	_Module	*sender,uint16	CID,Network	network,const	char	*hostName){
+	void	Node::newModule(const	_Module	*sender,uint16_t	CID,Network	network,const	char	*hostName){
 
 		CreateModule	*cm=new	CreateModule();
 		cm->sender_cid=sender->descriptor->CID;
@@ -624,7 +624,7 @@ namespace	mBrane{
 		Messaging::send(cm,network);
 	}
 
-	void	Node::deleteSpace(uint16	ID,Network	network){
+	void	Node::deleteSpace(uint16_t	ID,Network	network){
 
 		DeleteSpace	*ds=new	DeleteSpace();
 		ds->space_id=ID;
@@ -632,7 +632,7 @@ namespace	mBrane{
 		Messaging::send(ds,network);
 	}
 
-	void	Node::deleteModule(uint16	CID,uint16	ID,Network	network){
+	void	Node::deleteModule(uint16_t	CID,uint16_t	ID,Network	network){
 
 		DeleteModule	*dm=new	DeleteModule();
 		dm->module_cid=CID;
@@ -641,7 +641,7 @@ namespace	mBrane{
 		Messaging::send(dm,network);
 	}
 
-	void	Node::activateModule(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,float	activationLevel,Network	network){
+	void	Node::activateModule(const	_Module	*sender,uint16_t	module_cid,uint16_t	module_id,uint16_t	space_id,float	activationLevel,Network	network){
 
 		ActivateModule	*a=new	ActivateModule();
 		a->host_id=_ID;
@@ -652,7 +652,7 @@ namespace	mBrane{
 		send(sender,a,network);
 	}
 
-	void	Node::activateSpace(const	_Module	*sender,uint16	space_id,uint16	target_sid,float	activationLevel,Network	network){
+	void	Node::activateSpace(const	_Module	*sender,uint16_t	space_id,uint16_t	target_sid,float	activationLevel,Network	network){
 
 		ActivateSpace	*a=new	ActivateSpace();
 		a->host_id=_ID;
@@ -662,7 +662,7 @@ namespace	mBrane{
 		send(sender,a,network);
 	}
 
-	void	Node::setSpaceThreshold(const	_Module	*sender,uint16	space_id,float	threshold,Network	network){
+	void	Node::setSpaceThreshold(const	_Module	*sender,uint16_t	space_id,float	threshold,Network	network){
 
 		SetThreshold	*s=new	SetThreshold();
 		s->host_id=_ID;
@@ -671,7 +671,7 @@ namespace	mBrane{
 		send(sender,s,network);
 	}
 
-	void	Node::subscribeMessage(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,uint16	message_cid,Network	network){
+	void	Node::subscribeMessage(const	_Module	*sender,uint16_t	module_cid,uint16_t	module_id,uint16_t	space_id,uint16_t	message_cid,Network	network){
 
 		SubscribeMessage	*s=new SubscribeMessage();
 		s->message_cid=message_cid;
@@ -682,7 +682,7 @@ namespace	mBrane{
 		send(sender,s,network);
 	}
 
-	void	Node::unsubscribeMessage(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,uint16	message_cid,Network	network){
+	void	Node::unsubscribeMessage(const	_Module	*sender,uint16_t	module_cid,uint16_t	module_id,uint16_t	space_id,uint16_t	message_cid,Network	network){
 
 		UnsubscribeMessage	*s=new UnsubscribeMessage();
 		s->message_cid=message_cid;
@@ -693,7 +693,7 @@ namespace	mBrane{
 		send(sender,s,network);
 	}
 
-	void	Node::subscribeStream(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,uint16	stream_id,Network	network){
+	void	Node::subscribeStream(const	_Module	*sender,uint16_t	module_cid,uint16_t	module_id,uint16_t	space_id,uint16_t	stream_id,Network	network){
 
 		SubscribeStream	*s=new SubscribeStream();
 		s->host_id=_ID;
@@ -704,7 +704,7 @@ namespace	mBrane{
 		send(sender,s,network);
 	}
 
-	void	Node::unsubscribeStream(const	_Module	*sender,uint16	module_cid,uint16	module_id,uint16	space_id,uint16	stream_id,Network	network){
+	void	Node::unsubscribeStream(const	_Module	*sender,uint16_t	module_cid,uint16_t	module_id,uint16_t	space_id,uint16_t	stream_id,Network	network){
 
 		UnsubscribeStream	*s=new UnsubscribeStream();
 		s->host_id=_ID;
@@ -715,12 +715,12 @@ namespace	mBrane{
 		send(sender,s,network);
 	}
 
-	const	char	*Node::getSpaceName(uint16	hostID,uint16	ID){
+	const	char	*Node::getSpaceName(uint16_t	hostID,uint16_t	ID){
 	
 		return	Space::Main[hostID][ID]->getName();
 	}
 
-	const	char	*Node::getModuleName(uint16	CID){
+	const	char	*Node::getModuleName(uint16_t	CID){
 
 		return	ModuleRegister::Get(CID)->name();
 	}
@@ -731,15 +731,15 @@ namespace	mBrane{
 	void	Node::load(const	char	*fileName){	//	TODO
 	}
 
-	void	Node::migrate(uint16	CID,uint16	ID,uint8	NID){	//	TODO
+	void	Node::migrate(uint16_t	CID,uint16_t	ID,uint8_t	NID){	//	TODO
 	}
 
-//	Array<uint8>	&Node::sharedMemorySegment(uint8	segment){
+//	Array<uint8_t>	&Node::sharedMemorySegment(uint8_t	segment){
 //
 //		return	sharedMemorySegments[segment];
 //	}
 
-	_Module	*Node::getModule(uint8	hostID,uint16	CID,uint16	ID){
+	_Module	*Node::getModule(uint8_t	hostID,uint16_t	CID,uint16_t	ID){
 
 		return	ModuleDescriptor::Main[hostID][CID][ID]->module;
 	}
@@ -752,26 +752,26 @@ namespace	mBrane{
 	void	Node::addConstantObject(_Payload	*c,const	std::string	&name){
 
 		c->setOID();
-		uint32	id=c->getID();
+		uint32_t	id=c->getID();
 		Messaging::constants.resize(id+1);
 		Messaging::constants[id].object=c;
 		Messaging::constants[id].name=name;
 	}
 
-	_Payload	*Node::getConstantObject(uint32	OID){
+	_Payload	*Node::getConstantObject(uint32_t	OID){
 
 		return	Messaging::constants[OID	&	0x00FFFFFF].object;
 	}
 
 	_Payload	*Node::getConstantObject(const	std::string	&name){
 
-		for(uint16	i=0;i<Messaging::constants.size();++i)
+		for(uint16_t	i=0;i<Messaging::constants.size();++i)
 			if(Messaging::constants[i].name==name)
 				return	Messaging::constants[i].object;
 		return	NULL;
 	}
 
-	void	Node::addLookup(uint8	sourceNID,uint32	OID){
+	void	Node::addLookup(uint8_t	sourceNID,uint32_t	OID){
 
 		Messaging::cacheCS.enter();
 		if(Messaging::lookup.size()<=sourceNID)
@@ -780,10 +780,10 @@ namespace	mBrane{
 		Messaging::cacheCS.leave();
 	}
 
-	bool	Node::hasLookup(uint8	destinationNID,uint32	OID){
+	bool	Node::hasLookup(uint8_t	destinationNID,uint32_t	OID){
 
 		Messaging::cacheCS.enter();
-		UNORDERED_SET<uint32>::const_iterator	oid=Messaging::lookup[destinationNID].find(OID);
+		UNORDERED_SET<uint32_t>::const_iterator	oid=Messaging::lookup[destinationNID].find(OID);
 		if(oid==Messaging::lookup[destinationNID].end()){
 
 			Messaging::cacheCS.leave();
@@ -801,10 +801,10 @@ namespace	mBrane{
 		Messaging::cacheCS.leave();
 	}
 
-	_Payload	*Node::getSharedObject(uint32	OID){
+	_Payload	*Node::getSharedObject(uint32_t	OID){
 
 		Messaging::cacheCS.enter();
-		UNORDERED_MAP<uint32,P<_Payload> >::const_iterator	o=Messaging::cache.find(OID);
+		UNORDERED_MAP<uint32_t,P<_Payload> >::const_iterator	o=Messaging::cache.find(OID);
 		if(o==Messaging::cache.end()){
 
 			Messaging::cacheCS.leave();

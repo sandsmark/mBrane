@@ -120,16 +120,16 @@ namespace	mBrane{
 			int16_t _recv(__Payload	**c,uint8_t sourceNID);
 			CriticalSection	commSendCS;
 			CriticalSection	commRecvCS;
-			uint8* sendBuffer;
-			uint32 sendBufferLen;
-			uint32 sendBufferPos;
+            uint8_t* sendBuffer;
+			uint32_t sendBufferLen;
+			uint32_t sendBufferPos;
 		public:
 			virtual	~CommChannel();	//	shutdown to be performed in subclasses' destructors
 			virtual	int16_t send(uint8_t *b,size_t	s)=0;	//	return 0 if successfull, error code (>0) otherwise
 			virtual	int16_t recv(uint8_t *b,size_t	s,bool	peek=false)=0;
 			virtual bool	isConnected() = 0;
 			virtual bool	disconnect() = 0;
-			int16_t bufferedSend(uint8 *b,size_t s, bool sendNow = false);
+			int16_t bufferedSend(uint8_t *b,size_t s, bool sendNow = false);
 			int16_t send(_Payload	*p,uint8_t destinationNID);	//	return 0 if successfull, error code (>0) otherwise. destinationNID used only for connected comm channels.
 			int16_t recv(_Payload	**p,uint8_t sourceNID);
 		};

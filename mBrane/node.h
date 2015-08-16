@@ -118,7 +118,7 @@ namespace	mBrane{
 		//	Array<Array<uint8_t>,65535>	sharedMemorySegments;	//	FUTURE DEVELOPMENT
 		//	NODE
 	//	Array<Host::host_name,32>	nodeNames;
-	//	Array<int32,32>	nodeStatus;
+	//	Array<int32_t,32>	nodeStatus;
 		Node(uint8_t traceLevels);
 		bool	loadApplication(const	char	*fileName);
 	public:
@@ -139,7 +139,7 @@ namespace	mBrane{
 		//	MODULE NODE API
 		void	send(const	_Module	*sender,_Payload	*message,module::Node::Network	network=module::Node::PRIMARY);
 		void	send(const	_Module	*sender,_Payload	*message, uint8_t nodeID,Network	network=module::Node::PRIMARY);
-		void	send(const	_Module	*sender,_Payload	*message, Array<uint8, 128>	*nodeIDs,Network	network);
+        void	send(const	_Module	*sender,_Payload	*message, Array<uint8_t, 128>	*nodeIDs,Network	network);
 		uint64_t time()	const;
 		void	newSpace(const	_Module	*sender,Network	network=PRIMARY);
 		void	newModule(const	_Module	*sender,uint16_t CID,Network	network=PRIMARY,const	char	*hostName="local");
@@ -167,7 +167,7 @@ namespace	mBrane{
 		void			dump(const	char	*fileName);
 		void			load(const	char	*fileName);
 		void			migrate(uint16_t CID,uint16_t ID,uint8_t NID);
-		//Array<uint8,65535>	&sharedMemorySegment(uint8_t segment);	//	FUTURE DEVELOPMENT
+		//Array<uint8_t,65535>	&sharedMemorySegment(uint8_t segment);	//	FUTURE DEVELOPMENT
 		_Module			*getModule(uint8_t hostID,uint16_t CID,uint16_t ID);
 	};
 }

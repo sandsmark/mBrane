@@ -91,12 +91,12 @@ public	BroadcastCommChannel{
 private:
 	core::socket	s;
 	sockaddr_in		bcast_address;
-	uint32 bufferLen;
+	uint32_t bufferLen;
 	char* buffer;
-	uint32 bufferContentLen;
-	uint32 bufferContentPos;
+	uint32_t bufferContentLen;
+	uint32_t bufferContentPos;
 	CriticalSection	udpCS;
-	bool	initialiseBuffer(uint32 len);
+	bool	initialiseBuffer(uint32_t len);
 public:
 	UDPChannel(core::socket	s,uint32_t port);
 	~UDPChannel();

@@ -73,18 +73,20 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <stdint.h>
+
 namespace	mBrane{
 	namespace	sdk{
 
-		template<typename	T,uint16	Size>	List<T,Size>::_List::_List():Array<ListElement<T>,Size>(){
+		template<typename	T,uint16_t	Size>	List<T,Size>::_List::_List():Array<ListElement<T>,Size>(){
 		}
 
-		template<typename	T,uint16	Size>	List<T,Size>::_List::~_List(){
+		template<typename	T,uint16_t	Size>	List<T,Size>::_List::~_List(){
 		}
 
-		template<typename	T,uint16	Size>	void	List<T,Size>::_List::clear(){
+		template<typename	T,uint16_t	Size>	void	List<T,Size>::_List::clear(){
 
-			for(uint32	i=0;i<Size;i++){
+			for(uint32_t	i=0;i<Size;i++){
 
 				if(i>0)
 					this->block.data[i].prev=this->block.data+i-1;
@@ -106,7 +108,7 @@ namespace	mBrane{
 			this->_count=Size-1;
 		}
 
-		template<typename	T,uint16	Size>	ListElement<T>	*List<T,Size>::_List::expand(){
+		template<typename	T,uint16_t	Size>	ListElement<T>	*List<T,Size>::_List::expand(){
 
 			this->last->next=new	Block<ListElement<T>,Size,ArrayUnmanaged>(this->last);
 			this->last=this->last->next;
@@ -115,20 +117,20 @@ namespace	mBrane{
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		template<typename	T,uint16	Size>	List<T,Size>::List(){
+		template<typename	T,uint16_t	Size>	List<T,Size>::List(){
 
 			clear();
 		}
 
-		template<typename	T,uint16	Size>	List<T,Size>::~List(){
+		template<typename	T,uint16_t	Size>	List<T,Size>::~List(){
 		}
 
-		template<typename	T,uint16	Size>	inline	uint32	List<T,Size>::elementCount()	const{
+		template<typename	T,uint16_t	Size>	inline	uint32_t	List<T,Size>::elementCount()	const{
 
 			return	_elementCount;
 		}
 
-		template<typename	T,uint16	Size>	inline	void	List<T,Size>::clear(){
+		template<typename	T,uint16_t	Size>	inline	void	List<T,Size>::clear(){
 
 			first=last=NULL;
 			_elementCount=0;
@@ -137,7 +139,7 @@ namespace	mBrane{
 			lastFree=data.get(0)+Size-1;
 		}
 
-		template<typename	T,uint16	Size>	inline	ListElement<T>	*List<T,Size>::getFreeSlot(){
+		template<typename	T,uint16_t	Size>	inline	ListElement<T>	*List<T,Size>::getFreeSlot(){
 
 			if(!firstFree)
 				firstFree=data.expand();
@@ -160,7 +162,7 @@ namespace	mBrane{
 			return	freeSlot;
 		}
 
-		template<typename	T,uint16	Size>	inline	void	List<T,Size>::remove(ListElement<T>	*o){
+		template<typename	T,uint16_t	Size>	inline	void	List<T,Size>::remove(ListElement<T>	*o){
 
 			if(o->prev)
 				o->prev->next=o->next;
@@ -177,24 +179,24 @@ namespace	mBrane{
 			_elementCount--;
 		}
 
-		template<typename	T,uint16	Size>	inline	void	List<T,Size>::removeElement(T	*t){
+		template<typename	T,uint16_t	Size>	inline	void	List<T,Size>::removeElement(T	*t){
 
 			remove((ListElement<T>	*)t);
 		}
 
-		template<typename	T,uint16	Size>	inline	uint32	List<T,Size>::removeReturnNext(ListElement<T>	*o){
+		template<typename	T,uint16_t	Size>	inline	uint32_t	List<T,Size>::removeReturnNext(ListElement<T>	*o){
 
 			remove(o);
 			return	o->next;
 		}
 
-		template<typename	T,uint16	Size>	inline	uint32	List<T,Size>::removeReturnPrevious(ListElement<T>	*o){
+		template<typename	T,uint16_t	Size>	inline	uint32_t	List<T,Size>::removeReturnPrevious(ListElement<T>	*o){
 
 			remove(o);
 			return	o->prev;
 		}
 
-		template<typename	T,uint16	Size>	inline	typename	List<T,Size>::Iterator	List<T,Size>::insertAfter(ListElement<T>	*o,T	&t){
+		template<typename	T,uint16_t	Size>	inline	typename	List<T,Size>::Iterator	List<T,Size>::insertAfter(ListElement<T>	*o,T	&t){
 
 			ListElement<T>	*target=getFreeSlot();
 			if(o){
@@ -212,7 +214,7 @@ namespace	mBrane{
 			return	Iterator(this,target);
 		}
 
-		template<typename	T,uint16	Size>	inline	typename	List<T,Size>::Iterator	List<T,Size>::insertBefore(ListElement<T>	*o,T	&t){
+		template<typename	T,uint16_t	Size>	inline	typename	List<T,Size>::Iterator	List<T,Size>::insertBefore(ListElement<T>	*o,T	&t){
 
 			ListElement<T>	target=getFreeSlot();
 			if(o){
@@ -230,17 +232,17 @@ namespace	mBrane{
 			return	Iterator(this,target);
 		}
 
-		template<typename	T,uint16	Size>	inline	typename	List<T,Size>::Iterator	List<T,Size>::addElementHead(T	&t){
+		template<typename	T,uint16_t	Size>	inline	typename	List<T,Size>::Iterator	List<T,Size>::addElementHead(T	&t){
 
 			return	insertBefore(first,t);
 		}
 		
-		template<typename	T,uint16	Size>	inline	typename	List<T,Size>::Iterator	List<T,Size>::addElementTail(T	&t){
+		template<typename	T,uint16_t	Size>	inline	typename	List<T,Size>::Iterator	List<T,Size>::addElementTail(T	&t){
 
 			return	insertAfter(last,t);
 		}
 
-		template<typename	T,uint16	Size>	inline	typename	List<T,Size>::Iterator	List<T,Size>::addElement(T	&t){
+		template<typename	T,uint16_t	Size>	inline	typename	List<T,Size>::Iterator	List<T,Size>::addElement(T	&t){
 
 			return	insertBefore(first,t);
 		}

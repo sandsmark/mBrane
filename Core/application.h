@@ -88,8 +88,8 @@
 
 //	C##_CID needed for use in switches (instead of the non constant expression user_class::CID())
 //	the initialization of C##_metaData triggers the intialization of  C::_MetaData
-#define	MBRANE_MESSAGE_CLASS(C)		static	const	uint16_t C##_CID=(uint16)__COUNTER__;static	const	uint64_t C##_metaData=ClassRegister::Load<C>(C##_CID);
-#define	MBRANE_STREAM_DATA_CLASS(C)	static	const	uint16_t C##_CID=(uint16)__COUNTER__;static	const	uint64_t C##_metaData=ClassRegister::Load<C>(C##_CID);
+#define	MBRANE_MESSAGE_CLASS(C)		static	const	uint16_t C##_CID=(uint16_t)__COUNTER__;static	const	uint64_t C##_metaData=ClassRegister::Load<C>(C##_CID);
+#define	MBRANE_STREAM_DATA_CLASS(C)	static	const	uint16_t C##_CID=(uint16_t)__COUNTER__;static	const	uint64_t C##_metaData=ClassRegister::Load<C>(C##_CID);
 #include	APPLICATION_CLASSES
 
 #define	CLASS_ID(C)	C##_CID

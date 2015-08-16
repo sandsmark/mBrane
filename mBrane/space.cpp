@@ -88,7 +88,7 @@ namespace	mBrane{
 
 		if(stricmp(name,"root")==0)
 			return	Space::Config[0];
-		for(uint16	i=0;i<Space::Config.count();i++)
+		for(uint16_t	i=0;i<Space::Config.count();i++)
 			if(stricmp(Space::Config[i]->name,name)==0)
 				return	Space::Config[i];
 		return	NULL;
@@ -113,14 +113,14 @@ namespace	mBrane{
 		Space	*s=new	Space(module::Node::NoID,name);
 		Space::Config[Space::Config.count()]=s;
 
-		uint16	projectionCount=n.nChildNode("Projection");
+		uint16_t	projectionCount=n.nChildNode("Projection");
 		if(!projectionCount){	//	when no projection is defined, the space is projected on root at the highest activation level.
 
 			s->initialProjections[0].spaceID=0;
 			s->initialProjections[0].activationLevel=1.0;
 		}else{
 			
-			for(uint16	i=0;i<projectionCount;i++){
+			for(uint16_t	i=0;i<projectionCount;i++){
 
 				XMLNode	projection=n.getChildNode("Projection",i);
 				const	char	*spaceName=projection.getAttribute("space");	//	to be projected on.
@@ -160,9 +160,9 @@ error:	Space::Config[s->ID]=NULL;
 		Space::Config[0]->initialActivationThreshold=1.0;	//	TODO: read initial threshold from config file
 	}
 
-	void	Space::Init(uint8	hostID){
+	void	Space::Init(uint8_t	hostID){
 
-		for(uint32	i=0;i<Space::Config.count();i++){
+		for(uint32_t	i=0;i<Space::Config.count();i++){
 
 			Space::Main[hostID][i]=Space::Config[i];
 			Space::Main[hostID][i]->hostID=hostID;
@@ -172,15 +172,15 @@ error:	Space::Config[s->ID]=NULL;
 		}		
 	}
 
-	uint16	Space::GetID(uint8	hostID){
+	uint16_t	Space::GetID(uint8_t	hostID){
 
-		for(uint16	i=0;i<Main[hostID].count();i++)
+		for(uint16_t	i=0;i<Main[hostID].count();i++)
 			if(Main[hostID][i]==NULL)
 				return	i;
-		return	(uint16)Main[hostID].count();
+		return	(uint16_t)Main[hostID].count();
 	}
 
-	Space::Space(uint8	hostID,const	char	*name):Projectable<Space>(hostID,(uint16)Config.count()){
+	Space::Space(uint8_t	hostID,const	char	*name):Projectable<Space>(hostID,(uint16_t)Config.count()){
 
 		if(name){
 
@@ -248,9 +248,9 @@ error:	Space::Config[s->ID]=NULL;
 			(*j)->deactivate();
 	}
 
-	void	Space::applyInitialProjections(uint8	hostID){
+	void	Space::applyInitialProjections(uint8_t	hostID){
 
-		for(uint32	i=0;i<initialProjections.count();i++)
+		for(uint32_t	i=0;i<initialProjections.count();i++)
 			setActivationLevel(hostID,initialProjections[i].spaceID,initialProjections[i].activationLevel);
 		
 		setActivationThreshold(initialActivationThreshold);

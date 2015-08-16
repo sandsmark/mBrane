@@ -117,7 +117,7 @@ namespace	mBrane{
 					PREEMPT=2
 				}Decision;
 				virtual	~_Module();
-                                virtual	void	loadParameters(const	std::vector<int32_t>	&numbers,const	std::vector<std::string>	&strings){}	//	parameters is deallocated after the call; called only upon local construction - in other words, will not be called upon remote construction (using the CreateModule message)
+                                virtual	void	loadParameters(const	std::vector<int32_t>	&numbers,const	std::vector<std::string>	&strings){}	//	parameters is deallocated after the call; called only upon local construction - in other ints, will not be called upon remote construction (using the CreateModule message)
                                 uint8_t	&priority();
 				bool	canMigrate();	//	on another node; dynamic
 				bool	isReady();	//	if not, messages will be lost

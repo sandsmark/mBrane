@@ -113,7 +113,7 @@ namespace	mBrane{
 				virtual	void				dump(const	char	*fileName)=0;	//	dumps the current system state; module dump fileNames: module_class_ID.bin: ex: CR1_123.bin
 				virtual	void				load(const	char	*fileName)=0;	//	initializes itself from a previously saved system state
 				virtual	void				migrate(uint16_t CID,uint16_t ID,uint8_t NID)=0;	//	identifies the module and the target node
-				//virtual	Array<uint8,65535>	&sharedMemorySegment(uint8_t segment)=0;	//	FUTURE DEVELOPMENT: pinned down RAM for RDMA, 16KB-1
+				//virtual	Array<uint8_t,65535>	&sharedMemorySegment(uint8_t segment)=0;	//	FUTURE DEVELOPMENT: pinned down RAM for RDMA, 16KB-1
 				virtual	module::_Module		*getModule(uint8_t hostID,uint16_t CID,uint16_t ID)=0;	//	so that the daemons can write module internals and use modules as interfaces to the pub-sub network
 				//	TODO:	define API as pure virtual functions
 				//			-> node map (an array of mBrane::Networking::NetworkID)

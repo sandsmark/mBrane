@@ -79,13 +79,13 @@ namespace	mBrane{
 	namespace	sdk{
 		namespace	payloads{
 /*
-			template<typename	T>	void	*Storage<T>::New(uint32	size){	
+			template<typename	T>	void	*Storage<T>::New(uint32_t	size){	
 				
-				uint32	ns;
+				uint32_t	ns;
 				return	new(size,ns)	Storage();
 			}
 			
-			template<typename	T>	void	*Storage<T>::operator	new(size_t	s,uint32	size,uint32	&normalizedSize){
+			template<typename	T>	void	*Storage<T>::operator	new(size_t	s,uint32_t	size,uint32_t	&normalizedSize){
 
 				Storage<T>	*storage=(Storage<T>	*)Memory::GetDynamic(size)->alloc(normalizedSize);
 				storage->normalizedSize=normalizedSize;
@@ -101,23 +101,23 @@ namespace	mBrane{
 			template<typename	T>	inline	Storage<T>::Storage(){	
 				
 				this->_metaData=Storage<T>::_MetaData;
-				this->data=((T	*)(((uint8	*)this)+offsetof(Storage<T>,data)+sizeof(T	*)));
+				this->data=((T	*)(((uint8_t	*)this)+offsetof(Storage<T>,data)+sizeof(T	*)));
 			}
 
 			template<typename	T>	Storage<T>::~Storage(){
 			}
 
-			template<typename	T>	inline	uint32	Storage<T>::getNormalizedSize(){
+			template<typename	T>	inline	uint32_t	Storage<T>::getNormalizedSize(){
 
 				return	normalizedSize;
 			}
 
-			template<typename	T>	inline	void	Storage<T>::setNormalizedSize(uint32	size){	
+			template<typename	T>	inline	void	Storage<T>::setNormalizedSize(uint32_t	size){	
 				
 				normalizedSize=size;
 			}
 				
-			template<typename	T>	T	&Storage<T>::operator	[](uint32	i){	
+			template<typename	T>	T	&Storage<T>::operator	[](uint32_t	i){	
 				
 				return	data[i];
 			}
@@ -129,13 +129,13 @@ namespace	mBrane{
 
 			////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-			template<typename	T>	void	*Storage<P<T> >::New(uint32	size){	
+			template<typename	T>	void	*Storage<P<T> >::New(uint32_t	size){	
 				
-				uint32	ns;
+				uint32_t	ns;
 				return	new(size,ns)	Storage();
 			}
 			
-			template<typename	T>	void	*Storage<P<T> >::operator	new(size_t	s,uint32	size,uint32	&normalizedSize){
+			template<typename	T>	void	*Storage<P<T> >::operator	new(size_t	s,uint32_t	size,uint32_t	&normalizedSize){
 
 				Storage<T>	*storage=(Storage<P<T> >	*)Memory::GetDynamic(size)->alloc(normalizedSize);
 				storage->normalizedSize=normalizedSize;
@@ -151,23 +151,23 @@ namespace	mBrane{
 			template<typename	T>	inline	Storage<P<T> >::Storage(){	
 				
 				this->_metaData=Storage<P<T> >::_MetaData;
-				this->data=((P<T>	*)(((uint8	*)this)+offsetof(Storage<P<T> >,data)+sizeof(P<T>	*)));
+				this->data=((P<T>	*)(((uint8_t	*)this)+offsetof(Storage<P<T> >,data)+sizeof(P<T>	*)));
 			}
 
 			template<typename	T>	Storage<P<T> >::~Storage(){
 			}
 
-			template<typename	T>	inline	uint32	Storage<P<T> >::getNormalizedSize(){
+			template<typename	T>	inline	uint32_t	Storage<P<T> >::getNormalizedSize(){
 
 				return	normalizedSize;
 			}
 
-			template<typename	T>	inline	void	Storage<P<T> >::setNormalizedSize(uint32	size){	
+			template<typename	T>	inline	void	Storage<P<T> >::setNormalizedSize(uint32_t	size){	
 				
 				normalizedSize=size;
 			}
 				
-			template<typename	T>	P<T>	&Storage<P<T> >::operator	[](uint32	i){	
+			template<typename	T>	P<T>	&Storage<P<T> >::operator	[](uint32_t	i){	
 				
 				return	data[i];
 			}
@@ -177,17 +177,17 @@ namespace	mBrane{
 				return	sizeof(Storage<P<T> >)+sizeof(P<T>)*count;
 			}
 				
-			template<typename	T>	uint16	Storage<P<T> >::ptrCount()	const{
+			template<typename	T>	uint16_t	Storage<P<T> >::ptrCount()	const{
 				
 				return	count;
 			}
 			
-			template<typename	T>	__Payload	*Storage<P<T> >::getPtr(uint16	i)	const{
+			template<typename	T>	__Payload	*Storage<P<T> >::getPtr(uint16_t	i)	const{
 				
 				return	data[i];
 			}
 			
-			template<typename	T>	void	Storage<P<T> >::setPtr(uint16	i,__Payload	*p){
+			template<typename	T>	void	Storage<P<T> >::setPtr(uint16_t	i,__Payload	*p){
 				
 				data[i]=(T	*)p;
 			}
@@ -200,12 +200,12 @@ namespace	mBrane{
 			template<typename	T>	Array<T>::~Array(){
 			}
 
-			template<typename	T>	inline	void	Array<T>::ensure(uint32	count){
+			template<typename	T>	inline	void	Array<T>::ensure(uint32_t	count){
 
 				if(count<=_maxCount)
 					return;
-				uint32	s=count*sizeof(T)+sizeof(Storage<T>);
-				uint32	normalizedSize;
+				uint32_t	s=count*sizeof(T)+sizeof(Storage<T>);
+				uint32_t	normalizedSize;
 				Storage<T>	*newStorage=new(s,normalizedSize)	Storage<T>();
 				newStorage->setNormalizedSize(normalizedSize);
 				if(_data!=NULL)
@@ -214,12 +214,12 @@ namespace	mBrane{
 				_maxCount=(normalizedSize-sizeof(Storage<T>))/sizeof(T);
 			}
 
-			template<typename	T>	inline	uint32	Array<T>::count()	const{
+			template<typename	T>	inline	uint32_t	Array<T>::count()	const{
 
 				return	_data->count;
 			}
 
-			template<typename	T>	inline	T	&Array<T>::operator	[](uint32	i){
+			template<typename	T>	inline	T	&Array<T>::operator	[](uint32_t	i){
 
 				ensure(i+1);
 				if(i>=_data->count)
@@ -227,22 +227,22 @@ namespace	mBrane{
 				return	_data->operator	[](i);
 			}
 
-			template<typename	T>	inline	uint8	*Array<T>::asBytes(uint32	i){
+			template<typename	T>	inline	uint8_t	*Array<T>::asBytes(uint32_t	i){
 
-				return	(uint8	*)(_data+i);
+				return	(uint8_t	*)(_data+i);
 			}
 
-			template<typename	T>	inline	uint16	Array<T>::ptrCount()	const{
+			template<typename	T>	inline	uint16_t	Array<T>::ptrCount()	const{
 
 				return	1;
 			}
 
-			template<typename	T>	inline	__Payload	*Array<T>::getPtr(uint16	i)	const{
+			template<typename	T>	inline	__Payload	*Array<T>::getPtr(uint16_t	i)	const{
 
 				return	_data;
 			}
 
-			template<typename	T>	inline	void	Array<T>::setPtr(uint16	i,__Payload	*p){
+			template<typename	T>	inline	void	Array<T>::setPtr(uint16_t	i,__Payload	*p){
 
 				_data=(Storage<T>	*)p;
 			}*/

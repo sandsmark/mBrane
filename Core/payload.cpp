@@ -89,17 +89,17 @@ namespace	mBrane{
 		void	__Payload::init(){
 		}
 
-		uint16	__Payload::ptrCount()	const{
+		uint16_t	__Payload::ptrCount()	const{
 
 			return	0;
 		}
 
-		__Payload	*__Payload::getPtr(uint16	i)	const{
+		__Payload	*__Payload::getPtr(uint16_t	i)	const{
 
 			return	NULL;
 		}
 
-		void	__Payload::setPtr(uint16	i,__Payload	*p){
+		void	__Payload::setPtr(uint16_t	i,__Payload	*p){
 		}
 
 		bool	__Payload::isShared()	const{
@@ -114,8 +114,8 @@ namespace	mBrane{
 
 		////////////////////////////////////////////////////////////////////////////////////
 
-		uint32	_Payload::LastConstantOID=0;
-		uint32	_Payload::LastSharedOID=0;
+		uint32_t	_Payload::LastConstantOID=0;
+		uint32_t	_Payload::LastSharedOID=0;
 
 		_Payload::_Payload():__Payload(){
 		}
@@ -128,22 +128,22 @@ namespace	mBrane{
 			return	(_Payload::Category)(_metaData	&	0x0000000000000003);
 		}
 
-		uint64	&_Payload::node_send_ts(){
+		uint64_t	&_Payload::node_send_ts(){
 
 			return	_node_send_ts;
 		}
 
-		uint64	&_Payload::node_recv_ts(){
+		uint64_t	&_Payload::node_recv_ts(){
 
 			return	_node_recv_ts;
 		}
 
-		uint64	&_Payload::send_ts(){
+		uint64_t	&_Payload::send_ts(){
 
 			return	_send_ts;
 		}
 				
-		uint64	&_Payload::recv_ts(){
+		uint64_t	&_Payload::recv_ts(){
 
 			return	_recv_ts;
 		}
@@ -158,9 +158,9 @@ namespace	mBrane{
 			return	NULL;
 		}
 
-		void	_Payload::setOID(uint8	NID){
+		void	_Payload::setOID(uint8_t	NID){
 
-			uint64	oid=NID	&	0x7F;
+			uint64_t	oid=NID	&	0x7F;
 			oid<<=24;
 			oid|=LastSharedOID++;
 			_metaData&=0x00000000FFFFFFFF;
@@ -169,23 +169,23 @@ namespace	mBrane{
 
 		void	_Payload::setOID(){
 
-			uint64	oid=0x80000000;
+			uint64_t	oid=0x80000000;
 			oid|=LastConstantOID++;
 			_metaData&=0x00000000FFFFFFFF;
 			_metaData|=(oid<<32);
 		}
 
-		uint32	_Payload::getOID()	const{
+		uint32_t	_Payload::getOID()	const{
 
 			return	_metaData>>32;
 		}
 
-		uint32	_Payload::getID()	const{
+		uint32_t	_Payload::getID()	const{
 
 			return	(_metaData>>32)	&	0x00FFFFFF;
 		}
 
-		uint8	_Payload::getNID()	const{
+		uint8_t	_Payload::getNID()	const{
 
 			return	_metaData>>56;
 		}

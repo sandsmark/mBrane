@@ -92,11 +92,11 @@ class	TCPChannel:
 public	ConnectedCommChannel{
 private:
 	CriticalSection	tcpCS;
-	uint32 bufferLen;
-	uint32 bufferPos;
+	uint32_t bufferLen;
+	uint32_t bufferPos;
 	char* buffer;
 	core::socket	s;
-	bool	initialiseBuffer(uint32 len);
+	bool	initialiseBuffer(uint32_t len);
 	bool	setBlockingMode(bool blocking);
 public:
 	TCPChannel(core::socket	s);

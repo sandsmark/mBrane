@@ -78,17 +78,17 @@
 #ifndef Perf_RR_h
 #define Perf_RR_h
 
-uint64 t1;
+uint64_t t1;
 
 MODULE_CLASS_BEGIN(RRMaster,Module<RRMaster>)
 private:
-	uint64 tStart;
-	uint64 tEnd;
-	uint64 t2;
-	uint32 cRun;
-	uint32 cc;
+	uint64_t tStart;
+	uint64_t tEnd;
+	uint64_t t2;
+	uint32_t cRun;
+	uint32_t cc;
 public:
-	void	loadParameters(const	std::vector<word32>	&numbers,const	std::vector<std::string>	&strings){
+	void	loadParameters(const	std::vector<int32_t>	&numbers,const	std::vector<std::string>	&strings){
 		int32_t a=numbers[0];
 		float	f=*reinterpret_cast<float	*>(&a);
 		std::cout<<"RR Module got parameters: "<<f<<" "<<numbers[1]<<" "<<strings[0]<<std::endl;
@@ -114,8 +114,8 @@ public:
 	}
 
 	void	react(Ball9 *p){
-		uint32 t;
-		int32 counter = p->num;
+		uint32_t t;
+		int32_t counter = p->num;
 		if (counter == 1)
 			printf("RoundRobin test %u running...\n", cRun);
 		t2 = NODE->time();
@@ -125,7 +125,7 @@ public:
 	//			cRun, t, counter, ((double)t)/((double)9), p);
 		if (counter == 10000) {
 			tEnd = t2;
-			t = (uint32)(tEnd-tStart);
+                        t = (uint32_t)(tEnd-tStart);
 			printf("RR[%u] test took %uus for %d cycle, %.3fus per cycles, %.3fus per msg (%p)\n",cRun, t, counter, ((double)t)/((double)counter), ((double)t)/((double)counter*9), p);
 			// OUTPUT<<"RR[" << cRun << "] test took "<<t<<"us for "<<counter<<" msgs, "<<((double)t)/((double)counter)<<"us per msg ("<<<<")"<<std::endl;
 			//OUTPUT<<"Test got to '"<<counter*runCount<<"' so far..."<<std::endl;
@@ -152,14 +152,14 @@ MODULE_CLASS_BEGIN(RRModule,Module<RRModule>)
 	template<class	T>	void	react(T	*p){}
 
 	void	react(Ball1 *p){
-		uint64 now = NODE->time();
+		uint64_t now = NODE->time();
 		//printf("Module Rec time (%d,%d,%d,%d):                             1   %u\n",
 		//	(uint32) (now - p->send_ts()),
 		//	(uint32) (now - p->node_send_ts()),
 		//	(uint32) (now - p->node_recv_ts()),
 		//	(uint32) (now - p->recv_ts()),
 		//	(uint32) (now - t1));
-		int32 counter = p->num;
+		int32_t counter = p->num;
 //		printf( "Ball1 triggered...\n");
 		//	if (counter % 1000 == 0)
 		//		printf("RR5 %d msgs so far (%p)\n",
@@ -167,7 +167,7 @@ MODULE_CLASS_BEGIN(RRModule,Module<RRModule>)
 		NODE->send(this,new Ball2(counter),N::PRIMARY);
 	}
 	void	react(Ball2 *p){
-		uint64 now = NODE->time();
+		uint64_t now = NODE->time();
 		//printf("Module Rec time (%d,%d,%d,%d):                             2   %u\n",
 		//	(uint32) (now - p->send_ts()),
 		//	(uint32) (now - p->node_send_ts()),
@@ -175,11 +175,11 @@ MODULE_CLASS_BEGIN(RRModule,Module<RRModule>)
 		//	(uint32) (now - p->recv_ts()),
 		//	(uint32) (now - t1));
 //		printf( "Ball2 triggered...\n");
-		int32 counter = p->num;
+		int32_t counter = p->num;
 		NODE->send(this,new Ball3(counter),N::PRIMARY);
 	}
 	void	react(Ball3 *p){
-		uint64 now = NODE->time();
+		uint64_t now = NODE->time();
 		//printf("Module Rec time (%d,%d,%d,%d):                             3   %u\n",
 		//	(uint32) (now - p->send_ts()),
 		//	(uint32) (now - p->node_send_ts()),
@@ -187,11 +187,11 @@ MODULE_CLASS_BEGIN(RRModule,Module<RRModule>)
 		//	(uint32) (now - p->recv_ts()),
 		//	(uint32) (now - t1));
 //		printf( "Ball3 triggered...\n");
-		int32 counter = p->num;
+		int32_t counter = p->num;
 		NODE->send(this,new Ball4(counter),N::PRIMARY);
 	}
 	void	react(Ball4 *p){
-		uint64 now = NODE->time();
+		uint64_t now = NODE->time();
 		//printf("Module Rec time (%d,%d,%d,%d):                             4   %u\n",
 		//	(uint32) (now - p->send_ts()),
 		//	(uint32) (now - p->node_send_ts()),
@@ -199,12 +199,12 @@ MODULE_CLASS_BEGIN(RRModule,Module<RRModule>)
 		//	(uint32) (now - p->recv_ts()),
 		//	(uint32) (now - t1));
 //		printf( "Ball4 triggered...\n");
-		int32 counter = p->num;
+		int32_t counter = p->num;
 //		printf( "Ball4 triggered %d...\n", p->num);
 		NODE->send(this,new Ball5(counter),N::PRIMARY);
 	}
 	void	react(Ball5 *p){
-		uint64 now = NODE->time();
+		uint64_t now = NODE->time();
 		//printf("Module Rec time (%d,%d,%d,%d):                             5   %u\n",
 		//	(uint32) (now - p->send_ts()),
 		//	(uint32) (now - p->node_send_ts()),
@@ -213,7 +213,7 @@ MODULE_CLASS_BEGIN(RRModule,Module<RRModule>)
 		//	(uint32) (now - t1));
 //		printf( "Ball5 triggered...\n");
 //		printf( "Ball5 triggered %d...\n", p->num);
-		int32 counter = p->num;
+		int32_t counter = p->num;
 
 		//ActivateModule* am = new ActivateModule();
 		//am->host_id = 1;
@@ -229,18 +229,18 @@ MODULE_CLASS_BEGIN(RRModule,Module<RRModule>)
 		NODE->send(this,new Ball6(counter),N::PRIMARY);
 	}
 	void	react(Ball6 *p){
-		uint64 now = NODE->time();
+		uint64_t now = NODE->time();
 		//printf("Module Rec time (%d,%d,%d,%d):                             6   %u\n",
 		//	(uint32) (now - p->send_ts()),
 		//	(uint32) (now - p->node_send_ts()),
 		//	(uint32) (now - p->node_recv_ts()),
 		//	(uint32) (now - p->recv_ts()),
 		//	(uint32) (now - t1));
-		int32 counter = p->num;
+		int32_t counter = p->num;
 		NODE->send(this,new Ball7(counter),N::PRIMARY);
 	}
 	void	react(Ball7 *p){
-		uint64 now = NODE->time();
+		uint64_t now = NODE->time();
 		//printf("Module Rec time (%d,%d,%d,%d):                             7   %u\n",
 		//	(uint32) (now - p->send_ts()),
 		//	(uint32) (now - p->node_send_ts()),
@@ -248,11 +248,11 @@ MODULE_CLASS_BEGIN(RRModule,Module<RRModule>)
 		//	(uint32) (now - p->recv_ts()),
 		//	(uint32) (now - t1));
 //		printf( "Ball7 triggered...\n");
-		int32 counter = p->num;
+		int32_t counter = p->num;
 		NODE->send(this,new Ball8(counter),N::PRIMARY);
 	}
 	void	react(Ball8 *p){
-		uint64 now = NODE->time();
+		uint64_t now = NODE->time();
 		//printf("Module Rec time (%d,%d,%d,%d):                             8   %u\n",
 		//	(uint32) (now - p->send_ts()),
 		//	(uint32) (now - p->node_send_ts()),
@@ -260,7 +260,7 @@ MODULE_CLASS_BEGIN(RRModule,Module<RRModule>)
 		//	(uint32) (now - p->recv_ts()),
 		//	(uint32) (now - t1));
 //		printf( "Ball8 triggered %d...\n", p->num);
-		int32 counter = p->num;
+		int32_t counter = p->num;
 		NODE->send(this,new Ball9(counter),N::PRIMARY);
 	}
 MODULE_CLASS_END(RRModule)
@@ -290,7 +290,7 @@ public:
 
 MODULE_CLASS_END(SizeTest)
 
-typedef	char* (*LoomOutput)(uint32);
+typedef	char* (*LoomOutput)(uint32_t);
 typedef	bool (*LoomInput)(char*);
 
 MODULE_CLASS_BEGIN(Loom,Module<Loom>)
@@ -347,9 +347,9 @@ public:
 		if (!_this)
 			thread_ret_val(0);
 
-		uint32 type = 0;
+		uint32_t type = 0;
 		char* data = NULL;
-		uint32 dataSize = 0;
+		uint32_t dataSize = 0;
 
 		while (_this->waitForEvent) {
 			// wait for new input from lib function

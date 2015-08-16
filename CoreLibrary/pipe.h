@@ -160,11 +160,11 @@ namespace	core{
 		//	push() adds an object at the tail of the last block and moves the tail forward; when the tail reaches the end of the last block, a new block is appended to the list
 		//	pop() moves the head forward and returns the object at this location; when the head reaches the end of the first block, this block is deallocated
 		//	Synchronization between readers and writers is lock-free under no contention (reqCount), and uses a lock (Semaphore::) under contention
-		//	single writer pipes can use an int32 tail, whereas multiple writer versions require int32 volatile tail; idem for readers
+		//	single writer pipes can use an int32_t tail, whereas multiple writer versions require int32_t volatile tail; idem for readers
 		//	The Head and Tail argument is meant to allow the parameterizing of heads and tails
 		//	Push and Pop are functors tailored to the multiplicity of resp. the read and write threads
 		//	P is the actual pipe class (e.g. Pipe11, etc.)
-		template<typename	T,uint32_t _S,typename	Head,typename	Tail,class	P,template<typename,uint32,class>	class	Push,template<typename,uint32,class>	class	Pop>	class	Pipe:
+		template<typename	T,uint32_t _S,typename	Head,typename	Tail,class	P,template<typename,uint32_t,class>	class	Push,template<typename,uint32_t,class>	class	Pop>	class	Pipe:
 		public	Semaphore{
 		template<typename	T,uint32_t _S,class	Pipe>	friend	class	Push1;
 		template<typename	T,uint32_t _S,class	Pipe>	friend	class	PushN;
@@ -236,21 +236,21 @@ namespace	core{
 		};
 
 		template<typename	T,uint32_t S>	class	Pipe11:
-		public	Pipe<T,S,int32,int32,Pipe11<T,S>,Push1,Pop1>{
+		public	Pipe<T,S,int32_t,int32_t,Pipe11<T,S>,Push1,Pop1>{
 		public:
 			Pipe11();
 			~Pipe11();
 		};
 
 		template<typename	T,uint32_t S>	class	Pipe1N:
-		public	Pipe<T,S,int32,int32_t volatile,Pipe1N<T,S>,Push1,PopN>{
+		public	Pipe<T,S,int32_t,int32_t volatile,Pipe1N<T,S>,Push1,PopN>{
 		public:
 			Pipe1N();
 			~Pipe1N();
 		};
 
 		template<typename	T,uint32_t S>	class	PipeN1:
-		public	Pipe<T,S,int32_t volatile,int32,PipeN1<T,S>,PushN,Pop1>{
+		public	Pipe<T,S,int32_t volatile,int32_t,PipeN1<T,S>,PushN,Pop1>{
 		public:
 			PipeN1();
 			~PipeN1();

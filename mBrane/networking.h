@@ -114,16 +114,16 @@ namespace	mBrane{
 		NodeCon(Networking* node);
 		virtual ~NodeCon();
 
-		bool setSourceNID(uint8 sourceNID);
+		bool setSourceNID(uint8_t sourceNID);
 		bool setName(const char* name);
 
 		bool isInUse();
-		uint32 getConnectionStatus();
+		uint32_t getConnectionStatus();
 		bool isConnected(module::Node::Network network = module::Node::EITHER);
 		bool disconnect();
 
-		bool startNetworkChannel(CommChannel* c, uint8 type, bool isCopy = false);
-		CommChannel* getNetworkChannel(uint8 type);
+		bool startNetworkChannel(CommChannel* c, uint8_t type, bool isCopy = false);
+		CommChannel* getNetworkChannel(uint8_t type);
 
 		Networking		*node;
 		NetworkID		*networkID;
@@ -215,7 +215,7 @@ namespace	mBrane{
 //		Array<CommChannel	*,32>					controlChannels[2];	//	for each network: 1 (bcast capable) or many (connected)
 //		Array<DataCommChannel	*,32,ArrayManaged>	dataChannels;
 		CriticalSection								channelsCS;	//	protects controlChannels and dataChannels
-		UNORDERED_MAP<uint8, NodeCon*>				nodes;
+        UNORDERED_MAP<uint8_t, NodeCon*>				nodes;
 
 		bool	isTimeReference;
 		uint8_t referenceNID;
@@ -228,12 +228,12 @@ namespace	mBrane{
 
 		Array<Thread	*,32>	commThreads;
 
-		bool checkSyncProbe(uint8 syncNodeID);
+		bool checkSyncProbe(uint8_t syncNodeID);
 		void systemReady();
 
-		uint8 nodeCount;
+		uint8_t nodeCount;
 		bool addNodeName(const char* name, bool myself = false);
-		uint8 getNodeID(const char* name);
+		uint8_t getNodeID(const char* name);
 		bool allNodesJoined();
 		bool allNodesReady();
 

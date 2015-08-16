@@ -90,8 +90,8 @@
  * So this is probably the best place to acquire global locks on
  * specific resoruce (audio, limbs, etc.)
  */
-void Init(const	std::vector<word32>	&numbers,const	std::vector<std::string>	&strings) {
-	int32	a = 0;
+void Init(const	std::vector<int32_t>	&numbers,const	std::vector<std::string>	&strings) {
+	int32_t	a = 0;
 	if (numbers.size() > 0) {
 		a=numbers[0];
 		float	f=*reinterpret_cast<float	*>(&a);

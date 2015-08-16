@@ -95,7 +95,7 @@ namespace	mBrane{
 				return	(Streams[l]?*Streams[l]:std::cout);
 			}
 
-			Node::Node(uint8	ID):_ID(ID){
+			Node::Node(uint8_t	ID):_ID(ID){
 				
 				Singleton=this;
 			}
@@ -105,7 +105,7 @@ namespace	mBrane{
 				Singleton=NULL;
 			}
 
-			uint8	Node::id()	const{
+			uint8_t	Node::id()	const{
 
 				return	_ID;
 			}

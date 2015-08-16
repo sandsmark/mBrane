@@ -78,7 +78,6 @@
 
 #include	"array.h"
 
-
 namespace	mBrane{
 	namespace	sdk{
 

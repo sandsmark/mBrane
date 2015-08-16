@@ -178,29 +178,6 @@ namespace	core{
 
 #define	WORD32_MASK					0xFFFFFFFF
 
-typedef	long						word32;
-typedef	short						word16;
-
-typedef	char						int8;
-typedef	unsigned	char			uint8;
-typedef	short						int16;
-typedef	unsigned	short			uint16;
-
-typedef	word32						word;
-typedef	word16						half_word;
-
-#if defined	WINDOWS
-	typedef	long					int32;
-	typedef	unsigned	long		uint32;
-	typedef	__int64_t 				int64;
-	typedef	unsigned __int64_t 	uint64;
-#else
-	typedef	int						int32;
-	typedef	unsigned	int			uint32;
-	typedef	int64_t					int64;
-	typedef	uint64_t				uint64;
-#endif
-
 #if defined	ARCH_32
 
 	#define	HALF_WORD_SHIFT				16

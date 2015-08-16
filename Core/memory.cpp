@@ -86,7 +86,7 @@
 namespace	mBrane{
 	namespace	sdk{
 
-		inline	void	*Memory::Block::operator new(size_t	s,size_t	objectSize,uint16	objectCount){
+		inline	void	*Memory::Block::operator new(size_t	s,size_t	objectSize,uint16_t	objectCount){
 
 			void	*a=malloc(s+objectCount*objectSize);	//	OPTIMIZATION: allocate from a private heap
 			memset(a,0x0,objectCount*objectSize);
@@ -98,23 +98,23 @@ namespace	mBrane{
 			free(b);
 		}
 
-		inline	Memory::Block::Block(size_t	objectSize,uint16	objectCount):objectCount(objectCount),
+		inline	Memory::Block::Block(size_t	objectSize,uint16_t	objectCount):objectCount(objectCount),
 																			objectSize(objectSize),
 																			totalSize(objectCount*objectSize),
 																			_next(NULL),
 																			_prev(NULL),
 																			freeObjects(objectCount){
 
-			firstFree=((uint8	*)this)+sizeof(Block);
-			uint8	*p=firstFree;
-			uint8	*next_p;
-			for(uint16	i=0;i<objectCount-1;i++){	//	initializes the pointers from each segment to the next free one; this loop can be eliminated (see Block::alloc): but some basic preliminary tests show that what we gain here is lost in the extra tests in Block::alloc
+			firstFree=((uint8_t	*)this)+sizeof(Block);
+			uint8_t	*p=firstFree;
+			uint8_t	*next_p;
+			for(uint16_t	i=0;i<objectCount-1;i++){	//	initializes the pointers from each segment to the next free one; this loop can be eliminated (see Block::alloc): but some basic preliminary tests show that what we gain here is lost in the extra tests in Block::alloc
 
 				next_p=p+objectSize;
-				*(uint8	**)p=next_p;
+				*(uint8_t	**)p=next_p;
 				p=next_p;
 			}
-			*(uint8	**)p=NULL;
+			*(uint8_t	**)p=NULL;
 		}
 
 		inline	Memory::Block::~Block(){
@@ -125,13 +125,13 @@ namespace	mBrane{
 
 		inline	void	*Memory::Block::alloc(){	//	called only if freeObjects>0
 			
-			uint8	*segment=firstFree;
+			uint8_t	*segment=firstFree;
 			if(--freeObjects){	//	make firstFree the next free segment if any
 				/* alternative: allows removing the loop in Block::Block()
-				if(!*(uint8	**)segment)	//	if no link to the next free block, jump to the next segment in the array; it is safe to do so since (a) allocations are made from the beginning of the block and (b) deallocations move the firstFree to the deallocated block
+				if(!*(uint8_t	**)segment)	//	if no link to the next free block, jump to the next segment in the array; it is safe to do so since (a) allocations are made from the beginning of the block and (b) deallocations move the firstFree to the deallocated block
 					firstFree=segment+objectSize;
 				else*/
-					firstFree=*(uint8	**)segment;
+					firstFree=*(uint8_t	**)segment;
 			}else
 				firstFree=NULL;
 			//memset(segment,0x0,objectSize);
@@ -142,8 +142,8 @@ namespace	mBrane{
 		inline	void	Memory::Block::dealloc(void	*s){
 			
 			//	have s point to firstFree and make s the firstFree segment
-			*(uint8	**)s=firstFree;
-			firstFree=(uint8	*)s;
+			*(uint8_t	**)s=firstFree;
+			firstFree=(uint8_t	*)s;
 			++freeObjects;
 		}
 
@@ -153,7 +153,7 @@ namespace	mBrane{
 
 		CriticalSection		*Memory::CS=NULL;
 
-		inline	size_t	Memory::GetNormalizedSize(size_t	s,uint8	&pow2){
+		inline	size_t	Memory::GetNormalizedSize(size_t	s,uint8_t	&pow2){
 
 			size_t	segmentSize=s+sizeof(Block	*);	//	makes room for a pointer to the block
 			size_t	objectSize=64;
@@ -174,7 +174,7 @@ namespace	mBrane{
 
 		Memory	*Memory::GetStatic(size_t	s){	//	s>0; called early, once per class, at static member init time
 			
-			uint8	i;
+			uint8_t	i;
 			size_t	objectSize=GetNormalizedSize(s,i);
 
 			if(!CS){	//	entered once early at class loading time; TODO: dealloc when the app terminates
@@ -198,7 +198,7 @@ namespace	mBrane{
 
 		Memory	*Memory::GetDynamic(size_t	s){	//	s>0; called anytime, for raw storage
 			
-			uint8	i;
+			uint8_t	i;
 			size_t	objectSize=GetNormalizedSize(s,i);
 
 			CS->enter();	//	concurrent access for raw storage requests
@@ -209,7 +209,7 @@ namespace	mBrane{
 			return	m;
 		}
 
-		inline	void	*Memory::operator	new(size_t	s,uint16	index){	//	already allocated in Memories
+		inline	void	*Memory::operator	new(size_t	s,uint16_t	index){	//	already allocated in Memories
 
 			return	&Memories->operator [](index);
 		}
@@ -231,12 +231,12 @@ namespace	mBrane{
 			delete	firstBlock;	//	blocks propagate deletion: careful when deleting just one block
 		}
 
-		inline	const	uint32	Memory::getObjectSize()	const{
+		inline	const	uint32_t	Memory::getObjectSize()	const{
 
 			return	objectSize;
 		}
 
-		void	*Memory::alloc(uint32	&normalizedSize){
+		void	*Memory::alloc(uint32_t	&normalizedSize){
 
 			normalizedSize=objectSize;
 			return	alloc();
@@ -271,7 +271,7 @@ namespace	mBrane{
 			Block	*b;
 			cs.enter();
 			//	find the block holding o
-			uint8	*segment=(uint8	*)(((uint8	**)o)-1);
+			uint8_t	*segment=(uint8_t	*)(((uint8_t	**)o)-1);
 			b=*(Block	**)segment;	//	o was allocated from a segment in which the first 4 bytes are the address of the block
 			//	dealloc the segment in that block
 			b->dealloc(segment);
@@ -311,7 +311,7 @@ namespace	mBrane{
 namespace	mBrane{
 	namespace	sdk{
 
-		inline	void	*Memory::Block::operator new(size_t	s,size_t	objectSize,uint16	objectCount){
+		inline	void	*Memory::Block::operator new(size_t	s,size_t	objectSize,uint16_t	objectCount){
 
 			void	*a=malloc(s+objectCount*objectSize);	//	OPTIMIZATION: allocate from a private heap
 			memset(a,0x0,objectCount*objectSize);
@@ -323,14 +323,14 @@ namespace	mBrane{
 			free(b);
 		}
 
-		inline	Memory::Block::Block(size_t	segmentSize,uint16	segmentCount):segmentCount(segmentCount),
+		inline	Memory::Block::Block(size_t	segmentSize,uint16_t	segmentCount):segmentCount(segmentCount),
 																			segmentSize(segmentSize),
 																			totalSize(segmentCount*segmentSize),
 																			_next(NULL),
 																			_prev(NULL){
-			segments=((uint8	*)this)+sizeof(Block);
-			uint32	index=0;
-			for(uint32	i=0;i<segmentCount;++i,index+=segmentSize)
+			segments=((uint8_t	*)this)+sizeof(Block);
+			uint32_t	index=0;
+			for(uint32_t	i=0;i<segmentCount;++i,index+=segmentSize)
 				*(Block	**)(segments+index)=this;
 
 			freeSegments[0]=segmentCount;	//	0 is the id of the initial alloc stack
@@ -349,7 +349,7 @@ namespace	mBrane{
 
 		CriticalSection		*Memory::CS=NULL;
 
-		inline	size_t	Memory::GetNormalizedSize(size_t	s,uint8	&pow2){
+		inline	size_t	Memory::GetNormalizedSize(size_t	s,uint8_t	&pow2){
 
 			size_t	segmentSize=s+sizeof(Block	*);	//	makes room for a pointer to the block
 			size_t	objectSize=64;
@@ -370,7 +370,7 @@ namespace	mBrane{
 
 		Memory	*Memory::GetStatic(size_t	s){	//	s>0; called early, once per class, at static member init time
 			
-			uint8	i;
+			uint8_t	i;
 			size_t	objectSize=GetNormalizedSize(s,i);
 
 			if(!CS){	//	entered once early at class loading time; TODO: dealloc when the app terminates
@@ -386,7 +386,7 @@ namespace	mBrane{
 
 		inline	Memory	*Memory::GetDynamic(size_t	s){	//	s>0; called anytime, for raw storage
 			
-			uint8	i;
+			uint8_t	i;
 			size_t	objectSize=GetNormalizedSize(s,i);
 
 			CS->enter();	//	concurrent access for raw storage requests
@@ -397,7 +397,7 @@ namespace	mBrane{
 			return	m;
 		}
 
-		inline	void	*Memory::operator	new(size_t	s,uint16	index){	//	already allocated in Memories
+		inline	void	*Memory::operator	new(size_t	s,uint16_t	index){	//	already allocated in Memories
 
 			return	&Memories->operator [](index);
 		}
@@ -412,18 +412,18 @@ namespace	mBrane{
 
 			firstBlock=lastBlock=new(objectSize,BLOCK_OBJECT_COUNT)	Block(objectSize,BLOCK_OBJECT_COUNT);
 
-			stacks[0].stack=(uint8	**)malloc(BLOCK_OBJECT_COUNT*sizeof(uint8	*));	//	initial alloc stack
+			stacks[0].stack=(uint8_t	**)malloc(BLOCK_OBJECT_COUNT*sizeof(uint8_t	*));	//	initial alloc stack
 			stacks[0].size=BLOCK_OBJECT_COUNT;
 			stacks[0].top=BLOCK_OBJECT_COUNT-1;
 			stacks[0].id=0;
 
-			stacks[1].stack=(uint8	**)malloc(BLOCK_OBJECT_COUNT*sizeof(uint8	*));	//	initial dealloc stack
+			stacks[1].stack=(uint8_t	**)malloc(BLOCK_OBJECT_COUNT*sizeof(uint8_t	*));	//	initial dealloc stack
 			stacks[1].size=BLOCK_OBJECT_COUNT;
 			stacks[1].top=-1;
 			stacks[1].id=1;
 
-			uint32	index=0;
-			for(uint32	i=0;i<stacks[0].size;++i,index+=objectSize)	//	fill the alloc stack, leave the dealloc stack empty
+			uint32_t	index=0;
+			for(uint32_t	i=0;i<stacks[0].size;++i,index+=objectSize)	//	fill the alloc stack, leave the dealloc stack empty
 				stacks[0].stack[i]=firstBlock->segments+index;
 
 			alloc_stack=&stacks[0];
@@ -454,12 +454,12 @@ namespace	mBrane{
 			}
 		}
 
-		inline	const	uint32	Memory::getObjectSize()	const{
+		inline	const	uint32_t	Memory::getObjectSize()	const{
 
 			return	objectSize;
 		}
 
-		void	*Memory::alloc(uint32	&normalizedSize){
+		void	*Memory::alloc(uint32_t	&normalizedSize){
 
 			normalizedSize=objectSize;
 			return	alloc();
@@ -468,7 +468,7 @@ namespace	mBrane{
 		void	*Memory::alloc(){	//	concurrent access
 
 			void	*allocated_segment;
-check_top:	int32	top=Atomic::Decrement32(&alloc_top);	//	after this call, alloc_top may be changed by other alloc threads
+check_top:	int32_t	top=Atomic::Decrement32(&alloc_top);	//	after this call, alloc_top may be changed by other alloc threads
 
 			if(top<-2){	//	the alloc stack is being refilled by alloc(), alloc_top will change or alloc_stack will change: wait until it's done and check again
 
@@ -491,7 +491,7 @@ check_top:	int32	top=Atomic::Decrement32(&alloc_top);	//	after this call, alloc_
 				dealloc_stack->top=dealloc_top;
 				if(dealloc_stack->top>=STACK_SWAP_THR){	//	the dealloc stack has segments enough
 
-					int32	former_guard=Atomic::Swap32(&a_d_guard,-1);	//	signals the current thread is using the dealloc stack; any dealloc thread attempting to use the dealloc stack will wait on a_d_sem
+					int32_t	former_guard=Atomic::Swap32(&a_d_guard,-1);	//	signals the current thread is using the dealloc stack; any dealloc thread attempting to use the dealloc stack will wait on a_d_sem
 					if(former_guard==1)
 						a_d_sem->acquire();
 
@@ -520,8 +520,8 @@ check_top:	int32	top=Atomic::Decrement32(&alloc_top);	//	after this call, alloc_
 					lastBlock=b;
 					b->freeSegments[alloc_stack->id]=BLOCK_OBJECT_COUNT-1;
 
-					uint32	index=0;
-					for(uint32	i=0;i<BLOCK_OBJECT_COUNT;i++,index+=objectSize)
+					uint32_t	index=0;
+					for(uint32_t	i=0;i<BLOCK_OBJECT_COUNT;i++,index+=objectSize)
 						alloc_stack->stack[i]=b->segments+index;
 
 					alloc_stack->top=BLOCK_OBJECT_COUNT-1;
@@ -535,7 +535,7 @@ check_top:	int32	top=Atomic::Decrement32(&alloc_top);	//	after this call, alloc_
 				a_sem->acquire();	//	make sure the count falls back to 0
 			}
 
-			int32	former_guard=Atomic::Swap32(&d_a_guard,0);	//	signals no alloc thread uses the alloc stack
+			int32_t	former_guard=Atomic::Swap32(&d_a_guard,0);	//	signals no alloc thread uses the alloc stack
 			if(former_guard==-1)
 				d_a_sem->release();	//	unlock the dealloc thread waiting to use the alloc stack
 
@@ -544,7 +544,7 @@ check_top:	int32	top=Atomic::Decrement32(&alloc_top);	//	after this call, alloc_
 
 		void	Memory::dealloc(void	*o){	//	concurrent access
 
-check_top:	int32	top=Atomic::Increment32(&dealloc_top);	//	after this call, dealloc_top may be changed by other dealloc threads
+check_top:	int32_t	top=Atomic::Increment32(&dealloc_top);	//	after this call, dealloc_top may be changed by other dealloc threads
 
 			if(top>dealloc_stack->size){	//	the dealloc stack is being increased by dealloc(), dealloc_top will change: wait until it's done and check again
 
@@ -568,7 +568,7 @@ check_top:	int32	top=Atomic::Increment32(&dealloc_top);	//	after this call, deal
 				alloc_stack->top=alloc_top;
 				if(alloc_stack->top<=STACK_SWAP_THR){	//	the alloc stack is empty enough
 
-					int32	former_guard=Atomic::Swap32(&d_a_guard,-1);	//	signals the current thread is using the alloc stack; any alloc thread attempting to use the alloc stack will wait on d_a_sem
+					int32_t	former_guard=Atomic::Swap32(&d_a_guard,-1);	//	signals the current thread is using the alloc stack; any alloc thread attempting to use the alloc stack will wait on d_a_sem
 					if(former_guard==1)
 						d_a_sem->acquire();
 //std::cout<<"dealloc swapping stacks\n";fflush(stdout);
@@ -590,7 +590,7 @@ check_top:	int32	top=Atomic::Increment32(&dealloc_top);	//	after this call, deal
 					if(top>=2*BLOCK_OBJECT_COUNT	&&	!deallocBlock()){
 //std::cout<<"dealloc growing\n";fflush(stdout);						
 						dealloc_stack->size+=BLOCK_OBJECT_COUNT;
-						dealloc_stack->stack=(uint8	**)realloc(dealloc_stack->stack,dealloc_stack->size*sizeof(uint8	*));
+						dealloc_stack->stack=(uint8_t	**)realloc(dealloc_stack->stack,dealloc_stack->size*sizeof(uint8_t	*));
 					}
 				}
 
@@ -602,22 +602,22 @@ check_top:	int32	top=Atomic::Increment32(&dealloc_top);	//	after this call, deal
 				d_sem->acquire();	//	make sure the count falls back to 0
 			}
 
-			int32	former_guard=Atomic::Swap32(&a_d_guard,0);	//	signals no dealloc thread touches the dealloc stack
+			int32_t	former_guard=Atomic::Swap32(&a_d_guard,0);	//	signals no dealloc thread touches the dealloc stack
 			if(former_guard==-1)
 				a_d_sem->release();	//	unlock the alloc thread waiting to use the dealloc stack
 		}
 
-		inline	void	*Memory::allocSegment(int32	location)	const{
+		inline	void	*Memory::allocSegment(int32_t	location)	const{
 
-			uint8	*allocated_segment=alloc_stack->stack[location];
+			uint8_t	*allocated_segment=alloc_stack->stack[location];
 			Block	*b=*(Block	**)allocated_segment;
 			Atomic::Decrement32(&b->freeSegments[alloc_stack->id]);
 			return	(void	*)(allocated_segment+sizeof(Block	*));
 		}
 
-		inline	void	Memory::deallocSegment(void	*o,int32	location)	const{
+		inline	void	Memory::deallocSegment(void	*o,int32_t	location)	const{
 
-			uint8	*deallocated_segment=(((uint8	*)o)-sizeof(Block	*));
+			uint8_t	*deallocated_segment=(((uint8_t	*)o)-sizeof(Block	*));
 			Block	*b=*(Block	**)deallocated_segment;
 			Atomic::Increment32(&b->freeSegments[dealloc_stack->id]);
 			dealloc_stack->stack[location]=deallocated_segment;
@@ -630,9 +630,9 @@ check_top:	int32	top=Atomic::Increment32(&dealloc_top);	//	after this call, deal
 
 			if(b){
 //std::cout<<"dealloc shrinking\n";fflush(stdout);
-				uint8	**new_stack=(uint8	**)malloc((dealloc_stack->size-BLOCK_OBJECT_COUNT)*sizeof(uint8	*));	//	decrease the size of dealloc stack by BLOCK_OBJECT_COUNT
-				uint32	j=0;
-				for(uint32	i=0;i<=dealloc_stack->top;++i){	//	retain segments that do not belong to b
+				uint8_t	**new_stack=(uint8_t	**)malloc((dealloc_stack->size-BLOCK_OBJECT_COUNT)*sizeof(uint8_t	*));	//	decrease the size of dealloc stack by BLOCK_OBJECT_COUNT
+				uint32_t	j=0;
+				for(uint32_t	i=0;i<=dealloc_stack->top;++i){	//	retain segments that do not belong to b
 
 					if(*(Block	**)dealloc_stack->stack[i]!=b)
 						new_stack[j++]=dealloc_stack->stack[i];

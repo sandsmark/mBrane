@@ -77,7 +77,7 @@
 
 int	main(int	argc,char	**argv){
 
-//	uint32 test = (uint32)BSR(6176);
+//	uint32_t test = (uint32_t)BSR(6176);
 //	printf("BSR(6176) = %u\n\n", test);
 
 	Time::Init(1000);

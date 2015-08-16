@@ -96,7 +96,7 @@ namespace	mBrane{
 		_Payload	*p;
 		while(!_this->node->_shutdown){
 
-			uint64 t = Time::Get();
+			uint64_t t = Time::Get();
 			if(_this->channel	&&	_this->channel->recv(&p,_this->sourceNID)){
 
 				_this->node->processError(_this->sourceNID);
@@ -104,8 +104,8 @@ namespace	mBrane{
 				thread_ret_val(0);
 			}
 			// printf("RecvThread::ReceiveMessages::recv took %uus...\n", Time::Get()-t);
-			uint64 t0, t1, t2, t3;
-			uint64 start = Time::Get();
+			uint64_t t0, t1, t2, t3;
+			uint64_t start = Time::Get();
 			P<_Payload>	_p=p;
 			p->node_recv_ts()=_this->node->time();
 			switch(p->cid()){
@@ -124,8 +124,8 @@ namespace	mBrane{
 				t3 = start;
 				_this->node->timeDrift = t0 - t1 - (t3 - t0 - t2 + t1)/2;
 				//printf("*** timeDrift = %llu       RTT = %d (+ %d = %d)\n",
-				//	_this->node->timeDrift, (int32)(t3 - t0 - (t2 - t1)),
-				//	(int32)(t2 - t1), (int32)(t3 - t0));
+				//	_this->node->timeDrift, (int32_t)(t3 - t0 - (t2 - t1)),
+				//	(int32_t)(t2 - t1), (int32_t)(t3 - t0));
 			//		((SyncEcho*)p)->t0 - ((SyncEcho*)p)->t1 -
 			//		   (p->node_recv_ts() - ((SyncEcho*)p)->t0 - p->node_send_ts() + ((SyncEcho*)p)->t1)/2;
 				
@@ -154,7 +154,7 @@ namespace	mBrane{
 		thread_ret_val(0);
 	}
 
-	RecvThread::RecvThread(Node	*node,CommChannel	*channel,uint8	sourceNID):Thread(),node(node),channel(channel),sourceNID(sourceNID){
+	RecvThread::RecvThread(Node	*node,CommChannel	*channel,uint8_t	sourceNID):Thread(),node(node),channel(channel),sourceNID(sourceNID){
 	}
 
 	RecvThread::~RecvThread(){
@@ -202,7 +202,7 @@ namespace	mBrane{
 			_this->timer.wait();
 
 			_this->node->pendingDeletionsCS.enter();	//	toggle the 2-buffer.
-			uint8	t=_this->node->pendingDeletions_GC;
+			uint8_t	t=_this->node->pendingDeletions_GC;
 			_this->node->pendingDeletions_GC=_this->node->pendingDeletions_SO;
 			_this->node->pendingDeletions_SO=t;
 			_this->node->pendingDeletionsCS.leave();
@@ -211,7 +211,7 @@ namespace	mBrane{
 			m->node_id=_this->node->id();
 
 			UNORDERED_SET<_Payload	*>::const_iterator	o;
-			uint16	i=0;
+			uint16_t	i=0;
 			for(o=_this->node->pendingDeletions[_this->node->pendingDeletions_GC].begin();o!=_this->node->pendingDeletions[_this->node->pendingDeletions_GC].end();++o,++i)
 				m->data(i)=(*o)->getOID();
 
@@ -237,7 +237,7 @@ namespace	mBrane{
 
 	Messaging::~Messaging(){
 
-		for(uint32	i=0;i<recvThreads.count();i++){
+		for(uint32_t	i=0;i<recvThreads.count();i++){
 
 			if(recvThreads[i]){
 
@@ -250,7 +250,7 @@ namespace	mBrane{
 			delete	sendThread;
 		sendThread=NULL;
 
-		for(uint32	i=0;i<pushThreads.count();i++){
+		for(uint32_t	i=0;i<pushThreads.count();i++){
 
 			if(pushThreads[i]){
 
@@ -289,7 +289,7 @@ namespace	mBrane{
 		messageOutputQueue.push(o);
 	}
 
-	void	Messaging::send(_Payload	*message,uint8	nodeID,module::Node::Network	network){
+	void	Messaging::send(_Payload	*message,uint8_t	nodeID,module::Node::Network	network){
 
 		MessageSlot	o;
 		o.destinationNode=nodeID;
@@ -309,7 +309,7 @@ namespace	mBrane{
 		pushThreads[0]=new	PushThread((Node*)this,&messageInputQueue);
 		pushThreads[0]->start(PushThread::PushJobs);
 
-		//for(uint32	i=0;i<recvThreads.count();i++){
+		//for(uint32_t	i=0;i<recvThreads.count();i++){
 
 		//	pushThreads[i+1]=new	PushThread((Node*)this,&recvThreads[i]->buffer);
 		//	pushThreads[i+1]->start(PushThread::PushJobs);
@@ -319,16 +319,16 @@ namespace	mBrane{
 	void	Messaging::shutdown(){
 
 		Thread::TerminateAndWait(sendThread);
-		for(uint32	i=0;i<recvThreads.count();i++)
+		for(uint32_t	i=0;i<recvThreads.count();i++)
 			Thread::TerminateAndWait(*recvThreads.get(i));
-		for(uint32	i=0;i<pushThreads.count();i++)
+		for(uint32_t	i=0;i<pushThreads.count();i++)
 			Thread::TerminateAndWait(*pushThreads.get(i));
 	//	Thread::TerminateAndWait(GC);
 	}
 
 	inline	void	Messaging::pushJobs(_Payload	*p,NodeEntry	&e){
-//static	uint32	w=0;
-		uint32	act;
+//static	uint32_t	w=0;
+		uint32_t	act;
 		e.getActivation(act);
 		//std::cout<<"Pushing job: "<<p->cid()<<std::endl;
 		if(act){
@@ -404,17 +404,17 @@ namespace	mBrane{
 			projectionCS.leave();
 			break;
 		case	CreateModule_CID:{
-			uint16	module_cid=((CreateModule	*)p)->module_cid;
-			uint8	host_id=((CreateModule	*)p)->host_id;
+			uint16_t	module_cid=((CreateModule	*)p)->module_cid;
+			uint8_t	host_id=((CreateModule	*)p)->host_id;
 			moduleCS.enter();
-			uint16	module_id=ModuleDescriptor::GetID(host_id,module_cid);
+			uint16_t	module_id=ModuleDescriptor::GetID(host_id,module_cid);
 			ModuleDescriptor::Main[host_id][module_cid][module_id]=new	ModuleDescriptor(((CreateModule	*)p)->host_id,module_cid,module_id);
 			moduleCS.leave();
 			break;
 		}case	DeleteModule_CID:{
-			uint16	module_cid=((DeleteModule	*)p)->module_cid;
-			uint16	module_id=((DeleteModule	*)p)->module_id;
-			uint8	host_id=((DeleteModule	*)p)->host_id;
+			uint16_t	module_cid=((DeleteModule	*)p)->module_cid;
+			uint16_t	module_id=((DeleteModule	*)p)->module_id;
+			uint8_t	host_id=((DeleteModule	*)p)->host_id;
 			projectionCS.enter();
 			_Module	*m=ModuleDescriptor::Main[host_id][module_cid][module_id]->module;
 			ModuleDescriptor::Main[host_id][module_cid][module_id]=NULL;
@@ -438,7 +438,7 @@ namespace	mBrane{
 			pendingAck=((Node	*)this)->nodeCount;	//	wait for all nodes to reply.
 
 			cacheCS.enter();
-			for(uint16	i=0;i<((DeleteSharedObjects	*)p)->getCapacity();++i)
+			for(uint16_t	i=0;i<((DeleteSharedObjects	*)p)->getCapacity();++i)
 				lookup[((DeleteSharedObjects	*)p)->node_id].erase(((DeleteSharedObjects	*)p)->data(i));
 			cacheCS.leave();
 
@@ -461,7 +461,7 @@ namespace	mBrane{
 				pendingDeletions[pendingDeletions_GC].clear();
 
 				pendingDeletionsCS.enter();	//	toggle the 2-buffer.
-				uint8	t=pendingDeletions_GC;
+				uint8_t	t=pendingDeletions_GC;
 				pendingDeletions_GC=pendingDeletions_SO;
 				pendingDeletions_SO=t;
 				pendingDeletionsCS.leave();
@@ -478,11 +478,11 @@ namespace	mBrane{
 
 		Node	*node=(Node	*)args;
 
-		uint8 nCount;
+		uint8_t nCount;
 		MessageSlot	out;
 		_Payload	*p;
-		uint32		act;
-		uint8		nodeCount;
+		uint32_t		act;
+		uint8_t		nodeCount;
 		while(!node->_shutdown){
 
 			out=node->messageOutputQueue.pop();
@@ -514,14 +514,14 @@ namespace	mBrane{
 						node->sendControlMessage(p,out.destinationNode,out.network);
 					break;
 				case	_Payload::STREAM:{
-					uint16	sid=p->as_StreamData()->sid();
+					uint16_t	sid=p->as_StreamData()->sid();
 
 					if(out.destinationNode==0xFF){	//	find target remote nodes; send on data/stream channels; push in messageInputQueue if the local node is a target
 
-						nCount=(uint8)NodeEntry::Main[ST][sid].count();
+						nCount=(uint8_t)NodeEntry::Main[ST][sid].count();
 						if (nCount == 0)
 							printf("*** No activation for any node for stream message cid %u ***\n", p->cid());
-						for(uint8	i=0;i<nCount;i++){
+						for(uint8_t	i=0;i<nCount;i++){
 
 							NodeEntry::Main[ST][sid][i].getActivation(act);
 							if(act){
@@ -548,15 +548,15 @@ namespace	mBrane{
 					}
 					break;
 				}case	_Payload::DATA:{
-		//uint64 t1 = Time::Get();
-					uint16	cid=p->cid();
+		//uint64_t t1 = Time::Get();
+					uint16_t	cid=p->cid();
 
 					if(out.destinationNode==0xFF){
 
-						nCount=(uint8)NodeEntry::Main[DC][cid].count();
+						nCount=(uint8_t)NodeEntry::Main[DC][cid].count();
 						if (nCount == 0)
 							printf("*** No activation for any node for data message cid %u ***\n", p->cid());
-						for(uint8	i=0;i<nCount;i++){
+						for(uint8_t	i=0;i<nCount;i++){
 
 							NodeEntry::Main[DC][cid][i].getActivation(act);
 							if(act){
@@ -581,7 +581,7 @@ namespace	mBrane{
 						if(act)
 							node->sendData(out.destinationNode,p,out.network);
 					}
-		//printf("SendMessages Send time:        %u\n", (uint32) (Time::Get() - t1));
+		//printf("SendMessages Send time:        %u\n", (uint32_t) (Time::Get() - t1));
 					break;
 				}
 				}

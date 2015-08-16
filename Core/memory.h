@@ -191,7 +191,7 @@ namespace	mBrane{
 			public:
                                 uint8_t	**stack;	//	points to segments
                                 int32_t	top;
-                                int32_t	size;		//	in words
+                                int32_t	size;		//	in ints
                                 uint32_t	id;			//	used to retrieve a block's free segments per stack
 			};
 			Stack		stacks[2];

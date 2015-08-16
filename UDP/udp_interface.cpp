@@ -90,7 +90,7 @@
 
 #include	<cstring>
 
-uint32	UDPInterface::Intialized=0;
+uint32_t	UDPInterface::Intialized=0;
 
 bool	UDPInterface::Init(){
 
@@ -102,7 +102,7 @@ bool	UDPInterface::Init(){
 
 #if defined (WINDOWS)
 	WSADATA	wsaData;
-	int32	r;
+	int32_t	r;
 
 	r=WSAStartup(MAKEWORD(2,2),&wsaData);
 	if(r){
@@ -354,29 +354,29 @@ bool	UDPInterface::canBroadcast(){
 	return	true;
 }
 
-uint16	UDPInterface::start(){
+uint16_t	UDPInterface::start(){
 
 	return	0;
 }
 
-uint16	UDPInterface::stop(){
+uint16_t	UDPInterface::stop(){
 
 	Shutdown();
 	return	0;
 }
 
-uint16	UDPInterface::getIDSize(){
+uint16_t	UDPInterface::getIDSize(){
 
-	return	sizeof(struct	in_addr)+sizeof(uint32);
+	return	sizeof(struct	in_addr)+sizeof(uint32_t);
 }
 
-void	UDPInterface::fillID(uint8	*ID){	//	address|port
+void	UDPInterface::fillID(uint8_t	*ID){	//	address|port
 
 	memcpy(ID,&address,sizeof(struct	in_addr));
-	memcpy(ID+sizeof(struct	in_addr),&port,sizeof(uint32));
+	memcpy(ID+sizeof(struct	in_addr),&port,sizeof(uint32_t));
 }
 
-uint16	UDPInterface::newChannel(uint8	*ID,CommChannel	**channel){
+uint16_t	UDPInterface::newChannel(uint8_t	*ID,CommChannel	**channel){
 
 	core::socket	s;
 	if((s=::socket(AF_INET,SOCK_DGRAM,IPPROTO_UDP))==SOCKET_ERROR){
@@ -407,7 +407,7 @@ uint16	UDPInterface::newChannel(uint8	*ID,CommChannel	**channel){
 	return	0;
 }
 
-uint16	UDPInterface::acceptConnection(ConnectedCommChannel	**channel,int32	timeout,bool	&timedout){
+uint16_t	UDPInterface::acceptConnection(ConnectedCommChannel	**channel,int32_t	timeout,bool	&timedout){
 
 	return	1;
 }

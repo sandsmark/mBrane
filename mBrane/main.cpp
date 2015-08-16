@@ -89,7 +89,7 @@ mBrane::Node	*node=NULL;
 
 SharedLibrary	SL;	//	will be initialized with the library loaded by the node; this ensures SL is deleted last, and thus that all user-defined adresses (e.g. __vfptr) are still valid until the very end
 
-bool	signal_handler_function_call	Handler(uint32	event){
+bool	signal_handler_function_call	Handler(uint32_t	event){
 
 	if(!node)
 		return	false;
@@ -141,13 +141,13 @@ bool	signal_handler_function_call	Handler(uint32	event){
 
 class	Load{
 public:
-	uint32	id;
-	uint8	data[400];
+	uint32_t	id;
+	uint8_t	data[400];
 };
 
 class	LoadM:public	Load{
 public:
-	LoadM(uint32	i){id=i;}
+	LoadM(uint32_t	i){id=i;}
 	void	*operator	new(size_t	s){	return	malloc(s);	}
 	void	operator	delete(void	*o){	free(o);	}
 };
@@ -156,29 +156,29 @@ class	LoadC:public	Load{
 private:
 	static	Memory	*Allocator;
 public:
-	LoadC(uint32	i){id=i;}
+	LoadC(uint32_t	i){id=i;}
 	void	*operator	new(size_t	s){	return	Allocator->alloc();	}
 	void	operator	delete(void	*o){	Allocator->dealloc(o);	}
 };
 
 Memory	*LoadC::Allocator=Memory::GetStatic(sizeof(LoadC));
 
-template<class	L>	int64	RAM_perf_probe(){	//	the real test is to allocate/deallocate randomly, using different sizes
+template<class	L>	int64_t	RAM_perf_probe(){	//	the real test is to allocate/deallocate randomly, using different sizes
 
 	L	*store[LOAD_COUNT];
 
-	int64	start;
-	int64	end;
+	int64_t	start;
+	int64_t	end;
 
 	start=Time::Get();
-	for(uint32	i=0;i<LOAD_COUNT;i++){
+	for(uint32_t	i=0;i<LOAD_COUNT;i++){
 
 		store[i]=new	L(i);
 		delete	store[i];
 	}
-	//for(uint32	i=0;i<LOAD_COUNT;i++)
+	//for(uint32_t	i=0;i<LOAD_COUNT;i++)
 	//	std::cout<<store[i]->id<<std::endl;
-	//for(uint32	i=0;i<LOAD_COUNT;i++){
+	//for(uint32_t	i=0;i<LOAD_COUNT;i++){
 
 		//store[i]=new	L();
 	//	delete	store[i];

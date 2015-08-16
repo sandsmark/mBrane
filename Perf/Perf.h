@@ -100,7 +100,7 @@
 
 
 extern	"C"{
-void	dll_export	Init(const	std::vector<word32>	&numbers,const	std::vector<std::string>	&strings);
+void	dll_export	Init(const	std::vector<int32_t>	&numbers,const	std::vector<std::string>	&strings);
 }
 
 

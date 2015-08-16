@@ -93,7 +93,7 @@
 #include	<net/if.h>
 #endif
 
-uint32	TCPInterface::Intialized=0;
+uint32_t	TCPInterface::Intialized=0;
 
 bool	TCPInterface::Init(){
 
@@ -105,7 +105,7 @@ bool	TCPInterface::Init(){
 
 #if defined (WINDOWS)
 	WSADATA	wsaData;
-	int32	r;
+	int32_t	r;
 
 	r=WSAStartup(MAKEWORD(2,2),&wsaData);
 	if(r){
@@ -355,7 +355,7 @@ bool	TCPInterface::canBroadcast(){
 	return	false;
 }
 
-uint16	TCPInterface::start(){
+uint16_t	TCPInterface::start(){
 
 	if((s=::socket(AF_INET,SOCK_STREAM,IPPROTO_TCP))==INVALID_SOCKET){
 
@@ -380,7 +380,7 @@ uint16	TCPInterface::start(){
 	struct	sockaddr_in	addr;
 	addr.sin_family= AF_INET;
 	addr.sin_addr.s_addr=address.s_addr;
-	addr.sin_port=htons((uint16)port);
+	addr.sin_port=htons((uint16_t)port);
 
 	if(bind(s,(SOCKADDR	*)&addr,sizeof(struct	sockaddr_in))==SOCKET_ERROR){
 		std::cout<<"> Error: unable to bind to port " << port << std::endl;
@@ -393,7 +393,7 @@ uint16	TCPInterface::start(){
 	return	0;
 }
 
-uint16	TCPInterface::stop(){
+uint16_t	TCPInterface::stop(){
 
 	std::cout<<"> Info: Closing TCP bound to port " << port << std::endl;
 	closesocket(s);
@@ -401,23 +401,23 @@ uint16	TCPInterface::stop(){
 	return	0;
 }
 
-uint16	TCPInterface::getIDSize(){
+uint16_t	TCPInterface::getIDSize(){
 
-	return	sizeof(struct	in_addr)+sizeof(uint32);
+	return	sizeof(struct	in_addr)+sizeof(uint32_t);
 }
 
-void	TCPInterface::fillID(uint8	*ID){	//	address|port
+void	TCPInterface::fillID(uint8_t	*ID){	//	address|port
 
 	memcpy(ID,&address,sizeof(struct	in_addr));
-	memcpy(ID+sizeof(struct	in_addr),&port,sizeof(uint32));
+	memcpy(ID+sizeof(struct	in_addr),&port,sizeof(uint32_t));
 }
 
-uint16	TCPInterface::newChannel(uint8	*ID,CommChannel	**channel){	//	connect to a server
+uint16_t	TCPInterface::newChannel(uint8_t	*ID,CommChannel	**channel){	//	connect to a server
 
 	core::socket	s;
 	if((s=::socket(AF_INET,SOCK_STREAM,IPPROTO_TCP))==INVALID_SOCKET){
 		std::cout<<"> Error: Could not create TCP socket to "<<inet_ntoa(*(struct in_addr *)ID)<<
-			":" << (unsigned short)*((uint32 *)(ID+sizeof(struct in_addr))) << std::endl;
+			":" << (unsigned short)*((uint32_t *)(ID+sizeof(struct in_addr))) << std::endl;
 		Shutdown();
 		return	1;
 	}
@@ -435,24 +435,24 @@ uint16	TCPInterface::newChannel(uint8	*ID,CommChannel	**channel){	//	connect to 
 	struct sockaddr_in	addr;
 	addr.sin_family=AF_INET;
 	addr.sin_addr=*((struct	in_addr	*)ID);
-	addr.sin_port=htons((unsigned short)*((uint32 *)(ID+sizeof(struct in_addr))));
+	addr.sin_port=htons((unsigned short)*((uint32_t *)(ID+sizeof(struct in_addr))));
 	if(connect(s,(SOCKADDR	*)&addr,sizeof(struct sockaddr_in))==SOCKET_ERROR){
 		Error::GetOSErrorMessage(errbuf, 1024);
 		std::cout<<"> Error: Could not connect TCP socket to "<<inet_ntoa(*(struct in_addr *)ID)<<
-			":" << (unsigned short)*((uint32 *)(ID+sizeof(struct in_addr))) << " - " << errbuf << std::endl;
+			":" << (unsigned short)*((uint32_t *)(ID+sizeof(struct in_addr))) << " - " << errbuf << std::endl;
 		closesocket(s);
 		Shutdown();
 		return	1;
 	}
 
 	//std::cout<<"> Info: Opened TCP connection to "<<inet_ntoa(*(struct in_addr *)ID)<<
-	//	":" << (unsigned short)*((uint32 *)(ID+sizeof(struct in_addr))) << std::endl;
+	//	":" << (unsigned short)*((uint32_t *)(ID+sizeof(struct in_addr))) << std::endl;
 	*channel=new	TCPChannel(s);
 	
 	return	0;
 }
 
-uint16	TCPInterface::acceptConnection(ConnectedCommChannel	**channel,int32	timeout,bool	&timedout){
+uint16_t	TCPInterface::acceptConnection(ConnectedCommChannel	**channel,int32_t	timeout,bool	&timedout){
 
 	// std::cout<<"> Info: Listening for TCP connection on port " << port << std::endl;
 

@@ -170,8 +170,8 @@ namespace	mBrane{
 			//	Typical use: data compacted dynamically, i.e. whose size is not an integral constant (e.g. that could not parameterize a template), e.g. archives, compressed images, etc.
 			//	Usage sample:
 			//		template<class	U>	class CoreData:public	Message<U,Memory>{...};
-			//		class ACStorage:public CStorage<CoreData<ACStorage,word32> >{...};
-			//		ACStorage	*acs=new(32) ACStorage(); // acs contains an array of 32 word32.
+			//		class ACStorage:public CStorage<CoreData<ACStorage,int32_t> >{...};
+			//		ACStorage	*acs=new(32) ACStorage(); // acs contains an array of 32 int32.
 			//	Do not declare any data in subclasses of CStorage: such subclasses shall only contain logic, e.g. functions to exploit CoreData (if any) and the array of Ts.
 			template<class	S,typename	T>	class	CStorage:
 			public	S{

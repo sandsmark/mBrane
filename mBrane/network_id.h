@@ -110,7 +110,7 @@ namespace	mBrane{
 		NetworkID(uint8_t NID,mBrane::sdk::module::Node::Network	description,uint8_t nameSize,char	*name);
 		~NetworkID();
 		uint8_t 							NID()	const;
-		uint8_t 							setNID(uint8 newNID);
+        uint8_t 							setNID(uint8_t newNID);
 		mBrane::sdk::module::Node::Network	network()	const;
 		char								*name()	const;
 		uint8_t *at(InterfaceType	t)		const;

@@ -117,8 +117,8 @@
 //	Wrapping of OS-dependent functions
 namespace	core{
 
-//	bool core_dll	WaitForSocketReadability(socket s, int32 timeout);
-//	bool core_dll	WaitForSocketWriteability(socket s, int32 timeout);
+    bool core_dll	WaitForSocketReadability(socket s, int32_t timeout);
+    bool core_dll	WaitForSocketWriteability(socket s, int32_t timeout);
 
 	class	core_dll	Error{
 	public:
@@ -162,7 +162,7 @@ namespace	core{
                 static	void	Sleep(int64_t	ms);
 		static	void	Sleep();	//	inifnite
 		virtual	~Thread();
-                void	start(std::function<void(void*)>	f);
+                void	start(thread_function	f);
 		void	suspend();
 		void	resume();
 		void	terminate();
@@ -277,10 +277,10 @@ namespace	core{
                 static	int32_t	Decrement32(int32_t	volatile	*v);									//	return the final value of *v
                 static	int32_t	CompareAndSwap32(int32_t	volatile	*target,int32_t	v1,int32_t	v2);	//	compares *target with v1, if equal, replace it with v2; return the initial value of *target
                 static	int64_t	CompareAndSwap64(int64_t	volatile	*target,int64_t	v1,int64_t	v2);
-//		static	word	CompareAndSwap(word	volatile	*target,word	v1,word	v2);			//	uses the right version according to ARCH_xx
+//		static	int	CompareAndSwap(int	volatile	*target,int	v1,int	v2);			//	uses the right version according to ARCH_xx
                 static	int32_t	Swap32(int32_t	volatile	*target,int32_t	v);							//	writes v at target; return the initial value of *target
                 static	int64_t	Swap64(int64_t	volatile	*target,int64_t	v);							//	ifndef ARCH_64, calls CompareAndSwap64(target,v,v)
-//		static	word	Swap(word	volatile	*target,word	v);								//	uses the right version according to ARCH_xx
+//		static	int	Swap(int	volatile	*target,int	v);								//	uses the right version according to ARCH_xx
 #if defined	ARCH_64
                 static	int64_t	Increment64(int64_t	volatile	*v);
                 static	int64_t	Decrement64(int64_t	volatile	*v);

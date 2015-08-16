@@ -90,30 +90,30 @@ namespace	mBrane{
 			return	Modules;
 		}
 
-		ModuleRegister	*ModuleRegister::Get(uint16	CID){
+		ModuleRegister	*ModuleRegister::Get(uint16_t	CID){
 
 			return	Get()->get(CID);
 		}
 
-		uint16	ModuleRegister::GetCID(const	char	*className){
+		uint16_t	ModuleRegister::GetCID(const	char	*className){
 
-			for(uint16	i=0;i<Modules->count();i++)
+			for(uint16_t	i=0;i<Modules->count();i++)
 				if(strcmp(Modules->get(i)->class_name,className)==0)
 					return	i;
 			return	ClassRegister::NoClass;
 		}
 
-		inline	uint16	ModuleRegister::Count(){
+		inline	uint16_t	ModuleRegister::Count(){
 
-			return	(uint16)Modules->count();
+			return	(uint16_t)Modules->count();
 		}
 
-		uint16	ModuleRegister::Load(ModuleBuilder	b,const	char	*className){
+		uint16_t	ModuleRegister::Load(ModuleBuilder	b,const	char	*className){
 
 			ModuleRegister	*r=&Get()->operator	[](Get()->count());
 			r->_builder=b;
 			strcpy(r->class_name,className);
-			return	(uint16)(Modules->count()-1);
+			return	(uint16_t)(Modules->count()-1);
 		}
 
 		ModuleRegister::ModuleRegister():_builder(NULL){

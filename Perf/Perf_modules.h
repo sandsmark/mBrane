@@ -87,9 +87,9 @@
 
 #include	"RR.h"
 
-int64 startTime = 0;
-int64 endTime = 0;
-int32 runCount = 0;
+int64_t startTime = 0;
+int64_t endTime = 0;
+int32_t runCount = 0;
 
 class	pong;
 MODULE_CLASS_BEGIN(ping,Module<ping>)
@@ -109,14 +109,14 @@ MODULE_CLASS_BEGIN(ping,Module<ping>)
 		NODE->send(this,new Ball(0),N::LOCAL);
 	}
 	void	react(ReturnBall	*p){
-		int32 counter = p->id;
+		int32_t counter = p->id;
 		//OUTPUT<<"Test got to '"<<counter<<"' so far..."<<std::endl;
 		if (counter == 500) {
 			runCount++;
 			if (runCount >= 200) {
 				endTime = Time::Get();
-				uint32 t = (uint32)(endTime-startTime);
-				uint32 c = (uint32)(counter*runCount);
+                                uint32_t t = (uint32_t)(endTime-startTime);
+                                uint32_t c = (uint32_t)(counter*runCount);
 				OUTPUT<<"PingPong test took "<<t<<"us for "<<c<<" msgs, "<<((double)t)/((double)c)<<"us per msg"<<std::endl;
 			}
 			else {

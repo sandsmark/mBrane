@@ -82,7 +82,7 @@
 using	namespace	mBrane;
 using	namespace	mBrane::sdk;
 
-UDPChannel::UDPChannel(core::socket	s,uint32	port):BroadcastCommChannel(),s(s){
+UDPChannel::UDPChannel(core::socket	s,uint32_t	port):BroadcastCommChannel(),s(s){
 
 	bcast_address.sin_family=AF_INET;
 	bcast_address.sin_port=htons((unsigned short)port);
@@ -106,7 +106,7 @@ UDPChannel::~UDPChannel(){
 	udpCS.leave();
 }
 
-bool	UDPChannel::initialiseBuffer(uint32 len) {
+bool	UDPChannel::initialiseBuffer(uint32_t len) {
 	if (len < 128) return false;
 	udpCS.enter();
 	if (buffer != NULL)
@@ -119,7 +119,7 @@ bool	UDPChannel::initialiseBuffer(uint32 len) {
 	return true;
 }
 
-int16	UDPChannel::send(uint8	*b,size_t	s){
+int16_t	UDPChannel::send(uint8_t	*b,size_t	s){
 
 	if(::sendto(this->s,(char	*)b,(int)s,0,(SOCKADDR	*)&bcast_address,sizeof(sockaddr_in))==SOCKET_ERROR)
 		return	1;
@@ -127,7 +127,7 @@ int16	UDPChannel::send(uint8	*b,size_t	s){
 	return	0;
 }
 
-int16	UDPChannel::recv(uint8	*b,size_t	s,bool	peek){
+int16_t	UDPChannel::recv(uint8_t	*b,size_t	s,bool	peek){
 
 	udpCS.enter();
 

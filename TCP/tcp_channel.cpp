@@ -140,7 +140,7 @@ TCPChannel::~TCPChannel(){
 	closesocket(s);
 }
 
-bool	TCPChannel::initialiseBuffer(uint32 len) {
+bool	TCPChannel::initialiseBuffer(uint32_t len) {
 	if (len < 128) return false;
 	tcpCS.enter();
 	if (buffer != NULL)
@@ -153,37 +153,37 @@ bool	TCPChannel::initialiseBuffer(uint32 len) {
 }
 
 
-int16	TCPChannel::send(uint8	*b,size_t	s){
+int16_t	TCPChannel::send(uint8_t	*b,size_t	s){
 
 	setBlockingMode(true);
-//	uint64 t1 = Time::Get();
+//	uint64_t t1 = Time::Get();
 //	PrintBinary(b, s, true, "TCP Sending");
 	if(::send(this->s,(char	*)b,(int)s,0)==SOCKET_ERROR) {
 //		int err = WSAGetLastError();
 		return	1;
 	}
-//	printf("TCP Sent %u bytes...\n", (uint32)s);
+//	printf("TCP Sent %u bytes...\n", (uint32_t)s);
 	WaitForSocketWriteability(this->s, 1000);
 	setBlockingMode(false);
-//	printf("TCP Send %u bytes time: %u [%llu]...\n", s, (uint32) (Time::Get() - t1), Time::Get());
+//	printf("TCP Send %u bytes time: %u [%llu]...\n", s, (uint32_t) (Time::Get() - t1), Time::Get());
 	return	0;
 }
 
-int16	TCPChannel::recv(uint8	*b,size_t	s,bool	peek){
+int16_t	TCPChannel::recv(uint8_t	*b,size_t	s,bool	peek){
 
-	int32 err;
+	int32_t err;
 	tcpCS.enter();
 
 	while (s > bufferLen) {
 		tcpCS.leave();
-		initialiseBuffer((uint32)s * 2);
+		initialiseBuffer((uint32_t)s * 2);
 		tcpCS.enter();
 	}
 
-	uint64 t = Time::Get();
-	uint32 r = 0;
-	uint32 tw = 0;
-	uint32 tc = 0;
+	uint64_t t = Time::Get();
+	uint32_t r = 0;
+	uint32_t tw = 0;
+	uint32_t tc = 0;
 	// Do we have enough data in the buffer already
 	while (bufferPos < s) {
 		// read from the socket
@@ -195,9 +195,9 @@ int16	TCPChannel::recv(uint8	*b,size_t	s,bool	peek){
 		if (count==SOCKET_ERROR) {
 			err = Error::GetLastOSErrorNumber();
 			if ((err == SOCKETWOULDBLOCK) || (err == EAGAIN)) {
-				uint64 t2 = Time::Get();
+				uint64_t t2 = Time::Get();
 				WaitForSocketReadability(this->s, 1000);
-				tw += (uint32)(Time::Get() - t2);
+				tw += (uint32_t)(Time::Get() - t2);
 				tc++;
 			}
 			else {
@@ -229,7 +229,7 @@ int16	TCPChannel::recv(uint8	*b,size_t	s,bool	peek){
 	memcpy(b, buffer, s);
 	if (!peek) {
 		memcpy(buffer, buffer+s, bufferLen - s);
-		bufferPos -= (uint32)s;
+		bufferPos -= (uint32_t)s;
 	}
 	tcpCS.leave();
 //	std::cout<<"Info: Read "<<s<<" bytes from buffer, "<<bufferLen-bufferPos<<" bytes left..."<<std::endl;
@@ -248,7 +248,7 @@ bool	TCPChannel::isConnected() {
 	if (s == INVALID_SOCKET)
 		return false;
 
-	uint16 timeout = 10;
+	uint16_t timeout = 10;
 
 	char peekBuffer[1];
 	// First use the socket a bit
