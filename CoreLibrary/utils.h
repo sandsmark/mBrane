@@ -228,22 +228,6 @@ public:
     bool wait(uint64_t &us, uint32_t timeout = Infinite); // idem; updates the us actually spent.
 };
 
-class core_dll Event
-{
-private:
-#if defined WINDOWS
-    event e;
-#elif defined LINUX
-    // TODO.
-#endif
-public:
-    Event();
-    ~Event();
-    void wait();
-    void fire();
-    void reset();
-};
-
 class core_dll SignalHandler
 {
 public:

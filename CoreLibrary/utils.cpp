@@ -625,53 +625,6 @@ bool Timer::wait(uint64_t &us, uint32_t timeout)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-Event::Event()
-{
-#if defined WINDOWS
-    e = CreateEvent(NULL, true, false, NULL);
-#elif defined LINUX
-    // TODO.
-#endif
-}
-
-Event::~Event()
-{
-#if defined WINDOWS
-    CloseHandle(e);
-#elif defined LINUX
-    // TODO.
-#endif
-}
-
-void Event::wait()
-{
-#if defined WINDOWS
-    WaitForSingleObject(e, INFINITE);
-#elif defined LINUX
-    // TODO.
-#endif
-}
-
-void Event::fire()
-{
-#if defined WINDOWS
-    SetEvent(e);
-#elif defined LINUX
-    // TODO.
-#endif
-}
-
-void Event::reset()
-{
-#if defined WINDOWS
-    ResetEvent(e);
-#elif defined LINUX
-    // TODO.
-#endif
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-
 void SignalHandler::Add(sighandler_t h)
 {
 #if defined WINDOWS
