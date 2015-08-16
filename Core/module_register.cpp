@@ -7,10 +7,10 @@
 *   http://cadia.ru.is
 * Copyright(c)2012
 *
-* This software was developed by the above copyright holder as part of 
-* the HUMANOBS EU research project, in collaboration with the 
+* This software was developed by the above copyright holder as part of
+* the HUMANOBS EU research project, in collaboration with the
 * following parties:
-* 
+*
 * Autonomous Systems Laboratory
 *   Technical University of Madrid, Spain
 *   http://www.aslab.org/
@@ -34,42 +34,42 @@
 *
 * --- HUMANOBS Open-Source BSD License, with CADIA Clause v 1.0 ---
 *
-* Redistribution and use in source and binary forms, with or without 
-* modification, is permitted provided that the following conditions 
+* Redistribution and use in source and binary forms, with or without
+* modification, is permitted provided that the following conditions
 * are met:
 *
-* - Redistributions of source code must retain the above copyright 
-* and collaboration notice, this list of conditions and the 
+* - Redistributions of source code must retain the above copyright
+* and collaboration notice, this list of conditions and the
 * following disclaimer.
 *
-* - Redistributions in binary form must reproduce the above copyright 
+* - Redistributions in binary form must reproduce the above copyright
 * notice, this list of conditions and the following
-* disclaimer in the documentation and/or other materials provided 
+* disclaimer in the documentation and/or other materials provided
 * with the distribution.
 *
-* - Neither the name of its copyright holders nor the names of its 
-* contributors may be used to endorse or promote products 
+* - Neither the name of its copyright holders nor the names of its
+* contributors may be used to endorse or promote products
 * derived from this software without specific prior written permission.
 *
-* - CADIA Clause: The license granted in and to the software under this 
-* agreement is a limited-use license. The software may not be used in 
-* furtherance of: 
-* (i) intentionally causing bodily injury or severe emotional distress 
-* to any person; 
-* (ii) invading the personal privacy or violating the human rights of 
-* any person; or 
+* - CADIA Clause: The license granted in and to the software under this
+* agreement is a limited-use license. The software may not be used in
+* furtherance of:
+* (i) intentionally causing bodily injury or severe emotional distress
+* to any person;
+* (ii) invading the personal privacy or violating the human rights of
+* any person; or
 * (iii) committing or preparing for any act of war.
 *
 * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-* "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
-* LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
-* A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
-* OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
-* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
-* LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
-* THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
-* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+* "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+* LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+* A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+* OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+* LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+* THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
@@ -78,63 +78,71 @@
 #include	"module_register.h"
 
 
-namespace	mBrane{
-	namespace	sdk{
+namespace	mBrane
+{
+namespace	sdk
+{
 
-		Array<ModuleRegister,1024>	*ModuleRegister::Modules=NULL;
+Array<ModuleRegister, 1024>	*ModuleRegister::Modules = NULL;
 
-		Array<ModuleRegister,1024>	*ModuleRegister::Get(){
+Array<ModuleRegister, 1024>	*ModuleRegister::Get()
+{
+    if (!Modules) {
+        Modules = new	Array<ModuleRegister, 1024>();
+    }
 
-			if(!Modules)
-				Modules=new	Array<ModuleRegister,1024>();
-			return	Modules;
-		}
+    return	Modules;
+}
 
-		ModuleRegister	*ModuleRegister::Get(uint16_t	CID){
+ModuleRegister	*ModuleRegister::Get(uint16_t	CID)
+{
+    return	Get()->get(CID);
+}
 
-			return	Get()->get(CID);
-		}
+uint16_t	ModuleRegister::GetCID(const	char	*className)
+{
+    for (uint16_t	i = 0; i < Modules->count(); i++)
+        if (strcmp(Modules->get(i)->class_name, className) == 0) {
+            return	i;
+        }
 
-		uint16_t	ModuleRegister::GetCID(const	char	*className){
+    return	ClassRegister::NoClass;
+}
 
-			for(uint16_t	i=0;i<Modules->count();i++)
-				if(strcmp(Modules->get(i)->class_name,className)==0)
-					return	i;
-			return	ClassRegister::NoClass;
-		}
+inline	uint16_t	ModuleRegister::Count()
+{
+    return	(uint16_t)Modules->count();
+}
 
-		inline	uint16_t	ModuleRegister::Count(){
+uint16_t	ModuleRegister::Load(ModuleBuilder	b, const	char	*className)
+{
+    ModuleRegister	*r = &Get()->operator	[](Get()->count());
+    r->_builder = b;
+    strcpy(r->class_name, className);
+    return	(uint16_t)(Modules->count() - 1);
+}
 
-			return	(uint16_t)Modules->count();
-		}
+ModuleRegister::ModuleRegister(): _builder(NULL)
+{
+}
 
-		uint16_t	ModuleRegister::Load(ModuleBuilder	b,const	char	*className){
+ModuleRegister::~ModuleRegister()
+{
+}
 
-			ModuleRegister	*r=&Get()->operator	[](Get()->count());
-			r->_builder=b;
-			strcpy(r->class_name,className);
-			return	(uint16_t)(Modules->count()-1);
-		}
+module::_Module	*ModuleRegister::buildModule()	const
+{
+    return	_builder();
+}
 
-		ModuleRegister::ModuleRegister():_builder(NULL){
-		}
+const	char	*ModuleRegister::name()	const
+{
+    return	class_name;
+}
 
-		ModuleRegister::~ModuleRegister(){
-		}
-
-		module::_Module	*ModuleRegister::buildModule()	const{
-
-			return	_builder();
-		}
-
-		const	char	*ModuleRegister::name()	const{
-
-			return	class_name;
-		}
-
-		void	ModuleRegister::Cleanup(){
-
-			delete	Modules;
-		}
-	}
+void	ModuleRegister::Cleanup()
+{
+    delete	Modules;
+}
+}
 }

@@ -8,10 +8,10 @@
 //_/_/   http://cadia.ru.is
 //_/_/ Copyright(c)2012
 //_/_/
-//_/_/ This software was developed by the above copyright holder as part of 
-//_/_/ the HUMANOBS EU research project, in collaboration with the 
+//_/_/ This software was developed by the above copyright holder as part of
+//_/_/ the HUMANOBS EU research project, in collaboration with the
 //_/_/ following parties:
-//_/_/ 
+//_/_/
 //_/_/ Autonomous Systems Laboratory
 //_/_/   Technical University of Madrid, Spain
 //_/_/   http://www.aslab.org/
@@ -35,45 +35,45 @@
 //_/_/
 //_/_/ --- HUMANOBS Open-Source BSD License, with CADIA Clause v 1.0 ---
 //_/_/
-//_/_/ Redistribution and use in source and binary forms, with or without 
-//_/_/ modification, is permitted provided that the following conditions 
+//_/_/ Redistribution and use in source and binary forms, with or without
+//_/_/ modification, is permitted provided that the following conditions
 //_/_/ are met:
 //_/_/
-//_/_/ - Redistributions of source code must retain the above copyright 
-//_/_/ and collaboration notice, this list of conditions and the 
+//_/_/ - Redistributions of source code must retain the above copyright
+//_/_/ and collaboration notice, this list of conditions and the
 //_/_/ following disclaimer.
 //_/_/
-//_/_/ - Redistributions in binary form must reproduce the above copyright 
+//_/_/ - Redistributions in binary form must reproduce the above copyright
 //_/_/ notice, this list of conditions and the following
-//_/_/ disclaimer in the documentation and/or other materials provided 
+//_/_/ disclaimer in the documentation and/or other materials provided
 //_/_/ with the distribution.
 //_/_/
-//_/_/ - Neither the name of its copyright holders nor the names of its 
-//_/_/ contributors may be used to endorse or promote products 
+//_/_/ - Neither the name of its copyright holders nor the names of its
+//_/_/ contributors may be used to endorse or promote products
 //_/_/ derived from this software without specific prior written permission.
 //_/_/
-//_/_/ - CADIA Clause: The license granted in and to the software under this 
-//_/_/ agreement is a limited-use license. The software may not be used in 
-//_/_/ furtherance of: 
-//_/_/ (i) intentionally causing bodily injury or severe emotional distress 
-//_/_/ to any person; 
-//_/_/ (ii) invading the personal privacy or violating the human rights of 
-//_/_/ any person; or 
+//_/_/ - CADIA Clause: The license granted in and to the software under this
+//_/_/ agreement is a limited-use license. The software may not be used in
+//_/_/ furtherance of:
+//_/_/ (i) intentionally causing bodily injury or severe emotional distress
+//_/_/ to any person;
+//_/_/ (ii) invading the personal privacy or violating the human rights of
+//_/_/ any person; or
 //_/_/ (iii) committing or preparing for any act of war.
 //_/_/
 //_/_/ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-//_/_/ "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
-//_/_/ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
-//_/_/ A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
-//_/_/ OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
-//_/_/ SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
-//_/_/ LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
-//_/_/ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
-//_/_/ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
-//_/_/ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+//_/_/ "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+//_/_/ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+//_/_/ A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+//_/_/ OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//_/_/ SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+//_/_/ LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+//_/_/ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+//_/_/ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+//_/_/ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 //_/_/ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //_/_/
-//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/  
+//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
 #ifndef	_application_h_
 #define	_application_h_
@@ -96,58 +96,77 @@
 
 
 template<class	U>	class	Module:
-public	mBrane::sdk::Object<Memory,module::_Module,U>{
+    public	mBrane::sdk::Object<Memory, module::_Module, U>
+{
 protected:
-	static	const	uint16_t _CID;
-	Module(bool	canMigrate=true):Object<Memory,module::_Module,U>(){
-		this->_canMigrate=canMigrate;
-	}
+    static	const	uint16_t _CID;
+    Module(bool	canMigrate = true): Object<Memory, module::_Module, U>()
+    {
+        this->_canMigrate = canMigrate;
+    }
 public:
-	static	const	uint16_t CID(){	return	_CID;	}
-	static	module::_Module	*New(){	return	new	U();	}
-	virtual	~Module(){}
-	void	_start(){
-		this->_ready=true;
-		((U	*)this)->start();
-		module::Node::Get()->trace(module::Node::EXECUTION)<<"> Info: Module "<<this->_cid<<"|"<<this->_id<<" started"<<std::endl;
-	}
-	void	_stop(){
-		((U	*)this)->stop();
-		this->_ready=false;
-		module::Node::Get()->trace(module::Node::EXECUTION)<<"> Info: Module "<<this->_cid<<"|"<<this->_id<<" stopped"<<std::endl;
-	}
-	void	notify(_Payload	*p){
-		switch(p->cid()){
-		#undef MBRANE_MESSAGE_CLASS
-		#undef MBRANE_STREAM_DATA_CLASS
-		#define	MBRANE_MESSAGE_CLASS(C)	case	CLASS_ID(C):	((U	*)this)->react((C	*)p);	return;
-		#define	MBRANE_STREAM_DATA_CLASS(C)
-		#include "classes.h"
-		default:	return;
-		}
-	}
-	void	notify(uint16_t sid,_Payload	*p){
-		switch(p->cid()){
-		#undef MBRANE_MESSAGE_CLASS
-		#undef MBRANE_STREAM_DATA_CLASS
-		#define	MBRANE_MESSAGE_CLASS(C)
-		#define	MBRANE_STREAM_DATA_CLASS(C)	case	CLASS_ID(C):	((U	*)this)->react(sid,(C	*)p);	return;
-		#include "classes.h"
-		default:	return;
-		}
-	}
-	module::_Module::Decision	dispatch(_Payload	*p){
-		switch(p->cid()){
-		#undef MBRANE_MESSAGE_CLASS
-		#undef MBRANE_STREAM_DATA_CLASS
-		#define	MBRANE_MESSAGE_CLASS(C)		case	CLASS_ID(C):	return	((U	*)this)->decide((C	*)p);
-		#define	MBRANE_STREAM_DATA_CLASS(C)	case	CLASS_ID(C):	return	((U	*)this)->decide((C	*)p);
-		#include "classes.h"
-		default:	return module::_Module::DISCARD;
-		}
-	}
+    static	const	uint16_t CID()
+    {
+        return	_CID;
+    }
+    static	module::_Module	*New()
+    {
+        return	new	U();
+    }
+    virtual	~Module() {}
+    void	_start()
+    {
+        this->_ready = true;
+        ((U *)this)->start();
+        module::Node::Get()->trace(module::Node::EXECUTION) << "> Info: Module " << this->_cid << "|" << this->_id << " started" << std::endl;
+    }
+    void	_stop()
+    {
+        ((U *)this)->stop();
+        this->_ready = false;
+        module::Node::Get()->trace(module::Node::EXECUTION) << "> Info: Module " << this->_cid << "|" << this->_id << " stopped" << std::endl;
+    }
+    void	notify(_Payload	*p)
+    {
+        switch (p->cid()) {
+#undef MBRANE_MESSAGE_CLASS
+#undef MBRANE_STREAM_DATA_CLASS
+#define	MBRANE_MESSAGE_CLASS(C)	case	CLASS_ID(C):	((U	*)this)->react((C	*)p);	return;
+#define	MBRANE_STREAM_DATA_CLASS(C)
+#include "classes.h"
+
+        default:
+            return;
+        }
+    }
+    void	notify(uint16_t sid, _Payload	*p)
+    {
+        switch (p->cid()) {
+#undef MBRANE_MESSAGE_CLASS
+#undef MBRANE_STREAM_DATA_CLASS
+#define	MBRANE_MESSAGE_CLASS(C)
+#define	MBRANE_STREAM_DATA_CLASS(C)	case	CLASS_ID(C):	((U	*)this)->react(sid,(C	*)p);	return;
+#include "classes.h"
+
+        default:
+            return;
+        }
+    }
+    module::_Module::Decision	dispatch(_Payload	*p)
+    {
+        switch (p->cid()) {
+#undef MBRANE_MESSAGE_CLASS
+#undef MBRANE_STREAM_DATA_CLASS
+#define	MBRANE_MESSAGE_CLASS(C)		case	CLASS_ID(C):	return	((U	*)this)->decide((C	*)p);
+#define	MBRANE_STREAM_DATA_CLASS(C)	case	CLASS_ID(C):	return	((U	*)this)->decide((C	*)p);
+#include "classes.h"
+
+        default:
+            return module::_Module::DISCARD;
+        }
+    }
 };
-template<class	U>	const	uint16_t Module<U>::_CID=ModuleRegister::Load(New,U::ClassName);
+template<class	U>	const	uint16_t Module<U>::_CID = ModuleRegister::Load(New, U::ClassName);
 
 //	to use in user module cpp files; forces the intitialization of Module<U>::_CID
 #define	LOAD_MODULE(C)	static	uint16_t cid_##C=C::CID();
@@ -163,7 +182,7 @@ template<class	U>	const	uint16_t Module<U>::_CID=ModuleRegister::Load(New,U::Cla
 #define	MBRANE_MESSAGE_CLASS(C)		static	const	uint16_t C##_name=ClassRegister::Load(#C);
 #define	MBRANE_STREAM_DATA_CLASS(C)	static	const	uint16_t C##_name=ClassRegister::Load(#C);
 #ifndef	LIBRARY_CLASSES
-	#include	MBRANE_MESSAGE_CLASSES
+#include	MBRANE_MESSAGE_CLASSES
 #endif
 #include	APPLICATION_CLASSES
 

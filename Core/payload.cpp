@@ -7,10 +7,10 @@
 *   http://cadia.ru.is
 * Copyright(c)2012
 *
-* This software was developed by the above copyright holder as part of 
-* the HUMANOBS EU research project, in collaboration with the 
+* This software was developed by the above copyright holder as part of
+* the HUMANOBS EU research project, in collaboration with the
 * following parties:
-* 
+*
 * Autonomous Systems Laboratory
 *   Technical University of Madrid, Spain
 *   http://www.aslab.org/
@@ -34,42 +34,42 @@
 *
 * --- HUMANOBS Open-Source BSD License, with CADIA Clause v 1.0 ---
 *
-* Redistribution and use in source and binary forms, with or without 
-* modification, is permitted provided that the following conditions 
+* Redistribution and use in source and binary forms, with or without
+* modification, is permitted provided that the following conditions
 * are met:
 *
-* - Redistributions of source code must retain the above copyright 
-* and collaboration notice, this list of conditions and the 
+* - Redistributions of source code must retain the above copyright
+* and collaboration notice, this list of conditions and the
 * following disclaimer.
 *
-* - Redistributions in binary form must reproduce the above copyright 
+* - Redistributions in binary form must reproduce the above copyright
 * notice, this list of conditions and the following
-* disclaimer in the documentation and/or other materials provided 
+* disclaimer in the documentation and/or other materials provided
 * with the distribution.
 *
-* - Neither the name of its copyright holders nor the names of its 
-* contributors may be used to endorse or promote products 
+* - Neither the name of its copyright holders nor the names of its
+* contributors may be used to endorse or promote products
 * derived from this software without specific prior written permission.
 *
-* - CADIA Clause: The license granted in and to the software under this 
-* agreement is a limited-use license. The software may not be used in 
-* furtherance of: 
-* (i) intentionally causing bodily injury or severe emotional distress 
-* to any person; 
-* (ii) invading the personal privacy or violating the human rights of 
-* any person; or 
+* - CADIA Clause: The license granted in and to the software under this
+* agreement is a limited-use license. The software may not be used in
+* furtherance of:
+* (i) intentionally causing bodily injury or severe emotional distress
+* to any person;
+* (ii) invading the personal privacy or violating the human rights of
+* any person; or
 * (iii) committing or preparing for any act of war.
 *
 * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-* "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
-* LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
-* A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
-* OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
-* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
-* LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
-* THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
-* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+* "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+* LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+* A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+* OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+* LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+* THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
@@ -77,125 +77,135 @@
 #include	"payload.h"
 
 
-namespace	mBrane{
-	namespace	sdk{
+namespace	mBrane
+{
+namespace	sdk
+{
 
-		__Payload::__Payload(){
-		}
+__Payload::__Payload()
+{
+}
 
-		__Payload::~__Payload(){
-		}
+__Payload::~__Payload()
+{
+}
 
-		void	__Payload::init(){
-		}
+void	__Payload::init()
+{
+}
 
-		uint16_t	__Payload::ptrCount()	const{
+uint16_t	__Payload::ptrCount()	const
+{
+    return	0;
+}
 
-			return	0;
-		}
+__Payload	*__Payload::getPtr(uint16_t	i)	const
+{
+    return	NULL;
+}
 
-		__Payload	*__Payload::getPtr(uint16_t	i)	const{
+void	__Payload::setPtr(uint16_t	i, __Payload	*p)
+{
+}
 
-			return	NULL;
-		}
+bool	__Payload::isShared()	const
+{
+    return	false;
+}
 
-		void	__Payload::setPtr(uint16_t	i,__Payload	*p){
-		}
+bool	__Payload::isConstant()	const
+{
+    return	false;
+}
 
-		bool	__Payload::isShared()	const{
+////////////////////////////////////////////////////////////////////////////////////
 
-			return	false;
-		}
+uint32_t	_Payload::LastConstantOID = 0;
+uint32_t	_Payload::LastSharedOID = 0;
 
-		bool	__Payload::isConstant()	const{
+_Payload::_Payload(): __Payload()
+{
+}
 
-			return	false;
-		}
+_Payload::~_Payload()
+{
+}
 
-		////////////////////////////////////////////////////////////////////////////////////
+_Payload::Category	_Payload::category()	const
+{
+    return	(_Payload::Category)(_metaData	&	0x0000000000000003);
+}
 
-		uint32_t	_Payload::LastConstantOID=0;
-		uint32_t	_Payload::LastSharedOID=0;
+uint64_t	&_Payload::node_send_ts()
+{
+    return	_node_send_ts;
+}
 
-		_Payload::_Payload():__Payload(){
-		}
+uint64_t	&_Payload::node_recv_ts()
+{
+    return	_node_recv_ts;
+}
 
-		_Payload::~_Payload(){
-		}
+uint64_t	&_Payload::send_ts()
+{
+    return	_send_ts;
+}
 
-		_Payload::Category	_Payload::category()	const{
+uint64_t	&_Payload::recv_ts()
+{
+    return	_recv_ts;
+}
 
-			return	(_Payload::Category)(_metaData	&	0x0000000000000003);
-		}
+payloads::_Message	*_Payload::as_Message()
+{
+    return	NULL;
+}
 
-		uint64_t	&_Payload::node_send_ts(){
+payloads::_StreamData	*_Payload::as_StreamData()
+{
+    return	NULL;
+}
 
-			return	_node_send_ts;
-		}
+void	_Payload::setOID(uint8_t	NID)
+{
+    uint64_t	oid = NID	&	0x7F;
+    oid <<= 24;
+    oid |= LastSharedOID++;
+    _metaData &= 0x00000000FFFFFFFF;
+    _metaData |= (oid << 32);
+}
 
-		uint64_t	&_Payload::node_recv_ts(){
+void	_Payload::setOID()
+{
+    uint64_t	oid = 0x80000000;
+    oid |= LastConstantOID++;
+    _metaData &= 0x00000000FFFFFFFF;
+    _metaData |= (oid << 32);
+}
 
-			return	_node_recv_ts;
-		}
+uint32_t	_Payload::getOID()	const
+{
+    return	_metaData >> 32;
+}
 
-		uint64_t	&_Payload::send_ts(){
+uint32_t	_Payload::getID()	const
+{
+    return	(_metaData >> 32)	&	0x00FFFFFF;
+}
 
-			return	_send_ts;
-		}
-				
-		uint64_t	&_Payload::recv_ts(){
+uint8_t	_Payload::getNID()	const
+{
+    return	_metaData >> 56;
+}
 
-			return	_recv_ts;
-		}
+////////////////////////////////////////////////////////////////////////////////////
 
-		payloads::_Message	*_Payload::as_Message(){
+_RPayload::_RPayload(): __Payload()
+{
+}
 
-			return	NULL;
-		}
-
-		payloads::_StreamData	*_Payload::as_StreamData(){
-
-			return	NULL;
-		}
-
-		void	_Payload::setOID(uint8_t	NID){
-
-			uint64_t	oid=NID	&	0x7F;
-			oid<<=24;
-			oid|=LastSharedOID++;
-			_metaData&=0x00000000FFFFFFFF;
-			_metaData|=(oid<<32);
-		}
-
-		void	_Payload::setOID(){
-
-			uint64_t	oid=0x80000000;
-			oid|=LastConstantOID++;
-			_metaData&=0x00000000FFFFFFFF;
-			_metaData|=(oid<<32);
-		}
-
-		uint32_t	_Payload::getOID()	const{
-
-			return	_metaData>>32;
-		}
-
-		uint32_t	_Payload::getID()	const{
-
-			return	(_metaData>>32)	&	0x00FFFFFF;
-		}
-
-		uint8_t	_Payload::getNID()	const{
-
-			return	_metaData>>56;
-		}
-
-		////////////////////////////////////////////////////////////////////////////////////
-
-		_RPayload::_RPayload():__Payload(){
-		}
-
-		_RPayload::~_RPayload(){
-		}
-	}
+_RPayload::~_RPayload()
+{
+}
+}
 }
