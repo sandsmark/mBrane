@@ -74,6 +74,8 @@
  */
 
 #include "utils.h"
+#include <thread>
+#include <chrono>
 
 #if defined WINDOWS
 #include <intrin.h>
@@ -230,143 +232,6 @@ SharedLibrary *SharedLibrary::load(const char *fileName)
     free(libraryName);
 #endif
     return this;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-
-void Thread::TerminateAndWait(Thread **threads, uint32_t threadCount)
-{
-    if (!threads) {
-        return;
-    }
-
-    for (uint32_t i = 0; i < threadCount; i++) {
-        threads[i]->terminate();
-        Thread::Wait(threads[i]);
-    }
-}
-
-void Thread::TerminateAndWait(Thread *_thread)
-{
-    if (!_thread) {
-        return;
-    }
-
-    _thread->terminate();
-    Thread::Wait(_thread);
-}
-
-void Thread::Wait(Thread **threads, uint32_t threadCount)
-{
-    if (!threads) {
-        return;
-    }
-
-#if defined WINDOWS
-
-    for (uint32_t i = 0; i < threadCount; i++) {
-        WaitForSingleObject(threads[i]->_thread, INFINITE);
-    }
-
-#elif defined LINUX
-
-    for (uint32_t i = 0; i < threadCount; i++) {
-        pthread_join(threads[i]->_thread, NULL);
-    }
-
-#endif
-}
-
-void Thread::Wait(Thread *_thread)
-{
-    if (!_thread) {
-        return;
-    }
-
-#if defined WINDOWS
-    WaitForSingleObject(_thread->_thread, INFINITE);
-#elif defined LINUX
-    pthread_join(_thread->_thread, NULL);
-#endif
-}
-
-void Thread::Sleep(int64_t ms)
-{
-#if defined WINDOWS
-    ::Sleep((uint32_t)ms);
-#elif defined LINUX
-    // we are actually being passed millisecond, so multiply up
-    usleep(ms * 1000);
-#endif
-}
-
-void Thread::Sleep()
-{
-#if defined WINDOWS
-    ::Sleep(INFINITE);
-#elif defined LINUX
-
-    while (true) {
-        sleep(1000);
-    }
-
-#endif
-}
-
-Thread::Thread(): is_meaningful(false)
-{
-    _thread = NULL;
-}
-
-Thread::~Thread()
-{
-#if defined WINDOWS
-
-// ExitThread(0);
-    if (is_meaningful) {
-        CloseHandle(_thread);
-    }
-
-#elif defined LINUX
-// delete(_thread);
-#endif
-}
-
-void Thread::start(thread_function f)
-{
-#if defined WINDOWS
-    _thread = CreateThread(NULL, 65536, f, this, 0, NULL); // 64KB: minimum initial stack size
-#elif defined LINUX
-    pthread_create(&_thread, NULL, f, this);
-#endif
-    is_meaningful = true;
-}
-
-void Thread::suspend()
-{
-#if defined WINDOWS
-    SuspendThread(_thread);
-#elif defined LINUX
-    pthread_kill(_thread, SIGSTOP);
-#endif
-}
-
-void Thread::resume()
-{
-#if defined WINDOWS
-    ResumeThread(_thread);
-#elif defined LINUX
-    pthread_kill(_thread, SIGCONT);
-#endif
-}
-
-void Thread::terminate()
-{
-#if defined WINDOWS
-    TerminateThread(_thread, 0);
-#elif defined LINUX
-    pthread_cancel(_thread);
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -635,7 +500,7 @@ bool Mutex::acquire(uint32_t timeout)
     int64_t uTimeout = timeout * 1000;
 
     while (pthread_mutex_trylock(&m) != 0) {
-        Thread::Sleep(10);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         if (Time::Get() - start >= uTimeout) {
             return false;

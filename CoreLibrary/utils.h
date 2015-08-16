@@ -150,28 +150,6 @@ public:
     template<typename T> T getFunction(const char *functionName);
 };
 
-class core_dll Thread
-{
-private:
-    thread _thread;
-    bool is_meaningful;
-protected:
-    Thread();
-public:
-    template<class T> static T *New(thread_function f, void *args);
-    static void TerminateAndWait(Thread **threads, uint32_t threadCount);
-    static void TerminateAndWait(Thread *_thread);
-    static void Wait(Thread **threads, uint32_t threadCount);
-    static void Wait(Thread *_thread);
-    static void Sleep(int64_t ms);
-    static void Sleep(); // inifnite
-    virtual ~Thread();
-    void start(thread_function f);
-    void suspend();
-    void resume();
-    void terminate();
-};
-
 class core_dll TimeProbe  // requires Time::Init()
 {
 private:

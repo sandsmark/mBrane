@@ -105,18 +105,4 @@ namespace core
 */
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-/* template<class T> T *Thread::New(thread_function f,void *args){
-
- T *t=new T();
-#if defined WINDOWS
- if(t->_thread=CreateThread(NULL,0,f,args,0,NULL))
-#elif defined LINUX
- if (pthread_create(&t->_thread, NULL, f, args) == 0)
-#endif
- return t;
- delete t;
- return NULL;
- }
-
-        */
 }
